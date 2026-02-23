@@ -1,0 +1,94 @@
+/* Custom Hyper-Modern Animations */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(-2deg);
+    }
+
+    50% {
+        transform: translateY(-20px) rotate(1deg);
+    }
+}
+
+@keyframes reveal-up {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes gradient-flow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-reveal {
+    animation: reveal-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient-flow 15s ease infinite;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1.5rem;
+}
+
+/* Staggered reveals for children */
+.reveal-delay-1 {
+    animation-delay: 100ms;
+}
+
+.reveal-delay-2 {
+    animation-delay: 200ms;
+}
+
+.reveal-delay-3 {
+    animation-delay: 300ms;
+}
+
+.reveal-delay-4 {
+    animation-delay: 400ms;
+}
+
+.reveal-delay-5 {
+    animation-delay: 500ms;
+}

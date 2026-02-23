@@ -1,3 +1,114 @@
-<div class="frontoffice-layout">
-    <router-outlet></router-outlet>
+<div class="min-h-screen bg-[#f8fafc] text-slate-900 selection:bg-blue-600 selection:text-white flex flex-col">
+
+    <!-- Global Frontoffice Navbar -->
+    <nav
+        class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-5xl bg-white/70 backdrop-blur-xl rounded-2xl px-6 py-4 flex items-center justify-between border border-white/30 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]">
+        <div class="flex items-center space-x-3 cursor-pointer" routerLink="/">
+            <div
+                class="w-8 h-8 bg-[#135bec] rounded-lg flex items-center justify-center rotate-3 shadow-lg shadow-blue-200">
+                <span class="material-symbols-outlined text-white text-xl">dataset</span>
+            </div>
+            <span class="text-xl font-black tracking-tighter uppercase italic">FIN<span
+                    class="text-[#135bec]">IX</span></span>
+        </div>
+
+        <!-- Desktop Menu -->
+        <div
+            class="hidden md:flex items-center space-x-8 text-[11px] font-black uppercase tracking-[0.1em] text-slate-500">
+            <a href="#" class="hover:text-[#135bec] transition-colors">Solutions</a>
+            <a href="#" class="hover:text-[#135bec] transition-colors">Ecosystem</a>
+            <a href="#" class="hover:text-[#135bec] transition-colors">Security</a>
+            <a href="#" class="hover:text-[#135bec] transition-colors">About</a>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <button
+                class="hidden sm:block text-[11px] font-black uppercase tracking-widest text-[#135bec] hover:opacity-70 transition-opacity">Login</button>
+            <button
+                class="group relative px-6 py-2.5 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest rounded-xl overflow-hidden shadow-xl shadow-slate-200">
+                <span class="relative z-10 font-[700]">Get Started</span>
+                <div
+                    class="absolute inset-0 bg-[#135bec] translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                </div>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow">
+        <router-outlet></router-outlet>
+    </main>
+
+    <!-- Global Frontoffice Footer -->
+    <footer class="bg-white border-t border-slate-100 py-20 px-4 md:px-8 mt-auto">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
+                <!-- Brand -->
+                <div class="col-span-1 md:col-span-1 space-y-6">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-[#135bec] rounded-lg flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-xl">dataset</span>
+                        </div>
+                        <span class="text-xl font-black tracking-tighter uppercase italic">FIN<span
+                                class="text-[#135bec]">IX</span></span>
+                    </div>
+                    <p class="text-xs text-slate-500 font-bold leading-relaxed">
+                        Revolutionizing financial inclusion through modular, secure, and transparent fintech
+                        orchestration. Built for the future of emerging markets.
+                    </p>
+                </div>
+
+                <!-- Links -->
+                <div class="space-y-4">
+                    <h6 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900">Platform</h6>
+                    <ul class="space-y-3 text-xs text-slate-400 font-bold">
+                        <li><a href="#" class="hover:text-[#135bec] transition-colors">Micro-Credit Engine</a></li>
+                        <li><a href="#" class="hover:text-[#135bec] transition-colors">Digital Insurance</a></li>
+                        <li><a href="#" class="hover:text-[#135bec] transition-colors">Wallet & Ledger</a></li>
+                        <li><a href="#" class="hover:text-[#135bec] transition-colors">API Documentation</a></li>
+                    </ul>
+                </div>
+
+                <div class="space-y-4">
+                    <h6 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900">Ecosystem</h6>
+                    <ul class="space-y-3 text-xs text-slate-400 font-bold">
+                        <li><a href="#" class="hover:text-[#135bec] transition-colors">Agent Network</a></li>
+                        <li><a href="#" class="hover:text-[#135bec] transition-colors">Merchant Hub</a></li>
+                        <li><a href="#" class="hover:text-[#135bec] transition-colors">Security Audit</a></li>
+                        <li><a href="#" class="hover:text-[#135bec] transition-colors">Compliance</a></li>
+                    </ul>
+                </div>
+
+                <div class="space-y-4">
+                    <h6 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900">Connect</h6>
+                    <div class="flex space-x-4">
+                        <div
+                            class="w-8 h-8 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100 hover:border-blue-200 transition-colors pointer-events-none">
+                            <span class="material-symbols-outlined text-slate-400 text-[18px]">share</span>
+                        </div>
+                        <div
+                            class="w-8 h-8 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100 hover:border-blue-200 transition-colors pointer-events-none">
+                            <span class="material-symbols-outlined text-slate-400 text-[18px]">public</span>
+                        </div>
+                        <div
+                            class="w-8 h-8 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100 hover:border-blue-200 transition-colors pointer-events-none">
+                            <span class="material-symbols-outlined text-slate-400 text-[18px]">alternate_email</span>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-bold mt-4 uppercase tracking-widest">Global Support: 24/7
+                    </p>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-[10px] text-slate-300 font-black uppercase tracking-[0.1em]">© 2026 FINIX ECOSYSTEM. ALL
+                    RIGHTS RESERVED.</p>
+                <div class="flex space-x-8 text-[9px] font-black uppercase tracking-widest text-slate-300">
+                    <a href="#" class="hover:text-[#135bec] transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-[#135bec] transition-colors">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
 </div>

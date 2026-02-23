@@ -8,13 +8,13 @@ const routes: Routes = [
     path: '',
     component: Frontoffice,
     children: [
-
+      { path: '', loadChildren: () => import('./features/landing-page/landing-page-module').then(m => m.LandingPageModule) }
     ]
   }, {
     path: 'admin',
     component: Backoffice,
     children: [
-      { path: 'dashboard', component: Dashboard }
+      { path: 'dashboard', loadChildren: () =>import('./features/dashboard/dashboard.module').then(m => m.DashboardModule) }
     ]
   }
 ];
