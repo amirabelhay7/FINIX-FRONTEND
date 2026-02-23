@@ -1,14 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { LandingPage } from './landing-page';
-
-const routes: Routes = [
-  { path: 'home', component: LandingPage }
-];
+const routes: Routes = [];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class LandingPageRoutingModule { }
+export class AuthRoutingModule { }
