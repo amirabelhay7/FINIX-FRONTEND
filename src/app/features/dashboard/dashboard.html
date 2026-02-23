@@ -1,0 +1,339 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+    <!-- Dashboard Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Global Command Center</h1>
+            <p class="text-gray-500 text-sm font-medium">Holistic ecosystem performance across all 11 FINIX modules.</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <div
+                class="hidden lg:flex items-center bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm text-xs space-x-4">
+                <div class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span> Backend:
+                    Online</div>
+                <div class="flex items-center border-l pl-4 border-gray-100"><span
+                        class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> Ledger: Syncing</div>
+            </div>
+            <button
+                class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center">
+                <span class="material-symbols-outlined mr-2 text-[18px]">history</span>
+                System Logs
+            </button>
+        </div>
+    </div>
+
+    <!-- Row 1: High-Level Strategic KPIs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Steering/Wallet: Net Liquidity -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Net Platform Liquidity</p>
+            <h3 class="text-2xl font-black text-gray-800">$14,520,300.00</h3>
+            <div class="flex items-center justify-between mt-4">
+                <div class="flex flex-col">
+                    <span class="text-[10px] text-gray-400 font-medium">Inflow (24h)</span>
+                    <span class="text-xs font-bold text-green-600">+$142k</span>
+                </div>
+                <div class="flex flex-col text-right">
+                    <span class="text-[10px] text-gray-400 font-medium">Outflow (24h)</span>
+                    <span class="text-xs font-bold text-red-600">-$98k</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Credit/User: Global Growth -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Portfolio Growth</p>
+            <h3 class="text-2xl font-black text-gray-800">+18.4%</h3>
+            <div class="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-[#135bec] rounded-full" style="width: 75%"></div>
+            </div>
+            <p class="text-[10px] text-gray-400 mt-2 font-medium">Target: 25.0% by EOQ</p>
+        </div>
+
+        <!-- Insurance: Risk Exposure -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Insurance Exposure</p>
+            <h3 class="text-2xl font-black text-gray-800">$4.2M</h3>
+            <div class="flex items-center mt-4 space-x-2">
+                <span
+                    class="px-2 py-0.5 bg-yellow-50 text-yellow-700 text-[10px] font-bold rounded border border-yellow-100">MODERATE
+                    RISK</span>
+                <span class="text-[10px] text-gray-400 font-medium">Claims: 1.2%</span>
+            </div>
+        </div>
+
+        <!-- User/Login: DAU / Active Sessions -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">System Load</p>
+            <h3 class="text-2xl font-black text-gray-800">4,812 <span
+                    class="text-sm font-normal text-gray-400">active</span></h3>
+            <div class="flex items-center mt-4">
+                <div class="flex -space-x-2">
+                    <img src="https://ui-avatars.com/api/?name=A&background=random"
+                        class="w-6 h-6 rounded-full border-2 border-white" alt="Avatar" />
+                    <img src="https://ui-avatars.com/api/?name=B&background=random"
+                        class="w-6 h-6 rounded-full border-2 border-white" alt="Avatar" />
+                    <img src="https://ui-avatars.com/api/?name=C&background=random"
+                        class="w-6 h-6 rounded-full border-2 border-white" alt="Avatar" />
+                </div>
+                <span class="text-[10px] text-[#135bec] font-bold ml-3">+24 logins/min</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2: Credit vs Insurance vs Marketing -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Lending Hub (Credit Module) -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+            <div class="flex items-center justify-between mb-6">
+                <h4 class="font-bold text-gray-800 flex items-center">
+                    <span class="material-symbols-outlined mr-2 text-blue-500">payments</span>
+                    Lending Desk
+                </h4>
+                <span class="text-[10px] text-gray-400 font-bold uppercase">Today</span>
+            </div>
+            <div class="space-y-4 flex-grow">
+                <div class="p-3 bg-gray-50 rounded-xl">
+                    <div class="flex justify-between text-xs mb-1 font-semibold">
+                        <span class="text-gray-600">Personal Loans</span>
+                        <span class="text-gray-800">42%</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-blue-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500" style="width: 42%"></div>
+                    </div>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-xl">
+                    <div class="flex justify-between text-xs mb-1 font-semibold">
+                        <span class="text-gray-600">Agri-Finance</span>
+                        <span class="text-gray-800">35%</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-green-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-green-500" style="width: 35%"></div>
+                    </div>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-xl">
+                    <div class="flex justify-between text-xs mb-1 font-semibold">
+                        <span class="text-gray-600">Business SME</span>
+                        <span class="text-gray-800">23%</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-purple-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-purple-500" style="width: 23%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 pt-4 border-t border-gray-50 flex items-center justify-between">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Decision Rate</span>
+                <span class="text-xs font-bold text-[#135bec]">82/100 apps approved</span>
+            </div>
+        </div>
+
+        <!-- Insurance Performance (Insurance Module) -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+            <div class="flex items-center justify-between mb-6">
+                <h4 class="font-bold text-gray-800 flex items-center">
+                    <span class="material-symbols-outlined mr-2 text-green-500">shield</span>
+                    Insurance Desk
+                </h4>
+                <span class="px-2 py-0.5 bg-green-50 text-green-600 text-[10px] font-bold rounded">Active</span>
+            </div>
+            <div class="flex flex-col items-center justify-center flex-grow py-4">
+                <div class="relative w-32 h-32">
+                    <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90">
+                        <circle cx="18" cy="18" r="16" fill="transparent" stroke="#f3f4f6" stroke-width="4"></circle>
+                        <circle cx="18" cy="18" r="16" fill="transparent" stroke="#10b981" stroke-width="4"
+                            stroke-dasharray="85 100"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span class="text-2xl font-bold text-gray-800">12%</span>
+                        <span class="text-[9px] text-gray-400 uppercase font-bold">Payout Ratio</span>
+                    </div>
+                </div>
+                <div class="mt-6 w-full space-y-2">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-gray-500 italic">Top Product:</span>
+                        <span class="font-bold text-gray-800">Motor-Micro🛡️</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-gray-500 italic">Claims (24h):</span>
+                        <span class="font-bold text-red-500">14 pending</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marketing & Growth (Marketing Module) -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+            <div class="flex items-center justify-between mb-6">
+                <h4 class="font-bold text-gray-800 flex items-center">
+                    <span class="material-symbols-outlined mr-2 text-purple-500">bolt</span>
+                    Engagement Hub
+                </h4>
+                <span class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Marketing</span>
+            </div>
+            <div class="space-y-5 flex-grow">
+                <div class="flex items-start space-x-3">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs shrink-0">
+                        B</div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-800 leading-none">Spring Micro-Credit Blitz</p>
+                        <p class="text-[10px] text-gray-400 mt-1">Budget: $12,000 / $15,000 spent</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-600 font-bold text-xs shrink-0">
+                        R</div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-800 leading-none">Referral Champions Q1</p>
+                        <p class="text-[10px] text-gray-400 mt-1">Users: +1,240 converted</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-600 font-bold text-xs shrink-0">
+                        W</div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-800 leading-none">Wallet Adoption Drive</p>
+                        <p class="text-[10px] text-gray-400 mt-1">Conversion: 14.2% ROI</p>
+                    </div>
+                </div>
+            </div>
+            <button
+                class="mt-6 w-full py-2 bg-gray-50 text-gray-600 text-xs font-bold rounded-lg hover:bg-gray-100 transition-colors">Campaign
+                Manager</button>
+        </div>
+    </div>
+
+    <!-- Row 3: Wallet Transactions (Ledger Control) -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50 flex items-center justify-between">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-orange-500">receipt_long</span>
+                Wallet Transaction Ledger
+            </h4>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center text-[10px] font-bold text-gray-400">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-1.5"></span> DEPOSITS
+                </div>
+                <div class="flex items-center text-[10px] font-bold text-gray-400">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-1.5"></span> REPAYMENTS
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-gray-50/50 text-gray-400 text-[10px] uppercase font-bold tracking-widest">
+                        <th class="px-6 py-4">TX REF</th>
+                        <th class="px-6 py-4">Client</th>
+                        <th class="px-6 py-4">Type</th>
+                        <th class="px-6 py-4">Amount</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4 text-right">Time</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 text-sm font-medium">
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-[10px] text-gray-400">#TXN-992144</td>
+                        <td class="px-6 py-4 text-gray-800 font-bold">Amadou Kone</td>
+                        <td class="px-6 py-4"><span
+                                class="px-2 py-0.5 bg-green-50 text-green-700 text-[10px] rounded border border-green-100 italic">DEPOSIT</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-900">$1,450.00</td>
+                        <td class="px-6 py-4"><span class="text-green-500 flex items-center"><span
+                                    class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span> Success</span></td>
+                        <td class="px-6 py-4 text-right text-gray-400 text-xs tracking-tight">2 mins ago</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-[10px] text-gray-400">#TXN-992145</td>
+                        <td class="px-6 py-4 text-gray-800 font-bold">Sarah Sidibe</td>
+                        <td class="px-6 py-4"><span
+                                class="px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] rounded border border-blue-100 italic">REPAYMENT</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-900">$45.00</td>
+                        <td class="px-6 py-4"><span class="text-blue-500 flex items-center"><span
+                                    class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span> Success</span></td>
+                        <td class="px-6 py-4 text-right text-gray-400 text-xs tracking-tight">14 mins ago</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Row 4: Security & Risk Heatmap (User/Repayment) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <!-- Security Logs (HistoryLogin Module) -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <div class="flex items-center justify-between mb-6">
+                <h4 class="font-bold text-gray-800 flex items-center">
+                    <span class="material-symbols-outlined mr-2 text-red-500">lock_open</span>
+                    Security Watch
+                </h4>
+                <div class="flex space-x-1">
+                    <div class="w-1.5 h-1.5 bg-red-400 rounded-full animate-ping"></div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-3 bg-red-50/30 rounded-xl border border-red-50">
+                    <div class="flex items-center">
+                        <span class="material-symbols-outlined text-red-400 text-[20px] mr-3">devices</span>
+                        <div>
+                            <p class="text-xs font-bold text-gray-800">Unusual Login Attempt</p>
+                            <p class="text-[10px] text-gray-400">IP: 192.168.1.102 | Device: iPhone 14</p>
+                        </div>
+                    </div>
+                    <button class="text-[10px] font-black text-red-600 uppercase">Block</button>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-gray-50/50 rounded-xl">
+                    <div class="flex items-center">
+                        <span class="material-symbols-outlined text-gray-400 text-[20px] mr-3">verified</span>
+                        <div>
+                            <p class="text-xs font-bold text-gray-800 text-opacity-80">KYC Verification Required</p>
+                            <p class="text-[10px] text-gray-400">User: #4201 (Pending Document Scan)</p>
+                        </div>
+                    </div>
+                    <button class="text-[10px] font-black text-[#135bec] uppercase">Approve</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collection Performance (Repayment Module) -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <div class="flex items-center justify-between mb-6">
+                <h4 class="font-bold text-gray-800 flex items-center">
+                    <span class="material-symbols-outlined mr-2 text-yellow-500">gavel</span>
+                    Recovery & Collections
+                </h4>
+                <span class="text-xs font-bold text-red-500">4 Critical Cases</span>
+            </div>
+            <div class="h-32 w-full flex items-end justify-between space-x-1">
+                <div class="flex-1 bg-green-100 rounded-t-lg relative group h-[80%]">
+                    <div
+                        class="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-bold text-gray-400 hidden group-hover:block whitespace-nowrap">
+                        80% Repaid</div>
+                </div>
+                <div class="flex-1 bg-green-200 rounded-t-lg relative group h-[85%]"></div>
+                <div class="flex-1 bg-green-300 rounded-t-lg relative group h-[90%]"></div>
+                <div class="flex-1 bg-green-400 rounded-t-lg relative group h-[70%]"></div>
+                <div class="flex-1 bg-yellow-400 rounded-t-lg relative group h-[40%]">
+                    <div
+                        class="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-bold text-orange-400 hidden group-hover:block whitespace-nowrap">
+                        ARREARS HIT</div>
+                </div>
+                <div class="flex-1 bg-[#135bec] rounded-t-lg relative group h-[95%]"></div>
+                <div class="flex-1 bg-red-400 rounded-t-lg relative group h-[20%]">
+                    <div
+                        class="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-bold text-red-500 hidden group-hover:block whitespace-nowrap">
+                        4 LOSS CASES</div>
+                </div>
+            </div>
+            <div class="flex justify-between mt-4 text-[9px] font-bold text-gray-400 uppercase tracking-tighter">
+                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span
+                    class="text-orange-500">Fri</span><span>Sat</span><span class="text-red-500">Sun</span>
+            </div>
+        </div>
+
+    </div>
+</div>

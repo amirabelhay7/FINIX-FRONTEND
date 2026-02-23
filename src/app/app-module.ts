@@ -3,10 +3,14 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
+import { Backoffice } from './layout/backoffice/backoffice';
+import { Frontoffice } from './layout/frontoffice/frontoffice';
 
 @NgModule({
   declarations: [
-    App
+    App,
+    Backoffice,
+    Frontoffice,
   ],
   imports: [
     BrowserModule,

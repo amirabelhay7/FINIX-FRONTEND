@@ -1,10 +1,22 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-
+import { Frontoffice } from './layout/frontoffice/frontoffice';
+import { Backoffice } from './layout/backoffice/backoffice';
+import { Dashboard } from './features/dashboard/dashboard';
 const routes: Routes = [
-  { path: '', redirectTo: 'front-office', pathMatch: 'full' },
-  // { path: 'front-office', component: FrontOfficeTemplateComponent },
-  // { path: 'back-office', component: BackOfficeTemplateComponent },
+  {
+    path: '',
+    component: Frontoffice,
+    children: [
+
+    ]
+  }, {
+    path: 'admin',
+    component: Backoffice,
+    children: [
+      { path: 'dashboard', component: Dashboard }
+    ]
+  }
 ];
 
 @NgModule({
