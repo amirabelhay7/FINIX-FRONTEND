@@ -1,21 +1,21 @@
 <div class="space-y-8 pb-10 max-w-2xl">
     <div class="flex items-center gap-4">
-        <a routerLink="/score/tutorials" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <a [routerLink]="backRoute" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Upload your CIN</h1>
-            <p class="text-gray-500 text-sm font-medium">Tutorial — 25 points · EASY · 5 min</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
-        <p class="text-gray-600">Complete this tutorial to earn 25 score points. Upload a clear photo of your CIN (both sides).</p>
+        <p class="text-gray-600">{{ descriptionText }}</p>
         <div class="flex gap-4">
             <button type="button" class="inline-flex items-center px-6 py-2.5 bg-[#135bec] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all">
-                <span class="material-symbols-outlined mr-2 text-[18px]">play_circle</span>Start tutorial
+                <span class="material-symbols-outlined mr-2 text-[18px]">play_circle</span>{{ startLabel }}
             </button>
-            <button type="button" class="inline-flex items-center px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all" disabled>Mark complete</button>
+            <button type="button" class="inline-flex items-center px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all" disabled>{{ markCompleteLabel }}</button>
         </div>
-        <a routerLink="/score/tutorials" class="inline-block text-[#135bec] font-bold hover:underline">Back to tutorials</a>
+        <a [routerLink]="backRoute" class="inline-block text-[#135bec] font-bold hover:underline">{{ backLabel }}</a>
     </div>
 </div>

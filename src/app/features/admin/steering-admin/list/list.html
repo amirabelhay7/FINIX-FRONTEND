@@ -1,20 +1,10 @@
 <div class="space-y-8 pb-10">
-    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Steering</h1>
-    <p class="text-gray-500 text-sm font-medium">Treasury, cash movements, indicators, simulations.</p>
+    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+    <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <a routerLink="/admin/steering/treasury" class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all">
-            <span class="material-symbols-outlined text-[#135bec] text-[28px] mr-4">account_balance</span>
-            <div><p class="font-bold text-gray-800">Treasury</p><p class="text-xs text-gray-500">Accounts &amp; movements</p></div>
-            <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
-        </a>
-        <a routerLink="/admin/steering/indicators" class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all">
-            <span class="material-symbols-outlined text-green-600 text-[28px] mr-4">analytics</span>
-            <div><p class="font-bold text-gray-800">Indicators</p><p class="text-xs text-gray-500">KPIs</p></div>
-            <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
-        </a>
-        <a routerLink="/admin/steering/simulations" class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all">
-            <span class="material-symbols-outlined text-purple-600 text-[28px] mr-4">calculate</span>
-            <div><p class="font-bold text-gray-800">Simulations</p><p class="text-xs text-gray-500">Scenarios</p></div>
+        <a *ngFor="let card of cards" [routerLink]="card.route" class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all">
+            <span class="material-symbols-outlined text-[28px] mr-4" [ngClass]="card.iconColorClass || 'text-[#135bec]'">{{ card.icon }}</span>
+            <div><p class="font-bold text-gray-800">{{ card.title }}</p><p class="text-xs text-gray-500">{{ card.subtitle }}</p></div>
             <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
         </a>
     </div>

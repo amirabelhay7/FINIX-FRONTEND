@@ -1,22 +1,22 @@
 <div class="space-y-8 pb-10 max-w-2xl">
     <div class="flex items-center gap-4">
-        <a routerLink="/admin/wallet/transactions" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+        <a [routerLink]="vm.backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Transaction TXN-992144</h1>
-            <p class="text-gray-500 text-sm font-medium">Deposit · Completed</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ vm.pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ vm.pageSubtitle }}</p>
         </div>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            <div><dt class="text-gray-500">ID</dt><dd class="font-bold text-gray-800 font-mono">101</dd></div>
-            <div><dt class="text-gray-500">Reference</dt><dd class="font-bold text-gray-800 font-mono">TXN-992144</dd></div>
-            <div><dt class="text-gray-500">Type</dt><dd class="font-bold text-gray-800">DEPOSIT</dd></div>
-            <div><dt class="text-gray-500">Amount</dt><dd class="font-bold text-green-600">+1,450.00 DT</dd></div>
-            <div><dt class="text-gray-500">Status</dt><dd class="font-bold"><span class="px-2 py-0.5 rounded text-xs bg-green-50 text-green-700">Completed</span></dd></div>
-            <div><dt class="text-gray-500">Date</dt><dd class="font-bold text-gray-800">2025-02-24 10:32:15</dd></div>
-            <div class="sm:col-span-2"><dt class="text-gray-500">Description</dt><dd class="font-bold text-gray-800">Wallet top-up via agent</dd></div>
+            <div *ngFor="let field of vm.fields" [ngClass]="field.label === 'Description' ? 'sm:col-span-2' : ''">
+                <dt class="text-gray-500">{{ field.label }}</dt>
+                <dd class="font-bold text-gray-800">
+                    <span *ngIf="field.isBadge" [ngClass]="field.valueClass">{{ field.value }}</span>
+                    <span *ngIf="!field.isBadge" [ngClass]="field.valueClass">{{ field.value }}</span>
+                </dd>
+            </div>
         </dl>
     </div>
 </div>

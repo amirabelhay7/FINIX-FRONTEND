@@ -14,64 +14,34 @@
             <span class="text-2xl font-bold text-white tracking-tighter">FINIX</span>
         </div>
 
-        <!-- Steps Visual -->
+        <!-- Steps Visual (VM: stepsCopy) -->
         <div class="relative z-10 space-y-8">
-            <p class="text-[10px] text-blue-200 uppercase tracking-widest font-black">Quick 3-step onboarding</p>
+            <p class="text-[10px] text-blue-200 uppercase tracking-widest font-black">{{ onboardingLabel }}</p>
             <div class="space-y-6">
-                <!-- Step 1 -->
-                <div class="flex items-start space-x-4" [class.opacity-100]="currentStep >= 1"
-                    [class.opacity-40]="currentStep < 1">
+                <div *ngFor="let step of stepsCopy; let i = index" class="flex items-start space-x-4"
+                    [class.opacity-100]="currentStep >= i + 1" [class.opacity-40]="currentStep < i + 1">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg"
-                        [class.bg-white]="currentStep >= 1" [class.bg-white/20]="currentStep < 1">
-                        <span class="material-symbols-outlined text-[18px]" [class.text-[#135bec]]="currentStep >= 1"
-                            [class.text-white]="currentStep < 1">person</span>
+                        [class.bg-white]="currentStep >= i + 1" [class.bg-white/20]="currentStep < i + 1">
+                        <span class="material-symbols-outlined text-[18px]" [class.text-[#135bec]]="currentStep >= i + 1"
+                            [class.text-white]="currentStep < i + 1">{{ step.icon }}</span>
                     </div>
                     <div>
-                        <p class="text-white font-black">Personal Information</p>
-                        <p class="text-blue-200 text-xs font-medium">Name, contact & identity details</p>
-                    </div>
-                </div>
-                <!-- Step 2 -->
-                <div class="flex items-start space-x-4" [class.opacity-100]="currentStep >= 2"
-                    [class.opacity-40]="currentStep < 2">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg"
-                        [class.bg-white]="currentStep >= 2" [class.bg-white/20]="currentStep < 2">
-                        <span class="material-symbols-outlined text-[18px]" [class.text-[#135bec]]="currentStep >= 2"
-                            [class.text-white]="currentStep < 2">badge</span>
-                    </div>
-                    <div>
-                        <p class="text-white font-black">Choose Your Role</p>
-                        <p class="text-blue-200 text-xs font-medium">Client, Agent, Seller, or Insurer</p>
-                    </div>
-                </div>
-                <!-- Step 3 -->
-                <div class="flex items-start space-x-4" [class.opacity-100]="currentStep >= 3"
-                    [class.opacity-40]="currentStep < 3">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg"
-                        [class.bg-white]="currentStep >= 3" [class.bg-white/20]="currentStep < 3">
-                        <span class="material-symbols-outlined text-[18px]" [class.text-[#135bec]]="currentStep >= 3"
-                            [class.text-white]="currentStep < 3">tune</span>
-                    </div>
-                    <div>
-                        <p class="text-white font-black">Role-Specific Details</p>
-                        <p class="text-blue-200 text-xs font-medium">Your professional info & credentials</p>
+                        <p class="text-white font-black">{{ step.title }}</p>
+                        <p class="text-blue-200 text-xs font-medium">{{ step.subtitle }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Testimonial -->
+        <!-- Bottom Testimonial (VM) -->
         <div class="relative z-10 bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-sm">
-            <p class="text-white font-medium text-sm leading-relaxed italic">
-                "FINIX gave my family access to credit we never thought was possible. The process was transparent and
-                fast."
-            </p>
+            <p class="text-white font-medium text-sm leading-relaxed italic">{{ testimonialText }}</p>
             <div class="flex items-center space-x-3 mt-4">
                 <img src="https://ui-avatars.com/api/?name=Amadou+K&background=135bec&color=fff"
                     class="w-8 h-8 rounded-full border-2 border-white/30" alt="User" />
                 <div>
-                    <p class="text-white text-xs font-bold">Amadou K.</p>
-                    <p class="text-blue-200 text-[10px] font-medium">Gold Tier Client — Dakar</p>
+                    <p class="text-white text-xs font-bold">{{ testimonialAuthor }}</p>
+                    <p class="text-blue-200 text-[10px] font-medium">{{ testimonialSubtitle }}</p>
                 </div>
             </div>
         </div>
@@ -81,13 +51,13 @@
     <div class="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16 bg-gray-50">
         <div class="w-full max-w-md">
 
-            <!-- Header -->
+            <!-- Header (VM) -->
             <div class="mb-8">
-                <p class="text-xs font-black text-[#135bec] uppercase tracking-widest mb-3">Create Account</p>
-                <h2 class="text-3xl font-black text-gray-900 tracking-tight">Join the FINIX<br />ecosystem</h2>
+                <p class="text-xs font-black text-[#135bec] uppercase tracking-widest mb-3">{{ createAccountLabel }}</p>
+                <h2 class="text-3xl font-black text-gray-900 tracking-tight">{{ joinTitle }}<br />{{ joinTitleBreak }}</h2>
                 <p class="text-gray-400 text-sm font-medium mt-3">
-                    Already have an account?
-                    <a routerLink="/auth/login" class="text-[#135bec] font-bold hover:underline">Sign in</a>
+                    {{ alreadyHaveAccount }}
+                    <a routerLink="/auth/login" class="text-[#135bec] font-bold hover:underline">{{ signInLabel }}</a>
                 </p>
             </div>
 
@@ -193,86 +163,28 @@
                 </button>
             </div>
 
-            <!-- ===================== STEP 2: Role Selection ===================== -->
+            <!-- ===================== STEP 2: Role Selection (VM: roleOptions) ===================== -->
             <div *ngIf="currentStep === 2" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-5">
                 <p class="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-4">
-                    Step 2 — Choose Your Role
+                    {{ step2Title }}
                 </p>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <!-- CLIENT -->
-                    <div (click)="selectRole('CLIENT')"
+                    <div *ngFor="let role of roleOptions" (click)="selectRole(role.value)"
                         class="cursor-pointer p-6 rounded-2xl border-2 transition-all group"
-                        [class.border-[#135bec]]="selectedRole === 'CLIENT'"
-                        [class.bg-blue-50]="selectedRole === 'CLIENT'"
-                        [class.border-gray-200]="selectedRole !== 'CLIENT'"
-                        [class.hover:border-gray-300]="selectedRole !== 'CLIENT'">
+                        [class.border-[#135bec]]="selectedRole === role.value"
+                        [class.bg-blue-50]="selectedRole === role.value"
+                        [class.border-gray-200]="selectedRole !== role.value"
+                        [class.hover:border-gray-300]="selectedRole !== role.value">
                         <div class="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
-                            [class.bg-[#135bec]]="selectedRole === 'CLIENT'"
-                            [class.bg-gray-100]="selectedRole !== 'CLIENT'">
+                            [class.bg-[#135bec]]="selectedRole === role.value"
+                            [class.bg-gray-100]="selectedRole !== role.value">
                             <span class="material-symbols-outlined text-2xl"
-                                [class.text-white]="selectedRole === 'CLIENT'"
-                                [class.text-gray-500]="selectedRole !== 'CLIENT'">person</span>
+                                [class.text-white]="selectedRole === role.value"
+                                [class.text-gray-500]="selectedRole !== role.value">{{ role.icon }}</span>
                         </div>
-                        <p class="font-black text-gray-900">Client</p>
-                        <p class="text-xs text-gray-400 font-medium mt-1 leading-relaxed">Apply for credit, insurance &
-                            manage your wallet</p>
-                    </div>
-
-                    <!-- AGENT -->
-                    <div (click)="selectRole('AGENT')"
-                        class="cursor-pointer p-6 rounded-2xl border-2 transition-all group"
-                        [class.border-[#135bec]]="selectedRole === 'AGENT'"
-                        [class.bg-blue-50]="selectedRole === 'AGENT'" [class.border-gray-200]="selectedRole !== 'AGENT'"
-                        [class.hover:border-gray-300]="selectedRole !== 'AGENT'">
-                        <div class="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
-                            [class.bg-[#135bec]]="selectedRole === 'AGENT'"
-                            [class.bg-gray-100]="selectedRole !== 'AGENT'">
-                            <span class="material-symbols-outlined text-2xl"
-                                [class.text-white]="selectedRole === 'AGENT'"
-                                [class.text-gray-500]="selectedRole !== 'AGENT'">support_agent</span>
-                        </div>
-                        <p class="font-black text-gray-900">Agent</p>
-                        <p class="text-xs text-gray-400 font-medium mt-1 leading-relaxed">Review loan applications &
-                            manage your region</p>
-                    </div>
-
-                    <!-- SELLER -->
-                    <div (click)="selectRole('SELLER')"
-                        class="cursor-pointer p-6 rounded-2xl border-2 transition-all group"
-                        [class.border-[#135bec]]="selectedRole === 'SELLER'"
-                        [class.bg-blue-50]="selectedRole === 'SELLER'"
-                        [class.border-gray-200]="selectedRole !== 'SELLER'"
-                        [class.hover:border-gray-300]="selectedRole !== 'SELLER'">
-                        <div class="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
-                            [class.bg-[#135bec]]="selectedRole === 'SELLER'"
-                            [class.bg-gray-100]="selectedRole !== 'SELLER'">
-                            <span class="material-symbols-outlined text-2xl"
-                                [class.text-white]="selectedRole === 'SELLER'"
-                                [class.text-gray-500]="selectedRole !== 'SELLER'">storefront</span>
-                        </div>
-                        <p class="font-black text-gray-900">Seller</p>
-                        <p class="text-xs text-gray-400 font-medium mt-1 leading-relaxed">Launch campaigns & track
-                            marketing performance</p>
-                    </div>
-
-                    <!-- INSURER -->
-                    <div (click)="selectRole('INSURER')"
-                        class="cursor-pointer p-6 rounded-2xl border-2 transition-all group"
-                        [class.border-[#135bec]]="selectedRole === 'INSURER'"
-                        [class.bg-blue-50]="selectedRole === 'INSURER'"
-                        [class.border-gray-200]="selectedRole !== 'INSURER'"
-                        [class.hover:border-gray-300]="selectedRole !== 'INSURER'">
-                        <div class="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
-                            [class.bg-[#135bec]]="selectedRole === 'INSURER'"
-                            [class.bg-gray-100]="selectedRole !== 'INSURER'">
-                            <span class="material-symbols-outlined text-2xl"
-                                [class.text-white]="selectedRole === 'INSURER'"
-                                [class.text-gray-500]="selectedRole !== 'INSURER'">shield</span>
-                        </div>
-                        <p class="font-black text-gray-900">Insurer</p>
-                        <p class="text-xs text-gray-400 font-medium mt-1 leading-relaxed">Publish products & process
-                            insurance claims</p>
+                        <p class="font-black text-gray-900">{{ role.title }}</p>
+                        <p class="text-xs text-gray-400 font-medium mt-1 leading-relaxed">{{ role.description }}</p>
                     </div>
                 </div>
 

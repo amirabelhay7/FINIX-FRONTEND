@@ -5,59 +5,29 @@
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Application Status</h1>
-            <p class="text-gray-500 text-sm font-medium">Vehicle credit · Request #REQ-2025-008</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
     </div>
 
-    <!-- Pipeline -->
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-gray-50">
-            <h4 class="font-bold text-gray-800">Where you are</h4>
+            <h4 class="font-bold text-gray-800">{{ pipelineTitle }}</h4>
         </div>
         <div class="p-6 space-y-0">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-green-600 text-[20px]">check_circle</span>
+            <ng-container *ngFor="let step of steps; let i = index">
+                <div class="flex items-center gap-4" [ngClass]="step.isDone || step.isActive ? '' : 'opacity-60'">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" [ngClass]="step.iconBgClass">
+                        <span class="material-symbols-outlined text-[20px]" [ngClass]="step.iconColorClass">{{ step.icon }}</span>
+                    </div>
+                    <div class="flex-1 py-3">
+                        <p class="text-gray-800" [ngClass]="(step.isDone || step.isActive) ? 'font-bold' : 'font-medium text-gray-600'">{{ step.title }}</p>
+                        <p class="text-xs" [ngClass]="step.isActive ? 'text-amber-700' : 'text-gray-500'">{{ step.subtitle }}</p>
+                    </div>
+                    <a *ngIf="step.linkRoute" [routerLink]="step.linkRoute" class="text-xs font-bold text-[#135bec] hover:underline">{{ step.linkLabel }}</a>
                 </div>
-                <div class="flex-1 py-3"><p class="font-bold text-gray-800">Applied</p><p class="text-xs text-gray-500">Jan 10, 2025</p></div>
-            </div>
-            <div class="w-px h-4 bg-gray-200 ml-5"></div>
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-green-600 text-[20px]">check_circle</span>
-                </div>
-                <div class="flex-1 py-3"><p class="font-bold text-gray-800">Preliminarily approved</p><p class="text-xs text-gray-500">You were notified · Jan 12, 2025</p></div>
-            </div>
-            <div class="w-px h-4 bg-gray-200 ml-5"></div>
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-amber-600 text-[20px]">person_search</span>
-                </div>
-                <div class="flex-1 py-3"><p class="font-bold text-gray-800">Agent verification</p><p class="text-xs text-amber-700">Visit an agent with your ID to complete</p></div>
-                <a routerLink="/wallet/agent-top-up" class="text-xs font-bold text-[#135bec] hover:underline">Find agent</a>
-            </div>
-            <div class="w-px h-4 bg-gray-200 ml-5"></div>
-            <div class="flex items-center gap-4 opacity-60">
-                <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-gray-400 text-[20px]">payments</span>
-                </div>
-                <div class="flex-1 py-3"><p class="font-medium text-gray-600">Down payment</p><p class="text-xs text-gray-400">Pay from wallet after verification</p></div>
-            </div>
-            <div class="w-px h-4 bg-gray-200 ml-5"></div>
-            <div class="flex items-center gap-4 opacity-60">
-                <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-gray-400 text-[20px]">handshake</span>
-                </div>
-                <div class="flex-1 py-3"><p class="font-medium text-gray-600">Seller contacted</p><p class="text-xs text-gray-400">Transfer of ownership outside app</p></div>
-            </div>
-            <div class="w-px h-4 bg-gray-200 ml-5"></div>
-            <div class="flex items-center gap-4 opacity-60">
-                <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-gray-400 text-[20px]">description</span>
-                </div>
-                <div class="flex-1 py-3"><p class="font-medium text-gray-600">Contract uploaded</p><p class="text-xs text-gray-400">Vehicle is IMF property until paid</p></div>
-            </div>
+                <div *ngIf="i < steps.length - 1" class="w-px h-4 bg-gray-200 ml-5"></div>
+            </ng-container>
         </div>
     </div>
 

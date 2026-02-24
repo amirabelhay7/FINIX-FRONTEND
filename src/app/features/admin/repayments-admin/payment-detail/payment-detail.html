@@ -1,28 +1,28 @@
 <div class="space-y-8 pb-10 max-w-2xl">
     <div class="flex items-center gap-4">
-        <a routerLink="/admin/repayments/payments" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <a [routerLink]="vm.backRoute" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Payment details</h1>
-            <p class="text-gray-500 text-sm font-medium">Payment #1 — method, amount, status, linked delinquency/recovery.</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ vm.pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ vm.pageSubtitle }}</p>
         </div>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><p class="text-xs font-bold text-gray-500 uppercase">ID</p><p class="font-mono text-gray-800">1</p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Payment method</p><p class="text-gray-800">WALLET</p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Amount paid</p><p class="font-bold text-[#135bec]">500.00 TND</p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Remaining amount</p><p class="text-gray-800">1,500.00 TND</p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Payment date</p><p class="text-gray-800">2025-02-20 14:30</p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Status</p><p><span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">COMPLETED</span></p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">ID</p><p class="font-mono text-gray-800">{{ vm.id }}</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">Payment method</p><p class="text-gray-800">{{ vm.method }}</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">Amount paid</p><p class="font-bold text-[#135bec]">{{ vm.amountPaid }}</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">Remaining amount</p><p class="text-gray-800">{{ vm.remainingAmount }}</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">Payment date</p><p class="text-gray-800">{{ vm.paymentDate }}</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">Status</p><p><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="vm.statusClass">{{ vm.status }}</span></p></div>
         </div>
         <div class="border-t border-gray-100 pt-4">
             <h3 class="font-bold text-gray-800 mb-2">Linked entities</h3>
-            <p class="text-sm text-gray-500">Delinquency case: — | Recovery action: —</p>
+            <p class="text-sm text-gray-500">Delinquency case: {{ vm.linkedDelinquency }} | Recovery action: {{ vm.linkedRecovery }}</p>
         </div>
         <div class="flex gap-4">
-            <a routerLink="/admin/repayments/payments" class="px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">Back to list</a>
+            <a [routerLink]="vm.backToListRoute" class="px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">{{ vm.backToListLabel }}</a>
         </div>
     </div>
 </div>

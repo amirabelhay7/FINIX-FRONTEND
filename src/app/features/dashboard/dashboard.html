@@ -2,21 +2,20 @@
     <!-- Dashboard Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Global Command Center</h1>
-            <p class="text-gray-500 text-sm font-medium">Holistic ecosystem performance across all 11 FINIX modules.</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
         <div class="flex items-center space-x-3">
             <div
                 class="hidden lg:flex items-center bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm text-xs space-x-4">
-                <div class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span> Backend:
-                    Online</div>
+                <div class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span> {{ backendStatusLabel }}</div>
                 <div class="flex items-center border-l pl-4 border-gray-100"><span
-                        class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> Ledger: Syncing</div>
+                        class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> {{ ledgerStatusLabel }}</div>
             </div>
-            <button
+            <button type="button"
                 class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center">
                 <span class="material-symbols-outlined mr-2 text-[18px]">history</span>
-                System Logs
+                {{ systemLogsLabel }}
             </button>
         </div>
     </div>
@@ -26,15 +25,15 @@
         <!-- Steering/Wallet: Net Liquidity -->
         <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
             <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Net Platform Liquidity</p>
-            <h3 class="text-2xl font-black text-gray-800">$14,520,300.00</h3>
+            <h3 class="text-2xl font-black text-gray-800">42.8M TND</h3>
             <div class="flex items-center justify-between mt-4">
                 <div class="flex flex-col">
                     <span class="text-[10px] text-gray-400 font-medium">Inflow (24h)</span>
-                    <span class="text-xs font-bold text-green-600">+$142k</span>
+                    <span class="text-xs font-bold text-green-600">+428k TND</span>
                 </div>
                 <div class="flex flex-col text-right">
                     <span class="text-[10px] text-gray-400 font-medium">Outflow (24h)</span>
-                    <span class="text-xs font-bold text-red-600">-$98k</span>
+                    <span class="text-xs font-bold text-red-600">-296k TND</span>
                 </div>
             </div>
         </div>
@@ -52,7 +51,7 @@
         <!-- Insurance: Risk Exposure -->
         <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
             <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Insurance Exposure</p>
-            <h3 class="text-2xl font-black text-gray-800">$4.2M</h3>
+            <h3 class="text-2xl font-black text-gray-800">12.4M TND</h3>
             <div class="flex items-center mt-4 space-x-2">
                 <span
                     class="px-2 py-0.5 bg-yellow-50 text-yellow-700 text-[10px] font-bold rounded border border-yellow-100">MODERATE
@@ -177,7 +176,7 @@
                         B</div>
                     <div>
                         <p class="text-xs font-bold text-gray-800 leading-none">Spring Micro-Credit Blitz</p>
-                        <p class="text-[10px] text-gray-400 mt-1">Budget: $12,000 / $15,000 spent</p>
+                        <p class="text-[10px] text-gray-400 mt-1">Budget: 36,000 TND / 45,000 TND spent</p>
                     </div>
                 </div>
                 <div class="flex items-start space-x-3">
@@ -240,7 +239,7 @@
                         <td class="px-6 py-4"><span
                                 class="px-2 py-0.5 bg-green-50 text-green-700 text-[10px] rounded border border-green-100 italic">DEPOSIT</span>
                         </td>
-                        <td class="px-6 py-4 text-gray-900">$1,450.00</td>
+                        <td class="px-6 py-4 text-gray-900">4,350 TND</td>
                         <td class="px-6 py-4"><span class="text-green-500 flex items-center"><span
                                     class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span> Success</span></td>
                         <td class="px-6 py-4 text-right text-gray-400 text-xs tracking-tight">2 mins ago</td>
@@ -251,7 +250,7 @@
                         <td class="px-6 py-4"><span
                                 class="px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] rounded border border-blue-100 italic">REPAYMENT</span>
                         </td>
-                        <td class="px-6 py-4 text-gray-900">$45.00</td>
+                        <td class="px-6 py-4 text-gray-900">445.20 TND</td>
                         <td class="px-6 py-4"><span class="text-blue-500 flex items-center"><span
                                     class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span> Success</span></td>
                         <td class="px-6 py-4 text-right text-gray-400 text-xs tracking-tight">14 mins ago</td>

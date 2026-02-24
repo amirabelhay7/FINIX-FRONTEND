@@ -1,8 +1,8 @@
 <div class="space-y-8 pb-10">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Loan contracts</h1>
-            <p class="text-gray-500 text-sm font-medium">Active and closed loan contracts.</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
         <a routerLink="/admin/credit" class="inline-flex items-center px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all">
             <span class="material-symbols-outlined mr-2 text-[18px]">arrow_back</span>Back
@@ -13,7 +13,7 @@
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 border-b border-gray-100">
                     <tr>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Contract #</th>
                         <th class="text-left py-4 px-6 font-bold text-gray-600">Client</th>
                         <th class="text-left py-4 px-6 font-bold text-gray-600">Principal</th>
                         <th class="text-left py-4 px-6 font-bold text-gray-600">Status</th>
@@ -21,13 +21,13 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">1</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">Amadou Kone</td>
-                        <td class="py-4 px-6 font-bold text-[#135bec]">5,000 TND</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">ACTIVE</span></td>
+                    <tr class="hover:bg-gray-50 transition-colors" *ngFor="let contract of contracts">
+                        <td class="py-4 px-6 font-mono text-gray-500">{{ contract.contractNumber }}</td>
+                        <td class="py-4 px-6 font-bold text-gray-800">{{ contract.clientName }}</td>
+                        <td class="py-4 px-6 font-bold" [ngClass]="contract.status === 'CLOSED' ? 'text-gray-600' : 'text-[#135bec]'">{{ contract.principal }}</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="contract.statusClass">{{ contract.status }}</span></td>
                         <td class="py-4 px-6 text-right">
-                            <button type="button" class="text-[#135bec] font-bold hover:underline">View</button>
+                            <button type="button" class="text-[#135bec] font-bold hover:underline" (click)="onViewContract(contract)">View</button>
                         </td>
                     </tr>
                 </tbody>

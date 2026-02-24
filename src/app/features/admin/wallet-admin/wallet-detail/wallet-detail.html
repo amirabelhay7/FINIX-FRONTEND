@@ -1,47 +1,40 @@
 <div class="space-y-8 pb-10">
     <div class="flex items-center gap-4">
-        <a routerLink="/admin/wallet/wallets" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+        <a [routerLink]="vm.backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <div class="flex-1">
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Wallet FINIX-****4292</h1>
-            <p class="text-gray-500 text-sm font-medium">amadou.kone&#64;email.com</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ vm.pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ vm.pageSubtitle }}</p>
         </div>
-        <span class="px-3 py-1.5 rounded-lg text-xs font-bold bg-green-50 text-green-700">Active</span>
+        <span class="px-3 py-1.5 rounded-lg text-xs font-bold" [ngClass]="vm.statusClass">{{ vm.status }}</span>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Balance</p>
-            <p class="text-2xl font-black text-gray-900 mt-1">2,840.50 DT</p>
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ vm.balanceLabel }}</p>
+            <p class="text-2xl font-black text-gray-900 mt-1">{{ vm.balance }}</p>
         </div>
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Currency</p>
-            <p class="text-xl font-bold text-gray-800 mt-1">DT</p>
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ vm.currencyLabel }}</p>
+            <p class="text-xl font-bold text-gray-800 mt-1">{{ vm.currency }}</p>
         </div>
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Account number</p>
-            <p class="text-lg font-mono font-bold text-gray-800 mt-1">FINIX-****4292</p>
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ vm.accountLabel }}</p>
+            <p class="text-lg font-mono font-bold text-gray-800 mt-1">{{ vm.accountNumber }}</p>
         </div>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="p-4 border-b border-gray-50 flex items-center justify-between">
-            <h4 class="font-bold text-gray-800">Recent transactions</h4>
-            <a routerLink="/admin/wallet/transactions" class="text-sm font-bold text-[#135bec] hover:underline">View all</a>
+            <h4 class="font-bold text-gray-800">{{ vm.recentTitle }}</h4>
+            <a [routerLink]="vm.viewAllRoute" class="text-sm font-bold text-[#135bec] hover:underline">{{ vm.viewAllLabel }}</a>
         </div>
         <div class="divide-y divide-gray-50">
-            <a routerLink="/admin/wallet/transactions/101" class="flex items-center px-6 py-4 hover:bg-gray-50">
-                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
-                    <span class="material-symbols-outlined text-green-600 text-[18px]">south_east</span>
+            <a *ngFor="let tx of vm.recentTransactions" [routerLink]="tx.route" class="flex items-center px-6 py-4 hover:bg-gray-50">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center mr-4 shrink-0" [ngClass]="tx.iconBgClass">
+                    <span class="material-symbols-outlined text-[18px]" [ngClass]="tx.iconColorClass">{{ tx.icon }}</span>
                 </div>
-                <div class="flex-1"><p class="text-sm font-bold text-gray-800">Deposit</p><p class="text-xs text-gray-500">TXN-992144 · 2 mins ago</p></div>
-                <span class="text-sm font-black text-green-600">+1,450.00 DT</span>
-            </a>
-            <a routerLink="/admin/wallet/transactions/102" class="flex items-center px-6 py-4 hover:bg-gray-50">
-                <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
-                    <span class="material-symbols-outlined text-[#135bec] text-[18px]">swap_horiz</span>
-                </div>
-                <div class="flex-1"><p class="text-sm font-bold text-gray-800">Transfer</p><p class="text-xs text-gray-500">TXN-992145 · 14 mins ago</p></div>
-                <span class="text-sm font-black text-red-500">-200.00 DT</span>
+                <div class="flex-1"><p class="text-sm font-bold text-gray-800">{{ tx.title }}</p><p class="text-xs text-gray-500">{{ tx.subtitle }}</p></div>
+                <span class="text-sm font-black" [ngClass]="tx.amountClass">{{ tx.amount }}</span>
             </a>
         </div>
     </div>

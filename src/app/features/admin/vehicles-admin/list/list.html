@@ -1,15 +1,10 @@
 <div class="space-y-8 pb-10">
-    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Vehicles admin</h1>
-    <p class="text-gray-500 text-sm font-medium">Vehicle credit: vehicles, deliveries, documents.</p>
+    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+    <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <a routerLink="/admin/vehicles/vehicles" class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all">
-            <span class="material-symbols-outlined text-[#135bec] text-[28px] mr-4">directions_car</span>
-            <div><p class="font-bold text-gray-800">Vehicles</p><p class="text-xs text-gray-500">Financed vehicles</p></div>
-            <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
-        </a>
-        <a routerLink="/admin/vehicles/deliveries" class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all">
-            <span class="material-symbols-outlined text-green-600 text-[28px] mr-4">local_shipping</span>
-            <div><p class="font-bold text-gray-800">Deliveries</p><p class="text-xs text-gray-500">Delivery tracking</p></div>
+        <a *ngFor="let card of cards" [routerLink]="card.route" class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all">
+            <span class="material-symbols-outlined text-[28px] mr-4" [ngClass]="card.iconColorClass || 'text-[#135bec]'">{{ card.icon }}</span>
+            <div><p class="font-bold text-gray-800">{{ card.title }}</p><p class="text-xs text-gray-500">{{ card.subtitle }}</p></div>
             <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
         </a>
     </div>

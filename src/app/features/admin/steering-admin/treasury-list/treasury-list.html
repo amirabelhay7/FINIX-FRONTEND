@@ -1,8 +1,8 @@
 <div class="space-y-8 pb-10">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Treasury</h1>
-            <p class="text-gray-500 text-sm font-medium">Treasury accounts and cash movements.</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
         <a routerLink="/admin/steering" class="inline-flex items-center px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all">Back</a>
     </div>
@@ -18,12 +18,12 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">1</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">Main operations</td>
-                        <td class="py-4 px-6 font-bold text-[#135bec]">125,000 TND</td>
+                    <tr class="hover:bg-gray-50 transition-colors" *ngFor="let row of rows">
+                        <td class="py-4 px-6 font-mono text-gray-500">{{ row.id }}</td>
+                        <td class="py-4 px-6 font-bold text-gray-800">{{ row.account }}</td>
+                        <td class="py-4 px-6 font-bold text-[#135bec]">{{ row.balance }}</td>
                         <td class="py-4 px-6 text-right">
-                            <button type="button" class="text-[#135bec] font-bold hover:underline">View</button>
+                            <button type="button" class="text-[#135bec] font-bold hover:underline" (click)="onView(row)">View</button>
                         </td>
                     </tr>
                 </tbody>

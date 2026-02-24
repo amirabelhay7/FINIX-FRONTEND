@@ -1,35 +1,49 @@
 <div class="space-y-8 pb-10">
     <div>
-        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Agent Dashboard</h1>
-        <p class="text-gray-500 text-sm font-medium">Your activity and today's tasks.</p>
+        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+        <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Top-ups today</p>
-            <p class="text-2xl font-black text-gray-900 mt-1">12</p>
+            <p class="text-2xl font-black text-gray-900 mt-1">{{ kpis.topUpsToday }}</p>
         </div>
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Verifications pending</p>
-            <p class="text-2xl font-black text-[#135bec] mt-1">3</p>
+            <p class="text-2xl font-black text-[#135bec] mt-1">{{ kpis.verificationsPending }}</p>
         </div>
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Commission (month)</p>
-            <p class="text-2xl font-black text-green-600 mt-1">420 DT</p>
+            <p class="text-2xl font-black text-green-600 mt-1">{{ kpis.commissionMonth }}</p>
         </div>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-gray-50">
-            <h4 class="font-bold text-gray-800">Quick actions</h4>
+            <h4 class="font-bold text-gray-800">{{ quickActionsTitle }}</h4>
         </div>
         <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <a routerLink="/agent/top-up" class="flex items-center p-4 rounded-xl border border-gray-100 hover:border-[#135bec]/20 hover:bg-blue-50/50 transition-all">
-                <span class="material-symbols-outlined text-[#135bec] text-[28px] mr-4">account_balance_wallet</span>
-                <span class="font-bold text-gray-800">Load client wallet</span>
+            <a *ngFor="let action of quickActions" [routerLink]="action.route" class="flex items-center p-4 rounded-xl border border-gray-100 hover:border-[#135bec]/20 hover:bg-blue-50/50 transition-all">
+                <span class="material-symbols-outlined text-[#135bec] text-[28px] mr-4">{{ action.icon }}</span>
+                <span class="font-bold text-gray-800">{{ action.title }}</span>
             </a>
-            <a routerLink="/agent/loan-verification" class="flex items-center p-4 rounded-xl border border-gray-100 hover:border-[#135bec]/20 hover:bg-blue-50/50 transition-all">
-                <span class="material-symbols-outlined text-[#135bec] text-[28px] mr-4">verified_user</span>
-                <span class="font-bold text-gray-800">Verify loan applicant</span>
-            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50 flex items-center justify-between">
+            <h4 class="font-bold text-gray-800">{{ recentActivityTitle }}</h4>
+            <a routerLink="/agent/clients" class="text-xs font-bold text-[#135bec] hover:underline">View all</a>
+        </div>
+        <div class="divide-y divide-gray-50">
+            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors" *ngFor="let item of recentActivity">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center mr-4 shrink-0" [ngClass]="item.iconBgClass">
+                    <span class="material-symbols-outlined text-[18px]" [ngClass]="item.iconColorClass">{{ item.icon }}</span>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold text-gray-800">{{ item.title }}</p>
+                    <p class="text-xs text-gray-400 font-medium">{{ item.subtitle }}</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
