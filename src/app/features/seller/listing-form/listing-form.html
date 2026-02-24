@@ -1,36 +1,36 @@
 <div class="space-y-8 pb-10 max-w-2xl">
     <div class="flex items-center gap-4">
-        <a routerLink="/seller/listings" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <a [routerLink]="backRoute" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Listing</h1>
-            <p class="text-gray-500 text-sm font-medium">Add or edit a vehicle listing.</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <form class="space-y-5">
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Title</label>
-                <input type="text" placeholder="e.g. Peugeot 208" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
+                <label class="block text-sm font-bold text-gray-700 mb-1">{{ titleLabel }}</label>
+                <input type="text" [placeholder]="titlePlaceholder" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Price (TND)</label>
-                    <input type="number" min="0" placeholder="18500" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
+                    <label class="block text-sm font-bold text-gray-700 mb-1">{{ priceLabel }}</label>
+                    <input type="number" min="0" [placeholder]="pricePlaceholder" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Year</label>
-                    <input type="number" min="1990" max="2030" placeholder="2020" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
+                    <label class="block text-sm font-bold text-gray-700 mb-1">{{ yearLabel }}</label>
+                    <input type="number" min="1990" max="2030" [placeholder]="yearPlaceholder" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
                 </div>
             </div>
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                <textarea rows="4" placeholder="Vehicle description..." class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20"></textarea>
+                <label class="block text-sm font-bold text-gray-700 mb-1">{{ descriptionLabel }}</label>
+                <textarea rows="4" [placeholder]="descriptionPlaceholder" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20"></textarea>
             </div>
             <div class="flex gap-4 pt-4">
-                <button type="submit" class="px-6 py-2.5 bg-[#135bec] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all">Save</button>
-                <a routerLink="/seller/listings" class="px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">Cancel</a>
+                <button type="submit" class="px-6 py-2.5 bg-[#135bec] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all">{{ saveLabel }}</button>
+                <a [routerLink]="backRoute" class="px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">{{ cancelLabel }}</a>
             </div>
         </form>
     </div>

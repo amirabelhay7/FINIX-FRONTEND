@@ -1,44 +1,35 @@
 <div class="space-y-8 pb-10">
     <div class="flex items-center gap-4">
-        <a routerLink="/admin/users" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+        <a [routerLink]="vm.backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <div class="flex-1">
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">User #1</h1>
-            <p class="text-gray-500 text-sm font-medium">Amadou Kone · CLIENT</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ vm.pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ vm.pageSubtitle }}</p>
         </div>
-        <a routerLink="/admin/users/edit/1" class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">Edit</a>
+        <a [routerLink]="vm.editRoute" class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">{{ vm.editLabel }}</a>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h4 class="font-bold text-gray-800 mb-4 flex items-center">
-                <span class="material-symbols-outlined mr-2 text-[#135bec]">person</span>Identity
+                <span class="material-symbols-outlined mr-2 text-[#135bec]">person</span>{{ vm.identityTitle }}
             </h4>
             <dl class="space-y-3 text-sm">
-                <div class="flex justify-between"><dt class="text-gray-500">First name</dt><dd class="font-bold text-gray-800">Amadou</dd></div>
-                <div class="flex justify-between"><dt class="text-gray-500">Last name</dt><dd class="font-bold text-gray-800">Kone</dd></div>
-                <div class="flex justify-between"><dt class="text-gray-500">Email</dt><dd class="font-bold text-gray-800">amadou.kone&#64;email.com</dd></div>
-                <div class="flex justify-between"><dt class="text-gray-500">Phone</dt><dd class="font-bold text-gray-800">+216 12 345 678</dd></div>
-                <div class="flex justify-between"><dt class="text-gray-500">CIN</dt><dd class="font-bold text-gray-800 font-mono">12345678</dd></div>
-                <div class="flex justify-between"><dt class="text-gray-500">Date of birth</dt><dd class="font-bold text-gray-800">1990-05-15</dd></div>
-                <div class="flex justify-between"><dt class="text-gray-500">Address</dt><dd class="font-bold text-gray-800">12 Rue de la République</dd></div>
-                <div class="flex justify-between"><dt class="text-gray-500">City</dt><dd class="font-bold text-gray-800">Tunis</dd></div>
-                <div class="flex justify-between"><dt class="text-gray-500">Role</dt><dd class="font-bold"><span class="px-2 py-0.5 rounded text-xs bg-blue-50 text-[#135bec]">CLIENT</span></dd></div>
+                <div *ngFor="let field of vm.identityFields" class="flex justify-between">
+                    <dt class="text-gray-500">{{ field.label }}</dt>
+                    <dd class="font-bold text-gray-800"><span *ngIf="field.valueClass" [ngClass]="field.valueClass">{{ field.value }}</span><span *ngIf="!field.valueClass">{{ field.value }}</span></dd>
+                </div>
             </dl>
         </div>
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h4 class="font-bold text-gray-800 mb-4 flex items-center">
-                <span class="material-symbols-outlined mr-2 text-amber-500">history</span>Login history
+                <span class="material-symbols-outlined mr-2 text-amber-500">history</span>{{ vm.loginHistoryTitle }}
             </h4>
             <div class="space-y-2">
-                <div class="flex items-center justify-between py-2 border-b border-gray-50 text-sm">
-                    <span class="text-gray-600">2025-02-24 10:32</span>
-                    <span class="text-gray-400 text-xs">IP 192.168.1.1</span>
-                </div>
-                <div class="flex items-center justify-between py-2 border-b border-gray-50 text-sm">
-                    <span class="text-gray-600">2025-02-23 14:20</span>
-                    <span class="text-gray-400 text-xs">IP 192.168.1.1</span>
+                <div *ngFor="let item of vm.loginHistoryItems" class="flex items-center justify-between py-2 border-b border-gray-50 text-sm">
+                    <span class="text-gray-600">{{ item.date }}</span>
+                    <span class="text-gray-400 text-xs">{{ item.ip }}</span>
                 </div>
             </div>
         </div>

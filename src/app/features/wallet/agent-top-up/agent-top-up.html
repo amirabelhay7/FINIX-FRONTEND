@@ -5,8 +5,8 @@
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Top up via Agent</h1>
-            <p class="text-gray-500 text-sm font-medium">Give cash to an agent — they load your wallet. No card needed.</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
     </div>
 
@@ -14,8 +14,8 @@
         <div class="flex items-start gap-3">
             <span class="material-symbols-outlined text-green-600 text-[28px] shrink-0">storefront</span>
             <div>
-                <h3 class="font-black text-gray-900">How it works</h3>
-                <p class="text-sm text-gray-600 mt-1">1. Find an agent near you. 2. Give them cash and your phone number. 3. Agent loads your FINIX wallet. 4. You get a notification when the money is in.</p>
+                <h3 class="font-black text-gray-900">{{ howItWorksTitle }}</h3>
+                <p class="text-sm text-gray-600 mt-1">{{ howItWorksText }}</p>
             </div>
         </div>
     </div>
@@ -23,38 +23,28 @@
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
         <h4 class="font-bold text-gray-800 flex items-center">
             <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">location_on</span>
-            Find an agent
+            {{ findAgentTitle }}
         </h4>
         <div class="relative">
             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-            <input type="text" placeholder="City or address..." class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+            <input type="text" [placeholder]="searchPlaceholder" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
         </div>
     </div>
 
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-gray-50">
-            <h4 class="font-bold text-gray-800">Near you</h4>
+            <h4 class="font-bold text-gray-800">{{ nearYouTitle }}</h4>
         </div>
         <div class="divide-y divide-gray-50">
-            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors">
+            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors" *ngFor="let agent of agents">
                 <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
                     <span class="material-symbols-outlined text-[#135bec] text-[22px]">store</span>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-bold text-gray-800">Agence FINIX Tunis Centre</p>
-                    <p class="text-xs text-gray-500">Av. Habib Bourguiba, Tunis · Open until 6 PM</p>
+                    <p class="text-sm font-bold text-gray-800">{{ agent.name }}</p>
+                    <p class="text-xs text-gray-500">{{ agent.address }}</p>
                 </div>
-                <span class="text-xs font-bold text-green-600">0.8 km</span>
-            </div>
-            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors">
-                <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
-                    <span class="material-symbols-outlined text-[#135bec] text-[22px]">store</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-bold text-gray-800">Point FINIX La Marsa</p>
-                    <p class="text-xs text-gray-500">Rue de la République, La Marsa · Open until 8 PM</p>
-                </div>
-                <span class="text-xs font-bold text-gray-500">2.1 km</span>
+                <span class="text-xs font-bold" [ngClass]="agent.distanceClass">{{ agent.distance }}</span>
             </div>
         </div>
     </div>

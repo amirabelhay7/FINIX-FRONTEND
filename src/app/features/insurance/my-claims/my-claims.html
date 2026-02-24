@@ -1,11 +1,11 @@
 <div class="space-y-8 pb-10">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">My claims</h1>
-            <p class="text-gray-500 text-sm font-medium">Your insurance claims and their status.</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
-        <a routerLink="/insurance/file-claim" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
-            <span class="material-symbols-outlined mr-2 text-[18px]">add</span>File a claim
+        <a [routerLink]="fileClaimRoute" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
+            <span class="material-symbols-outlined mr-2 text-[18px]">add</span>{{ fileClaimLabel }}
         </a>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -22,14 +22,14 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">1</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">Micro-health basic</td>
-                        <td class="py-4 px-6 font-bold text-[#135bec]">500 TND</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700">Pending</span></td>
-                        <td class="py-4 px-6 text-gray-600">2025-02-18</td>
+                    <tr class="hover:bg-gray-50 transition-colors" *ngFor="let c of claims">
+                        <td class="py-4 px-6 font-mono text-gray-500">{{ c.id }}</td>
+                        <td class="py-4 px-6 font-bold text-gray-800">{{ c.policy }}</td>
+                        <td class="py-4 px-6 font-bold text-[#135bec]">{{ c.amount }}</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="c.statusClass">{{ c.status }}</span></td>
+                        <td class="py-4 px-6 text-gray-600">{{ c.date }}</td>
                         <td class="py-4 px-6 text-right">
-                            <a routerLink="/insurance/claims/1" class="text-[#135bec] font-bold hover:underline">View</a>
+                            <a [routerLink]="c.viewRoute" class="text-[#135bec] font-bold hover:underline">View</a>
                         </td>
                     </tr>
                 </tbody>

@@ -4,22 +4,21 @@
     <div class="max-w-7xl mx-auto relative">
       <div class="landing-reveal in-view max-w-3xl">
         <p class="inline-block px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-[#135bec] bg-[#135bec]/10 border border-[#135bec]/20 mb-6">
-          Micro-finance &amp; micro-insurance
+          {{ heroBadge }}
         </p>
         <h1 class="font-['Plus_Jakarta_Sans'] text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1] mb-6">
-          Credit, wallet &amp; insurance
-          <span class="text-[#135bec]"> in one place.</span>
+          {{ heroTitlePart1 }}<span class="text-[#135bec]">{{ heroTitleHighlight }}</span>
         </h1>
         <p class="text-lg sm:text-xl text-slate-600 font-medium max-w-xl mb-10 leading-relaxed">
-          FINIX connects clients, agents, and sellers with fair scoring, digital wallets, and vehicle financing—built for Tunisia and beyond.
+          {{ heroSubtitle }}
         </p>
         <div class="flex flex-wrap gap-4">
-          <a routerLink="/auth" class="landing-cta inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-[#135bec] text-white font-bold text-sm shadow-lg">
-            Get started
+          <a [routerLink]="ctaPrimaryRoute" class="landing-cta inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-[#135bec] text-white font-bold text-sm shadow-lg">
+            {{ ctaPrimaryLabel }}
             <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
           </a>
-          <a routerLink="/credit" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-white text-slate-700 font-bold text-sm border border-slate-200 hover:border-[#135bec]/40 hover:bg-slate-50 transition-colors">
-            Explore credit
+          <a [routerLink]="ctaSecondaryRoute" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-white text-slate-700 font-bold text-sm border border-slate-200 hover:border-[#135bec]/40 hover:bg-slate-50 transition-colors">
+            {{ ctaSecondaryLabel }}
           </a>
         </div>
       </div>
@@ -32,21 +31,9 @@
   <section class="py-8 border-y border-slate-200/80 bg-white/60 backdrop-blur-sm" data-animate>
     <div class="max-w-7xl mx-auto px-4 md:px-8">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center landing-reveal in-view">
-        <div>
-          <p class="font-['Plus_Jakarta_Sans'] text-3xl md:text-4xl font-extrabold text-[#135bec]">11</p>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-1">Backend modules</p>
-        </div>
-        <div>
-          <p class="font-['Plus_Jakarta_Sans'] text-3xl md:text-4xl font-extrabold text-slate-800">4</p>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-1">User roles</p>
-        </div>
-        <div>
-          <p class="font-['Plus_Jakarta_Sans'] text-3xl md:text-4xl font-extrabold text-slate-800">Wallet</p>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-1">Online &amp; agent top-up</p>
-        </div>
-        <div>
-          <p class="font-['Plus_Jakarta_Sans'] text-3xl md:text-4xl font-extrabold text-slate-800">Score</p>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-1">Alternative scoring</p>
+        <div *ngFor="let stat of trustStats">
+          <p class="font-['Plus_Jakarta_Sans'] text-3xl md:text-4xl font-extrabold" [ngClass]="stat.valueClass || 'text-slate-800'">{{ stat.value }}</p>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-1">{{ stat.label }}</p>
         </div>
       </div>
     </div>

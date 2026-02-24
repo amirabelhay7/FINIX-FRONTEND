@@ -1,11 +1,11 @@
 <div class="space-y-8 pb-10">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Campaigns</h1>
-            <p class="text-gray-500 text-sm font-medium">Marketing campaigns.</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
         <div class="flex gap-2">
-            <button type="button" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">Add campaign</button>
+            <button type="button" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md" (click)="onAddCampaign()">Add campaign</button>
             <a routerLink="/admin/marketing" class="inline-flex items-center px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all">Back</a>
         </div>
     </div>
@@ -17,19 +17,23 @@
                         <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
                         <th class="text-left py-4 px-6 font-bold text-gray-600">Name</th>
                         <th class="text-left py-4 px-6 font-bold text-gray-600">Channel</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Segment</th>
                         <th class="text-left py-4 px-6 font-bold text-gray-600">Status</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Start / End</th>
                         <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">1</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">Spring loan promo</td>
-                        <td class="py-4 px-6 text-gray-600">SMS</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">ACTIVE</span></td>
+                    <tr class="hover:bg-gray-50 transition-colors" *ngFor="let campaign of campaigns">
+                        <td class="py-4 px-6 font-mono text-gray-500">{{ campaign.id }}</td>
+                        <td class="py-4 px-6 font-bold text-gray-800">{{ campaign.name }}</td>
+                        <td class="py-4 px-6 text-gray-600">{{ campaign.channel }}</td>
+                        <td class="py-4 px-6 text-gray-600 text-xs">{{ campaign.segment }}</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="campaign.statusClass">{{ campaign.status }}</span></td>
+                        <td class="py-4 px-6 text-gray-500 text-xs">{{ campaign.startEnd }}</td>
                         <td class="py-4 px-6 text-right">
-                            <button type="button" class="text-[#135bec] font-bold hover:underline mr-2">Edit</button>
-                            <button type="button" class="text-red-600 font-bold hover:underline">Delete</button>
+                            <button type="button" class="text-[#135bec] font-bold hover:underline mr-2" (click)="onEditCampaign(campaign)">Edit</button>
+                            <button type="button" class="text-red-600 font-bold hover:underline" (click)="onDeleteCampaign(campaign)">Delete</button>
                         </td>
                     </tr>
                 </tbody>

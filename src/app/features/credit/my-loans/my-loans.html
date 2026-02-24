@@ -1,34 +1,30 @@
 <div class="space-y-8 animate-in fade-in duration-700 pb-10">
 
-    <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">My Loans</h1>
-            <p class="text-gray-500 text-sm font-medium">Your loan requests and active contracts in one place.</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
-        <a routerLink="/credit/apply"
-            class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
+        <a routerLink="/credit/apply" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
             <span class="material-symbols-outlined mr-2 text-[18px]">add_circle</span>Apply for a Loan
         </a>
     </div>
 
-    <!-- Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
             <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Active Contracts</p>
-            <p class="text-2xl font-black text-gray-900 mt-1">1</p>
+            <p class="text-2xl font-black text-gray-900 mt-1">{{ summary.activeContracts }}</p>
         </div>
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
             <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Pending Requests</p>
-            <p class="text-2xl font-black text-gray-900 mt-1">0</p>
+            <p class="text-2xl font-black text-gray-900 mt-1">{{ summary.pendingRequests }}</p>
         </div>
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
             <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Borrowed</p>
-            <p class="text-2xl font-black text-[#135bec] mt-1">$5,000</p>
+            <p class="text-2xl font-black text-[#135bec] mt-1">{{ summary.totalBorrowed }}</p>
         </div>
     </div>
 
-    <!-- Active Contract (quick link) -->
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-gray-50 flex items-center justify-between">
             <h4 class="font-bold text-gray-800 flex items-center">
@@ -40,19 +36,17 @@
         <div class="p-6">
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <p class="text-xs text-gray-500 font-medium">Contract #FIN-2025-0842</p>
-                    <p class="text-lg font-black text-gray-900 mt-1">$5,000 · 12 months · 8.5%</p>
-                    <p class="text-xs text-gray-400 mt-1">Next payment: Mar 15, 2025 — $445.20</p>
+                    <p class="text-xs text-gray-500 font-medium">Contract #{{ activeContract.contractNumber }}</p>
+                    <p class="text-lg font-black text-gray-900 mt-1">{{ activeContract.amount }} · {{ activeContract.duration }} · {{ activeContract.rate }}</p>
+                    <p class="text-xs text-gray-400 mt-1">Next payment: {{ activeContract.nextPaymentDate }} — {{ activeContract.nextPaymentAmount }}</p>
                 </div>
-                <a routerLink="/credit/contract/1"
-                    class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg text-sm font-bold hover:bg-gray-200 transition-colors">
+                <a [routerLink]="activeContract.contractRoute" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg text-sm font-bold hover:bg-gray-200 transition-colors">
                     Contract details
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Loan Requests List -->
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-gray-50">
             <h4 class="font-bold text-gray-800 flex items-center">
@@ -61,26 +55,19 @@
             </h4>
         </div>
         <div class="divide-y divide-gray-50">
-            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors">
-                <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
-                    <span class="material-symbols-outlined text-green-600 text-[22px]">check_circle</span>
+            <ng-container *ngFor="let req of loanRequests">
+                <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors" [class.opacity-90]="req.status === 'rejected'">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mr-4 shrink-0" [ngClass]="req.iconBgClass">
+                        <span class="material-symbols-outlined text-[22px]" [ngClass]="req.iconColorClass">{{ req.icon }}</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold text-gray-800">{{ req.amount }} · {{ req.duration }}</p>
+                        <p class="text-xs text-gray-400 font-medium">{{ req.note }}</p>
+                    </div>
+                    <a *ngIf="req.actionRoute" [routerLink]="req.actionRoute" class="text-xs font-bold text-[#135bec] hover:underline shrink-0">{{ req.actionLabel }}</a>
+                    <span *ngIf="!req.actionRoute" class="text-xs font-medium text-gray-400 shrink-0">{{ req.actionLabel }}</span>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-bold text-gray-800">$5,000 · 12 months</p>
-                    <p class="text-xs text-gray-400 font-medium">Submitted Jan 10, 2025 · Approved</p>
-                </div>
-                <a routerLink="/credit/contract/1" class="text-xs font-bold text-[#135bec] hover:underline shrink-0">View contract</a>
-            </div>
-            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors">
-                <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
-                    <span class="material-symbols-outlined text-green-600 text-[22px]">pending_actions</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-bold text-gray-800">$3,000 · 12 months · Vehicle</p>
-                    <p class="text-xs text-gray-400 font-medium">Preliminarily approved · Agent verification pending</p>
-                </div>
-                <a routerLink="/credit/application/2" class="text-xs font-bold text-[#135bec] hover:underline shrink-0">View status</a>
-            </div>
+            </ng-container>
         </div>
     </div>
 

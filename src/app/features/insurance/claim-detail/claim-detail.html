@@ -1,24 +1,24 @@
 <div class="space-y-8 pb-10 max-w-2xl">
     <div class="flex items-center gap-4">
-        <a routerLink="/insurance/my-claims" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <a [routerLink]="backRoute" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Claim details</h1>
-            <p class="text-gray-500 text-sm font-medium">Claim #1</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Policy</p><p class="text-gray-800">Micro-health basic</p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Amount claimed</p><p class="font-bold text-[#135bec]">500 TND</p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Status</p><p><span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700">Pending</span></p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Submitted</p><p class="text-gray-800">2025-02-18</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">{{ policyLabel }}</p><p class="text-gray-800">{{ policyValue }}</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">{{ amountLabel }}</p><p class="font-bold text-[#135bec]">{{ amountValue }}</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">{{ statusLabel }}</p><p><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="statusClass">{{ statusValue }}</span></p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">{{ submittedLabel }}</p><p class="text-gray-800">{{ submittedValue }}</p></div>
         </div>
         <div class="border-t border-gray-100 pt-4">
-            <p class="text-xs font-bold text-gray-500 uppercase mb-1">Description</p>
-            <p class="text-sm text-gray-600">Medical expense reimbursement — doctor visit and prescription.</p>
+            <p class="text-xs font-bold text-gray-500 uppercase mb-1">{{ descriptionLabel }}</p>
+            <p class="text-sm text-gray-600">{{ descriptionText }}</p>
         </div>
-        <a routerLink="/insurance/my-claims" class="inline-block px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">Back to my claims</a>
+        <a [routerLink]="backRoute" class="inline-block px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">{{ backLabel }}</a>
     </div>
 </div>

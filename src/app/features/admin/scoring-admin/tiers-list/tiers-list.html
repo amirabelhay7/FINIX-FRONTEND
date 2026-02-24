@@ -1,11 +1,11 @@
 <div class="space-y-8 pb-10">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">User Tiers</h1>
-            <p class="text-gray-500 text-sm font-medium">Bronze, Silver, Gold, Platinum — score ranges and benefits.</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
-        <a routerLink="/admin/scoring/tiers/new" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
-            <span class="material-symbols-outlined mr-2 text-[18px]">add</span>Add Tier
+        <a [routerLink]="addTierRoute" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
+            <span class="material-symbols-outlined mr-2 text-[18px]">add</span>{{ addTierLabel }}
         </a>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -21,49 +21,13 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">1</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">BEGINNER</td>
-                        <td class="py-4 px-6 text-gray-600">0 – 99</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">Active</span></td>
+                    <tr *ngFor="let row of rows" class="hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6 font-mono text-gray-500">{{ row.id }}</td>
+                        <td class="py-4 px-6 font-bold text-gray-800">{{ row.tierName }}</td>
+                        <td class="py-4 px-6 text-gray-600">{{ row.scoreRange }}</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="row.statusClass">{{ row.status }}</span></td>
                         <td class="py-4 px-6 text-right">
-                            <a routerLink="/admin/scoring/tiers/edit/1" class="text-[#135bec] font-bold hover:underline mr-2">Edit</a>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">2</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">BRONZE</td>
-                        <td class="py-4 px-6 text-gray-600">100 – 249</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">Active</span></td>
-                        <td class="py-4 px-6 text-right">
-                            <a routerLink="/admin/scoring/tiers/edit/2" class="text-[#135bec] font-bold hover:underline mr-2">Edit</a>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">3</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">SILVER</td>
-                        <td class="py-4 px-6 text-gray-600">250 – 499</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">Active</span></td>
-                        <td class="py-4 px-6 text-right">
-                            <a routerLink="/admin/scoring/tiers/edit/3" class="text-[#135bec] font-bold hover:underline mr-2">Edit</a>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">4</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">GOLD</td>
-                        <td class="py-4 px-6 text-gray-600">500 – 799</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">Active</span></td>
-                        <td class="py-4 px-6 text-right">
-                            <a routerLink="/admin/scoring/tiers/edit/4" class="text-[#135bec] font-bold hover:underline mr-2">Edit</a>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">5</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">PLATINUM</td>
-                        <td class="py-4 px-6 text-gray-600">800+</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">Active</span></td>
-                        <td class="py-4 px-6 text-right">
-                            <a routerLink="/admin/scoring/tiers/edit/5" class="text-[#135bec] font-bold hover:underline mr-2">Edit</a>
+                            <a [routerLink]="row.editRoute" class="text-[#135bec] font-bold hover:underline mr-2">{{ editLabel }}</a>
                         </td>
                     </tr>
                 </tbody>

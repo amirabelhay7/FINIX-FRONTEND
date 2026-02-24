@@ -2,8 +2,8 @@
 
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Insurance Products</h1>
-            <p class="text-gray-500 text-sm font-medium">Micro-protection for you and your assets.</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
         <a routerLink="/insurance/quote" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
             <span class="material-symbols-outlined mr-2 text-[18px]">calculate</span>Get a Quote
@@ -11,37 +11,19 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-            <div class="h-2 bg-[#135bec]"></div>
-            <div class="p-6">
-                <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-4">
-                    <span class="material-symbols-outlined text-[#135bec] text-[24px]">two_wheeler</span>
-                </div>
-                <h3 class="text-lg font-black text-gray-900">Moto Cover</h3>
-                <p class="text-sm text-gray-500 mt-1">Theft & damage for two-wheelers. From $8/month.</p>
-                <a routerLink="/insurance/quote" class="mt-4 inline-block text-sm font-bold text-[#135bec] hover:underline">Get quote →</a>
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow relative" *ngFor="let product of products">
+            <div class="h-2" [ngClass]="product.accentColor"></div>
+            <div class="absolute top-4 right-4 flex gap-1" *ngIf="product.badges?.length">
+                <span *ngFor="let badge of product.badges" class="px-2 py-0.5 rounded text-[10px] font-bold" [ngClass]="badge.class">{{ badge.label }}</span>
             </div>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-            <div class="h-2 bg-green-500"></div>
             <div class="p-6">
-                <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-4">
-                    <span class="material-symbols-outlined text-green-600 text-[24px]">health_and_safety</span>
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" [ngClass]="product.iconBgClass">
+                    <span class="material-symbols-outlined text-[24px]" [ngClass]="product.iconColorClass || 'text-gray-600'">{{ product.icon }}</span>
                 </div>
-                <h3 class="text-lg font-black text-gray-900">Health Micro</h3>
-                <p class="text-sm text-gray-500 mt-1">Basic health coverage for individuals. From $12/month.</p>
-                <a routerLink="/insurance/quote" class="mt-4 inline-block text-sm font-bold text-[#135bec] hover:underline">Get quote →</a>
-            </div>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-            <div class="h-2 bg-amber-500"></div>
-            <div class="p-6">
-                <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mb-4">
-                    <span class="material-symbols-outlined text-amber-600 text-[24px]">home</span>
-                </div>
-                <h3 class="text-lg font-black text-gray-900">Home Shield</h3>
-                <p class="text-sm text-gray-500 mt-1">Fire & theft for your home. From $15/month.</p>
-                <a routerLink="/insurance/quote" class="mt-4 inline-block text-sm font-bold text-[#135bec] hover:underline">Get quote →</a>
+                <h3 class="text-lg font-black text-gray-900">{{ product.name }}</h3>
+                <p class="text-sm text-gray-500 mt-1">{{ product.description }}</p>
+                <p class="text-xs font-bold text-gray-600 mt-2">{{ product.priceNote }}</p>
+                <a [routerLink]="product.route" class="mt-4 inline-block text-sm font-bold text-[#135bec] hover:underline">Get quote →</a>
             </div>
         </div>
     </div>
@@ -51,7 +33,7 @@
             <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">info</span>
             Why micro-insurance?
         </h4>
-        <p class="text-sm text-gray-500">Low premiums, simple terms, and fast claims. Designed for emerging markets.</p>
+        <p class="text-sm text-gray-500">{{ whyMicroCopy }}</p>
     </div>
 
 </div>

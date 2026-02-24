@@ -1,8 +1,8 @@
 <div class="space-y-8 pb-10">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Users & Identity</h1>
-            <p class="text-gray-500 text-sm font-medium">Manage users, roles (CLIENT, AGENT, SELLER, INSURER, ADMIN), and KYC.</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
         <a routerLink="/admin/users/new" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
             <span class="material-symbols-outlined mr-2 text-[18px]">person_add</span>Add User
@@ -38,40 +38,16 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">1</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">Amadou Kone</td>
-                        <td class="py-4 px-6 text-gray-600">amadou.kone&#64;email.com</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-[#135bec]">CLIENT</span></td>
-                        <td class="py-4 px-6 font-mono text-gray-500">12345678</td>
-                        <td class="py-4 px-6 text-gray-600">Tunis</td>
+                    <tr class="hover:bg-gray-50 transition-colors" *ngFor="let user of users">
+                        <td class="py-4 px-6 font-mono text-gray-500">{{ user.id }}</td>
+                        <td class="py-4 px-6 font-bold text-gray-800">{{ user.name }}</td>
+                        <td class="py-4 px-6 text-gray-600">{{ user.email }}</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="user.roleClass">{{ user.role }}</span></td>
+                        <td class="py-4 px-6 font-mono text-gray-500">{{ user.cin }}</td>
+                        <td class="py-4 px-6 text-gray-600">{{ user.city }}</td>
                         <td class="py-4 px-6 text-right">
-                            <a routerLink="/admin/users/1" class="text-[#135bec] font-bold hover:underline mr-2">View</a>
-                            <a routerLink="/admin/users/edit/1" class="text-gray-600 font-bold hover:underline">Edit</a>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">2</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">Mariem Said</td>
-                        <td class="py-4 px-6 text-gray-600">mariem.said&#64;email.com</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700">AGENT</span></td>
-                        <td class="py-4 px-6 font-mono text-gray-500">87654321</td>
-                        <td class="py-4 px-6 text-gray-600">Sfax</td>
-                        <td class="py-4 px-6 text-right">
-                            <a routerLink="/admin/users/2" class="text-[#135bec] font-bold hover:underline mr-2">View</a>
-                            <a routerLink="/admin/users/edit/2" class="text-gray-600 font-bold hover:underline">Edit</a>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">3</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">Alex Johnson</td>
-                        <td class="py-4 px-6 text-gray-600">alex&#64;finix.com</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-100 text-gray-700">ADMIN</span></td>
-                        <td class="py-4 px-6 font-mono text-gray-500">—</td>
-                        <td class="py-4 px-6 text-gray-600">Tunis</td>
-                        <td class="py-4 px-6 text-right">
-                            <a routerLink="/admin/users/3" class="text-[#135bec] font-bold hover:underline mr-2">View</a>
-                            <a routerLink="/admin/users/edit/3" class="text-gray-600 font-bold hover:underline">Edit</a>
+                            <a [routerLink]="user.viewRoute" class="text-[#135bec] font-bold hover:underline mr-2">View</a>
+                            <a [routerLink]="user.editRoute" class="text-gray-600 font-bold hover:underline">Edit</a>
                         </td>
                     </tr>
                 </tbody>
