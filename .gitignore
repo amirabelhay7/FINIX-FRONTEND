@@ -1,17 +1,42 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
-# Compiled output
+# ============ Compiled / build output ============
 /dist
 /tmp
 /out-tsc
 /bazel-out
+*.tsbuildinfo
+.rollup.cache/
 
-# Node
+# ============ Angular ============
+/.angular/
+.sass-cache/
+
+# ============ Node ============
 /node_modules
-npm-debug.log
-yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
 
-# IDEs and editors
+# ============ Environment & secrets (never commit) ============
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+!.env.example
+
+# ============ IDEs and editors ============
 .idea/
 .project
 .classpath
@@ -19,26 +44,40 @@ yarn-error.log
 *.launch
 .settings/
 *.sublime-workspace
+*.sublime-project
 
-# Visual Studio Code
+# Visual Studio Code (ignore all, then allow shared config)
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/mcp.json
-.history/*
+.history/
 
-# Miscellaneous
-/.angular/cache
-.sass-cache/
-/connect.lock
+# ============ Test / coverage ============
 /coverage
+.nyc_output
+/karma-results
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache
+
+# ============ Miscellaneous ============
+/connect.lock
 /libpeerconnection.log
 testem.log
 /typings
 __screenshots__/
+*.log
 
-# System files
+# ============ System files ============
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ============ Optional: local / tooling ============
+# Uncomment if you don't want to share Cursor project data
+# .cursor/
