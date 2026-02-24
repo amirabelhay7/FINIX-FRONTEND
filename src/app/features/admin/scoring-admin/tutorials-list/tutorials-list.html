@@ -1,0 +1,79 @@
+<div class="space-y-8 pb-10">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Tutorials</h1>
+            <p class="text-gray-500 text-sm font-medium">Manage tutorials for document, profile, wallet, guarantee.</p>
+        </div>
+        <button type="button" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
+            <span class="material-symbols-outlined mr-2 text-[18px]">add</span>Add Tutorial
+        </button>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-gray-50 flex flex-wrap items-center gap-4">
+            <div class="relative flex-1 min-w-[200px]">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">search</span>
+                <input type="text" placeholder="Search tutorials..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
+            </div>
+            <select class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
+                <option value="">All types</option>
+                <option>DOCUMENT</option>
+                <option>PROFILE</option>
+                <option>WALLET</option>
+                <option>GUARANTEE</option>
+            </select>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Title</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Type</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Points</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Difficulty</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Est. min</th>
+                        <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6 font-mono text-gray-500">1</td>
+                        <td class="py-4 px-6 font-bold text-gray-800">Upload your CIN</td>
+                        <td class="py-4 px-6 text-gray-600">DOCUMENT</td>
+                        <td class="py-4 px-6 font-bold text-[#135bec]">25</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">EASY</span></td>
+                        <td class="py-4 px-6 text-gray-600">5</td>
+                        <td class="py-4 px-6 text-right">
+                            <button type="button" class="text-[#135bec] font-bold hover:underline mr-2">Edit</button>
+                            <button type="button" class="text-red-600 font-bold hover:underline">Delete</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6 font-mono text-gray-500">2</td>
+                        <td class="py-4 px-6 font-bold text-gray-800">Complete your profile</td>
+                        <td class="py-4 px-6 text-gray-600">PROFILE</td>
+                        <td class="py-4 px-6 font-bold text-[#135bec]">15</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700">MEDIUM</span></td>
+                        <td class="py-4 px-6 text-gray-600">10</td>
+                        <td class="py-4 px-6 text-right">
+                            <button type="button" class="text-[#135bec] font-bold hover:underline mr-2">Edit</button>
+                            <button type="button" class="text-red-600 font-bold hover:underline">Delete</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6 font-mono text-gray-500">3</td>
+                        <td class="py-4 px-6 font-bold text-gray-800">Load your wallet</td>
+                        <td class="py-4 px-6 text-gray-600">WALLET</td>
+                        <td class="py-4 px-6 font-bold text-[#135bec]">20</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">EASY</span></td>
+                        <td class="py-4 px-6 text-gray-600">3</td>
+                        <td class="py-4 px-6 text-right">
+                            <button type="button" class="text-[#135bec] font-bold hover:underline mr-2">Edit</button>
+                            <button type="button" class="text-red-600 font-bold hover:underline">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

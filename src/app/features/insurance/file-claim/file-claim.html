@@ -1,0 +1,39 @@
+<div class="max-w-2xl mx-auto space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <div class="flex items-center gap-4">
+        <a routerLink="/insurance/my-policies" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">File a Claim</h1>
+            <p class="text-gray-500 text-sm font-medium">Submit your claim for review.</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Policy</label>
+            <select class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all">
+                <option>POL-2025-0012 · Moto Cover</option>
+            </select>
+        </div>
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Claim type</label>
+            <select class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all">
+                <option>Theft</option>
+                <option>Damage</option>
+                <option>Other</option>
+            </select>
+        </div>
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Amount claimed ($)</label>
+            <input type="number" placeholder="0.00" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+        </div>
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Description</label>
+            <textarea rows="4" placeholder="Describe what happened..." class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all resize-none"></textarea>
+        </div>
+        <button type="button" class="w-full px-4 py-3 bg-[#135bec] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-md">Submit claim</button>
+    </div>
+
+</div>

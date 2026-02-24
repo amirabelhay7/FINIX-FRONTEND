@@ -1,0 +1,111 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Score History</h1>
+            <p class="text-gray-500 text-sm font-medium">Complete audit trail of all your score changes</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <div class="flex items-center bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm text-xs space-x-2">
+                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                <span class="font-medium text-gray-500">{{ getFilteredHistory().length }} Changes</span>
+            </div>
+            <button class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md flex items-center">
+                <span class="material-symbols-outlined mr-2 text-[18px]">download</span>Export
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-2 mb-6">
+        <button class="px-3 py-2 bg-[#135bec] text-white rounded-lg text-xs font-bold" 
+                [class.bg-blue-500]="selectedFilter === 'all'" (click)="selectFilter('all')">All</button>
+        <button class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:border-[#135bec]/30" 
+                [class.bg-blue-500]="selectedFilter === 'increase'" (click)="selectFilter('increase')">Increases</button>
+        <button class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:border-[#135bec]/30" 
+                [class.bg-blue-500]="selectedFilter === 'decrease'" (click)="selectFilter('decrease')">Decreases</button>
+        <button class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:border-[#135bec]/30" 
+                [class.bg-blue-500]="selectedFilter === 'bonus'" (click)="selectFilter('bonus')">Bonuses</button>
+        <button class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:border-[#135bec]/30" 
+                [class.bg-blue-500]="selectedFilter === 'penalty'" (click)="selectFilter('penalty')">Penalties</button>
+    </div>
+
+    <!-- Score History Timeline -->
+    <div class="space-y-4">
+        <div class="flex items-center space-x-4 text-sm text-gray-500 mb-4">
+            <span class="material-symbols-outlined">history</span>
+            <span>Most recent changes</span>
+        </div>
+
+        <div class="relative">
+            <!-- Timeline Line -->
+            <div class="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+            
+            <!-- History Items -->
+            <div class="space-y-6" *ngFor="let change of getFilteredHistory(); let i = index">
+                <div class="flex items-start space-x-4">
+                    <!-- Timeline Node -->
+                    <div class="relative">
+                        <div class="w-10 h-10 bg-{{ getChangeTypeColor(change.changeType) }}-50 rounded-full flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-{{ getChangeTypeColor(change.changeType) }}-600 text-[18px]">{{ getChangeTypeIcon(change.changeType) }}</span>
+                        </div>
+                        <div class="absolute top-12 left-1/2 transform -translate-x-1/2">
+                            <div class="bg-white rounded-lg shadow-lg border border-gray-100 p-3 min-w-max">
+                                <div class="text-xs text-gray-500 mb-1">{{ change.changedAt }}</div>
+                                <div class="font-bold text-gray-900 mb-1">{{ change.reason }}</div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm text-gray-600">{{ change.previousScore }}</span>
+                                    <span class="material-symbols-outlined text-gray-400">arrow_forward</span>
+                                    <span class="text-sm font-black text-{{ getChangeTypeColor(change.changeType) }}">{{ change.newScore }}</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <span class="text-xs font-bold px-2 py-1 rounded-full text-green-600" *ngIf="change.scoreChange > 0">+{{ Math.abs(change.scoreChange) }}</span>
+                                    <span class="text-xs font-bold px-2 py-1 rounded-full text-red-600" *ngIf="change.scoreChange < 0">-{{ Math.abs(change.scoreChange) }}</span>
+                                    <span class="text-xs font-bold px-2 py-1 rounded-full text-purple-600" *ngIf="change.changeType === 'BONUS'">+{{ Math.abs(change.scoreChange) }}</span>
+                                    <span class="text-xs font-bold px-2 py-1 rounded-full text-orange-600" *ngIf="change.changeType === 'PENALTY'">-{{ Math.abs(change.scoreChange) }}</span>
+                                    <span class="text-xs font-bold px-2 py-1 rounded-full text-gray-600" *ngIf="change.scoreChange === 0">0</span>
+                                    <span class="text-xs text-gray-400">points</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Details -->
+                    <div class="flex-1 pt-12">
+                        <div class="bg-white rounded-lg border border-gray-100 p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <p class="text-xs text-gray-500">Type</p>
+                                    <p class="text-sm font-medium text-gray-900">{{ change.ruleType }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">{{ change.changeType }}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <p class="text-xs text-gray-500">Triggered By</p>
+                                    <p class="text-sm font-medium text-gray-900">{{ change.triggeredBy }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs text-gray-400" *ngIf="change.referenceId">ID: {{ change.referenceId }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="text-center py-12" *ngIf="getFilteredHistory().length === 0">
+        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-gray-400 text-[32px]">history</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">No score history found</h3>
+        <p class="text-gray-500 text-sm">Your score changes will appear here as you interact with the platform.</p>
+    </div>
+
+</div>

@@ -1,0 +1,54 @@
+<div class="space-y-8 pb-10 max-w-2xl">
+    <div class="flex items-center gap-4">
+        <a routerLink="/admin/scoring/tiers" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">User Tier</h1>
+            <p class="text-gray-500 text-sm font-medium">Create or edit a tier (score range, benefits, status).</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <form class="space-y-5">
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Tier name</label>
+                <input type="text" placeholder="e.g. BRONZE, SILVER, GOLD" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Min score</label>
+                    <input type="number" min="0" placeholder="0" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Max score</label>
+                    <input type="number" min="0" placeholder="999" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Tier color (CSS)</label>
+                <input type="text" placeholder="e.g. #CD7F32" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Benefits (JSON or text)</label>
+                <textarea rows="2" placeholder="e.g. Lower rates, priority support" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20"></textarea>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Next tier min score</label>
+                    <input type="number" min="0" placeholder="Score needed for next tier" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Status</label>
+                    <select class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
+                        <option>ACTIVE</option>
+                        <option>INACTIVE</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex gap-4 pt-4">
+                <button type="submit" class="px-6 py-2.5 bg-[#135bec] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all">Save</button>
+                <a routerLink="/admin/scoring/tiers" class="px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

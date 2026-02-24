@@ -1,0 +1,39 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">My Vehicles</h1>
+            <p class="text-gray-500 text-sm font-medium">Vehicles registered as collateral for your loans.</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">directions_car</span>
+                Registered vehicles
+            </h4>
+        </div>
+        <div class="divide-y divide-gray-50">
+            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-[#135bec] text-[28px]">two_wheeler</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-800">Honda PCX 150 · VIN ****3921</p>
+                    <p class="text-xs text-gray-400 font-medium">Collateral for Contract #FIN-2025-0842 · Active</p>
+                </div>
+                <a routerLink="/vehicles/vehicle/1" class="text-xs font-bold text-[#135bec] hover:underline shrink-0">View details</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <h4 class="font-bold text-gray-800 flex items-center mb-2">
+            <span class="material-symbols-outlined mr-2 text-amber-500 text-[20px]">info</span>
+            Collateral
+        </h4>
+        <p class="text-sm text-gray-500">Vehicles linked to your active loans appear here. Documents and delivery status are available in each vehicle's detail page.</p>
+    </div>
+
+</div>

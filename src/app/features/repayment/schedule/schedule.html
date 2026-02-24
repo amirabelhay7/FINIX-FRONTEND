@@ -1,0 +1,75 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Repayment Schedule</h1>
+            <p class="text-gray-500 text-sm font-medium">Your loan repayment plan and upcoming due dates.</p>
+        </div>
+        <a routerLink="/credit/active" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-800 rounded-lg text-sm font-bold hover:bg-gray-200 transition-colors">
+            View contract
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
+        <h4 class="font-bold text-gray-800 flex items-center mb-4">
+            <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">description</span>
+            Contract #FIN-2025-0842
+        </h4>
+        <div class="flex flex-wrap gap-6 text-sm">
+            <div><span class="text-gray-500">Total to repay</span><p class="font-black text-gray-900">$5,342.40</p></div>
+            <div><span class="text-gray-500">Remaining</span><p class="font-black text-[#135bec]">$4,006.80</p></div>
+            <div><span class="text-gray-500">Progress</span><p class="font-black text-gray-900">3 / 12 payments</p></div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-green-500 text-[20px]">calendar_month</span>
+                Schedule
+            </h4>
+        </div>
+        <div class="divide-y divide-gray-50">
+            <div class="flex items-center px-6 py-4">
+                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-green-600 text-[18px]">check_circle</span>
+                </div>
+                <div class="flex-1"><p class="text-sm font-bold text-gray-800">Feb 15, 2025</p><p class="text-xs text-gray-400">Paid</p></div>
+                <span class="text-sm font-black text-green-600">$445.20</span>
+            </div>
+            <div class="flex items-center px-6 py-4">
+                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-green-600 text-[18px]">check_circle</span>
+                </div>
+                <div class="flex-1"><p class="text-sm font-bold text-gray-800">Jan 15, 2025</p><p class="text-xs text-gray-400">Paid</p></div>
+                <span class="text-sm font-black text-green-600">$445.20</span>
+            </div>
+            <div class="flex items-center px-6 py-4 bg-amber-50/50">
+                <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-amber-600 text-[18px]">schedule</span>
+                </div>
+                <div class="flex-1"><p class="text-sm font-bold text-gray-800">Mar 15, 2025</p><p class="text-xs text-amber-700 font-medium">Due in 18 days</p></div>
+                <a routerLink="/wallet" class="px-3 py-1.5 bg-[#135bec] text-white rounded-lg text-xs font-bold hover:bg-blue-700">Pay</a>
+            </div>
+            <div class="flex items-center px-6 py-4 text-gray-400">
+                <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-gray-400 text-[18px]">calendar_month</span>
+                </div>
+                <div class="flex-1"><p class="text-sm font-medium">Apr 15, 2025</p></div>
+                <span class="text-sm font-bold">$445.20</span>
+            </div>
+            <div class="flex items-center px-6 py-4 text-gray-400">
+                <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-gray-400 text-[18px]">calendar_month</span>
+                </div>
+                <div class="flex-1"><p class="text-sm font-medium">May 15, 2025</p></div>
+                <span class="text-sm font-bold">$445.20</span>
+            </div>
+        </div>
+    </div>
+
+    <a routerLink="/repayment/history" class="inline-flex items-center text-sm font-bold text-[#135bec] hover:underline">
+        <span class="material-symbols-outlined mr-1 text-[18px]">history</span>Payment history
+    </a>
+
+</div>

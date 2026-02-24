@@ -1,0 +1,63 @@
+<div class="space-y-8 pb-10">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Delinquency cases</h1>
+            <p class="text-gray-500 text-sm font-medium">Overdue repayment cases (risk level, category, status).</p>
+        </div>
+        <a routerLink="/admin/repayments" class="inline-flex items-center px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all">
+            <span class="material-symbols-outlined mr-2 text-[18px]">arrow_back</span>Back
+        </a>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-gray-50 flex flex-wrap items-center gap-4">
+            <select class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
+                <option value="">All status</option>
+                <option>OPEN</option>
+                <option>IN_PROGRESS</option>
+                <option>CLOSED</option>
+            </select>
+            <select class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
+                <option value="">All risk</option>
+                <option>LOW</option>
+                <option>MEDIUM</option>
+                <option>HIGH</option>
+            </select>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Risk level</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Category</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Status</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Opened</th>
+                        <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6 font-mono text-gray-500">1</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700">MEDIUM</span></td>
+                        <td class="py-4 px-6 text-gray-600">LATE_PAYMENT</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-[#135bec]">IN_PROGRESS</span></td>
+                        <td class="py-4 px-6 text-gray-600">2025-02-10</td>
+                        <td class="py-4 px-6 text-right">
+                            <button type="button" class="text-[#135bec] font-bold hover:underline">View</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6 font-mono text-gray-500">2</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700">HIGH</span></td>
+                        <td class="py-4 px-6 text-gray-600">DEFAULT</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-100 text-gray-600">OPEN</span></td>
+                        <td class="py-4 px-6 text-gray-600">2025-02-18</td>
+                        <td class="py-4 px-6 text-right">
+                            <button type="button" class="text-[#135bec] font-bold hover:underline">View</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

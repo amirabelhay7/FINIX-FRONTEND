@@ -1,0 +1,31 @@
+<div class="max-w-lg mx-auto space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <div class="flex items-center gap-4">
+        <a routerLink="/credit/application/1" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Down Payment</h1>
+            <p class="text-gray-500 text-sm font-medium">Pay from your wallet to continue.</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Due</p>
+        <p class="text-3xl font-black text-gray-900 mt-1">500 DT</p>
+        <p class="text-sm text-gray-500 mt-1">Request #REQ-2025-008 · Vehicle credit</p>
+    </div>
+
+    <div class="bg-blue-50 rounded-2xl border border-blue-100 p-4">
+        <p class="text-sm text-gray-700">Your wallet balance: <strong>2,840.50 DT</strong>. You can use savings from your Savings Challenge as part of the down payment.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Amount to pay now (DT)</label>
+            <input type="number" value="500" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-lg font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+        </div>
+        <button type="button" class="w-full py-3 bg-[#135bec] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-md">Pay from wallet</button>
+    </div>
+
+</div>

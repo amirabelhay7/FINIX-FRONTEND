@@ -1,0 +1,132 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <!-- KYC Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">KYC Verification</h1>
+            <p class="text-gray-500 text-sm font-medium">Upload your identity documents to unlock full platform access.
+            </p>
+        </div>
+        <div class="flex items-center space-x-2 px-4 py-2 bg-green-50 border border-green-200 rounded-xl">
+            <span class="material-symbols-outlined text-green-600 text-[20px]">verified</span>
+            <span class="text-sm font-black text-green-700">Identity Verified</span>
+        </div>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+        <h4 class="font-bold text-gray-700 text-sm mb-6 uppercase tracking-widest">Verification Progress</h4>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="flex flex-col items-center text-center p-4 rounded-xl bg-green-50 border border-green-100">
+                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mb-3">
+                    <span class="material-symbols-outlined text-white text-[22px]">check</span>
+                </div>
+                <p class="text-xs font-black text-green-700">Identity</p>
+                <p class="text-[10px] text-green-600 font-medium mt-1">CIN uploaded & verified</p>
+            </div>
+            <div class="flex flex-col items-center text-center p-4 rounded-xl bg-green-50 border border-green-100">
+                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mb-3">
+                    <span class="material-symbols-outlined text-white text-[22px]">check</span>
+                </div>
+                <p class="text-xs font-black text-green-700">Address Proof</p>
+                <p class="text-[10px] text-green-600 font-medium mt-1">Utility bill accepted</p>
+            </div>
+            <div class="flex flex-col items-center text-center p-4 rounded-xl bg-yellow-50 border border-yellow-100">
+                <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-3">
+                    <span class="material-symbols-outlined text-white text-[22px]">hourglass_top</span>
+                </div>
+                <p class="text-xs font-black text-yellow-700">Income Proof</p>
+                <p class="text-[10px] text-yellow-600 font-medium mt-1">Under review</p>
+            </div>
+            <div class="flex flex-col items-center text-center p-4 rounded-xl bg-gray-50 border border-gray-100">
+                <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center mb-3">
+                    <span class="material-symbols-outlined text-white text-[22px]">lock</span>
+                </div>
+                <p class="text-xs font-black text-gray-400">Selfie / Liveness</p>
+                <p class="text-[10px] text-gray-400 font-medium mt-1">Not started</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document List -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50 flex items-center justify-between">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">folder_open</span>
+                Uploaded Documents
+            </h4>
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">3 of 4 completed</span>
+        </div>
+        <div class="divide-y divide-gray-50">
+            <!-- Doc 1 — Verified -->
+            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-green-600 text-[20px]">id_card</span>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold text-gray-800">National ID Card (CIN)</p>
+                    <p class="text-xs text-gray-400 font-medium">cin_amadou_kone.pdf · 1.2 MB · Uploaded Jan 15, 2026
+                    </p>
+                </div>
+                <span
+                    class="px-2 py-0.5 bg-green-50 text-green-700 text-[10px] font-bold rounded border border-green-100 uppercase">Verified</span>
+            </div>
+            <!-- Doc 2 — Verified -->
+            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-green-600 text-[20px]">home</span>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold text-gray-800">Proof of Address</p>
+                    <p class="text-xs text-gray-400 font-medium">facture_steg.pdf · 890 KB · Uploaded Jan 15, 2026</p>
+                </div>
+                <span
+                    class="px-2 py-0.5 bg-green-50 text-green-700 text-[10px] font-bold rounded border border-green-100 uppercase">Verified</span>
+            </div>
+            <!-- Doc 3 — Pending -->
+            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="w-10 h-10 bg-yellow-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-yellow-600 text-[20px]">work</span>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold text-gray-800">Income Statement / Pay Slip</p>
+                    <p class="text-xs text-gray-400 font-medium">salaire_jan26.pdf · 560 KB · Uploaded Feb 01, 2026</p>
+                </div>
+                <span
+                    class="px-2 py-0.5 bg-yellow-50 text-yellow-700 text-[10px] font-bold rounded border border-yellow-100 uppercase">Reviewing</span>
+            </div>
+            <!-- Doc 4 — Missing -->
+            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-gray-300 text-[20px]">face</span>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold text-gray-400">Selfie / Liveness Check</p>
+                    <p class="text-xs text-gray-300 font-medium">Not yet uploaded</p>
+                </div>
+                <button
+                    class="px-3 py-1.5 bg-[#135bec] text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors">Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Drop Zone -->
+    <div
+        class="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center hover:border-[#135bec]/50 hover:bg-blue-50/30 transition-all cursor-pointer group">
+        <div class="flex flex-col items-center space-y-4">
+            <div
+                class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                <span class="material-symbols-outlined text-[#135bec] text-3xl">cloud_upload</span>
+            </div>
+            <div>
+                <p class="text-sm font-black text-gray-700">Drag & drop a document here</p>
+                <p class="text-xs text-gray-400 font-medium mt-1">PDF, JPG, PNG — max 5MB</p>
+            </div>
+            <button
+                class="px-6 py-2.5 bg-[#135bec] text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+                Browse Files
+            </button>
+        </div>
+    </div>
+
+</div>

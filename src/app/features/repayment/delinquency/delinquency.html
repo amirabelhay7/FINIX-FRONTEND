@@ -1,0 +1,37 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Delinquency</h1>
+            <p class="text-gray-500 text-sm font-medium">Overdue payments and recovery status.</p>
+        </div>
+        <a routerLink="/repayment/schedule" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
+            Go to schedule
+        </a>
+    </div>
+
+    <div class="bg-green-50 rounded-2xl border border-green-100 p-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-green-600 text-[24px]">check_circle</span>
+            </div>
+            <div>
+                <h3 class="font-black text-gray-900">No overdue payments</h3>
+                <p class="text-sm text-gray-600">You're up to date. Next payment due Mar 15, 2025.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-amber-500 text-[20px]">info</span>
+                What happens if I miss a payment?
+            </h4>
+        </div>
+        <div class="p-6 text-sm text-gray-600 space-y-2">
+            <p>We'll send reminders before and after the due date. Late payments may affect your score and attract penalties. Contact us if you're facing difficulty.</p>
+        </div>
+    </div>
+
+</div>

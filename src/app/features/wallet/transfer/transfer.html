@@ -1,0 +1,108 @@
+<div class="max-w-lg mx-auto space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <!-- Header -->
+    <div>
+        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">P2P Transfer</h1>
+        <p class="text-gray-500 text-sm font-medium">Send money instantly to any FINIX user.</p>
+    </div>
+
+    <!-- Your Balance -->
+    <div
+        class="bg-gradient-to-r from-[#135bec] to-[#3b78ff] rounded-2xl p-5 text-white flex items-center justify-between">
+        <div>
+            <p class="text-[10px] text-blue-200 uppercase tracking-widest font-black">Your Balance</p>
+            <p class="text-2xl font-black mt-1">$2,840.50</p>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-4xl">account_balance_wallet</span>
+    </div>
+
+    <!-- Transfer Form Card -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
+
+        <!-- Recipient -->
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Recipient</label>
+            <div class="relative">
+                <span
+                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">search</span>
+                <input type="text" placeholder="Search by CIN, phone, or name..."
+                    class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+            </div>
+            <!-- Recipient Preview (shown after lookup) -->
+            <div class="flex items-center p-3 bg-blue-50 rounded-xl border border-blue-100">
+                <img src="https://ui-avatars.com/api/?name=Sarah+Sidibe&background=135bec&color=fff"
+                    class="w-8 h-8 rounded-full mr-3" alt="Recipient" />
+                <div class="flex-1">
+                    <p class="text-sm font-black text-gray-800">Sarah Sidibe</p>
+                    <p class="text-xs text-gray-500 font-medium">CIN: 12345678 · Gold Tier</p>
+                </div>
+                <span class="material-symbols-outlined text-green-600 text-[20px]">check_circle</span>
+            </div>
+        </div>
+
+        <!-- Amount -->
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Amount</label>
+            <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
+                <input type="number" placeholder="0.00"
+                    class="w-full pl-8 pr-20 py-4 bg-gray-50 border border-gray-200 rounded-xl text-2xl font-black text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 flex space-x-1">
+                    <button
+                        class="px-2 py-1 bg-gray-100 text-gray-500 text-[10px] font-black rounded hover:bg-gray-200">50</button>
+                    <button
+                        class="px-2 py-1 bg-gray-100 text-gray-500 text-[10px] font-black rounded hover:bg-gray-200">MAX</button>
+                </div>
+            </div>
+            <p class="text-xs text-gray-400 font-medium">Max: $2,840.50 — Transfer fee: $0.00 (free)</p>
+        </div>
+
+        <!-- Quick Amounts -->
+        <div class="flex space-x-3">
+            <button
+                class="flex-1 py-2.5 bg-gray-50 border border-gray-200 text-sm font-bold text-gray-600 rounded-xl hover:border-[#135bec] hover:text-[#135bec] transition-all">$50</button>
+            <button
+                class="flex-1 py-2.5 bg-gray-50 border border-gray-200 text-sm font-bold text-gray-600 rounded-xl hover:border-[#135bec] hover:text-[#135bec] transition-all">$100</button>
+            <button
+                class="flex-1 py-2.5 bg-gray-50 border border-gray-200 text-sm font-bold text-gray-600 rounded-xl hover:border-[#135bec] hover:text-[#135bec] transition-all">$200</button>
+            <button
+                class="flex-1 py-2.5 bg-gray-50 border border-gray-200 text-sm font-bold text-gray-600 rounded-xl hover:border-[#135bec] hover:text-[#135bec] transition-all">$500</button>
+        </div>
+
+        <!-- Note -->
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Note (Optional)</label>
+            <input type="text" placeholder="e.g. Rent payment..."
+                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+        </div>
+
+        <!-- Summary -->
+        <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-2">
+            <div class="flex justify-between text-sm">
+                <span class="text-gray-500 font-medium">Transfer Amount</span>
+                <span class="font-black text-gray-800">$200.00</span>
+            </div>
+            <div class="flex justify-between text-sm">
+                <span class="text-gray-500 font-medium">Platform Fee</span>
+                <span class="font-bold text-green-600">Free</span>
+            </div>
+            <div class="flex justify-between text-sm border-t border-gray-200 pt-2 mt-2">
+                <span class="font-black text-gray-800">Total Deducted</span>
+                <span class="font-black text-gray-900">$200.00</span>
+            </div>
+        </div>
+
+        <!-- Confirm Button -->
+        <button
+            class="w-full py-4 bg-[#135bec] text-white font-black rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-200 flex items-center justify-center space-x-2">
+            <span class="material-symbols-outlined text-[18px]">send</span>
+            <span>Confirm Transfer</span>
+        </button>
+    </div>
+
+    <!-- Back -->
+    <a routerLink="/wallet"
+        class="flex items-center text-sm font-bold text-gray-400 hover:text-[#135bec] transition-colors">
+        <span class="material-symbols-outlined text-[18px] mr-1">arrow_back</span> Back to Wallet
+    </a>
+</div>

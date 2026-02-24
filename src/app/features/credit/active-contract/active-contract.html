@@ -1,0 +1,92 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Active Contract</h1>
+            <p class="text-gray-500 text-sm font-medium">Your current loan and next repayment.</p>
+        </div>
+        <a routerLink="/credit/contract/1"
+            class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
+            Full contract details
+        </a>
+    </div>
+
+    <!-- Main contract card -->
+    <div class="bg-gradient-to-br from-[#0a3bbf] via-[#135bec] to-[#3b78ff] rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl shadow-blue-200">
+        <div class="absolute top-[-60px] right-[-60px] w-[280px] h-[280px] bg-white/5 rounded-full"></div>
+        <div class="relative z-10">
+            <p class="text-[10px] text-blue-200 uppercase tracking-widest font-black mb-2">Contract #FIN-2025-0842</p>
+            <h2 class="text-4xl font-black tracking-tight">$5,000 <span class="text-xl text-blue-300">· 12 months</span></h2>
+            <p class="text-sm text-blue-100 mt-2">Interest rate 8.5% · Total to repay $5,342.40</p>
+            <div class="mt-6 flex flex-wrap gap-4">
+                <div class="bg-white/10 rounded-xl px-4 py-2">
+                    <p class="text-[10px] text-blue-200 font-bold uppercase">Next payment</p>
+                    <p class="text-lg font-black">$445.20 — Mar 15, 2025</p>
+                </div>
+                <a routerLink="/wallet" class="inline-flex items-center bg-white text-[#135bec] rounded-xl px-4 py-2 text-sm font-bold hover:bg-blue-50 transition-colors">
+                    <span class="material-symbols-outlined mr-2 text-[18px]">account_balance_wallet</span>Pay from wallet
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Repayment progress -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <h4 class="font-bold text-gray-800 flex items-center mb-4">
+            <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">trending_up</span>
+            Repayment progress
+        </h4>
+        <div class="flex items-center gap-4">
+            <div class="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-[#135bec] rounded-full" style="width: 25%;"></div>
+            </div>
+            <span class="text-sm font-black text-gray-800">3 / 12 payments</span>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">$1,335.60 paid of $5,342.40</p>
+    </div>
+
+    <!-- Next payments list (static) -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-green-500 text-[20px]">calendar_month</span>
+                Upcoming payments
+            </h4>
+        </div>
+        <div class="divide-y divide-gray-50">
+            <div class="flex items-center px-6 py-4">
+                <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-amber-600 text-[18px]">schedule</span>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold text-gray-800">Mar 15, 2025</p>
+                    <p class="text-xs text-gray-400 font-medium">Due in 18 days</p>
+                </div>
+                <span class="text-sm font-black text-gray-800">$445.20</span>
+            </div>
+            <div class="flex items-center px-6 py-4 text-gray-400">
+                <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-gray-400 text-[18px]">calendar_month</span>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium">Apr 15, 2025</p>
+                </div>
+                <span class="text-sm font-bold">$445.20</span>
+            </div>
+            <div class="flex items-center px-6 py-4 text-gray-400">
+                <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-gray-400 text-[18px]">calendar_month</span>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium">May 15, 2025</p>
+                </div>
+                <span class="text-sm font-bold">$445.20</span>
+            </div>
+        </div>
+        <div class="p-4 bg-gray-50 border-t border-gray-100 text-center">
+            <a routerLink="/repayment" class="text-xs font-bold text-[#135bec] hover:underline">View full schedule</a>
+        </div>
+    </div>
+
+</div>

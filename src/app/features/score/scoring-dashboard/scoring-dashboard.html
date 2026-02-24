@@ -1,0 +1,203 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">My Credit Score</h1>
+            <p class="text-gray-500 text-sm font-medium">Your alternative credit score based on multiple dimensions</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <div class="flex items-center bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm text-xs space-x-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="font-medium text-gray-500">Score: Live</span>
+            </div>
+            <button class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md flex items-center" (click)="refreshScore()">
+                <span class="material-symbols-outlined mr-2 text-[18px]">refresh</span>Refresh Score
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Score Card -->
+    <div class="bg-gradient-to-br from-[#0a3bbf] via-[#135bec] to-[#3b78ff] rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl shadow-blue-200">
+        <!-- BG circles -->
+        <div class="absolute top-[-60px] right-[-60px] w-[280px] h-[280px] bg-white/5 rounded-full"></div>
+        <div class="absolute bottom-[-40px] left-[-40px] w-[200px] h-[200px] bg-white/5 rounded-full"></div>
+
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Score Display -->
+            <div class="lg:col-span-2">
+                <div class="flex items-start justify-between mb-6">
+                    <div>
+                        <p class="text-[10px] text-blue-200 uppercase tracking-widest font-black mb-2">Current Score</p>
+                        <h2 class="text-6xl font-black tracking-tight">{{ currentScore }} <span class="text-2xl text-blue-300">/
+                                {{ maxScore }}</span></h2>
+                        <p class="text-blue-100 text-sm font-medium mt-2">{{ userTier }} Tier — Excellent Standing</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-full border-4 border-white/30 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-3xl">workspace_premium</span>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-blue-200 font-bold uppercase tracking-widest">Progress to Platinum</span>
+                        <span class="text-blue-200 font-bold">{{ pointsToNextTier }} points to go</span>
+                    </div>
+                    <div class="h-3 bg-white/20 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-green-400 to-blue-300 rounded-full transition-all duration-700" [style.width]="scorePercentage + '%'"></div>
+                    </div>
+                </div>
+
+                <!-- Score Breakdown -->
+                <div class="mt-8 grid grid-cols-2 gap-4">
+                    <div class="bg-white/10 rounded-2xl p-4 border border-white/10">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="material-symbols-outlined text-green-300 text-[16px]">description</span>
+                            <p class="text-[10px] text-blue-200 font-bold uppercase tracking-widest">Documents</p>
+                        </div>
+                        <p class="text-xl font-black">+{{ scoreBreakdown.documents }}</p>
+                    </div>
+                    <div class="bg-white/10 rounded-2xl p-4 border border-white/10">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="material-symbols-outlined text-blue-300 text-[16px]">person</span>
+                            <p class="text-[10px] text-blue-200 font-bold uppercase tracking-widest">Profile</p>
+                        </div>
+                        <p class="text-xl font-black">+{{ scoreBreakdown.profile }}</p>
+                    </div>
+                    <div class="bg-white/10 rounded-2xl p-4 border border-white/10">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="material-symbols-outlined text-purple-300 text-[16px]">account_balance_wallet</span>
+                            <p class="text-[10px] text-blue-200 font-bold uppercase tracking-widest">Wallet</p>
+                        </div>
+                        <p class="text-xl font-black">+{{ scoreBreakdown.wallet }}</p>
+                    </div>
+                    <div class="bg-white/10 rounded-2xl p-4 border border-white/10">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="material-symbols-outlined text-orange-300 text-[16px]">handshake</span>
+                            <p class="text-[10px] text-blue-200 font-bold uppercase tracking-widest">Guarantees</p>
+                        </div>
+                        <p class="text-xl font-black">+{{ scoreBreakdown.guarantees }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tier Benefits -->
+            <div class="bg-white/10 rounded-2xl p-6 border border-white/10">
+                <h4 class="font-black text-white mb-4 flex items-center">
+                    <span class="material-symbols-outlined mr-2 text-[20px]">stars</span>
+                    {{ userTier }} Benefits
+                </h4>
+                <div class="space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                        <p class="text-sm text-blue-100">2% lower interest rates</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                        <p class="text-sm text-blue-100">Priority loan processing</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                        <p class="text-sm text-blue-100">Higher loan limits</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                        <p class="text-sm text-blue-100">Exclusive insurance offers</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                        <p class="text-sm text-blue-200">VIP support (Platinum only)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <a routerLink="/score/achievements" 
+            class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all group cursor-pointer" (click)="navigateToAchievements()">
+            <div class="w-14 h-14 bg-yellow-50 rounded-xl flex items-center justify-center mr-4 group-hover:bg-yellow-100 transition-colors shrink-0">
+                <span class="material-symbols-outlined text-yellow-600 text-[24px]">emoji_events</span>
+            </div>
+            <div>
+                <p class="font-black text-gray-900 text-lg">Achievements</p>
+                <p class="text-xs text-gray-400 font-medium">12 unlocked • 3 hidden</p>
+            </div>
+            <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
+        </a>
+
+        <a routerLink="/score/tutorials" 
+            class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all group cursor-pointer" (click)="navigateToTutorials()">
+            <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center mr-4 group-hover:bg-blue-100 transition-colors shrink-0">
+                <span class="material-symbols-outlined text-[#135bec] text-[24px]">school</span>
+            </div>
+            <div>
+                <p class="font-black text-gray-900 text-lg">Tutorials</p>
+                <p class="text-xs text-gray-400 font-medium">Learn to improve score</p>
+            </div>
+            <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
+        </a>
+
+        <a routerLink="/score/guarantees" 
+            class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all group cursor-pointer" (click)="navigateToGuarantees()">
+            <div class="w-14 h-14 bg-green-50 rounded-xl flex items-center justify-center mr-4 group-hover:bg-green-100 transition-colors shrink-0">
+                <span class="material-symbols-outlined text-green-600 text-[24px]">handshake</span>
+            </div>
+            <div>
+                <p class="font-black text-gray-900 text-lg">My Guarantees</p>
+                <p class="text-xs text-gray-400 font-medium">3 active • {{ scoreBreakdown.guarantees }} points</p>
+            </div>
+            <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
+        </a>
+
+        <a routerLink="/score/savings-challenge" 
+            class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all group cursor-pointer">
+            <div class="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center mr-4 group-hover:bg-emerald-100 transition-colors shrink-0">
+                <span class="material-symbols-outlined text-emerald-600 text-[24px]">savings</span>
+            </div>
+            <div>
+                <p class="font-black text-gray-900 text-lg">Savings Challenge</p>
+                <p class="text-xs text-gray-400 font-medium">Save monthly → points & down payment</p>
+            </div>
+            <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
+        </a>
+
+        <a routerLink="/score/document-upload" 
+            class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all group cursor-pointer">
+            <div class="w-14 h-14 bg-orange-50 rounded-xl flex items-center justify-center mr-4 group-hover:bg-orange-100 transition-colors shrink-0">
+                <span class="material-symbols-outlined text-orange-600 text-[24px]">upload_file</span>
+            </div>
+            <div>
+                <p class="font-black text-gray-900 text-lg">Document Upload</p>
+                <p class="text-xs text-gray-400 font-medium">Bills, invoices → earn points</p>
+            </div>
+            <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
+        </a>
+    </div>
+
+    <!-- Score History -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50 flex items-center justify-between">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-purple-500 text-[20px]">history</span>
+                Recent Score Changes
+            </h4>
+            <a routerLink="/score/history" class="text-xs font-bold text-[#135bec] hover:underline">View All →</a>
+        </div>
+        <div class="divide-y divide-gray-50">
+            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors" *ngFor="let change of recentChanges">
+                <div class="w-10 h-10 bg-{{ change.color }}-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-{{ change.color }}-600 text-[18px]">{{ change.icon }}</span>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold text-gray-800">{{ change.description }}</p>
+                    <p class="text-xs text-gray-400 font-medium font-mono">{{ change.time }}</p>
+                </div>
+                <span class="text-sm font-black text-green-600">+{{ change.points }}</span>
+            </div>
+        </div>
+    </div>
+
+</div>

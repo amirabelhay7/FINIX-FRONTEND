@@ -1,0 +1,87 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <!-- Header -->
+    <div class="flex items-center gap-4">
+        <a routerLink="/credit/my-loans" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Contract #FIN-2025-0842</h1>
+            <p class="text-gray-500 text-sm font-medium">Signed Jan 15, 2025 · Active</p>
+        </div>
+    </div>
+
+    <!-- Contract terms card -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50 bg-gray-50/50">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">description</span>
+                Contract terms
+            </h4>
+        </div>
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Credit amount</p>
+                <p class="text-xl font-black text-gray-900 mt-1">$5,000.00</p>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Interest rate</p>
+                <p class="text-xl font-black text-gray-900 mt-1">8.5%</p>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Duration</p>
+                <p class="text-xl font-black text-gray-900 mt-1">12 months</p>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Total to repay</p>
+                <p class="text-xl font-black text-[#135bec] mt-1">$5,342.40</p>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">First due date</p>
+                <p class="text-lg font-bold text-gray-800 mt-1">Feb 15, 2025</p>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">End date</p>
+                <p class="text-lg font-bold text-gray-800 mt-1">Jan 15, 2026</p>
+            </div>
+        </div>
+        <div class="px-6 pb-6 flex flex-wrap gap-3">
+            <a routerLink="/repayment" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">
+                <span class="material-symbols-outlined mr-2 text-[18px]">calendar_month</span>Repayment schedule
+            </a>
+        </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-orange-500 text-[20px]">folder</span>
+                Documents
+            </h4>
+        </div>
+        <div class="divide-y divide-gray-50">
+            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-orange-500 text-[18px]">picture_as_pdf</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-800">Signed contract.pdf</p>
+                    <p class="text-xs text-gray-400 font-medium">Uploaded Jan 15, 2025</p>
+                </div>
+                <span class="text-xs font-bold text-[#135bec] cursor-pointer hover:underline">Download</span>
+            </div>
+            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-orange-500 text-[18px]">picture_as_pdf</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-800">ID document.pdf</p>
+                    <p class="text-xs text-gray-400 font-medium">Uploaded Jan 10, 2025</p>
+                </div>
+                <span class="text-xs font-bold text-[#135bec] cursor-pointer hover:underline">Download</span>
+            </div>
+        </div>
+    </div>
+
+</div>

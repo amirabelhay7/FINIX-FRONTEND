@@ -1,0 +1,22 @@
+<div class="space-y-8 pb-10">
+    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Wallet & Ledger</h1>
+    <p class="text-gray-500 text-sm font-medium">All wallets, agent top-ups, and transaction ledger.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <a routerLink="/admin/wallet/wallets" class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all">
+            <span class="material-symbols-outlined text-[#135bec] text-[32px] mr-4">account_balance_wallet</span>
+            <div>
+                <p class="font-bold text-gray-800">All Wallets</p>
+                <p class="text-sm text-gray-500">View and manage user wallets</p>
+            </div>
+            <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
+        </a>
+        <a routerLink="/admin/wallet/transactions" class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all">
+            <span class="material-symbols-outlined text-green-600 text-[32px] mr-4">receipt_long</span>
+            <div>
+                <p class="font-bold text-gray-800">Transaction Ledger</p>
+                <p class="text-sm text-gray-500">Full immutable transaction log</p>
+            </div>
+            <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
+        </a>
+    </div>
+</div>

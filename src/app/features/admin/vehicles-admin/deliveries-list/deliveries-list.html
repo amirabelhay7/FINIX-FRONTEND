@@ -1,0 +1,35 @@
+<div class="space-y-8 pb-10">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Deliveries</h1>
+            <p class="text-gray-500 text-sm font-medium">Vehicle delivery tracking.</p>
+        </div>
+        <a routerLink="/admin/vehicles" class="inline-flex items-center px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all">Back</a>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Vehicle</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Seller</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Status</th>
+                        <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6 font-mono text-gray-500">1</td>
+                        <td class="py-4 px-6 font-bold text-gray-800">Peugeot 208</td>
+                        <td class="py-4 px-6 text-gray-600">Auto Sfax</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700">IN_TRANSIT</span></td>
+                        <td class="py-4 px-6 text-right">
+                            <button type="button" class="text-[#135bec] font-bold hover:underline">View</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
