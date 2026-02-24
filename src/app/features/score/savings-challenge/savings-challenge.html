@@ -1,0 +1,67 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Savings Challenge</h1>
+            <p class="text-gray-500 text-sm font-medium">Save regularly to earn points — use savings as down payment for vehicle credit.</p>
+        </div>
+        <a routerLink="/score/dashboard" class="text-sm font-bold text-[#135bec] hover:underline">Back to score</a>
+    </div>
+
+    <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl">
+        <div class="relative z-10">
+            <p class="text-[10px] text-green-200 uppercase tracking-widest font-black mb-2">Your commitment</p>
+            <h2 class="text-4xl font-black">50 DT <span class="text-xl text-green-200">/ month</span></h2>
+            <p class="text-sm text-green-100 mt-2">Saved 3 months in a row → +45 points this month</p>
+            <div class="mt-6 flex items-center gap-4">
+                <div class="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
+                    <div class="h-full bg-white rounded-full" style="width: 75%;"></div>
+                </div>
+                <span class="text-sm font-black">3/4 this month</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Total saved (challenge)</p>
+            <p class="text-2xl font-black text-gray-900 mt-1">450 DT</p>
+            <p class="text-xs text-gray-500 mt-1">Can be used as down payment for credit</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Points earned (savings)</p>
+            <p class="text-2xl font-black text-[#135bec] mt-1">+120</p>
+            <p class="text-xs text-gray-500 mt-1">Last 3 months</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-green-500 text-[20px]">calendar_month</span>
+                Monthly history
+            </h4>
+        </div>
+        <div class="divide-y divide-gray-50">
+            <div class="flex items-center px-6 py-4">
+                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-green-600 text-[18px]">check_circle</span>
+                </div>
+                <div class="flex-1"><p class="text-sm font-bold text-gray-800">February 2025</p><p class="text-xs text-gray-500">50 DT saved · +15 pts</p></div>
+                <span class="text-xs font-bold text-green-600">Done</span>
+            </div>
+            <div class="flex items-center px-6 py-4">
+                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-green-600 text-[18px]">check_circle</span>
+                </div>
+                <div class="flex-1"><p class="text-sm font-bold text-gray-800">January 2025</p><p class="text-xs text-gray-500">50 DT saved · +15 pts</p></div>
+                <span class="text-xs font-bold text-green-600">Done</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-blue-50 rounded-2xl border border-blue-100 p-4">
+        <p class="text-sm text-gray-700"><strong>Tip:</strong> Set a monthly amount (e.g. 50 DT). Each on-time save earns points and builds your eligibility for vehicle micro-credit.</p>
+    </div>
+
+</div>

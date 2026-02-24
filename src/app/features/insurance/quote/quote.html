@@ -1,0 +1,43 @@
+<div class="max-w-2xl mx-auto space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <div class="flex items-center gap-4">
+        <a routerLink="/insurance/products" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Get a Quote</h1>
+            <p class="text-gray-500 text-sm font-medium">Simulate coverage and see your premium.</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Product</label>
+            <select class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all">
+                <option>Moto Cover</option>
+                <option>Health Micro</option>
+                <option>Home Shield</option>
+            </select>
+        </div>
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Coverage amount ($)</label>
+            <input type="number" placeholder="e.g. 2000" value="2000" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+        </div>
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Duration</label>
+            <select class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all">
+                <option>6 months</option>
+                <option selected>12 months</option>
+                <option>24 months</option>
+            </select>
+        </div>
+        <button type="button" class="w-full px-4 py-3 bg-[#135bec] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-md">Calculate quote</button>
+    </div>
+
+    <div class="bg-blue-50 rounded-2xl border border-blue-100 p-6">
+        <p class="text-xs font-bold text-blue-700 uppercase tracking-widest mb-2">Estimated premium</p>
+        <p class="text-2xl font-black text-gray-900">$96 <span class="text-sm font-medium text-gray-500">/ year</span></p>
+        <p class="text-xs text-gray-500 mt-1">$8/month · Moto Cover, $2,000 coverage, 12 months.</p>
+    </div>
+
+</div>

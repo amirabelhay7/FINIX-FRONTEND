@@ -1,0 +1,43 @@
+<div class="space-y-8 pb-10 max-w-4xl">
+    <div class="flex items-center gap-4">
+        <a routerLink="/agent/clients" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Client details</h1>
+            <p class="text-gray-500 text-sm font-medium">Amadou Kone — profile, wallet, loans</p>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <h2 class="font-bold text-gray-800 mb-4">Profile</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div><p class="text-gray-500">Name</p><p class="font-bold text-gray-800">Amadou Kone</p></div>
+                    <div><p class="text-gray-500">Email</p><p class="text-gray-800">amadou.kone&#64;email.com</p></div>
+                    <div><p class="text-gray-500">Phone</p><p class="text-gray-800">+216 12 345 678</p></div>
+                    <div><p class="text-gray-500">CIN</p><p class="font-mono text-gray-800">12345678</p></div>
+                    <div><p class="text-gray-500">City</p><p class="text-gray-800">Tunis</p></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <h2 class="font-bold text-gray-800 mb-4">Loans</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+                        <span class="font-bold text-gray-800">Loan #1</span>
+                        <span class="text-[#135bec] font-bold">5,000 TND</span>
+                        <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-50 text-green-700">Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <h2 class="font-bold text-gray-800 mb-4">Wallet</h2>
+                <p class="text-2xl font-bold text-[#135bec]">1,250.00 TND</p>
+                <p class="text-xs text-gray-500 mt-1">Account: ACC-001</p>
+                <a routerLink="/agent/top-up" class="mt-4 inline-block text-sm font-bold text-[#135bec] hover:underline">Record top-up</a>
+            </div>
+        </div>
+    </div>
+</div>

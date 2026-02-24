@@ -1,0 +1,64 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Document Upload</h1>
+            <p class="text-gray-500 text-sm font-medium">Upload invoices, bills, and proofs to earn points and strengthen your profile.</p>
+        </div>
+        <a routerLink="/score/dashboard" class="text-sm font-bold text-[#135bec] hover:underline">Back to score</a>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <h4 class="font-bold text-gray-800 flex items-center mb-4">
+            <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">upload_file</span>
+            Upload a document
+        </h4>
+        <p class="text-xs text-gray-500 mb-4">Accepted: electricity bill, invoice, rent receipt, ID, proof of income. Each verified document earns points.</p>
+        <div class="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-[#135bec]/40 transition-colors cursor-pointer">
+            <span class="material-symbols-outlined text-gray-400 text-4xl mb-2">cloud_upload</span>
+            <p class="text-sm font-bold text-gray-600">Drop file here or click to browse</p>
+            <p class="text-xs text-gray-400 mt-1">PDF, JPG, PNG · max 5 MB</p>
+        </div>
+        <div class="mt-4 space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Document type</label>
+            <select class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec]">
+                <option>Electricity / utility bill</option>
+                <option>Invoice</option>
+                <option>Rent receipt</option>
+                <option>Proof of income</option>
+                <option>ID document</option>
+            </select>
+        </div>
+        <button type="button" class="mt-4 w-full py-3 bg-[#135bec] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all">Submit for verification</button>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-green-500 text-[20px]">folder</span>
+                My documents (verified)
+            </h4>
+        </div>
+        <div class="divide-y divide-gray-50">
+            <div class="flex items-center px-6 py-4">
+                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-green-600 text-[18px]">check_circle</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-800">Electricity bill — Jan 2025</p>
+                    <p class="text-xs text-gray-500">Verified · +10 points</p>
+                </div>
+            </div>
+            <div class="flex items-center px-6 py-4">
+                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-green-600 text-[18px]">check_circle</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-800">ID document</p>
+                    <p class="text-xs text-gray-500">Verified · +20 points</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

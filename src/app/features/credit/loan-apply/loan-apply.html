@@ -1,0 +1,66 @@
+<div class="max-w-2xl mx-auto space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <!-- Header -->
+    <div class="flex items-center gap-4">
+        <a routerLink="/credit/my-loans" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Apply for a Loan</h1>
+            <p class="text-gray-500 text-sm font-medium">Submit your request. We'll review and get back to you quickly.</p>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Loan amount</label>
+            <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                <input type="number" placeholder="0.00" value="3000"
+                    class="w-full pl-8 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-lg font-bold text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+            </div>
+        </div>
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Down payment (optional)</label>
+            <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                <input type="number" placeholder="0.00"
+                    class="w-full pl-8 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-lg font-bold text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+            </div>
+        </div>
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Duration (months)</label>
+            <select
+                class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all">
+                <option>6 months</option>
+                <option selected>12 months</option>
+                <option>24 months</option>
+                <option>36 months</option>
+            </select>
+        </div>
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Purpose of credit</label>
+            <input type="text" placeholder="e.g. Moto-taxi purchase, equipment..."
+                class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+        </div>
+        <div class="pt-4 flex flex-col sm:flex-row gap-3">
+            <button type="button"
+                class="flex-1 px-4 py-3 bg-[#135bec] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
+                Submit request
+            </button>
+            <a routerLink="/credit/my-loans"
+                class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-200 transition-all text-center">
+                Cancel
+            </a>
+        </div>
+    </div>
+
+    <!-- Estimated repayment (static) -->
+    <div class="bg-blue-50 rounded-2xl border border-blue-100 p-6">
+        <p class="text-xs font-bold text-blue-700 uppercase tracking-widest mb-2">Estimated monthly payment</p>
+        <p class="text-2xl font-black text-gray-900">$265.00 <span class="text-sm font-medium text-gray-500">/ month</span></p>
+        <p class="text-xs text-gray-500 mt-1">Based on current rate. Final terms after approval.</p>
+    </div>
+
+</div>

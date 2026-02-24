@@ -1,0 +1,28 @@
+<div class="space-y-8 pb-10 max-w-2xl">
+    <div class="flex items-center gap-4">
+        <a routerLink="/score/guarantees" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Guarantee request</h1>
+            <p class="text-gray-500 text-sm font-medium">From Karim Ben Ali — 50 points</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><p class="text-xs font-bold text-gray-500 uppercase">Guarantor</p><p class="font-bold text-gray-800">Karim Ben Ali</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">Points offered</p><p class="font-bold text-[#135bec]">50</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">Status</p><p><span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700">Pending</span></p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">Expires</p><p class="text-gray-600">2025-03-15</p></div>
+        </div>
+        <div class="border-t border-gray-100 pt-4">
+            <p class="text-xs font-bold text-gray-500 uppercase mb-1">Reason</p>
+            <p class="text-sm text-gray-600">Supporting my loan application as guarantor.</p>
+        </div>
+        <div class="flex gap-4">
+            <button type="button" class="inline-flex items-center px-6 py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 transition-all">Accept</button>
+            <button type="button" class="inline-flex items-center px-6 py-2.5 border border-red-200 text-red-600 rounded-xl text-sm font-bold hover:bg-red-50 transition-all">Reject</button>
+            <a routerLink="/score/guarantees" class="inline-block px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">Back</a>
+        </div>
+    </div>
+</div>

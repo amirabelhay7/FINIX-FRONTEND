@@ -1,1 +1,410 @@
-<p>register works!</p>
+<div class="min-h-[calc(100vh-64px)] flex">
+
+    <!-- Left Panel — Branding (same as login) -->
+    <div
+        class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0a3bbf] via-[#135bec] to-[#3b78ff] relative overflow-hidden flex-col justify-between p-16">
+        <div class="absolute top-[-80px] right-[-80px] w-[400px] h-[400px] bg-white/5 rounded-full"></div>
+        <div class="absolute bottom-[-100px] left-[-60px] w-[350px] h-[350px] bg-white/5 rounded-full"></div>
+
+        <!-- Logo -->
+        <div class="flex items-center space-x-3 relative z-10">
+            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shadow-lg">
+                <span class="material-symbols-outlined text-white text-xl">account_balance</span>
+            </div>
+            <span class="text-2xl font-bold text-white tracking-tighter">FINIX</span>
+        </div>
+
+        <!-- Steps Visual -->
+        <div class="relative z-10 space-y-8">
+            <p class="text-[10px] text-blue-200 uppercase tracking-widest font-black">Quick 3-step onboarding</p>
+            <div class="space-y-6">
+                <!-- Step 1 -->
+                <div class="flex items-start space-x-4" [class.opacity-100]="currentStep >= 1"
+                    [class.opacity-40]="currentStep < 1">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg"
+                        [class.bg-white]="currentStep >= 1" [class.bg-white/20]="currentStep < 1">
+                        <span class="material-symbols-outlined text-[18px]" [class.text-[#135bec]]="currentStep >= 1"
+                            [class.text-white]="currentStep < 1">person</span>
+                    </div>
+                    <div>
+                        <p class="text-white font-black">Personal Information</p>
+                        <p class="text-blue-200 text-xs font-medium">Name, contact & identity details</p>
+                    </div>
+                </div>
+                <!-- Step 2 -->
+                <div class="flex items-start space-x-4" [class.opacity-100]="currentStep >= 2"
+                    [class.opacity-40]="currentStep < 2">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg"
+                        [class.bg-white]="currentStep >= 2" [class.bg-white/20]="currentStep < 2">
+                        <span class="material-symbols-outlined text-[18px]" [class.text-[#135bec]]="currentStep >= 2"
+                            [class.text-white]="currentStep < 2">badge</span>
+                    </div>
+                    <div>
+                        <p class="text-white font-black">Choose Your Role</p>
+                        <p class="text-blue-200 text-xs font-medium">Client, Agent, Seller, or Insurer</p>
+                    </div>
+                </div>
+                <!-- Step 3 -->
+                <div class="flex items-start space-x-4" [class.opacity-100]="currentStep >= 3"
+                    [class.opacity-40]="currentStep < 3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg"
+                        [class.bg-white]="currentStep >= 3" [class.bg-white/20]="currentStep < 3">
+                        <span class="material-symbols-outlined text-[18px]" [class.text-[#135bec]]="currentStep >= 3"
+                            [class.text-white]="currentStep < 3">tune</span>
+                    </div>
+                    <div>
+                        <p class="text-white font-black">Role-Specific Details</p>
+                        <p class="text-blue-200 text-xs font-medium">Your professional info & credentials</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Testimonial -->
+        <div class="relative z-10 bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-sm">
+            <p class="text-white font-medium text-sm leading-relaxed italic">
+                "FINIX gave my family access to credit we never thought was possible. The process was transparent and
+                fast."
+            </p>
+            <div class="flex items-center space-x-3 mt-4">
+                <img src="https://ui-avatars.com/api/?name=Amadou+K&background=135bec&color=fff"
+                    class="w-8 h-8 rounded-full border-2 border-white/30" alt="User" />
+                <div>
+                    <p class="text-white text-xs font-bold">Amadou K.</p>
+                    <p class="text-blue-200 text-[10px] font-medium">Gold Tier Client — Dakar</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel — Multi-Step Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16 bg-gray-50">
+        <div class="w-full max-w-md">
+
+            <!-- Header -->
+            <div class="mb-8">
+                <p class="text-xs font-black text-[#135bec] uppercase tracking-widest mb-3">Create Account</p>
+                <h2 class="text-3xl font-black text-gray-900 tracking-tight">Join the FINIX<br />ecosystem</h2>
+                <p class="text-gray-400 text-sm font-medium mt-3">
+                    Already have an account?
+                    <a routerLink="/auth/login" class="text-[#135bec] font-bold hover:underline">Sign in</a>
+                </p>
+            </div>
+
+            <!-- Step Progress Bar -->
+            <div class="flex items-center space-x-2 mb-8">
+                <div class="flex-1 h-2 rounded-full" [class.bg-[#135bec]]="currentStep >= 1"
+                    [class.bg-gray-200]="currentStep < 1"></div>
+                <div class="flex-1 h-2 rounded-full" [class.bg-[#135bec]]="currentStep >= 2"
+                    [class.bg-gray-200]="currentStep < 2"></div>
+                <div class="flex-1 h-2 rounded-full" [class.bg-[#135bec]]="currentStep >= 3"
+                    [class.bg-gray-200]="currentStep < 3"></div>
+                <span class="text-xs font-black text-gray-400 ml-2">{{ currentStep }}/3</span>
+            </div>
+
+            <!-- ===================== STEP 1: Personal Info ===================== -->
+            <div *ngIf="currentStep === 1" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-5">
+                <p class="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-4">
+                    Step 1 — Personal Information
+                </p>
+
+                <!-- Name Row -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">First
+                            Name</label>
+                        <input type="text" placeholder="Amadou"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Last Name</label>
+                        <input type="text" placeholder="Kone"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Email Address</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">mail</span>
+                        <input type="email" placeholder="you@example.com"
+                            class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                    </div>
+                </div>
+
+                <!-- Phone & DOB Row -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Phone No.</label>
+                        <input type="tel" placeholder="+216 00 000 000"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Date of
+                            Birth</label>
+                        <input type="date"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                    </div>
+                </div>
+
+                <!-- CIN -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">National ID
+                        (CIN)</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">badge</span>
+                        <input type="text" placeholder="00000000"
+                            class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                    </div>
+                </div>
+
+                <!-- Address Row -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Address</label>
+                        <input type="text" placeholder="12 Rue de la Finance"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">City</label>
+                        <input type="text" placeholder="Tunis"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Password</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">lock</span>
+                        <input type="password" placeholder="Min. 8 characters"
+                            class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                    </div>
+                </div>
+
+                <button (click)="nextStep()"
+                    class="w-full py-4 bg-[#135bec] text-white font-black rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-200 flex items-center justify-center space-x-2">
+                    <span>Continue</span>
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </button>
+            </div>
+
+            <!-- ===================== STEP 2: Role Selection ===================== -->
+            <div *ngIf="currentStep === 2" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-5">
+                <p class="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-4">
+                    Step 2 — Choose Your Role
+                </p>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- CLIENT -->
+                    <div (click)="selectRole('CLIENT')"
+                        class="cursor-pointer p-6 rounded-2xl border-2 transition-all group"
+                        [class.border-[#135bec]]="selectedRole === 'CLIENT'"
+                        [class.bg-blue-50]="selectedRole === 'CLIENT'"
+                        [class.border-gray-200]="selectedRole !== 'CLIENT'"
+                        [class.hover:border-gray-300]="selectedRole !== 'CLIENT'">
+                        <div class="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
+                            [class.bg-[#135bec]]="selectedRole === 'CLIENT'"
+                            [class.bg-gray-100]="selectedRole !== 'CLIENT'">
+                            <span class="material-symbols-outlined text-2xl"
+                                [class.text-white]="selectedRole === 'CLIENT'"
+                                [class.text-gray-500]="selectedRole !== 'CLIENT'">person</span>
+                        </div>
+                        <p class="font-black text-gray-900">Client</p>
+                        <p class="text-xs text-gray-400 font-medium mt-1 leading-relaxed">Apply for credit, insurance &
+                            manage your wallet</p>
+                    </div>
+
+                    <!-- AGENT -->
+                    <div (click)="selectRole('AGENT')"
+                        class="cursor-pointer p-6 rounded-2xl border-2 transition-all group"
+                        [class.border-[#135bec]]="selectedRole === 'AGENT'"
+                        [class.bg-blue-50]="selectedRole === 'AGENT'" [class.border-gray-200]="selectedRole !== 'AGENT'"
+                        [class.hover:border-gray-300]="selectedRole !== 'AGENT'">
+                        <div class="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
+                            [class.bg-[#135bec]]="selectedRole === 'AGENT'"
+                            [class.bg-gray-100]="selectedRole !== 'AGENT'">
+                            <span class="material-symbols-outlined text-2xl"
+                                [class.text-white]="selectedRole === 'AGENT'"
+                                [class.text-gray-500]="selectedRole !== 'AGENT'">support_agent</span>
+                        </div>
+                        <p class="font-black text-gray-900">Agent</p>
+                        <p class="text-xs text-gray-400 font-medium mt-1 leading-relaxed">Review loan applications &
+                            manage your region</p>
+                    </div>
+
+                    <!-- SELLER -->
+                    <div (click)="selectRole('SELLER')"
+                        class="cursor-pointer p-6 rounded-2xl border-2 transition-all group"
+                        [class.border-[#135bec]]="selectedRole === 'SELLER'"
+                        [class.bg-blue-50]="selectedRole === 'SELLER'"
+                        [class.border-gray-200]="selectedRole !== 'SELLER'"
+                        [class.hover:border-gray-300]="selectedRole !== 'SELLER'">
+                        <div class="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
+                            [class.bg-[#135bec]]="selectedRole === 'SELLER'"
+                            [class.bg-gray-100]="selectedRole !== 'SELLER'">
+                            <span class="material-symbols-outlined text-2xl"
+                                [class.text-white]="selectedRole === 'SELLER'"
+                                [class.text-gray-500]="selectedRole !== 'SELLER'">storefront</span>
+                        </div>
+                        <p class="font-black text-gray-900">Seller</p>
+                        <p class="text-xs text-gray-400 font-medium mt-1 leading-relaxed">Launch campaigns & track
+                            marketing performance</p>
+                    </div>
+
+                    <!-- INSURER -->
+                    <div (click)="selectRole('INSURER')"
+                        class="cursor-pointer p-6 rounded-2xl border-2 transition-all group"
+                        [class.border-[#135bec]]="selectedRole === 'INSURER'"
+                        [class.bg-blue-50]="selectedRole === 'INSURER'"
+                        [class.border-gray-200]="selectedRole !== 'INSURER'"
+                        [class.hover:border-gray-300]="selectedRole !== 'INSURER'">
+                        <div class="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
+                            [class.bg-[#135bec]]="selectedRole === 'INSURER'"
+                            [class.bg-gray-100]="selectedRole !== 'INSURER'">
+                            <span class="material-symbols-outlined text-2xl"
+                                [class.text-white]="selectedRole === 'INSURER'"
+                                [class.text-gray-500]="selectedRole !== 'INSURER'">shield</span>
+                        </div>
+                        <p class="font-black text-gray-900">Insurer</p>
+                        <p class="text-xs text-gray-400 font-medium mt-1 leading-relaxed">Publish products & process
+                            insurance claims</p>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="flex space-x-4 pt-2">
+                    <button (click)="prevStep()"
+                        class="flex-1 py-4 bg-gray-100 text-gray-600 font-black rounded-xl hover:bg-gray-200 active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
+                        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                        <span>Back</span>
+                    </button>
+                    <button (click)="nextStep()" [disabled]="!selectedRole"
+                        class="flex-1 py-4 font-black rounded-xl active:scale-[0.98] transition-all shadow-lg flex items-center justify-center space-x-2"
+                        [class.bg-[#135bec]]="selectedRole" [class.text-white]="selectedRole"
+                        [class.shadow-blue-200]="selectedRole" [class.hover:bg-blue-700]="selectedRole"
+                        [class.bg-gray-100]="!selectedRole" [class.text-gray-400]="!selectedRole"
+                        [class.cursor-not-allowed]="!selectedRole">
+                        <span>Continue</span>
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===================== STEP 3: Role-Specific Fields ===================== -->
+            <div *ngIf="currentStep === 3" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-5">
+                <div class="flex items-center space-x-3 border-b border-gray-100 pb-4">
+                    <div class="w-8 h-8 bg-[#135bec] rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-[16px]">tune</span>
+                    </div>
+                    <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Step 3 — {{ selectedRole }}
+                        Details</p>
+                </div>
+
+                <!-- CLIENT-specific -->
+                <div *ngIf="selectedRole === 'CLIENT'" class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Localisation /
+                            Quartier</label>
+                        <input type="text" placeholder="e.g. Bab Souika, Tunis"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                    </div>
+                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                        <p class="text-xs font-bold text-[#135bec]">📋 You will complete KYC verification after account
+                            creation to unlock loan applications.</p>
+                    </div>
+                </div>
+
+                <!-- AGENT-specific -->
+                <div *ngIf="selectedRole === 'AGENT'" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Agency
+                                Code</label>
+                            <input type="number" placeholder="e.g. 1024"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Region
+                                Code</label>
+                            <input type="number" placeholder="e.g. 3"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                        </div>
+                    </div>
+                    <div class="p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                        <p class="text-xs font-bold text-yellow-700">⚠️ Agent accounts require Admin activation before
+                            you can access the backoffice.</p>
+                    </div>
+                </div>
+
+                <!-- SELLER-specific -->
+                <div *ngIf="selectedRole === 'SELLER'" class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Commercial
+                            Register No.</label>
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">receipt</span>
+                            <input type="text" placeholder="RC-2024-XXXXX"
+                                class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                        </div>
+                    </div>
+                    <div class="p-4 bg-purple-50 rounded-xl border border-purple-100">
+                        <p class="text-xs font-bold text-purple-700">🏪 Your account will be verified against the
+                            commercial registry before campaign activation.</p>
+                    </div>
+                </div>
+
+                <!-- INSURER-specific -->
+                <div *ngIf="selectedRole === 'INSURER'" class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Insurer / Company
+                            Name</label>
+                        <input type="text" placeholder="e.g. Assurances BIAT"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Contact Email
+                            (Public)</label>
+                        <input type="email" placeholder="contact@assurances.tn"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                    </div>
+                    <div class="p-4 bg-green-50 rounded-xl border border-green-100">
+                        <p class="text-xs font-bold text-green-700">🛡️ Partnership status will be confirmed by FINIX
+                            operations team within 48h.</p>
+                    </div>
+                </div>
+
+                <!-- Terms -->
+                <div class="flex items-start space-x-3 pt-2">
+                    <input type="checkbox" id="terms" class="w-4 h-4 accent-[#135bec] rounded mt-0.5 shrink-0" />
+                    <label for="terms" class="text-xs font-medium text-gray-500 leading-relaxed">
+                        I agree to FINIX's <a href="#" class="text-[#135bec] font-bold hover:underline">Terms of
+                            Service</a> and
+                        <a href="#" class="text-[#135bec] font-bold hover:underline">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <!-- Navigation -->
+                <div class="flex space-x-4 pt-2">
+                    <button (click)="prevStep()"
+                        class="flex-1 py-4 bg-gray-100 text-gray-600 font-black rounded-xl hover:bg-gray-200 active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
+                        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                        <span>Back</span>
+                    </button>
+                    <button
+                        class="flex-1 py-4 bg-[#135bec] text-white font-black rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-200 flex items-center justify-center space-x-2">
+                        <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                        <span>Create Account</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

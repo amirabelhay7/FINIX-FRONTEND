@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIf } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-frontoffice',
   standalone: true,
   templateUrl: './frontoffice.html',
   styleUrl: './frontoffice.css',
-  imports: [ RouterOutlet]
+  imports: [RouterOutlet, RouterLink, RouterLinkActive]
 })
 export class Frontoffice implements OnInit {
 

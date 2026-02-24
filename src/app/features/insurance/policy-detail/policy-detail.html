@@ -1,0 +1,49 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <div class="flex items-center gap-4">
+        <a routerLink="/insurance/my-policies" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Policy POL-2025-0012</h1>
+            <p class="text-gray-500 text-sm font-medium">Moto Cover · Active until Dec 15, 2025</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h4 class="font-bold text-gray-800 flex items-center mb-4">
+                <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">info</span>
+                Details
+            </h4>
+            <dl class="space-y-3 text-sm">
+                <div class="flex justify-between"><dt class="text-gray-500">Product</dt><dd class="font-bold text-gray-800">Moto Cover</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Premium</dt><dd class="font-bold text-gray-800">$8 / month</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Coverage</dt><dd class="font-bold text-gray-800">$2,000</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Start date</dt><dd class="font-bold text-gray-800">Dec 15, 2024</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">End date</dt><dd class="font-bold text-gray-800">Dec 15, 2025</dd></div>
+            </dl>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h4 class="font-bold text-gray-800 flex items-center mb-4">
+                <span class="material-symbols-outlined mr-2 text-amber-500 text-[20px]">receipt</span>
+                Next payment
+            </h4>
+            <p class="text-2xl font-black text-gray-900">$8.00</p>
+            <p class="text-xs text-gray-500 mt-1">Due Mar 15, 2025</p>
+            <a routerLink="/wallet" class="mt-4 inline-block text-sm font-bold text-[#135bec] hover:underline">Pay from wallet →</a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50 flex items-center justify-between">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-orange-500 text-[20px]">report</span>
+                Claims
+            </h4>
+            <a routerLink="/insurance/file-claim" class="text-xs font-bold text-[#135bec] hover:underline">File a claim</a>
+        </div>
+        <div class="px-6 py-8 text-center text-sm text-gray-500">No claims filed for this policy.</div>
+    </div>
+
+</div>

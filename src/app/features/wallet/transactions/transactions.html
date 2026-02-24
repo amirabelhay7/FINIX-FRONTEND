@@ -1,0 +1,163 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Transaction History</h1>
+            <p class="text-gray-500 text-sm font-medium">Your complete immutable financial ledger.</p>
+        </div>
+        <button
+            class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50 transition-all flex items-center shadow-sm">
+            <span class="material-symbols-outlined mr-2 text-[18px]">download</span>Export CSV
+        </button>
+    </div>
+
+    <!-- KPI Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total In</p>
+            <p class="text-xl font-black text-green-600">+$5,200.00</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total Out</p>
+            <p class="text-xl font-black text-red-500">-$1,890.00</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Net Balance</p>
+            <p class="text-xl font-black text-gray-800">$3,310.00</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Transactions</p>
+            <p class="text-xl font-black text-gray-800">38 <span class="text-sm font-normal text-gray-400">(30d)</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-gray-50 flex flex-wrap items-center gap-3">
+            <div class="flex items-center bg-gray-50 rounded-lg border border-gray-200 px-3 py-2">
+                <span class="material-symbols-outlined text-gray-400 text-[18px] mr-2">search</span>
+                <input type="text" placeholder="Search transactions..."
+                    class="text-sm font-medium text-gray-800 bg-transparent outline-none placeholder-gray-400 w-48" />
+            </div>
+            <select
+                class="text-xs font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#135bec]">
+                <option>All Types</option>
+                <option>Deposit</option>
+                <option>Withdrawal</option>
+                <option>Repayment</option>
+                <option>Transfer</option>
+                <option>Insurance</option>
+            </select>
+            <select
+                class="text-xs font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#135bec]">
+                <option>Last 30 days</option>
+                <option>Last 7 days</option>
+                <option>Last 3 months</option>
+                <option>All Time</option>
+            </select>
+            <select
+                class="text-xs font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#135bec]">
+                <option>All Status</option>
+                <option>Success</option>
+                <option>Pending</option>
+                <option>Failed</option>
+            </select>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-gray-50/50 text-gray-400 text-[10px] uppercase font-bold tracking-widest">
+                        <th class="px-6 py-4">TX Ref</th>
+                        <th class="px-6 py-4">Type</th>
+                        <th class="px-6 py-4">Description</th>
+                        <th class="px-6 py-4">Amount</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4 text-right">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 text-sm font-medium">
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-[10px] text-gray-400">#TXN-992144</td>
+                        <td class="px-6 py-4"><span
+                                class="px-2 py-0.5 bg-green-50 text-green-700 text-[10px] rounded border border-green-100 font-bold">DEPOSIT</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 font-medium text-xs">Bank transfer — BIAT</td>
+                        <td class="px-6 py-4 text-green-600 font-black">+$1,450.00</td>
+                        <td class="px-6 py-4"><span class="flex items-center text-xs text-green-600 font-bold"><span
+                                    class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>Success</span></td>
+                        <td class="px-6 py-4 text-right text-xs text-gray-400 font-medium">Feb 24, 2026</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-[10px] text-gray-400">#TXN-992145</td>
+                        <td class="px-6 py-4"><span
+                                class="px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] rounded border border-blue-100 font-bold">REPAYMENT</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 font-medium text-xs">Loan #LN-0221 · Installment 3</td>
+                        <td class="px-6 py-4 text-red-500 font-black">-$45.00</td>
+                        <td class="px-6 py-4"><span class="flex items-center text-xs text-green-600 font-bold"><span
+                                    class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>Success</span></td>
+                        <td class="px-6 py-4 text-right text-xs text-gray-400 font-medium">Feb 24, 2026</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-[10px] text-gray-400">#TXN-991990</td>
+                        <td class="px-6 py-4"><span
+                                class="px-2 py-0.5 bg-purple-50 text-purple-700 text-[10px] rounded border border-purple-100 font-bold">TRANSFER</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 font-medium text-xs">P2P → Sarah Sidibe (Rent)</td>
+                        <td class="px-6 py-4 text-red-500 font-black">-$200.00</td>
+                        <td class="px-6 py-4"><span class="flex items-center text-xs text-green-600 font-bold"><span
+                                    class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>Success</span></td>
+                        <td class="px-6 py-4 text-right text-xs text-gray-400 font-medium">Feb 23, 2026</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-[10px] text-gray-400">#TXN-991887</td>
+                        <td class="px-6 py-4"><span
+                                class="px-2 py-0.5 bg-orange-50 text-orange-700 text-[10px] rounded border border-orange-100 font-bold">INSURANCE</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 font-medium text-xs">Motor-Micro Premium · Monthly</td>
+                        <td class="px-6 py-4 text-red-500 font-black">-$12.50</td>
+                        <td class="px-6 py-4"><span class="flex items-center text-xs text-green-600 font-bold"><span
+                                    class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>Success</span></td>
+                        <td class="px-6 py-4 text-right text-xs text-gray-400 font-medium">Feb 21, 2026</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-[10px] text-gray-400">#TXN-991201</td>
+                        <td class="px-6 py-4"><span
+                                class="px-2 py-0.5 bg-red-50 text-red-700 text-[10px] rounded border border-red-100 font-bold">WITHDRAWAL</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 font-medium text-xs">Cash out → Postale</td>
+                        <td class="px-6 py-4 text-red-500 font-black">-$500.00</td>
+                        <td class="px-6 py-4"><span class="flex items-center text-xs text-yellow-600 font-bold"><span
+                                    class="w-1.5 h-1.5 bg-yellow-400 rounded-full mr-2"></span>Pending</span></td>
+                        <td class="px-6 py-4 text-right text-xs text-gray-400 font-medium">Feb 20, 2026</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-gray-50 flex items-center justify-between">
+            <p class="text-xs text-gray-400 font-medium">Showing 5 of 38 transactions</p>
+            <div class="flex items-center space-x-1">
+                <button
+                    class="w-8 h-8 flex items-center justify-center text-gray-400 hover:bg-gray-100 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                </button>
+                <button
+                    class="w-8 h-8 flex items-center justify-center text-white bg-[#135bec] rounded-lg text-xs font-bold">1</button>
+                <button
+                    class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-lg text-xs font-bold">2</button>
+                <button
+                    class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-lg text-xs font-bold">3</button>
+                <button
+                    class="w-8 h-8 flex items-center justify-center text-gray-400 hover:bg-gray-100 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { LandingPage } from './landing-page';
 
 const routes: Routes = [
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: LandingPage }
 ];
 

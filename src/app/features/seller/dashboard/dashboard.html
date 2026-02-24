@@ -1,0 +1,38 @@
+<div class="space-y-8 pb-10">
+    <div>
+        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Seller Dashboard</h1>
+        <p class="text-gray-500 text-sm font-medium">Your vehicles and orders linked to FINIX credit.</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Active listings</p>
+            <p class="text-2xl font-black text-gray-900 mt-1">4</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Orders this month</p>
+            <p class="text-2xl font-black text-[#135bec] mt-1">2</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Pending handover</p>
+            <p class="text-2xl font-black text-amber-600 mt-1">1</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50 flex items-center justify-between">
+            <h4 class="font-bold text-gray-800">Recent orders</h4>
+            <a routerLink="/seller/orders" class="text-xs font-bold text-[#135bec] hover:underline">View all</a>
+        </div>
+        <div class="divide-y divide-gray-50">
+            <div class="flex items-center px-6 py-4 hover:bg-gray-50">
+                <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-[#135bec] text-[22px]">directions_car</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-800">Honda PCX 150</p>
+                    <p class="text-xs text-gray-500">Order #ORD-2025-042 · Client approved · Awaiting transfer</p>
+                </div>
+                <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded">Handover pending</span>
+            </div>
+        </div>
+    </div>
+</div>
