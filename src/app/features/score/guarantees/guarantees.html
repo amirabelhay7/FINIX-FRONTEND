@@ -1,5 +1,13 @@
 <div class="space-y-8 animate-in fade-in duration-700 pb-10">
 
+    <div *ngIf="loading" class="flex justify-center py-12">
+        <span class="material-symbols-outlined animate-spin text-4xl text-[#135bec]">progress_activity</span>
+    </div>
+    <div *ngIf="!loading && error" class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">
+        <p class="font-medium">{{ error }}</p>
+        <button type="button" class="mt-2 text-sm font-bold text-[#135bec] hover:underline" (click)="loadGuarantees()">Retry</button>
+    </div>
+    <ng-container *ngIf="!loading && !error">
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -54,7 +62,7 @@
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex-1">
                             <h4 class="font-bold text-gray-900 text-lg mb-2">{{ guarantee.guarantorName }}</h4>
-                            <p class="text-sm text-gray-600 mb-1">Guarantor Score: {{ guarantee.guarantorScore }}</p>
+                            <p class="text-sm text-gray-600 mb-1">Guarantor: {{ guarantee.guarantorName }}</p>
                             <p class="text-sm text-gray-500 mb-3">{{ guarantee.reason }}</p>
                         </div>
                         <div class="text-right">
@@ -65,12 +73,16 @@
                     
                     <div class="flex items-center justify-between text-xs pt-3 border-t border-gray-100">
                         <div>
-                            <p class="text-gray-500">Created {{ guarantee.createdAt }}</p>
-                            <p class="text-gray-500">Expires {{ guarantee.expiresAt }}</p>
+                            <p class="text-gray-500">Created {{ formatDate(guarantee.createdAt) }}</p>
+                            <p class="text-gray-500">Expires {{ guarantee.expiresAt ? formatDate(guarantee.expiresAt) : '—' }}</p>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <span class="px-2 py-1 bg-green-100 text-green-600 rounded-full">ACTIVE</span>
-                            <span class="text-green-600">Accepted {{ guarantee.acceptedAt }}</span>
+                            <span class="px-2 py-1 rounded-full" [class.bg-green-100]="guarantee.isAccepted" [class.text-green-600]="guarantee.isAccepted" [class.bg-amber-100]="!guarantee.isAccepted" [class.text-amber-700]="!guarantee.isAccepted">{{ guarantee.isAccepted ? 'Accepted' : 'Pending' }}</span>
+                            <span class="text-green-600" *ngIf="guarantee.isAccepted && guarantee.acceptedAt">Accepted {{ formatDate(guarantee.acceptedAt) }}</span>
+                            <span *ngIf="!guarantee.isAccepted">
+                                <button type="button" class="text-green-600 font-bold mr-2" (click)="acceptGuarantee(guarantee, $event)">Accept</button>
+                                <button type="button" class="text-red-600 font-bold" (click)="rejectGuarantee(guarantee, $event)">Reject</button>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -105,16 +117,12 @@
                     
                     <div class="flex items-center justify-between text-xs pt-3 border-t border-gray-100">
                         <div>
-                            <p class="text-gray-500">Created {{ guarantee.createdAt }}</p>
-                            <p class="text-gray-500">Expires {{ guarantee.expiresAt }}</p>
+                            <p class="text-gray-500">Created {{ formatDate(guarantee.createdAt) }}</p>
+                            <p class="text-gray-500">Expires {{ guarantee.expiresAt ? formatDate(guarantee.expiresAt) : '—' }}</p>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <span class="px-2 py-1 bg-{{ guarantee.status === 'ACTIVE' ? 'green' : 'yellow' }}-100 text-{{ guarantee.status === 'ACTIVE' ? 'green' : 'yellow' }}-600 rounded-full">
-                                {{ guarantee.status }}
-                            </span>
-                            <span class="text-{{ guarantee.status === 'ACTIVE' ? 'green' : 'yellow' }}-600">
-                                {{ guarantee.isAccepted ? 'Accepted ' + guarantee.acceptedAt : 'Pending' }}
-                            </span>
+                            <span class="px-2 py-1 rounded-full" [class.bg-green-100]="guarantee.isAccepted" [class.text-green-600]="guarantee.isAccepted" [class.bg-amber-100]="!guarantee.isAccepted" [class.text-amber-700]="!guarantee.isAccepted">{{ guarantee.isAccepted ? 'Accepted' : 'Pending' }}</span>
+                            <span class="text-green-600" *ngIf="guarantee.isAccepted && guarantee.acceptedAt">Accepted {{ formatDate(guarantee.acceptedAt) }}</span>
                         </div>
                     </div>
                 </div>
@@ -139,4 +147,5 @@
         <p class="text-gray-500 text-sm">Help others by offering guarantees based on your credit score.</p>
     </div>
 
+    </ng-container>
 </div>

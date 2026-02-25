@@ -1,0 +1,81 @@
+<div class="tutorial-form-page">
+  <header class="tutorial-form-header">
+    <a [routerLink]="backRoute" class="tutorial-form-back" aria-label="Back to tutorials">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <div class="tutorial-form-header-icon-wrap">
+      <span class="material-symbols-outlined">school</span>
+    </div>
+    <div>
+      <h1 class="tutorial-form-title">New tutorial</h1>
+      <p class="tutorial-form-subtitle">Add a scoring tutorial (steps, quiz, or link).</p>
+    </div>
+  </header>
+
+  <div *ngIf="error" class="tutorial-form-error">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+  </div>
+
+  <div class="tutorial-form-card">
+    <div class="tutorial-form-card-inner">
+      <form (ngSubmit)="save()">
+        <p class="tutorial-form-section-title">Required</p>
+        <div class="tutorial-form-group">
+          <label class="tutorial-form-label" for="title">Title</label>
+          <input id="title" type="text" [(ngModel)]="title" name="title" placeholder="e.g. Verify your ID" class="tutorial-form-input" />
+        </div>
+        <div class="tutorial-form-group">
+          <label class="tutorial-form-label" for="tutorialType">Type</label>
+          <select id="tutorialType" [(ngModel)]="tutorialType" name="tutorialType" class="tutorial-form-select">
+            <option *ngFor="let opt of typeOptions" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
+        <div class="tutorial-form-row">
+          <div class="tutorial-form-group">
+            <label class="tutorial-form-label" for="points">Points</label>
+            <input id="points" type="number" [(ngModel)]="pointsAwarded" name="pointsAwarded" min="0" placeholder="e.g. 25" class="tutorial-form-input" />
+          </div>
+          <div class="tutorial-form-group">
+            <label class="tutorial-form-label" for="estimatedMinutes">Est. minutes</label>
+            <input id="estimatedMinutes" type="number" [(ngModel)]="estimatedMinutes" name="estimatedMinutes" min="0" placeholder="e.g. 5" class="tutorial-form-input" />
+          </div>
+        </div>
+        <div class="tutorial-form-group">
+          <label class="tutorial-form-label" for="difficulty">Difficulty</label>
+          <select id="difficulty" [(ngModel)]="difficulty" name="difficulty" class="tutorial-form-select">
+            <option *ngFor="let opt of difficultyOptions" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
+
+        <p class="tutorial-form-section-title mt">Description / content</p>
+        <div class="tutorial-form-group">
+          <label class="tutorial-form-label" for="description">Description (steps, QUIZ:, CHECK:)</label>
+          <textarea id="description" rows="6" [(ngModel)]="description" name="description" placeholder="Plain text steps. Use QUIZ:Question?|A:...|B:...|CORRECT:B and CHECK:Message for interactivity." class="tutorial-form-textarea"></textarea>
+        </div>
+
+        <p class="tutorial-form-section-title mt">Optional</p>
+        <div class="tutorial-form-group">
+          <label class="tutorial-form-label optional" for="tutorialUrl">Tutorial URL</label>
+          <input id="tutorialUrl" type="url" [(ngModel)]="tutorialUrl" name="tutorialUrl" placeholder="External link" class="tutorial-form-input" />
+        </div>
+        <div class="tutorial-form-group">
+          <label class="tutorial-form-label optional" for="iconUrl">Icon URL</label>
+          <input id="iconUrl" type="text" [(ngModel)]="iconUrl" name="iconUrl" placeholder="Icon URL" class="tutorial-form-input" />
+        </div>
+        <div class="tutorial-form-group">
+          <label class="tutorial-form-label optional" for="prerequisites">Prerequisites</label>
+          <input id="prerequisites" type="text" [(ngModel)]="prerequisites" name="prerequisites" placeholder="e.g. tutorial IDs" class="tutorial-form-input" />
+        </div>
+
+        <div class="tutorial-form-actions">
+          <button type="submit" [disabled]="loading" class="tutorial-form-btn-primary">
+            <span class="material-symbols-outlined" style="font-size: 1.125rem;">add</span>
+            {{ saveLabel }}
+          </button>
+          <a [routerLink]="cancelRoute" class="tutorial-form-btn-secondary">{{ cancelLabel }}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

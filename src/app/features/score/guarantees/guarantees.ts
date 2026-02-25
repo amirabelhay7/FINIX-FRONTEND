@@ -1,5 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+import { ScoreService } from '../../../core/score/score.service';
+import { GuaranteeApi } from '../../../models';
 
 @Component({
   selector: 'app-guarantees',
@@ -8,77 +12,53 @@ import { Router } from '@angular/router';
   styleUrl: './guarantees.css',
 })
 export class Guarantees implements OnInit {
-  
   selectedTab = 'received';
-  
-  receivedGuarantees = [
-    {
-      id: 1,
-      guarantorName: 'Alex Johnson',
-      guarantorScore: 750,
-      pointsOffered: 100,
-      reason: 'Strong community trust and reliable payment history',
-      createdAt: '2 weeks ago',
-      expiresAt: '4 months from now',
-      status: 'ACTIVE',
-      isAccepted: true,
-      acceptedAt: '2 weeks ago'
-    },
-    {
-      id: 2,
-      guarantorName: 'Sarah Sidibe',
-      guarantorScore: 680,
-      pointsOffered: 150,
-      reason: 'Long-term business relationship',
-      createdAt: '1 month ago',
-      expiresAt: '5 months from now',
-      status: 'ACTIVE',
-      isAccepted: true,
-      acceptedAt: '1 month ago'
-    },
-    {
-      id: 3,
-      guarantorName: 'Mohamed Ali',
-      guarantorScore: 720,
-      pointsOffered: 75,
-      reason: 'Family connection and financial stability',
-      createdAt: '3 days ago',
-      expiresAt: '6 months from now',
-      status: 'ACTIVE',
-      isAccepted: true,
-      acceptedAt: '3 days ago'
-    }
-  ];
+  loading = true;
+  error: string | null = null;
+  receivedGuarantees: GuaranteeApi[] = [];
+  givenGuarantees: GuaranteeApi[] = [];
 
-  givenGuarantees = [
-    {
-      id: 4,
-      beneficiaryName: 'Fatoumata Touré',
-      pointsOffered: 50,
-      reason: 'First loan application support',
-      createdAt: '1 week ago',
-      expiresAt: '6 months from now',
-      status: 'ACTIVE',
-      isAccepted: true,
-      acceptedAt: '5 days ago'
-    },
-    {
-      id: 5,
-      beneficiaryName: 'Bakary Konaté',
-      pointsOffered: 100,
-      reason: 'Business partnership guarantee',
-      createdAt: '2 weeks ago',
-      expiresAt: '5 months from now',
-      status: 'PENDING',
-      isAccepted: false,
-      acceptedAt: null
-    }
-  ];
-
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private scoreService: ScoreService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    // Initialize component data
+    this.loadGuarantees();
+  }
+
+  loadGuarantees() {
+    this.loading = true;
+    this.error = null;
+    this.cdr.detectChanges();
+    forkJoin({
+      received: this.scoreService.getMyGuaranteesReceived(),
+      given: this.scoreService.getMyGuaranteesGiven(),
+    }).pipe(finalize(() => { this.loading = false; this.cdr.detectChanges(); })).subscribe({
+      next: ({ received, given }) => {
+        this.receivedGuarantees = received ?? [];
+        this.givenGuarantees = given ?? [];
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = err?.error?.message || err?.message || 'Failed to load guarantees';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  formatDate(iso: string | undefined): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return d.toLocaleDateString();
   }
 
   selectTab(tab: string) {
@@ -89,29 +69,34 @@ export class Guarantees implements OnInit {
     this.router.navigate(['/score/guarantees/create']);
   }
 
-  viewGuaranteeDetail(guarantee: any) {
+  viewGuaranteeDetail(guarantee: GuaranteeApi) {
     this.router.navigate(['/score/guarantees', guarantee.id]);
   }
 
-  acceptGuarantee(guarantee: any) {
-    // Logic to accept a guarantee
-    console.log('Accepting guarantee:', guarantee.id);
+  acceptGuarantee(guarantee: GuaranteeApi, event: Event) {
+    event.stopPropagation();
+    if (guarantee.isAccepted) return;
+    this.scoreService.acceptGuaranteeMe(guarantee.id).subscribe({
+      next: () => this.loadGuarantees(),
+      error: (err) => { this.error = err?.error?.message || 'Accept failed'; this.cdr.detectChanges(); }
+    });
   }
 
-  rejectGuarantee(guarantee: any) {
-    // Logic to reject a guarantee
-    console.log('Rejecting guarantee:', guarantee.id);
+  rejectGuarantee(guarantee: GuaranteeApi, event: Event) {
+    event.stopPropagation();
+    if (guarantee.isAccepted) return;
+    if (!confirm('Reject this guarantee?')) return;
+    this.scoreService.rejectGuaranteeMe(guarantee.id).subscribe({
+      next: () => this.loadGuarantees(),
+      error: (err) => { this.error = err?.error?.message || 'Reject failed'; this.cdr.detectChanges(); }
+    });
   }
 
   getTotalReceivedPoints() {
-    return this.receivedGuarantees
-      .filter(g => g.isAccepted)
-      .reduce((sum, g) => sum + g.pointsOffered, 0);
+    return this.receivedGuarantees.filter(g => g.isAccepted).reduce((sum, g) => sum + (g.pointsOffered ?? 0), 0);
   }
 
   getTotalGivenPoints() {
-    return this.givenGuarantees
-      .filter(g => g.isAccepted)
-      .reduce((sum, g) => sum + g.pointsOffered, 0);
+    return this.givenGuarantees.filter(g => g.isAccepted).reduce((sum, g) => sum + (g.pointsOffered ?? 0), 0);
   }
 }

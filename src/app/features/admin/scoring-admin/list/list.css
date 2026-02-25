@@ -1,0 +1,118 @@
+/* Scoring admin hub — Risk & Scoring */
+
+.scoring-hub-page {
+  --hub-primary: #0f4cbd;
+  --hub-primary-hover: #0d4199;
+  --hub-surface: #f8fafc;
+  --hub-border: #e2e8f0;
+  --hub-text: #1e293b;
+  --hub-muted: #64748b;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 2.5rem;
+}
+
+.scoring-hub-header {
+  margin-bottom: 1.75rem;
+}
+
+.scoring-hub-header-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.scoring-hub-icon {
+  font-size: 2.25rem;
+  color: var(--hub-primary);
+  flex-shrink: 0;
+}
+
+.scoring-hub-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--hub-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.scoring-hub-subtitle {
+  font-size: 0.9rem;
+  color: var(--hub-muted);
+  margin: 0;
+}
+
+.scoring-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.scoring-hub-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: #fff;
+  border: 1px solid var(--hub-border);
+  border-radius: 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.scoring-hub-card:hover {
+  box-shadow: 0 4px 14px rgba(15, 76, 189, 0.08);
+  border-color: #cbd5e1;
+}
+
+.scoring-hub-card-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--hub-surface);
+}
+
+.scoring-hub-card-icon .material-symbols-outlined {
+  font-size: 1.5rem !important;
+}
+
+.scoring-hub-card-icon.text-\[\#135bec\] .material-symbols-outlined,
+.scoring-hub-card-icon.primary .material-symbols-outlined { color: var(--hub-primary); }
+.scoring-hub-card-icon.text-amber-500 .material-symbols-outlined { color: #d97706; }
+.scoring-hub-card-icon.text-green-600 .material-symbols-outlined { color: #059669; }
+.scoring-hub-card-icon.text-purple-600 .material-symbols-outlined { color: #9333ea; }
+.scoring-hub-card-icon.text-blue-600 .material-symbols-outlined { color: #2563eb; }
+.scoring-hub-card-icon.text-orange-600 .material-symbols-outlined { color: #ea580c; }
+
+.scoring-hub-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.scoring-hub-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--hub-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.scoring-hub-card-subtitle {
+  font-size: 0.8125rem;
+  color: var(--hub-muted);
+  margin: 0;
+}
+
+.scoring-hub-card-chevron {
+  font-size: 1.25rem !important;
+  color: #cbd5e1;
+  flex-shrink: 0;
+}
+
+.scoring-hub-card:hover .scoring-hub-card-chevron {
+  color: var(--hub-primary);
+}

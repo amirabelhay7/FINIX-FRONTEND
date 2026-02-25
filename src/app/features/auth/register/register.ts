@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/auth/auth.service';
+import { RegisterRequest } from '../../../models';
 
 /** Role option for step 2 (MVVM: copy in VM). */
 interface RegisterRoleOption {
@@ -11,7 +13,7 @@ interface RegisterRoleOption {
 
 /**
  * ViewModel: register (MVVM).
- * Step/role copy and labels in VM; view only binds. Commands: nextStep, prevStep, selectRole.
+ * Wired to AuthService.register; only CLIENT and SELLER can register (invite-only for AGENT/INSURER/ADMIN).
  */
 @Component({
   selector: 'app-register',
@@ -22,8 +24,10 @@ interface RegisterRoleOption {
 export class Register {
   currentStep = 1;
   selectedRole = '';
+  loading = false;
+  errorMessage = '';
 
-  // Step 1: Personal info (static placeholders – form state can stay for future wiring)
+  // Step 1: Personal info
   firstName = '';
   lastName = '';
   email = '';
@@ -34,18 +38,14 @@ export class Register {
   address = '';
   city = '';
 
-  // Step 3: Role-specific
+  // Step 3: Role-specific (CLIENT: localisation; SELLER: commercialRegister)
   localisation = '';
-  agenceCode = '';
-  region = '';
   commercialRegister = '';
-  insurerName = '';
-  insurerEmail = '';
 
   /** Static copy for left panel steps. */
   readonly stepsCopy = [
     { icon: 'person', title: 'Personal Information', subtitle: 'Name, contact & identity details' },
-    { icon: 'badge', title: 'Choose Your Role', subtitle: 'Client, Agent, Seller, or Insurer' },
+    { icon: 'badge', title: 'Choose Your Role', subtitle: 'Client or Seller (others are invite-only)' },
     { icon: 'tune', title: 'Role-Specific Details', subtitle: 'Your professional info & credentials' },
   ];
 
@@ -59,12 +59,10 @@ export class Register {
   readonly step2Title = 'Step 2 — Choose Your Role';
   readonly step3TitlePrefix = 'Step 3 — ';
 
-  /** Role options for step 2. */
+  /** Role options for step 2 — only CLIENT and SELLER can self-register. */
   readonly roleOptions: RegisterRoleOption[] = [
     { value: 'CLIENT', title: 'Client', description: 'Apply for credit, insurance & manage your wallet', icon: 'person' },
-    { value: 'AGENT', title: 'Agent', description: 'Review loan applications & manage your region', icon: 'support_agent' },
-    { value: 'SELLER', title: 'Seller', description: 'Launch campaigns & track marketing performance', icon: 'storefront' },
-    { value: 'INSURER', title: 'Insurer', description: 'Publish products & process insurance claims', icon: 'shield' },
+    { value: 'SELLER', title: 'Seller', description: 'Sell vehicles & manage listings', icon: 'storefront' },
   ];
 
   /** Form labels / placeholders (step 1). */
@@ -121,7 +119,10 @@ export class Register {
   /** Quick onboarding label. */
   readonly onboardingLabel = 'Quick 3-step onboarding';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private auth: AuthService
+  ) {}
 
   nextStep(): void {
     if (this.currentStep < 3) this.currentStep++;
@@ -135,7 +136,48 @@ export class Register {
     this.selectedRole = role;
   }
 
+  buildRegisterRequest(): RegisterRequest {
+    const phoneNum = this.phone ? parseFloat(String(this.phone).replace(/\D/g, '')) || undefined : undefined;
+    const cinNum = this.cin ? parseFloat(String(this.cin).replace(/\D/g, '')) || undefined : undefined;
+    const dob = this.dateOfBirth ? new Date(this.dateOfBirth).toISOString().slice(0, 10) : undefined;
+    const payload: RegisterRequest = {
+      firstName: this.firstName.trim(),
+      lastName: this.lastName.trim(),
+      email: this.email.trim(),
+      password: this.password,
+      role: this.selectedRole as 'CLIENT' | 'SELLER',
+    };
+    if (phoneNum != null) payload.phoneNumber = phoneNum;
+    if (dob) payload.dateOfBirth = dob;
+    if (cinNum != null) payload.cin = cinNum;
+    if (this.address?.trim()) payload.address = this.address.trim();
+    if (this.city?.trim()) payload.city = this.city.trim();
+    if (this.selectedRole === 'CLIENT' && this.localisation?.trim()) payload.localisation = this.localisation.trim();
+    if (this.selectedRole === 'SELLER' && this.commercialRegister?.trim()) payload.commercialRegister = this.commercialRegister.trim();
+    return payload;
+  }
+
   onSubmit(): void {
-    console.log('Register submitted', { firstName: this.firstName, role: this.selectedRole });
+    this.errorMessage = '';
+    if (!this.firstName?.trim() || !this.lastName?.trim() || !this.email?.trim() || !this.password) {
+      this.errorMessage = 'Please fill required fields: first name, last name, email, and password.';
+      return;
+    }
+    if (this.selectedRole !== 'CLIENT' && this.selectedRole !== 'SELLER') {
+      this.errorMessage = 'Please choose Client or Seller. Other roles are invite-only.';
+      return;
+    }
+    this.loading = true;
+    const request = this.buildRegisterRequest();
+    this.auth.register(request).subscribe({
+      next: (res) => {
+        this.loading = false;
+        this.auth.redirectByRole(res.role);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorMessage = err?.error?.error || 'Registration failed. Please try again.';
+      },
+    });
   }
 }

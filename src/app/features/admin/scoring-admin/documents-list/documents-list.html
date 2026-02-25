@@ -1,0 +1,189 @@
+<div class="documents-page">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="page-header-inner">
+      <span class="page-header-icon material-symbols-outlined">description</span>
+      <div>
+        <h1 class="page-title">{{ pageTitle }}</h1>
+        <p class="page-subtitle">{{ pageSubtitle }}</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notes (when pending has items) -->
+  <section *ngIf="statusFilter === 'pending' && documents.length" class="notes-section">
+    <label class="notes-label">
+      <span class="material-symbols-outlined notes-icon">note</span>
+      Notes (optional, for Verify / Reject)
+    </label>
+    <input type="text" [(ngModel)]="verifyNotes" placeholder="e.g. Document accepted"
+      class="notes-input" />
+  </section>
+
+  <!-- Status tabs -->
+  <nav class="filter-tabs" aria-label="Filter by status">
+    <button type="button" class="filter-tab" [class.active]="statusFilter === 'pending'"
+      (click)="setFilter('pending')">
+      <span class="material-symbols-outlined tab-icon">schedule</span>
+      Pending
+    </button>
+    <button type="button" class="filter-tab" [class.active]="statusFilter === 'verified'"
+      (click)="setFilter('verified')">
+      <span class="material-symbols-outlined tab-icon">check_circle</span>
+      Verified
+    </button>
+    <button type="button" class="filter-tab" [class.active]="statusFilter === 'rejected'"
+      (click)="setFilter('rejected')">
+      <span class="material-symbols-outlined tab-icon">cancel</span>
+      Rejected
+    </button>
+    <button type="button" class="filter-tab" [class.active]="statusFilter === 'all'"
+      (click)="setFilter('all')">
+      <span class="material-symbols-outlined tab-icon">list</span>
+      All
+    </button>
+  </nav>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="state-box state-loading">
+    <span class="material-symbols-outlined spin">progress_activity</span>
+    <p>Loading documents…</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && error" class="state-box state-error">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button type="button" class="btn btn-secondary" (click)="loadDocuments()">Retry</button>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading && !error" class="table-card">
+    <div class="table-wrap">
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>File</th>
+            <th>Type</th>
+            <th>User</th>
+            <th>Uploaded</th>
+            <th>Status</th>
+            <th class="th-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let doc of documents">
+            <tr class="doc-row">
+              <td class="col-id"><span class="mono">{{ doc.id }}</span></td>
+              <td class="col-file">
+                <span class="material-symbols-outlined file-icon">description</span>
+                {{ doc.fileName }}
+              </td>
+              <td class="col-type">{{ doc.documentType }}</td>
+              <td class="col-user">{{ doc.userName || doc.userId }}</td>
+              <td class="col-date">{{ formatDate(doc.uploadedAt) }}</td>
+              <td class="col-status">
+                <span *ngIf="doc.verified" class="badge badge-verified">Verified</span>
+                <span *ngIf="!doc.verified && statusFilter !== 'rejected'" class="badge badge-pending">Pending</span>
+                <span *ngIf="statusFilter === 'rejected'" class="badge badge-rejected">Rejected</span>
+                <span *ngIf="doc.verifiedByName" class="status-by">by {{ doc.verifiedByName }}</span>
+              </td>
+              <td class="col-actions">
+                <button type="button" class="btn btn-ghost btn-sm" (click)="openViewer(doc)" title="View document">
+                  <span class="material-symbols-outlined">visibility</span>
+                  View
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm" (click)="toggleHistory(doc.id)" title="History">
+                  <span class="material-symbols-outlined">history</span>
+                  History
+                </button>
+                <ng-container *ngIf="!doc.verified">
+                  <button type="button" class="btn btn-success btn-sm" (click)="verify(doc.id)">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    Verify
+                  </button>
+                  <button type="button" class="btn btn-danger btn-sm" (click)="reject(doc.id)">
+                    <span class="material-symbols-outlined">cancel</span>
+                    Reject
+                  </button>
+                </ng-container>
+              </td>
+            </tr>
+            <tr *ngIf="historyForId === doc.id" class="history-row">
+              <td colspan="7" class="history-cell">
+                <div class="history-panel">
+                  <h4 class="history-title">
+                    <span class="material-symbols-outlined">history</span>
+                    Verification history
+                  </h4>
+                  <div *ngIf="historyLoading" class="history-loading">Loading…</div>
+                  <ul *ngIf="!historyLoading && history.length" class="history-list">
+                    <li *ngFor="let h of history" class="history-item" [class.verified]="h.action === 'VERIFIED'" [class.rejected]="h.action === 'REJECTED'">
+                      <span class="history-action">{{ h.action }}</span>
+                      <span class="history-by">by {{ h.performedByName }}</span>
+                      <span class="history-date">{{ formatDate(h.createdAt) }}</span>
+                      <span *ngIf="h.notes" class="history-notes">{{ h.notes }}</span>
+                    </li>
+                  </ul>
+                  <p *ngIf="!historyLoading && !history.length" class="history-empty">No history yet.</p>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+    <p *ngIf="documents.length === 0" class="table-empty">No documents.</p>
+  </div>
+</div>
+
+<!-- Document viewer modal -->
+<aside *ngIf="viewerDoc" class="viewer-overlay" (click)="closeViewer()" role="dialog" aria-modal="true" aria-label="Document viewer">
+  <div class="viewer-panel" (click)="$event.stopPropagation()">
+    <header class="viewer-header">
+      <div class="viewer-title">
+        <span class="material-symbols-outlined">description</span>
+        <span>{{ viewerDoc.fileName }}</span>
+      </div>
+      <div class="viewer-actions">
+        <a *ngIf="viewerUrl" [href]="viewerUrl" download="{{ viewerDoc.fileName }}" class="btn btn-ghost btn-sm">
+          <span class="material-symbols-outlined">download</span>
+          Download
+        </a>
+        <button type="button" class="btn btn-ghost btn-icon" (click)="closeViewer()" aria-label="Close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </header>
+    <div class="viewer-body">
+      <div *ngIf="viewerLoading" class="viewer-loading">
+        <span class="material-symbols-outlined spin">progress_activity</span>
+        <p>Loading document…</p>
+      </div>
+      <div *ngIf="!viewerLoading && viewerSafeUrl" class="viewer-content">
+        <iframe *ngIf="isViewerPdf()" [src]="viewerSafeUrl" class="viewer-iframe" title="Document"></iframe>
+        <img *ngIf="isViewerImage()" [src]="viewerUrl" [alt]="viewerDoc.fileName" class="viewer-img" />
+        <div *ngIf="!isViewerPdf() && !isViewerImage()" class="viewer-fallback">
+          <span class="material-symbols-outlined">insert_drive_file</span>
+          <p>Preview not available for this file type.</p>
+          <a [href]="viewerUrl" download="{{ viewerDoc.fileName }}" class="btn btn-primary">Download</a>
+        </div>
+      </div>
+      <div *ngIf="!viewerLoading && viewerDoc && !viewerUrl" class="viewer-error">
+        <span class="material-symbols-outlined">error</span>
+        <p>Could not load document.</p>
+      </div>
+    </div>
+    <footer *ngIf="viewerDoc && !viewerDoc.verified" class="viewer-footer">
+      <button type="button" class="btn btn-success" (click)="verify(viewerDoc.id)">
+        <span class="material-symbols-outlined">check_circle</span>
+        Verify
+      </button>
+      <button type="button" class="btn btn-danger" (click)="reject(viewerDoc.id)">
+        <span class="material-symbols-outlined">cancel</span>
+        Reject
+      </button>
+    </footer>
+  </div>
+</aside>

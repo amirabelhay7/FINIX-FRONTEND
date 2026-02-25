@@ -83,13 +83,22 @@
             <!-- Form Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
 
+                <!-- Session expired (info) -->
+                <div *ngIf="sessionExpiredMessage" class="p-3 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-800">
+                    {{ sessionExpiredMessage }}
+                </div>
+                <!-- Error -->
+                <div *ngIf="errorMessage" class="p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700">
+                    {{ errorMessage }}
+                </div>
+
                 <!-- Email Field -->
                 <div class="space-y-2">
                     <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">{{ emailLabel }}</label>
                     <div class="relative">
                         <span
                             class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">mail</span>
-                        <input type="email" [placeholder]="emailPlaceholder"
+                        <input type="email" [(ngModel)]="email" name="email" [placeholder]="emailPlaceholder"
                             class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
@@ -106,25 +115,36 @@
                     <div class="relative">
                         <span
                             class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">lock</span>
-                        <input type="password" [placeholder]="passwordPlaceholder"
+                        <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" name="password" [placeholder]="passwordPlaceholder"
                             class="w-full pl-11 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
-                        <button class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                            <span class="material-symbols-outlined text-[20px]">visibility</span>
+                        <button type="button" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" (click)="togglePassword()">
+                            <span class="material-symbols-outlined text-[20px]">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Remember Me -->
                 <div class="flex items-center space-x-3">
-                    <input type="checkbox" id="remember" class="w-4 h-4 accent-[#135bec] rounded" />
+                    <input type="checkbox" id="remember" [(ngModel)]="rememberMe" name="rememberMe" class="w-4 h-4 accent-[#135bec] rounded" />
                     <label for="remember" class="text-sm font-medium text-gray-600">{{ rememberLabel }}</label>
                 </div>
 
                 <!-- Submit -->
-                <button type="button"
-                    class="w-full py-4 bg-[#135bec] text-white font-black rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-200 flex items-center justify-center space-x-2" (click)="onSubmit()">
-                    <span>{{ submitLabel }}</span>
+                <button type="button" [disabled]="loading"
+                    class="w-full py-4 bg-[#135bec] text-white font-black rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-200 flex items-center justify-center space-x-2 disabled:opacity-70 disabled:cursor-not-allowed" (click)="onSubmit()">
+                    <span *ngIf="!loading">{{ submitLabel }}</span>
+                    <span *ngIf="loading">Signing in...</span>
                     <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </button>
+            </div>
+
+            <!-- Demo — quick login -->
+            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-6 mb-2">{{ demoSectionLabel }}</p>
+            <div class="flex flex-wrap gap-2">
+                <button *ngFor="let account of demoAccounts" type="button"
+                    class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:border-[#135bec]/50 hover:bg-blue-50/50 transition-all"
+                    (click)="loginWithDemo(account)">
+                    {{ account.label }}
                 </button>
             </div>
 

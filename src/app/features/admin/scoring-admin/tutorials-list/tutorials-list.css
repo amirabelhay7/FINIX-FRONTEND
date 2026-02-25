@@ -1,0 +1,290 @@
+/* Tutorials — Admin list (education/learning theme) */
+
+.tutorials-admin-page {
+  --tut-accent: #059669;
+  --tut-accent-light: #ecfdf5;
+  --tut-surface: #f8fafc;
+  --tut-border: #e2e8f0;
+  --tut-text: #1e293b;
+  --tut-muted: #64748b;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding-bottom: 2.5rem;
+}
+
+.tutorials-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tutorials-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.tutorials-header-icon-wrap {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
+}
+
+.tutorials-header-icon-wrap .material-symbols-outlined {
+  font-size: 1.75rem !important;
+}
+
+.tutorials-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--tut-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.tutorials-subtitle {
+  font-size: 0.9rem;
+  color: var(--tut-muted);
+  margin: 0;
+}
+
+.tutorials-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  border: none;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.35);
+  transition: filter 0.2s, transform 0.15s;
+  cursor: pointer;
+}
+
+.tutorials-add-btn:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.tutorials-add-btn .material-symbols-outlined {
+  font-size: 1.25rem !important;
+}
+
+.tutorials-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tutorials-stat {
+  background: #fff;
+  border: 1px solid var(--tut-border);
+  border-radius: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  min-width: 8rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.tutorials-stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--tut-accent);
+  margin: 0 0 0.125rem 0;
+}
+
+.tutorials-stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--tut-muted);
+  margin: 0;
+}
+
+.tutorials-loading, .tutorials-error {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.tutorials-loading .material-symbols-outlined {
+  font-size: 2.5rem;
+  color: var(--tut-accent);
+  animation: tut-admin-spin 0.8s linear infinite;
+}
+
+@keyframes tut-admin-spin {
+  to { transform: rotate(360deg); }
+}
+
+.tutorials-error .material-symbols-outlined { font-size: 2.5rem; color: #dc2626; }
+.tutorials-error p { margin: 0 0 0.5rem 0; color: var(--tut-text); }
+.tutorials-retry { font-size: 0.875rem; font-weight: 600; color: var(--tut-accent); cursor: pointer; background: none; border: none; padding: 0; }
+.tutorials-retry:hover { text-decoration: underline; }
+
+.tutorials-card {
+  background: #fff;
+  border: 1px solid var(--tut-border);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.tutorials-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--tut-surface);
+  border-bottom: 1px solid var(--tut-border);
+}
+
+.tutorials-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 12rem;
+  max-width: 20rem;
+}
+
+.tutorials-search-wrap .material-symbols-outlined {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.125rem !important;
+  color: var(--tut-muted);
+}
+
+.tutorials-search-input {
+  width: 100%;
+  padding: 0.5rem 0.875rem 0.5rem 2.5rem;
+  font-size: 0.875rem;
+  color: var(--tut-text);
+  background: #fff;
+  border: 1px solid var(--tut-border);
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.tutorials-search-input:focus {
+  border-color: var(--tut-accent);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
+
+.tutorials-filter-select {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--tut-text);
+  background: #fff;
+  border: 1px solid var(--tut-border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  min-width: 10rem;
+}
+
+.tutorials-table-wrap { overflow-x: auto; }
+
+.tutorials-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.tutorials-table th {
+  text-align: left;
+  padding: 0.875rem 1.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--tut-muted);
+  background: var(--tut-accent-light);
+  border-bottom: 1px solid var(--tut-border);
+}
+
+.tutorials-table th.text-right { text-align: right; }
+
+.tutorials-table td {
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--tut-surface);
+  color: var(--tut-text);
+}
+
+.tutorials-table tbody tr:hover {
+  background: var(--tut-accent-light);
+}
+
+.tutorials-table .tutorials-cell-id {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+  color: var(--tut-muted);
+}
+
+.tutorials-table .tutorials-cell-title {
+  font-weight: 700;
+  color: var(--tut-text);
+}
+
+.tutorials-table .tutorials-cell-points {
+  font-weight: 700;
+  color: var(--tut-accent);
+}
+
+.tutorials-pill {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 9999px;
+}
+
+.tutorials-pill-easy { background: #dcfce7; color: #166534; }
+.tutorials-pill-medium { background: #fef3c7; color: #b45309; }
+.tutorials-pill-hard { background: #fee2e2; color: #b91c1c; }
+
+.tutorials-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.tutorials-action-link, .tutorials-action-btn {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--tut-accent);
+}
+
+.tutorials-action-link:hover, .tutorials-action-btn:hover { text-decoration: underline; }
+.tutorials-action-btn-red { color: #dc2626; }
+
+.tutorials-empty {
+  padding: 2.5rem 1.25rem;
+  text-align: center;
+  color: var(--tut-muted);
+  font-size: 0.9375rem;
+}

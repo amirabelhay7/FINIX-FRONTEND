@@ -1,0 +1,421 @@
+/* Tutorials list — Score tutorials */
+
+.tutorials-page {
+  --tut-primary: #0f4cbd;
+  --tut-primary-hover: #0d4199;
+  --tut-success: #0d9488;
+  --tut-success-hover: #0f766e;
+  --tut-surface: #f8fafc;
+  --tut-border: #e2e8f0;
+  --tut-text: #1e293b;
+  --tut-muted: #64748b;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 2.5rem;
+}
+
+/* Header */
+.tutorials-header {
+  margin-bottom: 1.75rem;
+}
+
+.tutorials-header-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.tutorials-header-icon {
+  font-size: 2.25rem;
+  color: var(--tut-primary);
+  flex-shrink: 0;
+}
+
+.tutorials-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--tut-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.tutorials-subtitle {
+  font-size: 0.9rem;
+  color: var(--tut-muted);
+  margin: 0;
+}
+
+/* Loading */
+.tutorials-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: var(--tut-muted);
+}
+
+.tutorials-loading .material-symbols-outlined {
+  font-size: 2.5rem;
+  color: var(--tut-primary);
+}
+
+.tutorials-loading .spin {
+  animation: tut-spin 0.8s linear infinite;
+}
+
+@keyframes tut-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error */
+.tutorials-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.tutorials-error .material-symbols-outlined {
+  font-size: 2.5rem;
+  color: #dc2626;
+}
+
+.tutorials-error p {
+  margin: 0;
+  color: var(--tut-text);
+  font-size: 0.95rem;
+}
+
+.btn-retry {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--tut-primary);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-retry:hover {
+  background: var(--tut-primary-hover);
+}
+
+/* Not found (after 404 redirect) */
+.tutorials-not-found {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--tut-primary);
+}
+
+.tutorials-not-found .material-symbols-outlined {
+  font-size: 1.25rem !important;
+  flex-shrink: 0;
+}
+
+.tutorials-not-found p {
+  margin: 0;
+}
+
+/* Toolbar */
+.tutorials-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tutorials-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--tut-muted);
+}
+
+.filter-select {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--tut-text);
+  background: #fff;
+  border: 1px solid var(--tut-border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  min-width: 10rem;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--tut-primary);
+  box-shadow: 0 0 0 2px rgba(15, 76, 189, 0.15);
+}
+
+.tutorials-count {
+  font-size: 0.875rem;
+  color: var(--tut-muted);
+  margin: 0;
+}
+
+/* Grid */
+.tutorials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Card */
+.tutorial-card {
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--tut-border);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.tutorial-card-inner {
+  padding: 1.25rem;
+  cursor: pointer;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.tutorial-card:not(.is-locked) .tutorial-card-inner:hover {
+  outline: none;
+}
+
+.tutorial-card:not(.is-locked):hover {
+  box-shadow: 0 4px 14px rgba(15, 76, 189, 0.1);
+  border-color: #cbd5e1;
+}
+
+.tutorial-card.is-locked .tutorial-card-inner {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.tutorial-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.tutorial-card-status {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.tutorial-card-status[data-status="COMPLETED"] {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.tutorial-card-status[data-status="IN_PROGRESS"] {
+  background: #dbeafe;
+  color: var(--tut-primary);
+}
+
+.tutorial-card-status[data-status="NOT_STARTED"] {
+  background: var(--tut-surface);
+  color: var(--tut-muted);
+}
+
+.tutorial-card-status[data-status="LOCKED"] {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.tutorial-card-icon-wrap {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.625rem;
+  background: linear-gradient(145deg, #eff6ff 0%, #e0f2fe 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tutorial-card-icon {
+  font-size: 1.375rem !important;
+  color: var(--tut-primary);
+}
+
+.tutorial-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--tut-text);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.3;
+}
+
+.tutorial-card-desc {
+  font-size: 0.875rem;
+  color: var(--tut-muted);
+  margin: 0 0 0.75rem 0;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tutorial-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--tut-muted);
+  margin-bottom: 0.75rem;
+}
+
+.tutorial-card-difficulty {
+  font-weight: 500;
+  color: var(--tut-text);
+}
+
+.tutorial-card-time,
+.tutorial-card-points {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tutorial-card-time .material-symbols-outlined {
+  font-size: 1rem !important;
+}
+
+.tutorial-card-progress {
+  margin-bottom: 0.75rem;
+}
+
+.tutorial-card-progress-bar {
+  height: 6px;
+  background: var(--tut-surface);
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.tutorial-card-progress-fill {
+  height: 100%;
+  background: var(--tut-success);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.tutorial-card-progress-text {
+  font-size: 0.75rem;
+  color: var(--tut-muted);
+}
+
+.tutorial-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.btn-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-card .material-symbols-outlined {
+  font-size: 1.125rem !important;
+}
+
+.btn-card.btn-primary {
+  background: var(--tut-primary);
+  color: #fff;
+}
+
+.btn-card.btn-primary:hover:not(:disabled) {
+  background: var(--tut-primary-hover);
+}
+
+.btn-card.btn-primary:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.btn-card.btn-complete {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.btn-card.btn-complete:hover {
+  background: #99f6e4;
+  color: #0d9488;
+}
+
+/* Empty state */
+.tutorials-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.tutorials-empty-icon {
+  font-size: 3rem !important;
+  color: #cbd5e1;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.tutorials-empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--tut-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.tutorials-empty-text {
+  font-size: 0.875rem;
+  color: var(--tut-muted);
+  margin: 0;
+}

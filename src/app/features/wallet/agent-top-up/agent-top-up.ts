@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { AgentLocation } from '../../../models';
+import { AuthService } from '../../../core/auth/auth.service';
+import { WalletService } from '../../../core/wallet/wallet.service';
 
-/**
- * ViewModel: agent top-up (MVVM).
- */
 @Component({
   selector: 'app-agent-top-up',
   standalone: false,
@@ -23,4 +23,44 @@ export class AgentTopUp {
     { name: 'Agence FINIX Tunis Centre', address: 'Av. Habib Bourguiba, Tunis · Open until 6 PM', distance: '0.8 km', distanceClass: 'text-green-600' },
     { name: 'Point FINIX La Marsa', address: 'Rue de la République, La Marsa · Open until 8 PM', distance: '2.1 km', distanceClass: 'text-gray-500' },
   ];
+
+  /** Shown when current user is AGENT: form to credit a client's wallet */
+  clientEmail = '';
+  amount: number | null = null;
+  description = '';
+  submitting = false;
+  error: string | null = null;
+
+  constructor(
+    private authService: AuthService,
+    private walletService: WalletService,
+    private router: Router,
+  ) {}
+
+  get isAgent(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'AGENT';
+  }
+
+  submitTopUp(): void {
+    const email = (this.clientEmail || '').trim();
+    const amt = this.amount != null ? Number(this.amount) : 0;
+    if (!email) {
+      this.error = 'Enter client email.';
+      return;
+    }
+    if (amt <= 0) {
+      this.error = 'Enter a valid amount.';
+      return;
+    }
+    this.error = null;
+    this.submitting = true;
+    this.walletService.agentTopUp(email, amt, this.description || undefined).subscribe({
+      next: () => this.router.navigate(['/wallet']),
+      error: (err) => {
+        this.submitting = false;
+        this.error = err?.error?.message || err?.message || 'Top-up failed';
+      },
+    });
+  }
 }

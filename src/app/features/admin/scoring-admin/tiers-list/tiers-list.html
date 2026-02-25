@@ -1,37 +1,75 @@
-<div class="space-y-8 pb-10">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
-        </div>
-        <a [routerLink]="addTierRoute" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
-            <span class="material-symbols-outlined mr-2 text-[18px]">add</span>{{ addTierLabel }}
-        </a>
+<div class="tiers-admin-page">
+  <header class="tiers-header">
+    <div class="tiers-header-left">
+      <div class="tiers-header-icon-wrap">
+        <span class="material-symbols-outlined">workspace_premium</span>
+      </div>
+      <div>
+        <h1 class="tiers-title">{{ pageTitle }}</h1>
+        <p class="tiers-subtitle">{{ pageSubtitle }}</p>
+      </div>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Tier name</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Score range</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Status</th>
-                        <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    <tr *ngFor="let row of rows" class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">{{ row.id }}</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">{{ row.tierName }}</td>
-                        <td class="py-4 px-6 text-gray-600">{{ row.scoreRange }}</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="row.statusClass">{{ row.status }}</span></td>
-                        <td class="py-4 px-6 text-right">
-                            <a [routerLink]="row.editRoute" class="text-[#135bec] font-bold hover:underline mr-2">{{ editLabel }}</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <a [routerLink]="addTierRoute" class="tiers-add-btn">
+      <span class="material-symbols-outlined">add</span>
+      {{ addTierLabel }}
+    </a>
+  </header>
+
+  <div *ngIf="loading" class="tiers-loading">
+    <span class="material-symbols-outlined">progress_activity</span>
+    <p>Loading tiers…</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="tiers-error">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button type="button" class="tiers-retry" (click)="loadTiers()">Retry</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+    <div class="tiers-stats">
+      <div class="tiers-stat">
+        <p class="tiers-stat-value">{{ tiers.length }}</p>
+        <p class="tiers-stat-label">Tiers</p>
+      </div>
+      <div class="tiers-stat">
+        <p class="tiers-stat-value">{{ activeTiersCount }}</p>
+        <p class="tiers-stat-label">Active</p>
+      </div>
     </div>
+
+    <div class="tiers-card">
+      <div class="tiers-table-wrap">
+        <table class="tiers-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tier name</th>
+              <th>Score range</th>
+              <th>Status</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of rows">
+              <td class="tiers-cell-id">{{ row.id }}</td>
+              <td class="tiers-cell-name">{{ row.tierName }}</td>
+              <td class="tiers-cell-range">{{ row.scoreRange }}</td>
+              <td>
+                <span class="tiers-pill" [ngClass]="row.status === 'Active' ? 'tiers-pill-active' : 'tiers-pill-inactive'">{{ row.status }}</span>
+              </td>
+              <td>
+                <div class="tiers-actions">
+                  <a [routerLink]="row.editRoute" class="tiers-action-link">{{ editLabel }}</a>
+                  <button type="button" *ngIf="!row.isActive" class="tiers-action-btn tiers-action-btn-green" (click)="activate(row.id)">{{ activateLabel }}</button>
+                  <button type="button" *ngIf="row.isActive" class="tiers-action-btn tiers-action-btn-orange" (click)="deactivate(row.id)">{{ deactivateLabel }}</button>
+                  <button type="button" class="tiers-action-btn tiers-action-btn-red" (click)="deleteTier(row.id, $event)">{{ deleteLabel }}</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
 </div>

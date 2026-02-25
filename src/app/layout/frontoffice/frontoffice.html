@@ -1,106 +1,159 @@
-<div class="min-h-screen bg-gray-50 flex flex-col font-sans">
-    
-    <header class="sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                
-                <div class="flex items-center space-x-2 cursor-pointer" routerLink="/">
-                    <div class="w-8 h-8 bg-[#135bec] rounded-lg flex items-center justify-center rotate-3 shadow-lg shadow-blue-200">
-                        <span class="material-symbols-outlined text-white text-xl">account_balance</span>
-                    </div>
-                    <span class="text-xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-[#135bec] to-blue-600">
-                        FINIX
-                    </span>
+<div class="min-h-screen bg-slate-50 flex flex-col font-sans antialiased">
+  <!-- Navbar only – role-based links -->
+  <header class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur border-b border-slate-200/80 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16 lg:h-[4.25rem]">
+        <!-- Logo -->
+        <a routerLink="/" class="flex items-center gap-2.5 shrink-0 group">
+          <div class="w-9 h-9 bg-[#135bec] rounded-xl flex items-center justify-center shadow-md shadow-blue-200/50 group-hover:shadow-blue-300/60 transition-shadow">
+            <span class="material-symbols-outlined text-white text-xl">account_balance</span>
+          </div>
+          <span class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#135bec] to-blue-600">FINIX</span>
+        </a>
+
+        <!-- Desktop nav (center) – role-based -->
+        <nav class="hidden lg:flex items-center gap-0.5 flex-1 justify-center max-w-2xl mx-8">
+          @for (item of navItems; track item.path) {
+            <a [routerLink]="item.path" [routerLinkActive]="'bg-slate-100 text-[#135bec]'" [routerLinkActiveOptions]="item.path === '/' ? { exact: true } : { exact: false }"
+               class="px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-[#135bec] hover:bg-slate-50 rounded-lg transition-colors">
+              {{ item.label }}
+            </a>
+          }
+        </nav>
+
+        <!-- Right: actions + user -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          @if (isLoggedIn) {
+            <div class="relative">
+              <button type="button" (click)="toggleNotificationPanel()"
+                      class="p-2.5 text-slate-500 hover:bg-slate-100 rounded-xl relative transition-colors" aria-label="Notifications">
+                <span class="material-symbols-outlined text-[22px]">notifications</span>
+                @if (unreadCount > 0) {
+                  <span class="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-bold bg-red-500 text-white rounded-full ring-2 ring-white">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+                }
+              </button>
+              @if (showNotificationPanel) {
+                <div class="absolute right-0 mt-1.5 w-96 max-h-[400px] overflow-y-auto bg-white rounded-xl border border-slate-200 shadow-lg z-50 flex flex-col">
+                  <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                    <span class="font-semibold text-slate-800">Notifications</span>
+                    @if (unreadCount > 0) {
+                      <button type="button" (click)="markAllNotificationsRead()" class="text-xs font-medium text-[#135bec] hover:underline">Mark all read</button>
+                    }
+                  </div>
+                  <div class="divide-y divide-slate-50">
+                    @for (n of notifications; track n.id) {
+                      <button type="button" (click)="markNotificationAsRead(n); showNotificationPanel = false"
+                              class="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors"
+                              [class.bg-blue-50/50]="!n.read">
+                        <p class="text-sm font-medium text-slate-800">{{ n.title }}</p>
+                        <p class="text-xs text-slate-500 mt-0.5 line-clamp-2">{{ n.message }}</p>
+                        <p class="text-[10px] text-slate-400 mt-1">{{ formatNotificationTime(n.createdAt) }}</p>
+                      </button>
+                    }
+                  </div>
+                  @if (notifications.length === 0) {
+                    <p class="px-4 py-6 text-center text-slate-500 text-sm">No notifications yet.</p>
+                  }
                 </div>
-
-                <!-- Centered Navigation -->
-                <nav class="hidden lg:flex items-center space-x-1 flex-1 justify-center mx-8">
-                    <a routerLink="/" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium rounded-md">Home</a>
-                    <a routerLink="/credit" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#135bec] hover:bg-gray-50 rounded-md transition-all">Credit</a>
-                    <a routerLink="/score" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#135bec] hover:bg-gray-50 rounded-md transition-all">Scoring</a>
-                    <a routerLink="/wallet" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#135bec] hover:bg-gray-50 rounded-md transition-all">Wallet</a>
-                    <a routerLink="/insurance" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#135bec] hover:bg-gray-50 rounded-md transition-all">Insurance</a>
-                    <a routerLink="/repayment" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#135bec] hover:bg-gray-50 rounded-md transition-all">Repayment</a>
-                    <a routerLink="/vehicles" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#135bec] hover:bg-gray-50 rounded-md transition-all">Vehicles</a>
-                </nav>
-
-                <div class="flex items-center space-x-4">
-                    <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full relative">
-                        <span class="material-symbols-outlined text-[22px]">notifications</span>
-                        <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                    </button>
-
-                    <div class="h-6 w-px bg-gray-200"></div>
-
-                    <div class="flex items-center cursor-pointer group px-2 py-1 hover:bg-gray-50 rounded-lg transition-colors">
-                        <img src="https://ui-avatars.com/api/?name=Alex+Johnson&background=135bec&color=fff" 
-                             class="h-8 w-8 rounded-full border border-gray-200" alt="User" />
-                        <div class="ml-2 hidden sm:block">
-                            <p class="text-xs font-bold text-gray-800 leading-none">Alex Johnson</p>
-                            <p class="text-[10px] text-[#135bec] font-bold uppercase tracking-tighter">Verified Client</p>
-                        </div>
-                        <span class="material-symbols-outlined text-gray-400 text-sm ml-1">expand_more</span>
-                    </div>
-
-                    <button class="lg:hidden p-2 text-gray-600">
-                        <span class="material-symbols-outlined">menu</span>
-                    </button>
-                </div>
+              }
             </div>
-        </div>
-    </header>
-
-    <main class="flex-grow">
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <router-outlet></router-outlet>
-        </div>
-    </main>
-
-    <footer class="bg-white border-t border-gray-200">
-        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                <div class="col-span-2">
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-6 h-6 bg-gray-900 rounded flex items-center justify-center">
-                            <span class="material-symbols-outlined text-white text-xs">dataset</span>
-                        </div>
-                        <span class="text-lg font-black tracking-tighter uppercase italic text-gray-900">FINIX</span>
-                    </div>
-                    <p class="text-sm text-gray-500 max-w-xs">
-                        The ultimate ecosystem for sellers and financial service providers. Secure, fast, and transparent.
-                    </p>
+            <div class="relative">
+              <button type="button" (click)="toggleUserMenu()" class="flex items-center gap-2.5 pl-2 pr-2.5 py-2 rounded-xl hover:bg-slate-50 transition-colors border border-transparent focus:border-slate-300 outline-none">
+                <img [src]="userAvatarUrl" alt="" class="h-8 w-8 rounded-full border border-slate-200" />
+                <div class="hidden sm:block text-left">
+                  <p class="text-sm font-semibold text-slate-800 leading-tight">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</p>
+                  <p class="text-[10px] text-[#135bec] font-semibold uppercase tracking-wide">{{ roleLabel }}</p>
                 </div>
-                <div>
-                    <h4 class="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4">Store</h4>
-                    <ul class="space-y-2 text-sm text-gray-500">
-                        <li><a href="#" class="hover:text-[#135bec]">Dashboard</a></li>
-                        <li><a href="#" class="hover:text-[#135bec]">Listings</a></li>
-                        <li><a href="#" class="hover:text-[#135bec]">Reviews</a></li>
-                    </ul>
+                <span class="material-symbols-outlined text-slate-400 text-lg">expand_more</span>
+              </button>
+              @if (showUserMenu) {
+                <div class="absolute right-0 mt-1.5 w-52 py-1.5 bg-white rounded-xl border border-slate-200 shadow-lg z-50">
+                  <a routerLink="/profile" (click)="showUserMenu = false" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
+                    <span class="material-symbols-outlined text-[20px] text-slate-500">person</span>
+                    My profile
+                  </a>
+                  <button type="button" (click)="logout()" class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
+                    <span class="material-symbols-outlined text-[20px]">logout</span>
+                    Log out
+                  </button>
                 </div>
-                <div>
-                    <h4 class="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4">Support</h4>
-                    <ul class="space-y-2 text-sm text-gray-500">
-                        <li><a href="#" class="hover:text-[#135bec]">Help Center</a></li>
-                        <li><a href="#" class="hover:text-[#135bec]">Seller Guide</a></li>
-                        <li><a href="#" class="hover:text-[#135bec]">Contact Us</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4">Legal</h4>
-                    <ul class="space-y-2 text-sm text-gray-500">
-                        <li><a href="#" class="hover:text-[#135bec]">Privacy</a></li>
-                        <li><a href="#" class="hover:text-[#135bec]">Terms</a></li>
-                    </ul>
-                </div>
+              }
             </div>
-            <div class="mt-12 pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                <p class="text-xs text-gray-400 font-medium">© 2026 FINIX Ecosystem. All rights reserved.</p>
-                <div class="flex space-x-6">
-                    <span class="material-symbols-outlined text-gray-400 cursor-pointer hover:text-blue-600 transition-colors">public</span>
-                    <span class="material-symbols-outlined text-gray-400 cursor-pointer hover:text-blue-400 transition-colors">alternate_email</span>
-                </div>
-            </div>
+          } @else {
+            <a routerLink="/auth/login" class="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-[#135bec] hover:bg-slate-50 rounded-lg transition-colors">Log in</a>
+            <a routerLink="/auth/register" class="px-4 py-2.5 text-sm font-semibold text-white bg-[#135bec] hover:bg-[#0d47b4] rounded-lg shadow-md shadow-blue-200/50 transition-all">Sign up</a>
+          }
+
+          <button type="button" (click)="toggleMobileMenu()" class="lg:hidden p-2.5 text-slate-600 hover:bg-slate-100 rounded-xl" aria-label="Menu">
+            <span class="material-symbols-outlined">{{ showMobileMenu ? 'close' : 'menu' }}</span>
+          </button>
         </div>
-    </footer>
+      </div>
+    </div>
+
+    <!-- Mobile nav – same role-based links -->
+    @if (showMobileMenu) {
+      <div class="lg:hidden border-t border-slate-200 bg-white">
+        <nav class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-0.5">
+          @for (item of navItems; track item.path) {
+            <a [routerLink]="item.path" (click)="closeMobileMenu()"
+               class="px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg">{{ item.label }}</a>
+          }
+        </nav>
+      </div>
+    }
+  </header>
+
+  <main class="flex-grow">
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 mt-auto">
+    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+        <div class="col-span-2">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-7 h-7 bg-slate-900 rounded-lg flex items-center justify-center">
+              <span class="material-symbols-outlined text-white text-sm">account_balance</span>
+            </div>
+            <span class="text-lg font-bold tracking-tight text-slate-900">FINIX</span>
+          </div>
+          <p class="text-sm text-slate-500 max-w-xs">
+            The ultimate ecosystem for sellers and financial service providers. Secure, fast, and transparent.
+          </p>
+        </div>
+        <div>
+          <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4">Product</h4>
+          <ul class="space-y-2.5 text-sm text-slate-500">
+            <li><a routerLink="/credit" class="hover:text-[#135bec] transition-colors">Credit</a></li>
+            <li><a routerLink="/wallet" class="hover:text-[#135bec] transition-colors">Wallet</a></li>
+            <li><a routerLink="/insurance" class="hover:text-[#135bec] transition-colors">Insurance</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4">Support</h4>
+          <ul class="space-y-2.5 text-sm text-slate-500">
+            <li><a href="#" class="hover:text-[#135bec] transition-colors">Help Center</a></li>
+            <li><a href="#" class="hover:text-[#135bec] transition-colors">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4">Legal</h4>
+          <ul class="space-y-2.5 text-sm text-slate-500">
+            <li><a href="#" class="hover:text-[#135bec] transition-colors">Privacy</a></li>
+            <li><a href="#" class="hover:text-[#135bec] transition-colors">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-12 pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-xs text-slate-400 font-medium">© 2026 FINIX. All rights reserved.</p>
+        <div class="flex gap-4">
+          <span class="material-symbols-outlined text-slate-400 hover:text-[#135bec] cursor-pointer transition-colors text-xl">public</span>
+          <span class="material-symbols-outlined text-slate-400 hover:text-[#135bec] cursor-pointer transition-colors text-xl">alternate_email</span>
+        </div>
+      </div>
+    </div>
+  </footer>
 </div>

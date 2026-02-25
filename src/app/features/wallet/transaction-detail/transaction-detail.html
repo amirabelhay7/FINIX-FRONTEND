@@ -1,24 +1,65 @@
-<div class="space-y-8 pb-10 max-w-2xl">
-    <div class="flex items-center gap-4">
-        <a [routerLink]="backRoute" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ data.pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ data.refLabel }}</p>
-        </div>
+<div class="txd-page">
+  <header class="txd-header">
+    <a [routerLink]="backRoute" class="txd-back">
+      <span class="material-symbols-outlined">arrow_back</span>
+      {{ backLabel }}
+    </a>
+    <h1 class="txd-title">Transaction details</h1>
+    <p class="txd-ref">{{ data.refLabel }}</p>
+  </header>
+
+  <div *ngIf="loading" class="txd-loading">
+    <span class="material-symbols-outlined txd-spin">progress_activity</span>
+    <p>Loading transaction…</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="txd-error">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <a [routerLink]="backRoute" class="txd-btn-secondary">Back to transactions</a>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+    <div class="txd-hero">
+      <div class="txd-hero-icon-wrap">
+        <span class="material-symbols-outlined txd-hero-icon">{{ amountPositive ? 'south_east' : 'north_west' }}</span>
+      </div>
+      <p class="txd-hero-label">{{ amountPositive ? 'Amount received' : 'Amount sent' }}</p>
+      <p class="txd-hero-amount" [class.credit]="amountPositive" [class.debit]="!amountPositive">{{ data.amount }}</p>
+      <p class="txd-hero-type">{{ data.type }}</p>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Type</p><p class="text-gray-800">{{ data.type }}</p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Amount</p><p class="font-bold text-[#135bec]">{{ data.amount }}</p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Date</p><p class="text-gray-800">{{ data.date }}</p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">Status</p><p><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="data.statusClass">{{ data.status }}</span></p></div>
+
+    <section class="txd-details">
+      <h2 class="txd-details-title">Details</h2>
+      <dl class="txd-details-list">
+        <div class="txd-detail-row">
+          <dt>Type</dt>
+          <dd>{{ data.type }}</dd>
         </div>
-        <div class="border-t border-gray-100 pt-4">
-            <p class="text-xs font-bold text-gray-500 uppercase">Reference</p>
-            <p class="font-mono text-sm text-gray-600">{{ data.reference }}</p>
+        <div class="txd-detail-row">
+          <dt>Amount</dt>
+          <dd class="txd-detail-amount" [class.credit]="amountPositive" [class.debit]="!amountPositive">{{ data.amount }}</dd>
         </div>
-        <a [routerLink]="backRoute" class="inline-block px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">{{ backLabel }}</a>
+        <div class="txd-detail-row">
+          <dt>Date & time</dt>
+          <dd>{{ data.date }}</dd>
+        </div>
+        <div class="txd-detail-row">
+          <dt>Status</dt>
+          <dd><span class="txd-status-pill" [ngClass]="data.statusClass">{{ data.status }}</span></dd>
+        </div>
+        <div class="txd-detail-row txd-detail-row-ref">
+          <dt>Reference</dt>
+          <dd class="txd-ref-value">{{ data.reference }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <div class="txd-actions">
+      <a [routerLink]="backRoute" class="txd-btn-primary">
+        <span class="material-symbols-outlined">list</span>
+        {{ backLabel }}
+      </a>
     </div>
+  </ng-container>
 </div>

@@ -1,47 +1,86 @@
-<div class="space-y-8 pb-10">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
-        </div>
+<div class="guarantees-admin-page">
+  <header class="guarantees-header">
+    <div class="guarantees-header-left">
+      <div class="guarantees-header-icon-wrap">
+        <span class="material-symbols-outlined">handshake</span>
+      </div>
+      <div>
+        <h1 class="guarantees-title">{{ pageTitle }}</h1>
+        <p class="guarantees-subtitle">{{ pageSubtitle }}</p>
+      </div>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-gray-50 flex flex-wrap items-center gap-4">
-            <div class="relative flex-1 min-w-[200px]">
-                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">search</span>
-                <input type="text" [placeholder]="searchPlaceholder" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-            </div>
-            <select class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
-                <option *ngFor="let opt of statusFilterOptions" [value]="opt.value">{{ opt.label }}</option>
-            </select>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Guarantor</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Beneficiary</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Points</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Created</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Accepted</th>
-                        <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    <tr *ngFor="let row of rows" class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">{{ row.id }}</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">{{ row.guarantor }}</td>
-                        <td class="py-4 px-6 text-gray-600">{{ row.beneficiary }}</td>
-                        <td class="py-4 px-6 font-bold text-[#135bec]">{{ row.points }}</td>
-                        <td class="py-4 px-6 text-gray-600">{{ row.created }}</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="row.acceptedClass">{{ row.accepted }}</span></td>
-                        <td class="py-4 px-6 text-right">
-                            <a [routerLink]="row.viewRoute" class="text-[#135bec] font-bold hover:underline">{{ viewLabel }}</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+  </header>
+
+  <div *ngIf="loading" class="guarantees-loading">
+    <span class="material-symbols-outlined">progress_activity</span>
+    <p>Loading guarantees…</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="guarantees-error">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button type="button" class="guarantees-retry" (click)="loadGuarantees()">Retry</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+    <div class="guarantees-stats">
+      <div class="guarantees-stat">
+        <p class="guarantees-stat-value">{{ guarantees.length }}</p>
+        <p class="guarantees-stat-label">Total</p>
+      </div>
+      <div class="guarantees-stat">
+        <p class="guarantees-stat-value">{{ acceptedCount }}</p>
+        <p class="guarantees-stat-label">Accepted</p>
+      </div>
+      <div class="guarantees-stat">
+        <p class="guarantees-stat-value">{{ pendingCount }}</p>
+        <p class="guarantees-stat-label">Pending</p>
+      </div>
     </div>
+
+    <div class="guarantees-card">
+      <div class="guarantees-toolbar">
+        <div class="guarantees-search-wrap">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" [(ngModel)]="searchText" [placeholder]="searchPlaceholder" class="guarantees-search-input" />
+        </div>
+        <select [(ngModel)]="statusFilter" class="guarantees-filter-select">
+          <option *ngFor="let opt of statusFilterOptions" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+      </div>
+      <div class="guarantees-table-wrap">
+        <table class="guarantees-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Guarantor</th>
+              <th>Beneficiary</th>
+              <th>Points</th>
+              <th>Created</th>
+              <th>Accepted</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of filteredRows">
+              <td class="guarantees-cell-id">{{ row.id }}</td>
+              <td class="guarantees-cell-guarantor">{{ row.guarantor }}</td>
+              <td>{{ row.beneficiary }}</td>
+              <td class="guarantees-cell-points">{{ row.points }}</td>
+              <td>{{ row.created }}</td>
+              <td>
+                <span class="guarantees-pill" [ngClass]="row.accepted === 'Yes' ? 'guarantees-pill-accepted' : 'guarantees-pill-pending'">{{ row.accepted }}</span>
+              </td>
+              <td>
+                <div class="guarantees-actions">
+                  <a [routerLink]="row.viewRoute" class="guarantees-action-link">{{ viewLabel }}</a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p *ngIf="filteredRows.length === 0" class="guarantees-empty">No guarantees match your filters.</p>
+    </div>
+  </ng-container>
 </div>

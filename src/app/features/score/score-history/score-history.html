@@ -1,5 +1,20 @@
 <div class="space-y-8 animate-in fade-in duration-700 pb-10">
 
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex items-center justify-center py-20">
+        <div class="flex flex-col items-center gap-3">
+            <span class="material-symbols-outlined animate-spin text-4xl text-[#135bec]">progress_activity</span>
+            <p class="text-sm font-medium text-gray-500">Loading score history…</p>
+        </div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="!loading && error" class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">
+        <p class="font-medium">{{ error }}</p>
+        <button class="mt-2 text-sm font-bold text-[#135bec] hover:underline" (click)="loadHistory()">Retry</button>
+    </div>
+
+    <ng-container *ngIf="!loading && !error">
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -52,7 +67,7 @@
                         </div>
                         <div class="absolute top-12 left-1/2 transform -translate-x-1/2">
                             <div class="bg-white rounded-lg shadow-lg border border-gray-100 p-3 min-w-max">
-                                <div class="text-xs text-gray-500 mb-1">{{ change.changedAt }}</div>
+                                <div class="text-xs text-gray-500 mb-1">{{ formatChangedAt(change.changedAt) }}</div>
                                 <div class="font-bold text-gray-900 mb-1">{{ change.reason }}</div>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-sm text-gray-600">{{ change.previousScore }}</span>
@@ -86,7 +101,7 @@
                             <div class="flex items-center justify-between mb-2">
                                 <div>
                                     <p class="text-xs text-gray-500">Triggered By</p>
-                                    <p class="text-sm font-medium text-gray-900">{{ change.triggeredBy }}</p>
+                                    <p class="text-sm font-medium text-gray-900">{{ change.triggeredBy || '—' }}</p>
                                 </div>
                                 <div class="text-right">
                                     <span class="text-xs text-gray-400" *ngIf="change.referenceId">ID: {{ change.referenceId }}</span>
@@ -100,7 +115,7 @@
     </div>
 
     <!-- Empty State -->
-    <div class="text-center py-12" *ngIf="getFilteredHistory().length === 0">
+    <div class="text-center py-12" *ngIf="getFilteredHistory().length === 0 && !loading">
         <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span class="material-symbols-outlined text-gray-400 text-[32px]">history</span>
         </div>
@@ -108,4 +123,5 @@
         <p class="text-gray-500 text-sm">Your score changes will appear here as you interact with the platform.</p>
     </div>
 
+    </ng-container>
 </div>

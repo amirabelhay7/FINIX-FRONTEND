@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { WalletFormOption } from '../../../models';
+import { WalletService } from '../../../core/wallet/wallet.service';
 
-/**
- * ViewModel: deposit (MVVM).
- */
 @Component({
   selector: 'app-deposit',
   standalone: false,
@@ -24,4 +23,31 @@ export class Deposit {
     { value: 'card', label: 'Card' },
     { value: 'bank', label: 'Bank transfer' },
   ];
+
+  amount: number | null = null;
+  description = '';
+  submitting = false;
+  error: string | null = null;
+
+  constructor(
+    private walletService: WalletService,
+    private router: Router,
+  ) {}
+
+  submit(): void {
+    const amt = this.amount != null ? Number(this.amount) : 0;
+    if (amt <= 0) {
+      this.error = 'Enter a valid amount.';
+      return;
+    }
+    this.error = null;
+    this.submitting = true;
+    this.walletService.deposit(amt, this.description || undefined).subscribe({
+      next: () => this.router.navigate(['/wallet']),
+      error: (err) => {
+        this.submitting = false;
+        this.error = err?.error?.message || err?.message || 'Deposit failed';
+      },
+    });
+  }
 }

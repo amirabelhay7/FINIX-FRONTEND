@@ -1,93 +1,109 @@
-<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+<div class="wallet-page">
+  <header class="wallet-header">
+    <div class="wallet-header-inner">
+      <span class="wallet-header-icon material-symbols-outlined">account_balance_wallet</span>
+      <div class="wallet-header-text">
+        <h1 class="wallet-title">{{ pageTitle }}</h1>
+        <p class="wallet-subtitle">{{ pageSubtitle }}</p>
+      </div>
+      <div class="wallet-header-actions" *ngIf="!loading && !error">
+        <span class="wallet-ledger-pill">
+          <span class="wallet-ledger-dot"></span>
+          {{ ledgerStatus }}
+        </span>
+        <a routerLink="/wallet/deposit" class="btn-top-up">
+          <span class="material-symbols-outlined">add</span>
+          Top up
+        </a>
+      </div>
+    </div>
+  </header>
 
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
-        </div>
-        <div class="flex items-center space-x-3">
-            <div class="flex items-center bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm text-xs space-x-2">
-                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span class="font-medium text-gray-500">{{ ledgerStatus }}</span>
+  <div *ngIf="loading" class="wallet-loading">
+    <span class="material-symbols-outlined wallet-spin">progress_activity</span>
+    <p>Loading wallet…</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="wallet-error">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+    <div class="wallet-main">
+      <div class="wallet-balance-card">
+        <div class="wallet-balance-bg"></div>
+        <div class="wallet-balance-content">
+          <div class="wallet-balance-top">
+            <div>
+              <p class="wallet-balance-label">Available balance</p>
+              <h2 class="wallet-balance-amount">
+                {{ balance.amountWhole }}<span class="wallet-balance-decimals">{{ balance.amountDecimals }}</span>
+                <span class="wallet-balance-currency">{{ balance.currency }}</span>
+              </h2>
             </div>
-            <a routerLink="/wallet/deposit" class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md flex items-center">
-                <span class="material-symbols-outlined mr-2 text-[18px]">add</span>Top Up
-            </a>
+            <div class="wallet-balance-icon-wrap">
+              <span class="material-symbols-outlined">account_balance_wallet</span>
+            </div>
+          </div>
+          <div class="wallet-balance-stats">
+            <div class="wallet-stat">
+              <span class="material-symbols-outlined wallet-stat-icon inflow">trending_up</span>
+              <p class="wallet-stat-label">In (30d)</p>
+              <p class="wallet-stat-value">{{ balance.inflow30d }}</p>
+            </div>
+            <div class="wallet-stat">
+              <span class="material-symbols-outlined wallet-stat-icon outflow">trending_down</span>
+              <p class="wallet-stat-label">Out (30d)</p>
+              <p class="wallet-stat-value">{{ balance.outflow30d }}</p>
+            </div>
+            <div class="wallet-stat">
+              <p class="wallet-stat-label">Account</p>
+              <p class="wallet-stat-value wallet-stat-account">{{ balance.accountMask }}</p>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div class="wallet-quick-actions">
+        <a *ngFor="let action of quickActions" [routerLink]="action.route" class="wallet-action-card">
+          <div class="wallet-action-icon" [ngClass]="action.iconBgClass">
+            <span class="material-symbols-outlined" [ngClass]="action.iconColorClass">{{ action.icon }}</span>
+          </div>
+          <div class="wallet-action-body">
+            <p class="wallet-action-title">{{ action.title }}</p>
+            <p class="wallet-action-desc">{{ action.description }}</p>
+          </div>
+          <span class="material-symbols-outlined wallet-action-chevron">chevron_right</span>
+        </a>
+      </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 bg-gradient-to-br from-[#0a3bbf] via-[#135bec] to-[#3b78ff] rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl shadow-blue-200">
-            <div class="absolute top-[-60px] right-[-60px] w-[280px] h-[280px] bg-white/5 rounded-full"></div>
-            <div class="absolute bottom-[-40px] left-[-40px] w-[200px] h-[200px] bg-white/5 rounded-full"></div>
-            <div class="relative z-10 flex flex-col h-full justify-between">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-[10px] text-blue-200 uppercase tracking-widest font-black mb-2">Available Balance</p>
-                        <h2 class="text-5xl font-black tracking-tight">{{ balance.amountWhole }}<span class="text-2xl text-blue-300">{{ balance.amountDecimals }}</span> <span class="text-lg text-blue-200 font-bold">{{ balance.currency }}</span></h2>
-                    </div>
-                    <div class="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white text-2xl">account_balance_wallet</span>
-                    </div>
-                </div>
-                <div class="mt-8 grid grid-cols-3 gap-4">
-                    <div class="bg-white/10 rounded-2xl p-4 border border-white/10">
-                        <div class="flex items-center space-x-2 mb-2">
-                            <span class="material-symbols-outlined text-green-300 text-[16px]">trending_up</span>
-                            <p class="text-[10px] text-blue-200 font-bold uppercase tracking-widest">In (30d)</p>
-                        </div>
-                        <p class="text-xl font-black">{{ balance.inflow30d }}</p>
-                    </div>
-                    <div class="bg-white/10 rounded-2xl p-4 border border-white/10">
-                        <div class="flex items-center space-x-2 mb-2">
-                            <span class="material-symbols-outlined text-red-300 text-[16px]">trending_down</span>
-                            <p class="text-[10px] text-blue-200 font-bold uppercase tracking-widest">Out (30d)</p>
-                        </div>
-                        <p class="text-xl font-black">{{ balance.outflow30d }}</p>
-                    </div>
-                    <div class="bg-white/10 rounded-2xl p-4 border border-white/10">
-                        <p class="text-[10px] text-blue-200 font-bold uppercase tracking-widest mb-2">Account</p>
-                        <p class="text-sm font-mono font-bold">{{ balance.accountMask }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="space-y-4">
-            <a *ngFor="let action of quickActions" [routerLink]="action.route"
-                class="flex items-center p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all group cursor-pointer">
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center mr-4 group-hover:opacity-90 transition-colors shrink-0" [ngClass]="action.iconBgClass">
-                    <span class="material-symbols-outlined text-[22px]" [ngClass]="action.iconColorClass">{{ action.icon }}</span>
-                </div>
-                <div>
-                    <p class="font-black text-gray-900 text-sm">{{ action.title }}</p>
-                    <p class="text-xs text-gray-400 font-medium">{{ action.description }}</p>
-                </div>
-                <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
-            </a>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-gray-50 flex items-center justify-between">
-            <h4 class="font-bold text-gray-800 flex items-center">
-                <span class="material-symbols-outlined mr-2 text-orange-500 text-[20px]">receipt_long</span>
-                Recent Transactions
-            </h4>
-            <a routerLink="/wallet/transactions" class="text-xs font-bold text-[#135bec] hover:underline">View All →</a>
-        </div>
-        <div class="divide-y divide-gray-50">
-            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors" *ngFor="let tx of recentTransactions">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center mr-4 shrink-0" [ngClass]="tx.iconBgClass">
-                    <span class="material-symbols-outlined text-[18px]" [ngClass]="tx.iconColorClass">{{ tx.icon }}</span>
-                </div>
-                <div class="flex-1">
-                    <p class="text-sm font-bold text-gray-800">{{ tx.title }}</p>
-                    <p class="text-xs text-gray-400 font-medium font-mono">{{ tx.subtitle }}</p>
-                </div>
-                <span class="text-sm font-black" [class.text-green-600]="tx.amountPositive" [class.text-red-500]="!tx.amountPositive">{{ tx.amount }}</span>
-            </div>
-        </div>
-    </div>
-
+    <section class="wallet-recent">
+      <div class="wallet-recent-header">
+        <h3 class="wallet-recent-title">
+          <span class="material-symbols-outlined">receipt_long</span>
+          Recent transactions
+        </h3>
+        <a routerLink="/wallet/transactions" class="wallet-recent-link">View all</a>
+      </div>
+      <div class="wallet-recent-list">
+        <a *ngFor="let tx of recentTransactions" [routerLink]="tx.id ? ['/wallet/transactions', tx.id] : []" class="wallet-tx-row">
+          <div class="wallet-tx-icon" [ngClass]="tx.iconBgClass">
+            <span class="material-symbols-outlined" [ngClass]="tx.iconColorClass">{{ tx.icon }}</span>
+          </div>
+          <div class="wallet-tx-body">
+            <p class="wallet-tx-title">{{ tx.title }}</p>
+            <p class="wallet-tx-subtitle">{{ tx.subtitle }}</p>
+          </div>
+          <span class="wallet-tx-amount" [class.positive]="tx.amountPositive" [class.negative]="!tx.amountPositive">{{ tx.amount }}</span>
+        </a>
+      </div>
+      <div *ngIf="recentTransactions.length === 0" class="wallet-recent-empty">
+        <span class="material-symbols-outlined">receipt_long</span>
+        <p>No recent transactions</p>
+        <a routerLink="/wallet/transactions" class="wallet-recent-empty-link">View full ledger</a>
+      </div>
+    </section>
+  </ng-container>
 </div>

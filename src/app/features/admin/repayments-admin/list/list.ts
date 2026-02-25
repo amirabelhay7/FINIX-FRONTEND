@@ -5,7 +5,7 @@ import { AdminHubCard } from '../../../../models';
  * ViewModel: repayments hub (MVVM).
  */
 @Component({
-  selector: 'app-list',
+  selector: 'app-admin-repayments-list',
   standalone: false,
   templateUrl: './list.html',
   styleUrl: './list.css',

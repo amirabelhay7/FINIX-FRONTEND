@@ -5,7 +5,7 @@ import { AdminHubCard } from '../../../../models';
  * ViewModel: marketing hub (MVVM).
  */
 @Component({
-  selector: 'app-list',
+  selector: 'app-admin-marketing-list',
   standalone: false,
   templateUrl: './list.html',
   styleUrl: './list.css',

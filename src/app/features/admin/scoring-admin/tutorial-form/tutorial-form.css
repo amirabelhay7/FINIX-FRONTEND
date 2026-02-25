@@ -1,0 +1,238 @@
+/* Tutorial form — New (matches tutorials list theme) */
+
+.tutorial-form-page {
+  --tf-accent: #059669;
+  --tf-accent-hover: #047857;
+  --tf-accent-light: #ecfdf5;
+  --tf-surface: #f8fafc;
+  --tf-border: #e2e8f0;
+  --tf-text: #1e293b;
+  --tf-muted: #64748b;
+  max-width: 36rem;
+  margin: 0 auto;
+  padding-bottom: 2.5rem;
+}
+
+.tutorial-form-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tutorial-form-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  color: var(--tf-muted);
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.tutorial-form-back:hover {
+  background: var(--tf-surface);
+  color: var(--tf-accent);
+}
+
+.tutorial-form-back .material-symbols-outlined {
+  font-size: 1.25rem !important;
+}
+
+.tutorial-form-header-icon-wrap {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.tutorial-form-header-icon-wrap .material-symbols-outlined {
+  font-size: 1.5rem !important;
+}
+
+.tutorial-form-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--tf-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.tutorial-form-subtitle {
+  font-size: 0.9rem;
+  color: var(--tf-muted);
+  margin: 0;
+}
+
+.tutorial-form-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+  color: #b91c1c;
+  font-size: 0.9375rem;
+}
+
+.tutorial-form-error .material-symbols-outlined {
+  font-size: 1.25rem !important;
+  flex-shrink: 0;
+}
+
+.tutorial-form-error p { margin: 0; }
+
+.tutorial-form-card {
+  background: #fff;
+  border: 1px solid var(--tf-border);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.tutorial-form-card-inner {
+  padding: 1.5rem 1.75rem;
+}
+
+.tutorial-form-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tf-muted);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--tf-surface);
+}
+
+.tutorial-form-section-title.mt {
+  margin-top: 1.5rem;
+}
+
+.tutorial-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.tutorial-form-group:last-of-type {
+  margin-bottom: 0;
+}
+
+.tutorial-form-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--tf-text);
+  margin-bottom: 0.375rem;
+}
+
+.tutorial-form-label.optional::after {
+  content: ' (optional)';
+  font-weight: 500;
+  color: var(--tf-muted);
+}
+
+.tutorial-form-input,
+.tutorial-form-select,
+.tutorial-form-textarea {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  color: var(--tf-text);
+  background: #fff;
+  border: 1px solid var(--tf-border);
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.tutorial-form-input:focus,
+.tutorial-form-select:focus,
+.tutorial-form-textarea:focus {
+  border-color: var(--tf-accent);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
+
+.tutorial-form-textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.tutorial-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .tutorial-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tutorial-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--tf-surface);
+}
+
+.tutorial-form-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--tf-accent);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+  transition: background 0.2s, transform 0.15s;
+}
+
+.tutorial-form-btn-primary:hover:not(:disabled) {
+  background: var(--tf-accent-hover);
+  transform: translateY(-1px);
+}
+
+.tutorial-form-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.tutorial-form-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--tf-text);
+  background: #fff;
+  border: 1px solid var(--tf-border);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.tutorial-form-btn-secondary:hover {
+  background: var(--tf-surface);
+  border-color: #cbd5e1;
+}

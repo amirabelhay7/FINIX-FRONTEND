@@ -1,51 +1,87 @@
-<div class="space-y-8 pb-10">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
-        </div>
-        <button type="button" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
-            <span class="material-symbols-outlined mr-2 text-[18px]">add</span>{{ addTutorialLabel }}
-        </button>
+<div class="tutorials-admin-page">
+  <header class="tutorials-header">
+    <div class="tutorials-header-left">
+      <div class="tutorials-header-icon-wrap">
+        <span class="material-symbols-outlined">school</span>
+      </div>
+      <div>
+        <h1 class="tutorials-title">{{ pageTitle }}</h1>
+        <p class="tutorials-subtitle">{{ pageSubtitle }}</p>
+      </div>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-gray-50 flex flex-wrap items-center gap-4">
-            <div class="relative flex-1 min-w-[200px]">
-                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">search</span>
-                <input type="text" [placeholder]="searchPlaceholder" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-            </div>
-            <select class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
-                <option *ngFor="let opt of typeFilterOptions" [value]="opt.value">{{ opt.label }}</option>
-            </select>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Title</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Type</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Points</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Difficulty</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Est. min</th>
-                        <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    <tr *ngFor="let row of rows" class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">{{ row.id }}</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">{{ row.title }}</td>
-                        <td class="py-4 px-6 text-gray-600">{{ row.type }}</td>
-                        <td class="py-4 px-6 font-bold text-[#135bec]">{{ row.points }}</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="row.difficultyClass">{{ row.difficulty }}</span></td>
-                        <td class="py-4 px-6 text-gray-600">{{ row.estMin }}</td>
-                        <td class="py-4 px-6 text-right">
-                            <a [routerLink]="row.editRoute" class="text-[#135bec] font-bold hover:underline mr-2">{{ editLabel }}</a>
-                            <button type="button" class="text-red-600 font-bold hover:underline">{{ deleteLabel }}</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <a [routerLink]="'/admin/scoring/tutorials/new'" class="tutorials-add-btn">
+      <span class="material-symbols-outlined">add</span>
+      {{ addTutorialLabel }}
+    </a>
+  </header>
+
+  <div *ngIf="loading" class="tutorials-loading">
+    <span class="material-symbols-outlined">progress_activity</span>
+    <p>Loading tutorials…</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="tutorials-error">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button type="button" class="tutorials-retry" (click)="loadTutorials()">Retry</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+    <div class="tutorials-stats">
+      <div class="tutorials-stat">
+        <p class="tutorials-stat-value">{{ tutorials.length }}</p>
+        <p class="tutorials-stat-label">Tutorials</p>
+      </div>
+      <div class="tutorials-stat">
+        <p class="tutorials-stat-value">{{ filteredRows.length }}</p>
+        <p class="tutorials-stat-label">Showing</p>
+      </div>
     </div>
+
+    <div class="tutorials-card">
+      <div class="tutorials-toolbar">
+        <div class="tutorials-search-wrap">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" [(ngModel)]="searchText" [placeholder]="searchPlaceholder" class="tutorials-search-input" />
+        </div>
+        <select [(ngModel)]="typeFilter" class="tutorials-filter-select">
+          <option *ngFor="let opt of typeFilterOptions" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+      </div>
+      <div class="tutorials-table-wrap">
+        <table class="tutorials-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Points</th>
+              <th>Difficulty</th>
+              <th>Est. min</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of filteredRows">
+              <td class="tutorials-cell-id">{{ row.id }}</td>
+              <td class="tutorials-cell-title">{{ row.title }}</td>
+              <td>{{ row.type }}</td>
+              <td class="tutorials-cell-points">{{ row.points }}</td>
+              <td>
+                <span class="tutorials-pill" [ngClass]="'tutorials-pill-' + (row.difficulty === 'EASY' ? 'easy' : row.difficulty === 'MEDIUM' ? 'medium' : 'hard')">{{ row.difficulty }}</span>
+              </td>
+              <td>{{ row.estMin }}</td>
+              <td>
+                <div class="tutorials-actions">
+                  <a [routerLink]="row.editRoute" class="tutorials-action-link">{{ editLabel }}</a>
+                  <button type="button" class="tutorials-action-btn tutorials-action-btn-red" (click)="deleteTutorial(row.id)">{{ deleteLabel }}</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p *ngIf="filteredRows.length === 0" class="tutorials-empty">No tutorials match your filters.</p>
+    </div>
+  </ng-container>
 </div>

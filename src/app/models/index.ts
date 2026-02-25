@@ -1,16 +1,17 @@
 /**
- * Barrel: static UI models for MVVM.
- * Views bind to ViewModel properties typed with these models.
+ * Models grouped by backend module. Barrel re-exports for convenience.
  */
-export * from './marketing.model';
-export * from './wallet.model';
-export * from './credit.model';
-export * from './insurance.model';
-export * from './repayment.model';
-export * from './vehicle.model';
-export * from './user.model';
-export * from './profile.model';
-export * from './agent.model';
-export * from './admin.model';
-export * from './score.model';
-export * from './seller.model';
+export * from './auth/auth.model';
+export * from './user/profile.model';
+export * from './user/user.model';
+export * from './wallet/wallet.model';
+export * from './credit/credit.model';
+export * from './score/score.model';
+export * from './insurance/insurance.model';
+export * from './repayment/repayment.model';
+export * from './vehicle/vehicle.model';
+export * from './agent/agent.model';
+export * from './seller/seller.model';
+export * from './admin/admin.model';
+export * from './admin/marketing.model';
+export * from './notification/notification.model';

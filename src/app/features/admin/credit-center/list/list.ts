@@ -5,7 +5,7 @@ import { AdminHubCard } from '../../../../models';
  * ViewModel: credit center hub (MVVM).
  */
 @Component({
-  selector: 'app-list',
+  selector: 'app-admin-credit-list',
   standalone: false,
   templateUrl: './list.html',
   styleUrl: './list.css',

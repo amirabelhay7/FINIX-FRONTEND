@@ -5,7 +5,7 @@ import { UserListItem } from '../../../../models';
  * ViewModel: users list (MVVM).
  */
 @Component({
-  selector: 'app-list',
+  selector: 'app-admin-users-list',
   standalone: false,
   templateUrl: './list.html',
   styleUrl: './list.css',

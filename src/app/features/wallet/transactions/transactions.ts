@@ -1,35 +1,165 @@
-import { Component } from '@angular/core';
-import { TransactionsPageKpis, TransactionRow } from '../../../models';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { finalize } from 'rxjs/operators';
+import { TransactionsPageKpis, TransactionRow, TransactionApi } from '../../../models';
+import { WalletService } from '../../../core/wallet/wallet.service';
 
-/**
- * ViewModel: transaction history (MVVM).
- */
+function typeClass(type: string): string {
+  const m: Record<string, string> = {
+    DEPOSIT: 'bg-green-50 text-green-700 border-green-100',
+    WITHDRAWAL: 'bg-red-50 text-red-700 border-red-100',
+    TRANSFER_OUT: 'bg-purple-50 text-purple-700 border-purple-100',
+    TRANSFER_IN: 'bg-purple-50 text-purple-700 border-purple-100',
+    AGENT_TOP_UP: 'bg-amber-50 text-amber-700 border-amber-100',
+  };
+  return m[type] ?? 'bg-gray-50 text-gray-700 border-gray-100';
+}
+
+function statusClass(status: string): { dot: string; text: string } {
+  const u = (status || '').toUpperCase();
+  if (u === 'COMPLETED' || u === 'SUCCESS') return { dot: 'bg-green-500', text: 'text-green-600' };
+  if (u === 'PENDING') return { dot: 'bg-yellow-400', text: 'text-yellow-600' };
+  if (u === 'FAILED' || u === 'CANCELLED') return { dot: 'bg-red-500', text: 'text-red-600' };
+  return { dot: 'bg-gray-400', text: 'text-gray-600' };
+}
+
+function txApiToRow(t: TransactionApi): TransactionRow {
+  const type = t?.transactionType ?? '';
+  const positive = ['DEPOSIT', 'TRANSFER_IN', 'AGENT_TOP_UP'].includes(type);
+  const amount = Number(t?.amount) ?? 0;
+  const amountStr = (positive ? '+' : '-') + Math.abs(amount).toFixed(2) + ' TND';
+  const sc = statusClass(t?.status ?? '');
+  const rawDate = t?.transactionDate ? new Date(t.transactionDate as string | number) : null;
+  const dateStr = rawDate ? rawDate.toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+  return {
+    id: t?.id,
+    ref: '#' + (t?.referenceNumber || String(t?.id ?? '')),
+    type: type.replace(/_/g, ' '),
+    typeClass: typeClass(type),
+    description: t?.description ?? '',
+    amount: amountStr,
+    amountPositive: positive,
+    status: (t?.status === 'COMPLETED' ? 'Success' : t?.status) ?? '',
+    statusDotClass: sc.dot,
+    statusTextClass: sc.text,
+    date: dateStr,
+    dateMs: rawDate ? rawDate.getTime() : undefined,
+  };
+}
+
 @Component({
   selector: 'app-transactions',
   standalone: false,
   templateUrl: './transactions.html',
   styleUrl: './transactions.css',
 })
-export class Transactions {
+export class Transactions implements OnInit {
   readonly pageTitle = 'Transaction History';
   readonly pageSubtitle = 'Your complete immutable financial ledger.';
-  readonly paginationLabel = 'Showing 5 of 38 transactions';
 
-  readonly kpis: TransactionsPageKpis = {
-    totalIn: '+15,200 TND',
-    totalOut: '-6,658 TND',
-    net: '+8,542 TND',
-    count: '38',
-    countLabel: '(30d)',
+  kpis: TransactionsPageKpis = {
+    totalIn: '+0 TND',
+    totalOut: '-0 TND',
+    net: '+0 TND',
+    count: '0',
+    countLabel: '',
   };
+  transactions: TransactionRow[] = [];
+  loading = true;
+  error: string | null = null;
+  paginationLabel = '';
 
-  readonly transactions: TransactionRow[] = [
-    { ref: '#TXN-992144', type: 'DEPOSIT', typeClass: 'bg-green-50 text-green-700 border-green-100', description: 'Bank transfer — BIAT', amount: '+4,350 TND', amountPositive: true, status: 'Success', statusDotClass: 'bg-green-500', statusTextClass: 'text-green-600', date: 'Feb 24, 2026' },
-    { ref: '#TXN-992145', type: 'REPAYMENT', typeClass: 'bg-blue-50 text-blue-700 border-blue-100', description: 'Contract #FIN-2025-0842 · Installment 2', amount: '-445.20 TND', amountPositive: false, status: 'Success', statusDotClass: 'bg-green-500', statusTextClass: 'text-green-600', date: 'Feb 24, 2026' },
-    { ref: '#TXN-991990', type: 'TRANSFER', typeClass: 'bg-purple-50 text-purple-700 border-purple-100', description: 'P2P → Sarah Sidibe (Rent)', amount: '-600 TND', amountPositive: false, status: 'Success', statusDotClass: 'bg-green-500', statusTextClass: 'text-green-600', date: 'Feb 23, 2026' },
-    { ref: '#TXN-991887', type: 'INSURANCE', typeClass: 'bg-orange-50 text-orange-700 border-orange-100', description: 'Moto Cover + Health Micro · Monthly', amount: '-63 TND', amountPositive: false, status: 'Success', statusDotClass: 'bg-green-500', statusTextClass: 'text-green-600', date: 'Feb 21, 2026' },
-    { ref: '#TXN-991201', type: 'WITHDRAWAL', typeClass: 'bg-red-50 text-red-700 border-red-100', description: 'Cash out → La Poste Tunisienne', amount: '-1,500 TND', amountPositive: false, status: 'Pending', statusDotClass: 'bg-yellow-400', statusTextClass: 'text-yellow-600', date: 'Feb 20, 2026' },
-  ];
+  /** Filter state */
+  filterSearch = '';
+  filterType = '';
+  filterDateRange = 'all';
+  filterStatus = '';
 
-  onExportCsv(): void {}
+  constructor(
+    private walletService: WalletService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.walletService.getMyTransactions().pipe(
+      finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (list) => {
+        const items = Array.isArray(list) ? list : [];
+        this.transactions = items.map((t) => txApiToRow(t as TransactionApi));
+        let inSum = 0, outSum = 0;
+        items.forEach((t: TransactionApi) => {
+          const amt = Number(t.amount) ?? 0;
+          if (['DEPOSIT', 'TRANSFER_IN', 'AGENT_TOP_UP'].includes(t.transactionType || '')) inSum += amt;
+          else outSum += amt;
+        });
+        this.kpis = {
+          totalIn: '+' + inSum.toFixed(2) + ' TND',
+          totalOut: '-' + outSum.toFixed(2) + ' TND',
+          net: (inSum - outSum >= 0 ? '+' : '') + (inSum - outSum).toFixed(2) + ' TND',
+          count: String(items.length),
+          countLabel: '',
+        };
+        this.paginationLabel = items.length === 0 ? 'No transactions' : `Showing ${items.length} transaction(s)`;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = err?.error?.message || err?.message || 'Failed to load transactions';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  /** Returns transactions filtered by search, type, date range, and status. */
+  getFilteredTransactions(): TransactionRow[] {
+    let list = this.transactions;
+    const q = this.filterSearch.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (tx) =>
+          tx.ref.toLowerCase().includes(q) ||
+          tx.description.toLowerCase().includes(q) ||
+          tx.type.toLowerCase().includes(q)
+      );
+    }
+    if (this.filterType) {
+      if (this.filterType === 'TRANSFER') {
+        list = list.filter((tx) => tx.type.toUpperCase().includes('TRANSFER'));
+      } else {
+        list = list.filter((tx) => tx.type.toUpperCase().replace(/\s/g, '_') === this.filterType);
+      }
+    }
+    if (this.filterDateRange && this.filterDateRange !== 'all') {
+      const days = parseInt(this.filterDateRange, 10);
+      const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+      list = list.filter((tx) => (tx.dateMs ?? 0) >= cutoff);
+    }
+    if (this.filterStatus) {
+      const want = this.filterStatus.toUpperCase();
+      list = list.filter(
+        (tx) =>
+          tx.status.toUpperCase() === want ||
+          (want === 'SUCCESS' && tx.status === 'Success')
+      );
+    }
+    return list;
+  }
+
+  onExportCsv(): void {
+    const headers = ['Ref', 'Type', 'Description', 'Amount', 'Status', 'Date'];
+    const escape = (v: string) => (/[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+    const rows = this.getFilteredTransactions().map((tx) =>
+      [tx.ref, tx.type, tx.description, tx.amount, tx.status, tx.date].map(escape).join(',')
+    );
+    const csv = [headers.join(','), ...rows].join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `wallet-transactions-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 }

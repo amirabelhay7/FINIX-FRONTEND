@@ -1,22 +1,21 @@
-import { Component } from '@angular/core';
-import { AdminScoringRuleRow, AdminFilterOption } from '../../../../models';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
+import { finalize } from 'rxjs/operators';
+import { ScoreService } from '../../../../core/score/score.service';
+import { ScoreConfigApi } from '../../../../models';
+import { AdminFilterOption } from '../../../../models';
 
-/**
- * ViewModel: admin scoring rules list (MVVM).
- * All static data and filter options in VM; view only binds.
- */
 @Component({
   selector: 'app-rules-list',
   standalone: false,
   templateUrl: './rules-list.html',
   styleUrl: './rules-list.css',
 })
-export class RulesList {
+export class RulesList implements OnInit {
   readonly pageTitle = 'Scoring Rules';
   readonly pageSubtitle = 'Configure score rules: document verification, profile, wallet, guarantees.';
   readonly addRuleLabel = 'Add Rule';
   readonly addRuleRoute = '/admin/scoring/rules/new';
-
   readonly searchPlaceholder = 'Search rules...';
   readonly typeFilterOptions: AdminFilterOption[] = [
     { value: '', label: 'All types' },
@@ -25,11 +24,79 @@ export class RulesList {
     { value: 'WALLET_DEPOSIT', label: 'WALLET_DEPOSIT' },
     { value: 'GUARANTEE_RECEIVED', label: 'GUARANTEE_RECEIVED' },
   ];
-
-  readonly rows: AdminScoringRuleRow[] = [
-    { id: 1, ruleName: 'CIN verification', type: 'DOCUMENT_VERIFICATION', points: '50', status: 'Active', statusClass: 'bg-green-50 text-green-700', editRoute: '/admin/scoring/rules/edit/1', actionLabel: 'Deactivate', actionButtonClass: 'text-red-600' },
-    { id: 2, ruleName: 'Profile completion', type: 'PROFILE_COMPLETION', points: '30', status: 'Active', statusClass: 'bg-green-50 text-green-700', editRoute: '/admin/scoring/rules/edit/2', actionLabel: 'Deactivate', actionButtonClass: 'text-red-600' },
-    { id: 3, ruleName: 'First wallet deposit', type: 'WALLET_DEPOSIT', points: '20', status: 'Inactive', statusClass: 'bg-gray-100 text-gray-600', editRoute: '/admin/scoring/rules/edit/3', actionLabel: 'Activate', actionButtonClass: 'text-green-600' },
-  ];
   readonly editLabel = 'Edit';
+  readonly deleteLabel = 'Delete';
+
+  loading = true;
+  error: string | null = null;
+  rules: ScoreConfigApi[] = [];
+  searchText = '';
+  typeFilter = '';
+
+  constructor(
+    private scoreService: ScoreService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit() {
+    this.loadRules();
+  }
+
+  loadRules() {
+    this.loading = true;
+    this.error = null;
+    this.cdr.detectChanges();
+    this.scoreService.getRules().pipe(
+      finalize(() => { this.loading = false; this.cdr.detectChanges(); })
+    ).subscribe({
+      next: (list) => { this.rules = list ?? []; this.cdr.detectChanges(); },
+      error: (err) => {
+        this.error = err?.error?.message || err?.message || 'Failed to load rules';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  get activeRulesCount(): number {
+    return (this.rules ?? []).filter(r => r.isActive).length;
+  }
+
+  get filteredRows() {
+    let list = this.rules;
+    if (this.searchText.trim()) {
+      const q = this.searchText.trim().toLowerCase();
+      list = list.filter(r =>
+        (r.ruleName || '').toLowerCase().includes(q) ||
+        (r.ruleType || '').toLowerCase().includes(q)
+      );
+    }
+    if (this.typeFilter) {
+      list = list.filter(r => r.ruleType === this.typeFilter);
+    }
+    return list.map(r => ({
+      id: r.id,
+      ruleName: r.ruleName,
+      type: r.ruleType,
+      points: String(r.points ?? 0),
+      status: r.isActive ? 'Active' : 'Inactive',
+      statusClass: r.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600',
+      editRoute: `/admin/scoring/rules/edit/${r.id}`,
+      actionLabel: r.isActive ? 'Deactivate' : 'Activate',
+      actionButtonClass: r.isActive ? 'text-red-600' : 'text-green-600',
+    }));
+  }
+
+  deleteRule(id: number, event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!confirm('Delete this rule?')) return;
+    this.scoreService.deleteRule(id).subscribe({
+      next: () => this.loadRules(),
+      error: (err) => {
+        this.error = err?.error?.message || err?.message || 'Delete failed';
+        this.cdr.detectChanges();
+      }
+    });
+  }
 }

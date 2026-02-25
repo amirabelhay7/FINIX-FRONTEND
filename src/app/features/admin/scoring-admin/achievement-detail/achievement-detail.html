@@ -1,0 +1,47 @@
+<div class="space-y-8 pb-10 max-w-2xl">
+  <div class="flex items-center gap-4">
+    <a [routerLink]="backRoute" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <div>
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight" *ngIf="achievement">{{ achievement.title }}</h1>
+      <p class="text-gray-500 text-sm font-medium" *ngIf="achievement">{{ achievement.pointsAwarded }} points · {{ achievement.achievementType }}</p>
+    </div>
+  </div>
+  <div *ngIf="loading" class="flex justify-center py-12">
+    <span class="material-symbols-outlined animate-spin text-4xl text-[#135bec]">progress_activity</span>
+  </div>
+  <div *ngIf="!loading && error" class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">
+    {{ error }}
+    <a [routerLink]="backRoute" class="block mt-2 text-sm font-bold text-[#135bec] hover:underline">Back to list</a>
+  </div>
+  <div *ngIf="!loading && achievement" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <p class="text-xs font-bold text-gray-500 uppercase">Type</p>
+        <p class="font-medium text-gray-800">{{ achievement.achievementType }}</p>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-gray-500 uppercase">Points</p>
+        <p class="font-bold text-[#135bec]">{{ achievement.pointsAwarded }}</p>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-gray-500 uppercase">Status</p>
+        <p class="text-gray-600">{{ achievement.status }}</p>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-gray-500 uppercase">Badge color</p>
+        <p class="text-gray-600" [style.color]="achievement.badgeColor">{{ achievement.badgeColor || '—' }}</p>
+      </div>
+    </div>
+    <div class="border-t border-gray-100 pt-4">
+      <p class="text-xs font-bold text-gray-500 uppercase mb-1">Description</p>
+      <p class="text-sm text-gray-600">{{ achievement.description }}</p>
+    </div>
+    <div class="border-t border-gray-100 pt-4" *ngIf="achievement.tutorialUrl">
+      <p class="text-xs font-bold text-gray-500 uppercase mb-1">Link</p>
+      <a [href]="achievement.tutorialUrl" target="_blank" rel="noopener" class="text-[#135bec] font-bold hover:underline">Open link</a>
+    </div>
+    <a [routerLink]="backRoute" class="inline-block px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">Back to list</a>
+  </div>
+</div>

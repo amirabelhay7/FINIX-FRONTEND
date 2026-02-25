@@ -5,7 +5,7 @@ import { AdminHubCard } from '../../../../models';
  * ViewModel: steering hub (MVVM).
  */
 @Component({
-  selector: 'app-list',
+  selector: 'app-admin-steering-list',
   standalone: false,
   templateUrl: './list.html',
   styleUrl: './list.css',

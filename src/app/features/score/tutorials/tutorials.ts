@@ -1,21 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-
-interface Tutorial {
-  id: number;
-  title: string;
-  description: string;
-  type: string;
-  difficulty: string;
-  estimatedMinutes: number;
-  pointsAwarded: number;
-  status: string;
-  completedAt?: string;
-  icon: string;
-  color: string;
-  progress?: number;
-  prerequisites?: string;
-}
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+import { ScoreService } from '../../../core/score/score.service';
+import { TutorialApi } from '../../../models';
 
 @Component({
   selector: 'app-tutorials',
@@ -24,83 +12,64 @@ interface Tutorial {
   styleUrl: './tutorials.css',
 })
 export class Tutorials implements OnInit {
-  
   selectedCategory = 'All';
   selectedDifficulty = 'All';
+  loading = true;
+  error: string | null = null;
+  tutorials: Array<TutorialApi & { status: string; color: string; icon: string; progress?: number }> = [];
+  categories = ['All', 'DOCUMENT', 'PROFILE', 'WALLET', 'GUARANTEE'];
+  difficulties = ['All', 'EASY', 'MEDIUM', 'HARD'];
+  showNotFoundMessage = false;
 
-  tutorials: Tutorial[] = [
-    {
-      id: 1,
-      title: 'Complete Your Profile',
-      description: 'Learn how to fill out your profile information to maximize your score',
-      type: 'Profile',
-      difficulty: 'Easy',
-      estimatedMinutes: 10,
-      pointsAwarded: 25,
-      status: 'COMPLETED',
-      completedAt: '1 week ago',
-      icon: 'person',
-      color: 'green'
-    },
-    {
-      id: 2,
-      title: 'Document Verification Guide',
-      description: 'Step-by-step guide to uploading and verifying required documents',
-      type: 'Documents',
-      difficulty: 'Medium',
-      estimatedMinutes: 15,
-      pointsAwarded: 30,
-      status: 'IN_PROGRESS',
-      progress: 60,
-      icon: 'description',
-      color: 'blue'
-    },
-    {
-      id: 3,
-      title: 'Wallet Management Basics',
-      description: 'Understanding wallet features and maintaining healthy balance',
-      type: 'Wallet',
-      difficulty: 'Easy',
-      estimatedMinutes: 12,
-      pointsAwarded: 20,
-      status: 'NOT_STARTED',
-      icon: 'account_balance_wallet',
-      color: 'gray'
-    },
-    {
-      id: 4,
-      title: 'Social Guarantees Explained',
-      description: 'How to give and receive guarantees to boost community trust',
-      type: 'Guarantees',
-      difficulty: 'Medium',
-      estimatedMinutes: 20,
-      pointsAwarded: 50,
-      status: 'NOT_STARTED',
-      icon: 'handshake',
-      color: 'gray'
-    },
-    {
-      id: 5,
-      title: 'Advanced Score Strategies',
-      description: 'Expert tips to maximize your credit score quickly',
-      type: 'General',
-      difficulty: 'Hard',
-      estimatedMinutes: 25,
-      pointsAwarded: 75,
-      status: 'LOCKED',
-      prerequisites: 'Complete profile + 2 tutorials',
-      icon: 'workspace_premium',
-      color: 'gray'
-    }
-  ];
-
-  categories = ['All', 'Profile', 'Documents', 'Wallet', 'Guarantees', 'General'];
-  difficulties = ['All', 'Easy', 'Medium', 'Hard'];
-
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private scoreService: ScoreService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    // Initialize component data
+    this.route.queryParams.subscribe((params) => {
+      if (params['notFound'] === '1') {
+        this.showNotFoundMessage = true;
+        this.router.navigate([], { relativeTo: this.route, queryParams: {}, queryParamsHandling: '' });
+      }
+      this.cdr.detectChanges();
+    });
+    this.loadTutorials();
+  }
+
+  loadTutorials() {
+    this.loading = true;
+    this.error = null;
+    this.cdr.detectChanges();
+    forkJoin({
+      all: this.scoreService.getTutorials(),
+      completed: this.scoreService.getMyCompletedTutorials(),
+    }).pipe(finalize(() => { this.loading = false; this.cdr.detectChanges(); })).subscribe({
+      next: ({ all: allList, completed }) => {
+        const completedIds = new Set((completed ?? []).map(t => t.id));
+        this.tutorials = (allList ?? []).map(t => this.toDisplay(t, completedIds.has(t.id)));
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = err?.error?.message || err?.message || 'Failed to load tutorials';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private toDisplay(t: TutorialApi, isCompleted: boolean): TutorialApi & { status: string; color: string; icon: string; progress?: number } {
+    const status = isCompleted ? 'COMPLETED' : (t.status === 'IN_PROGRESS' ? 'IN_PROGRESS' : 'NOT_STARTED');
+    const typeMap: Record<string, string> = { DOCUMENT: 'description', PROFILE: 'person', WALLET: 'account_balance_wallet', GUARANTEE: 'handshake' };
+    const colorMap: Record<string, string> = { DOCUMENT: 'blue', PROFILE: 'green', WALLET: 'purple', GUARANTEE: 'orange' };
+    return {
+      ...t,
+      status,
+      color: colorMap[t.tutorialType || ''] || 'gray',
+      icon: typeMap[t.tutorialType || ''] || 'school',
+      progress: status === 'IN_PROGRESS' ? 60 : undefined,
+    };
   }
 
   selectCategory(category: string) {
@@ -111,31 +80,38 @@ export class Tutorials implements OnInit {
     this.selectedDifficulty = difficulty;
   }
 
-  startTutorial(tutorial: Tutorial) {
-    if (tutorial.status === 'LOCKED') {
-      console.log('Tutorial locked:', tutorial.title);
-      return;
-    }
-    // Navigate to tutorial content or start tutorial
-    console.log('Starting tutorial:', tutorial.title);
-    this.router.navigate(['/score/tutorials', tutorial.id]);
+  startTutorial(tutorial: TutorialApi & { status: string }) {
+    if (tutorial.status === 'COMPLETED') return;
+    this.scoreService.startTutorialMe(tutorial.id).subscribe({
+      next: (updated) => {
+        this.loadTutorials();
+        this.router.navigate(['/score/tutorials', updated.id]);
+      },
+      error: (err) => { this.error = err?.error?.message || 'Failed to start'; this.cdr.detectChanges(); }
+    });
   }
 
-  viewTutorialDetail(tutorial: Tutorial) {
+  completeTutorial(tutorial: TutorialApi & { status: string }, event: Event) {
+    event.stopPropagation();
+    if (tutorial.status === 'COMPLETED') return;
+    this.scoreService.completeTutorialMe(tutorial.id).subscribe({
+      next: () => this.loadTutorials(),
+      error: (err) => { this.error = err?.error?.message || 'Failed to complete'; this.cdr.detectChanges(); }
+    });
+  }
+
+  viewTutorialDetail(tutorial: TutorialApi) {
     this.router.navigate(['/score/tutorials', tutorial.id]);
   }
 
   getFilteredTutorials() {
-    let filtered = this.tutorials;
-    
+    let list = this.tutorials;
     if (this.selectedCategory !== 'All') {
-      filtered = filtered.filter(t => t.type === this.selectedCategory);
+      list = list.filter(t => (t.tutorialType || '') === this.selectedCategory);
     }
-    
     if (this.selectedDifficulty !== 'All') {
-      filtered = filtered.filter(t => t.difficulty === this.selectedDifficulty);
+      list = list.filter(t => (t.difficulty || '') === this.selectedDifficulty);
     }
-    
-    return filtered;
+    return list;
   }
 }

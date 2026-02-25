@@ -4,25 +4,29 @@
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Guarantee</h1>
+            <p class="text-gray-500 text-sm font-medium" *ngIf="guarantee">{{ guarantee.guarantorName }} — {{ guarantee.pointsOffered }} points</p>
         </div>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
+    <div *ngIf="loading" class="flex justify-center py-12">
+        <span class="material-symbols-outlined animate-spin text-4xl text-[#135bec]">progress_activity</span>
+    </div>
+    <div *ngIf="!loading && error" class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">{{ error }}</div>
+    <div *ngIf="!loading && guarantee" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><p class="text-xs font-bold text-gray-500 uppercase">{{ guarantorLabel }}</p><p class="font-bold text-gray-800">{{ guarantorValue }}</p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">{{ pointsLabel }}</p><p class="font-bold text-[#135bec]">{{ pointsValue }}</p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">{{ statusLabel }}</p><p><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="statusClass">{{ statusValue }}</span></p></div>
-            <div><p class="text-xs font-bold text-gray-500 uppercase">{{ expiresLabel }}</p><p class="text-gray-600">{{ expiresValue }}</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">{{ guarantorLabel }}</p><p class="font-bold text-gray-800">{{ guarantee.guarantorName }}</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">{{ pointsLabel }}</p><p class="font-bold text-[#135bec]">{{ guarantee.pointsOffered }}</p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">{{ statusLabel }}</p><p><span class="px-2 py-0.5 rounded text-xs font-bold" [class.bg-green-50]="guarantee.isAccepted" [class.text-green-700]="guarantee.isAccepted" [class.bg-amber-50]="!guarantee.isAccepted" [class.text-amber-700]="!guarantee.isAccepted">{{ guarantee.isAccepted ? 'Accepted' : 'Pending' }}</span></p></div>
+            <div><p class="text-xs font-bold text-gray-500 uppercase">{{ expiresLabel }}</p><p class="text-gray-600">{{ formatDate(guarantee.expiresAt) }}</p></div>
         </div>
         <div class="border-t border-gray-100 pt-4">
             <p class="text-xs font-bold text-gray-500 uppercase mb-1">{{ reasonLabel }}</p>
-            <p class="text-sm text-gray-600">{{ reasonText }}</p>
+            <p class="text-sm text-gray-600">{{ guarantee.reason }}</p>
         </div>
-        <div class="flex gap-4">
-            <button type="button" class="inline-flex items-center px-6 py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 transition-all">{{ acceptLabel }}</button>
-            <button type="button" class="inline-flex items-center px-6 py-2.5 border border-red-200 text-red-600 rounded-xl text-sm font-bold hover:bg-red-50 transition-all">{{ rejectLabel }}</button>
-            <a [routerLink]="backRoute" class="inline-block px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">{{ backLabel }}</a>
+        <div class="flex gap-4" *ngIf="canAcceptReject">
+            <button type="button" class="inline-flex items-center px-6 py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 transition-all" (click)="accept()">{{ acceptLabel }}</button>
+            <button type="button" class="inline-flex items-center px-6 py-2.5 border border-red-200 text-red-600 rounded-xl text-sm font-bold hover:bg-red-50 transition-all" (click)="reject()">{{ rejectLabel }}</button>
         </div>
+        <a [routerLink]="backRoute" class="inline-block px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">{{ backLabel }}</a>
     </div>
 </div>

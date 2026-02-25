@@ -1,0 +1,55 @@
+<div class="space-y-8 pb-10 max-w-2xl">
+  <div class="flex items-center gap-4">
+    <a [routerLink]="backRoute" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <div>
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Guarantee</h1>
+      <p class="text-gray-500 text-sm font-medium" *ngIf="guarantee">{{ guarantee.guarantorName }} — {{ guarantee.pointsOffered }} points</p>
+    </div>
+  </div>
+  <div *ngIf="loading" class="flex justify-center py-12">
+    <span class="material-symbols-outlined animate-spin text-4xl text-[#135bec]">progress_activity</span>
+  </div>
+  <div *ngIf="!loading && error" class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">
+    {{ error }}
+    <a [routerLink]="backRoute" class="block mt-2 text-sm font-bold text-[#135bec] hover:underline">Back to list</a>
+  </div>
+  <div *ngIf="!loading && guarantee" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <p class="text-xs font-bold text-gray-500 uppercase">Guarantor</p>
+        <p class="font-bold text-gray-800">{{ guarantee.guarantorName }}</p>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-gray-500 uppercase">Beneficiary</p>
+        <p class="font-bold text-gray-800">{{ guarantee.beneficiaryName }}</p>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-gray-500 uppercase">Points offered</p>
+        <p class="font-bold text-[#135bec]">{{ guarantee.pointsOffered }}</p>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-gray-500 uppercase">Status</p>
+        <p>
+          <span class="px-2 py-0.5 rounded text-xs font-bold" [class.bg-green-50]="guarantee.isAccepted" [class.text-green-700]="guarantee.isAccepted" [class.bg-amber-50]="!guarantee.isAccepted" [class.text-amber-700]="!guarantee.isAccepted">
+            {{ guarantee.isAccepted ? 'Accepted' : 'Pending' }}
+          </span>
+        </p>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-gray-500 uppercase">Created</p>
+        <p class="text-gray-600">{{ formatDate(guarantee.createdAt) }}</p>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-gray-500 uppercase">Expires</p>
+        <p class="text-gray-600">{{ formatDate(guarantee.expiresAt) }}</p>
+      </div>
+    </div>
+    <div class="border-t border-gray-100 pt-4">
+      <p class="text-xs font-bold text-gray-500 uppercase mb-1">Reason</p>
+      <p class="text-sm text-gray-600">{{ guarantee.reason }}</p>
+    </div>
+    <a [routerLink]="backRoute" class="inline-block px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">Back to list</a>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+<div class="tutorial-detail-page">
+  <header class="tutorial-detail-header">
+    <a [routerLink]="backRoute" class="tutorial-detail-back" aria-label="Back to tutorials">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <div class="tutorial-detail-header-icon-wrap">
+      <span class="material-symbols-outlined">school</span>
+    </div>
+    <div class="tutorial-detail-header-text" *ngIf="tutorial">
+      <h1 class="tutorial-detail-title">{{ tutorial.title }}</h1>
+      <p class="tutorial-detail-meta">{{ tutorial.pointsAwarded }} points · {{ tutorial.difficulty || '—' }} · {{ tutorial.estimatedMinutes ?? 0 }} min</p>
+    </div>
+    <div class="tutorial-detail-header-text" *ngIf="!tutorial && !loading && !error">
+      <h1 class="tutorial-detail-title">Tutorial</h1>
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="tutorial-detail-loading">
+    <span class="material-symbols-outlined tutorial-detail-spinner">progress_activity</span>
+    <p>Loading tutorial…</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="tutorial-detail-error">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <a [routerLink]="backRoute" class="tutorial-detail-error-link">Back to list</a>
+  </div>
+
+  <div *ngIf="!loading && tutorial" class="tutorial-detail-content">
+    <div class="tutorial-detail-card">
+      <div class="tutorial-detail-pills">
+        <span class="tutorial-detail-pill tutorial-detail-pill-type">{{ tutorial.tutorialType }}</span>
+        <span class="tutorial-detail-pill tutorial-detail-pill-points">{{ tutorial.pointsAwarded }} pts</span>
+        <span class="tutorial-detail-pill tutorial-detail-pill-difficulty">{{ tutorial.difficulty || '—' }}</span>
+        <span class="tutorial-detail-pill tutorial-detail-pill-time">{{ tutorial.estimatedMinutes ?? 0 }} min</span>
+        <span class="tutorial-detail-pill tutorial-detail-pill-status" [class.tutorial-detail-pill-status-active]="tutorial.status === 'ACTIVE'">{{ tutorial.status }}</span>
+      </div>
+
+      <section class="tutorial-detail-section">
+        <h2 class="tutorial-detail-section-title">Description</h2>
+        <p class="tutorial-detail-description">{{ tutorial.description || 'No description.' }}</p>
+      </section>
+
+      <section class="tutorial-detail-section" *ngIf="tutorial.prerequisites">
+        <h2 class="tutorial-detail-section-title">Prerequisites</h2>
+        <p class="tutorial-detail-body">{{ tutorial.prerequisites }}</p>
+      </section>
+
+      <section class="tutorial-detail-section" *ngIf="tutorial.tutorialUrl">
+        <h2 class="tutorial-detail-section-title">External link</h2>
+        <a [href]="tutorial.tutorialUrl" target="_blank" rel="noopener" class="tutorial-detail-link">
+          <span class="material-symbols-outlined">open_in_new</span>
+          Open tutorial link
+        </a>
+      </section>
+
+      <div class="tutorial-detail-actions">
+        <a [routerLink]="backRoute" class="tutorial-detail-btn-back">Back to list</a>
+      </div>
+    </div>
+  </div>
+</div>

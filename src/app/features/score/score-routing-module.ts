@@ -9,6 +9,7 @@ import { SavingsChallenge } from './savings-challenge/savings-challenge';
 import { DocumentUpload } from './document-upload/document-upload';
 import { TutorialDetail } from './tutorial-detail/tutorial-detail';
 import { GuaranteeDetail } from './guarantee-detail/guarantee-detail';
+import { GuaranteeCreate } from './guarantee-create/guarantee-create';
 
 const routes: Routes = [
   {
@@ -22,6 +23,7 @@ const routes: Routes = [
       { path: 'tutorials', component: Tutorials },
       { path: 'tutorials/:id', component: TutorialDetail },
       { path: 'guarantees', component: Guarantees },
+      { path: 'guarantees/create', component: GuaranteeCreate },
       { path: 'guarantees/:id', component: GuaranteeDetail },
       { path: 'history', component: ScoreHistory }
     ]

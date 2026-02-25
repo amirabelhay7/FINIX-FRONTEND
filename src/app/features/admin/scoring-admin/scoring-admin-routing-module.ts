@@ -6,8 +6,13 @@ import { RuleForm } from './rule-form/rule-form';
 import { TiersList } from './tiers-list/tiers-list';
 import { TierForm } from './tier-form/tier-form';
 import { TutorialsList } from './tutorials-list/tutorials-list';
+import { TutorialForm } from './tutorial-form/tutorial-form';
+import { TutorialDetail } from './tutorial-detail/tutorial-detail';
 import { AchievementsList } from './achievements-list/achievements-list';
+import { AchievementDetail } from './achievement-detail/achievement-detail';
 import { GuaranteesList } from './guarantees-list/guarantees-list';
+import { GuaranteeDetail } from './guarantee-detail/guarantee-detail';
+import { DocumentsList } from './documents-list/documents-list';
 
 const routes: Routes = [
   { path: '', component: List },
@@ -18,8 +23,13 @@ const routes: Routes = [
   { path: 'tiers/new', component: TierForm },
   { path: 'tiers/edit/:id', component: TierForm },
   { path: 'tutorials', component: TutorialsList },
+  { path: 'tutorials/new', component: TutorialForm },
+  { path: 'tutorials/:id', component: TutorialDetail },
   { path: 'achievements', component: AchievementsList },
-  { path: 'guarantees', component: GuaranteesList }
+  { path: 'achievements/:id', component: AchievementDetail },
+  { path: 'guarantees', component: GuaranteesList },
+  { path: 'guarantees/:id', component: GuaranteeDetail },
+  { path: 'documents', component: DocumentsList }
 ];
 
 @NgModule({

@@ -1,18 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
-
-interface ScoreChange {
-  id: number;
-  previousScore: number;
-  newScore: number;
-  scoreChange: number;
-  reason: string;
-  ruleType: string;
-  changeType: string;
-  changedAt: string;
-  triggeredBy: string;
-  referenceId?: string;
-}
+import { finalize } from 'rxjs/operators';
+import { ScoreService } from '../../../core/score/score.service';
+import { ScoreHistoryEntryApi } from '../../../models';
 
 @Component({
   selector: 'app-score-history',
@@ -23,87 +13,53 @@ interface ScoreChange {
 export class ScoreHistory implements OnInit {
   readonly Math = Math;
 
-  scoreHistory: ScoreChange[] = [
-    {
-      id: 1,
-      previousScore: 688,
-      newScore: 718,
-      scoreChange: 30,
-      reason: 'ID Document Verified',
-      ruleType: 'DOCUMENT',
-      changeType: 'INCREASE',
-      changedAt: '2 hours ago',
-      triggeredBy: 'SYSTEM',
-      referenceId: 'DOC-001'
-    },
-    {
-      id: 2,
-      previousScore: 693,
-      newScore: 718,
-      scoreChange: 25,
-      reason: 'Profile Completed',
-      ruleType: 'PROFILE',
-      changeType: 'INCREASE',
-      changedAt: 'Yesterday',
-      triggeredBy: 'USER_ACTION',
-      referenceId: undefined
-    },
-    {
-      id: 3,
-      previousScore: 618,
-      newScore: 718,
-      scoreChange: 100,
-      reason: 'Guarantee Received',
-      ruleType: 'GUARANTEE',
-      changeType: 'INCREASE',
-      changedAt: '3 days ago',
-      triggeredBy: 'SYSTEM',
-      referenceId: 'GUAR-003'
-    },
-    {
-      id: 4,
-      previousScore: 668,
-      newScore: 718,
-      scoreChange: 50,
-      reason: 'Achievement Unlocked',
-      ruleType: 'ACHIEVEMENT',
-      changeType: 'BONUS',
-      changedAt: '1 week ago',
-      triggeredBy: 'SYSTEM',
-      referenceId: 'ACH-001'
-    },
-    {
-      id: 5,
-      previousScore: 718,
-      newScore: 698,
-      scoreChange: -20,
-      reason: 'Late Loan Payment',
-      ruleType: 'LOAN',
-      changeType: 'PENALTY',
-      changedAt: '2 weeks ago',
-      triggeredBy: 'SYSTEM',
-      referenceId: 'LOAN-001'
-    }
-  ];
+  loading = true;
+  error: string | null = null;
+  scoreHistory: ScoreHistoryEntryApi[] = [];
 
   selectedFilter = 'all';
   filters = ['all', 'increase', 'decrease', 'bonus', 'penalty'];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private scoreService: ScoreService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    // Initialize component data
+    this.loadHistory();
+  }
+
+  loadHistory() {
+    this.loading = true;
+    this.error = null;
+    this.cdr.detectChanges();
+
+    this.scoreService.getMyScoreHistory().pipe(
+      finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (list) => {
+        this.scoreHistory = list ?? [];
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = err?.error?.message || err?.message || 'Failed to load score history';
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   selectFilter(filter: string) {
     this.selectedFilter = filter;
   }
 
-  getFilteredHistory() {
+  getFilteredHistory(): ScoreHistoryEntryApi[] {
     if (this.selectedFilter === 'all') {
       return this.scoreHistory;
     }
-    
     return this.scoreHistory.filter(change => {
       switch (this.selectedFilter) {
         case 'increase':
@@ -118,6 +74,20 @@ export class ScoreHistory implements OnInit {
           return true;
       }
     });
+  }
+
+  formatChangedAt(iso: string): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffMins < 60) return diffMins <= 1 ? 'Just now' : `${diffMins} minutes ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    return d.toLocaleDateString();
   }
 
   getChangeTypeIcon(changeType: string) {

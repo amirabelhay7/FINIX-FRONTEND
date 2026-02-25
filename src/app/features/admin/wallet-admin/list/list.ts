@@ -5,7 +5,7 @@ import { AdminHubCard } from '../../../../models';
  * ViewModel: wallet admin hub (MVVM).
  */
 @Component({
-  selector: 'app-list',
+  selector: 'app-admin-wallet-list',
   standalone: false,
   templateUrl: './list.html',
   styleUrl: './list.css',

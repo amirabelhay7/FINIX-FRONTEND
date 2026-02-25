@@ -1,11 +1,24 @@
-<div class="space-y-8 pb-10">
-    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-    <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <a *ngFor="let card of cards" [routerLink]="card.route" class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all">
-            <span class="material-symbols-outlined text-[28px] mr-4" [ngClass]="card.iconColorClass || 'text-[#135bec]'">{{ card.icon }}</span>
-            <div><p class="font-bold text-gray-800">{{ card.title }}</p><p class="text-xs text-gray-500">{{ card.subtitle }}</p></div>
-            <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
-        </a>
+<div class="scoring-hub-page">
+  <header class="scoring-hub-header">
+    <div class="scoring-hub-header-inner">
+      <span class="scoring-hub-icon material-symbols-outlined">analytics</span>
+      <div>
+        <h1 class="scoring-hub-title">{{ pageTitle }}</h1>
+        <p class="scoring-hub-subtitle">{{ pageSubtitle }}</p>
+      </div>
     </div>
+  </header>
+
+  <div class="scoring-hub-grid">
+    <a *ngFor="let card of cards" [routerLink]="card.route" class="scoring-hub-card">
+      <div class="scoring-hub-card-icon" [ngClass]="card.iconColorClass || 'primary'">
+        <span class="material-symbols-outlined">{{ card.icon }}</span>
+      </div>
+      <div class="scoring-hub-card-body">
+        <p class="scoring-hub-card-title">{{ card.title }}</p>
+        <p class="scoring-hub-card-subtitle">{{ card.subtitle }}</p>
+      </div>
+      <span class="material-symbols-outlined scoring-hub-card-chevron">chevron_right</span>
+    </a>
+  </div>
 </div>

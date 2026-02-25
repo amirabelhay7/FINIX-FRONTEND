@@ -5,7 +5,7 @@ import { AdminHubCard } from '../../../../models';
  * ViewModel: insurance desk hub (MVVM).
  */
 @Component({
-  selector: 'app-list',
+  selector: 'app-admin-insurance-list',
   standalone: false,
   templateUrl: './list.html',
   styleUrl: './list.css',

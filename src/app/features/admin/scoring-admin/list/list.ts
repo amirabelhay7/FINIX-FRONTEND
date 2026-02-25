@@ -5,7 +5,7 @@ import { AdminHubCard } from '../../../../models';
  * ViewModel: scoring admin hub (MVVM).
  */
 @Component({
-  selector: 'app-list',
+  selector: 'app-admin-scoring-list',
   standalone: false,
   templateUrl: './list.html',
   styleUrl: './list.css',
@@ -20,5 +20,6 @@ export class List {
     { title: 'Tutorials', subtitle: 'Manage tutorials', route: '/admin/scoring/tutorials', icon: 'school', iconColorClass: 'text-green-600' },
     { title: 'Achievements', subtitle: 'Manage achievements', route: '/admin/scoring/achievements', icon: 'emoji_events', iconColorClass: 'text-purple-600' },
     { title: 'Guarantees', subtitle: 'View all guarantees', route: '/admin/scoring/guarantees', icon: 'handshake', iconColorClass: 'text-blue-600' },
+    { title: 'Document verification', subtitle: 'Verify user documents', route: '/admin/scoring/documents', icon: 'description', iconColorClass: 'text-orange-600' },
   ];
 }

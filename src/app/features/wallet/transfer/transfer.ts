@@ -1,36 +1,86 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { WalletService } from '../../../core/wallet/wallet.service';
 
-/**
- * ViewModel: P2P transfer (MVVM).
- */
 @Component({
   selector: 'app-transfer',
   standalone: false,
   templateUrl: './transfer.html',
   styleUrl: './transfer.css',
 })
-export class Transfer {
+export class Transfer implements OnInit {
   readonly pageTitle = 'P2P Transfer';
-  readonly pageSubtitle = 'Send money instantly to any FINIX user.';
+  readonly pageSubtitle = 'Send money instantly to any FINIX user (by email).';
   readonly balanceLabel = 'Your Balance';
-  readonly balanceAmount = '2,840.50 TND';
-  readonly recipientLabel = 'Recipient';
-  readonly recipientPlaceholder = 'Search by CIN, phone, or name...';
-  readonly recipientName = 'Sarah Sidibe';
-  readonly recipientMeta = 'CIN: 12345678 · Gold Tier';
-  /** Avatar URL for recipient (static UI). */
-  readonly recipientAvatarUrl = 'https://ui-avatars.com/api/?name=Sarah+Sidibe&background=135bec&color=fff';
+  readonly recipientLabel = 'Recipient email';
+  readonly recipientPlaceholder = 'client@example.com';
   readonly amountLabel = 'Amount';
-  readonly amountHint = 'Max: 2,840.50 TND — Transfer fee: 0.00 TND (free)';
   readonly noteLabel = 'Note (Optional)';
   readonly notePlaceholder = 'e.g. Rent payment...';
   readonly summaryTransfer = 'Transfer Amount';
   readonly summaryFee = 'Platform Fee';
   readonly summaryFeeValue = 'Free';
   readonly summaryTotal = 'Total Deducted';
-  readonly summaryAmount = '200.00 TND';
   readonly confirmLabel = 'Confirm Transfer';
   readonly backLabel = 'Back to Wallet';
 
-  readonly quickAmounts: string[] = ['50', '100', '200', '500'];
+  balanceAmount = '0.00 TND';
+  targetEmail = '';
+  amount: number | null = null;
+  description = '';
+  loading = true;
+  submitting = false;
+  error: string | null = null;
+
+  constructor(
+    private walletService: WalletService,
+    private router: Router,
+  ) {}
+
+  ngOnInit(): void {
+    this.walletService.getMyWallet().subscribe({
+      next: (w) => {
+        this.balanceAmount = w.balance.toFixed(2) + ' TND';
+        this.loading = false;
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = err?.error?.message || err?.message || 'Failed to load balance';
+      },
+    });
+  }
+
+  get amountHint(): string {
+    return `Max: ${this.balanceAmount} — Transfer fee: 0.00 TND (free)`;
+  }
+
+  get summaryAmount(): string {
+    return this.amount != null && this.amount > 0 ? this.amount.toFixed(2) + ' TND' : '0.00 TND';
+  }
+
+  setQuickAmount(value: number): void {
+    this.amount = value;
+  }
+
+  submit(): void {
+    const email = (this.targetEmail || '').trim();
+    const amt = this.amount != null ? Number(this.amount) : 0;
+    if (!email) {
+      this.error = 'Enter recipient email.';
+      return;
+    }
+    if (amt <= 0) {
+      this.error = 'Enter a valid amount.';
+      return;
+    }
+    this.error = null;
+    this.submitting = true;
+    this.walletService.transfer(email, amt, this.description || undefined).subscribe({
+      next: () => this.router.navigate(['/wallet']),
+      error: (err) => {
+        this.submitting = false;
+        this.error = err?.error?.message || err?.message || 'Transfer failed';
+      },
+    });
+  }
 }

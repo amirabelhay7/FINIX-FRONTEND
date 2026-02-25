@@ -1,21 +1,110 @@
-<div class="space-y-8 pb-10 max-w-2xl">
-    <div class="flex items-center gap-4">
-        <a [routerLink]="backRoute" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
-        </div>
+<div class="tutorial-detail">
+  <header class="tutorial-header">
+    <a [routerLink]="backRoute" class="back-link">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <div class="header-text">
+      <h1 *ngIf="tutorial" class="tutorial-title">{{ tutorial.title }}</h1>
+      <p *ngIf="tutorial" class="tutorial-meta">{{ tutorial.pointsAwarded }} pts · {{ tutorial.difficulty }} · {{ tutorial.estimatedMinutes }} min</p>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
-        <p class="text-gray-600">{{ descriptionText }}</p>
-        <div class="flex gap-4">
-            <button type="button" class="inline-flex items-center px-6 py-2.5 bg-[#135bec] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all">
-                <span class="material-symbols-outlined mr-2 text-[18px]">play_circle</span>{{ startLabel }}
+  </header>
+
+  <div *ngIf="loading" class="tutorial-loading">
+    <span class="material-symbols-outlined spin">progress_activity</span>
+    <p>Loading…</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="tutorial-error">
+    <p>{{ error }}</p>
+    <a [routerLink]="backRoute" class="error-back">Back to tutorials</a>
+  </div>
+
+  <!-- Not started: show Start CTA -->
+  <section *ngIf="!loading && !error && tutorial && !started && !completed" class="tutorial-intro">
+    <div class="intro-card">
+      <span class="material-symbols-outlined intro-icon">play_circle</span>
+      <h2 class="intro-title">Ready to start?</h2>
+      <p class="intro-desc">Complete this tutorial to earn <strong>{{ tutorial.pointsAwarded }} points</strong>. It takes about {{ tutorial.estimatedMinutes }} minutes.</p>
+      <button type="button" class="btn-start" (click)="start()">
+        <span class="material-symbols-outlined">play_arrow</span>
+        {{ startLabel }}
+      </button>
+    </div>
+  </section>
+
+  <!-- Step-by-step player (started, not completed) -->
+  <section *ngIf="!loading && !error && tutorial && started && !completed" class="tutorial-player">
+    <div class="progress-wrap">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="steps.length ? (100 * (currentStep + 1) / steps.length) : 0"></div>
+      </div>
+      <p class="progress-text">Step {{ currentStep + 1 }} of {{ steps.length }}</p>
+    </div>
+
+    <div class="step-content">
+      <div class="step-card" *ngIf="getCurrentStep() as step" [class.slide-next]="stepDirection === 'next'" [class.slide-prev]="stepDirection === 'prev'">
+        <span class="step-badge" [class.step-badge-quiz]="step.type === 'quiz'" [class.step-badge-check]="step.type === 'check'">
+          {{ step.type === 'quiz' ? 'Quiz' : step.type === 'check' ? 'Check' : 'Step ' + (currentStep + 1) }}
+        </span>
+
+        <!-- Text step -->
+        <p *ngIf="step.type === 'text'" class="step-body">{{ step.content }}</p>
+
+        <!-- Quiz step -->
+        <ng-container *ngIf="step.type === 'quiz'">
+          <p class="step-question">{{ step.question }}</p>
+          <div *ngIf="!quizAnswered" class="quiz-options">
+            <button type="button" *ngFor="let opt of step.options" class="quiz-opt" (click)="selectQuizOption(opt.letter)">
+              <span class="quiz-opt-letter">{{ opt.letter }}</span>
+              <span class="quiz-opt-text">{{ opt.text }}</span>
             </button>
-            <button type="button" class="inline-flex items-center px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all" disabled>{{ markCompleteLabel }}</button>
+          </div>
+          <div *ngIf="quizAnswered" class="quiz-feedback" [class.quiz-feedback-correct]="quizCorrect" [class.quiz-feedback-wrong]="!quizCorrect">
+            <span class="material-symbols-outlined">{{ quizCorrect ? 'check_circle' : 'refresh' }}</span>
+            <span>{{ quizCorrect ? quizCorrectLabel : quizWrongLabel }}</span>
+            <button type="button" class="btn-feedback-next" (click)="advanceAfterQuiz()">
+              {{ currentStep < steps.length - 1 ? nextLabel : markCompleteLabel }}
+            </button>
+          </div>
+        </ng-container>
+
+        <!-- Check step (tap to continue) -->
+        <div *ngIf="step.type === 'check'">
+          <p class="step-body">{{ step.message }}</p>
+          <button type="button" class="btn-check" (click)="currentStep < steps.length - 1 ? next() : markComplete()">
+            {{ checkContinueLabel }}
+          </button>
         </div>
-        <a [routerLink]="backRoute" class="inline-block text-[#135bec] font-bold hover:underline">{{ backLabel }}</a>
+      </div>
     </div>
+
+    <div class="player-actions" *ngIf="getCurrentStep() as step">
+      <ng-container *ngIf="step.type !== 'quiz' || quizAnswered">
+        <button type="button" class="btn-prev" (click)="prev()" [disabled]="currentStep === 0">
+          <span class="material-symbols-outlined">chevron_left</span>
+          {{ prevLabel }}
+        </button>
+        <ng-container *ngIf="step.type === 'text'">
+          <button *ngIf="currentStep < steps.length - 1" type="button" class="btn-next" (click)="next()">
+            {{ nextLabel }}
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+          <button *ngIf="currentStep === steps.length - 1" type="button" class="btn-complete" (click)="markComplete()">
+            <span class="material-symbols-outlined">check_circle</span>
+            {{ markCompleteLabel }}
+          </button>
+        </ng-container>
+      </ng-container>
+    </div>
+  </section>
+
+  <!-- Completed -->
+  <section *ngIf="!loading && !error && tutorial && completed" class="tutorial-done">
+    <div class="done-card">
+      <span class="material-symbols-outlined done-icon">check_circle</span>
+      <h2 class="done-title">{{ completedLabel }}</h2>
+      <p class="done-desc">You earned <strong>{{ tutorial.pointsAwarded }} points</strong>.</p>
+      <a [routerLink]="backRoute" class="btn-back">{{ backLabel }}</a>
+    </div>
+  </section>
 </div>

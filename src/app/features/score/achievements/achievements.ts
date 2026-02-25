@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+import { ScoreService } from '../../../core/score/score.service';
+import { AchievementApi } from '../../../models';
 
 @Component({
   selector: 'app-achievements',
@@ -8,124 +11,105 @@ import { Router } from '@angular/router';
   styleUrl: './achievements.css',
 })
 export class Achievements implements OnInit {
-  
-  unlockedAchievements = [
-    {
-      id: 1,
-      title: 'Document Master',
-      description: 'Upload and verify all required documents',
-      points: 50,
-      category: 'Documents',
-      unlockedAt: '2 days ago',
-      icon: 'verified',
-      color: 'green'
-    },
-    {
-      id: 2,
-      title: 'Profile Complete',
-      description: 'Complete all profile information fields',
-      points: 25,
-      category: 'Profile',
-      unlockedAt: '1 week ago',
-      icon: 'person',
-      color: 'blue'
-    },
-    {
-      id: 3,
-      title: 'Wallet Warrior',
-      description: 'Maintain wallet balance above $1000 for 30 days',
-      points: 75,
-      category: 'Wallet',
-      unlockedAt: '2 weeks ago',
-      icon: 'account_balance_wallet',
-      color: 'purple'
-    },
-    {
-      id: 4,
-      title: 'Social Trust',
-      description: 'Receive 3 or more guarantees from other users',
-      points: 100,
-      category: 'Guarantees',
-      unlockedAt: '3 weeks ago',
-      icon: 'handshake',
-      color: 'orange'
-    },
-    {
-      id: 5,
-      title: 'Gold Status',
-      description: 'Reach Gold tier with 650+ score',
-      points: 150,
-      category: 'Tier',
-      unlockedAt: '1 month ago',
-      icon: 'workspace_premium',
-      color: 'yellow'
-    },
-    {
-      id: 6,
-      title: 'Perfect Payment',
-      description: 'Make 10 on-time loan repayments',
-      points: 200,
-      category: 'Loans',
-      unlockedAt: '2 months ago',
-      icon: 'payments',
-      color: 'red'
-    }
-  ];
-
-  lockedAchievements = [
-    {
-      id: 7,
-      title: '??? Mystery',
-      description: 'Complete a secret challenge',
-      points: 300,
-      category: 'Secret',
-      isSecret: true,
-      icon: 'help',
-      color: 'gray'
-    },
-    {
-      id: 8,
-      title: 'Platinum Elite',
-      description: 'Reach Platinum tier with 850+ score',
-      points: 300,
-      category: 'Tier',
-      progress: '132 points to go',
-      icon: 'diamond',
-      color: 'gray'
-    },
-    {
-      id: 9,
-      title: 'Community Leader',
-      description: 'Help 10 users get their first loan',
-      points: 250,
-      category: 'Community',
-      progress: '7/10 helped',
-      icon: 'groups',
-      color: 'gray'
-    }
-  ];
-
   selectedCategory = 'All';
-  totalUnlocked = 12;
-  totalPoints = 580;
+  loading = true;
+  error: string | null = null;
+  unlockedAchievements: Array<AchievementApi & { icon: string; color: string; unlockedAt: string }> = [];
+  lockedAchievements: Array<AchievementApi & { icon: string; color: string }> = [];
+  totalUnlocked = 0;
+  totalPoints = 0;
 
-  constructor(private router: Router) {}
+  private readonly typeToLabel: Record<string, string> = {
+    DOCUMENT: 'Documents', PROFILE: 'Profile', WALLET: 'Wallet',
+    GUARANTEE: 'Guarantees', LOAN: 'Loans', TIER: 'Tier'
+  };
+  private readonly iconMap: Record<string, string> = {
+    DOCUMENT: 'verified', PROFILE: 'person', WALLET: 'account_balance_wallet',
+    GUARANTEE: 'handshake', LOAN: 'payments', TIER: 'workspace_premium'
+  };
+  private readonly colorMap: Record<string, string> = {
+    DOCUMENT: 'green', PROFILE: 'blue', WALLET: 'purple',
+    GUARANTEE: 'orange', LOAN: 'red', TIER: 'yellow'
+  };
+
+  constructor(
+    private scoreService: ScoreService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    // Initialize component data
+    this.loadAchievements();
+  }
+
+  loadAchievements() {
+    this.loading = true;
+    this.error = null;
+    this.cdr.detectChanges();
+    forkJoin({
+      completed: this.scoreService.getMyCompletedAchievements(),
+      available: this.scoreService.getMyAvailableAchievements(),
+    }).pipe(finalize(() => { this.loading = false; this.cdr.detectChanges(); })).subscribe({
+      next: ({ completed, available }) => {
+        const completedList = completed ?? [];
+        const availableList = available ?? [];
+        const completedIds = new Set(completedList.map(a => a.id));
+        this.unlockedAchievements = completedList.map(a => ({
+          ...a,
+          icon: this.iconMap[a.achievementType || ''] || 'emoji_events',
+          color: this.colorMap[a.achievementType || ''] || 'green',
+          unlockedAt: a.unlockedAt ? this.formatTime(a.unlockedAt) : '—',
+        }));
+        this.lockedAchievements = availableList.filter(a => !completedIds.has(a.id)).map(a => ({
+          ...a,
+          icon: a.isSecret ? 'help' : (this.iconMap[a.achievementType || ''] || 'lock'),
+          color: 'gray',
+        }));
+        this.totalUnlocked = this.unlockedAchievements.length;
+        this.totalPoints = this.unlockedAchievements.reduce((s, a) => s + (a.pointsAwarded ?? 0), 0);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = err?.error?.message || err?.message || 'Failed to load achievements';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private formatTime(iso: string): string {
+    const d = new Date(iso);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return d.toLocaleDateString();
   }
 
   selectCategory(category: string) {
     this.selectedCategory = category;
   }
 
-  navigateToTutorial(achievement: any) {
-    // Navigate to tutorial related to achievement
-    console.log('Navigate to tutorial for:', achievement.title);
+  getFilteredUnlocked() {
+    if (this.selectedCategory === 'All') return this.unlockedAchievements;
+    const label = this.typeToLabel[this.selectedCategory] || this.selectedCategory;
+    return this.unlockedAchievements.filter(a => this.typeToLabel[a.achievementType || ''] === label || a.achievementType === this.selectedCategory);
   }
 
-  viewAchievementDetail(achievement: any) {
-    // Show achievement detail modal or navigate to detail page
-    console.log('View achievement detail:', achievement.title);
+  getFilteredLocked() {
+    if (this.selectedCategory === 'All') return this.lockedAchievements;
+    const label = this.typeToLabel[this.selectedCategory] || this.selectedCategory;
+    return this.lockedAchievements.filter(a => this.typeToLabel[a.achievementType || ''] === label || a.achievementType === this.selectedCategory);
+  }
+
+  unlockAchievement(achievementType: string) {
+    this.scoreService.unlockAchievementMe(achievementType).subscribe({
+      next: () => this.loadAchievements(),
+      error: (err) => { this.error = err?.error?.message || 'Unlock failed'; this.cdr.detectChanges(); }
+    });
+  }
+
+  viewAchievementDetail(achievement: AchievementApi) {
+    // Could navigate to detail or show modal
   }
 }

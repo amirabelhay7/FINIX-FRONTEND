@@ -5,7 +5,7 @@ import { AdminHubCard } from '../../../../models';
  * ViewModel: vehicles admin hub (MVVM).
  */
 @Component({
-  selector: 'app-list',
+  selector: 'app-admin-vehicles-list',
   standalone: false,
   templateUrl: './list.html',
   styleUrl: './list.css',

@@ -1,5 +1,7 @@
 <div class="space-y-8 pb-10 max-w-2xl">
-    <div class="flex items-center gap-4">
+    <p *ngIf="error" class="text-red-600 text-sm font-medium">{{ error }}</p>
+    <div *ngIf="loading" class="py-12 text-center text-gray-500 font-medium">Loading…</div>
+    <div *ngIf="!loading && !error" class="flex items-center gap-4">
         <a [routerLink]="vm.backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
@@ -8,7 +10,7 @@
             <p class="text-gray-500 text-sm font-medium">{{ vm.pageSubtitle }}</p>
         </div>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+    <div *ngIf="!loading && !error" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div *ngFor="let field of vm.fields" [ngClass]="field.label === 'Description' ? 'sm:col-span-2' : ''">
                 <dt class="text-gray-500">{{ field.label }}</dt>
