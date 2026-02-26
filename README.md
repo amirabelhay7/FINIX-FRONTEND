@@ -12,6 +12,37 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## Run backend + frontend together (local dev)
+
+### Backend (Spring Boot + MySQL)
+
+- **Prereqs**: Java 17, Maven, MySQL running locally.
+- **Config**: backend default port is **`8081`** (see backend `application.properties`).
+- **Run**:
+
+```bash
+mvn spring-boot:run
+```
+
+### Frontend (Angular)
+
+This Angular app uses a dev proxy so all API calls go to **`/api/...`** (no CORS issues).
+
+- **Proxy**: `proxy.conf.json` forwards `/api` to `http://localhost:8081`.
+- **Run**:
+
+```bash
+npm install
+npm start
+```
+
+### Quick URLs
+
+- **Frontend**: `http://localhost:4200`
+- **Backoffice Vehicles CRUD**: `http://localhost:4200/admin/vehicles`
+- **Marketplace**: `http://localhost:4200/vehicles`
+- **Backend API (vehicles)**: `http://localhost:8081/api/vehicles`
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:

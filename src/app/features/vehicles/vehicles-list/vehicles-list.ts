@@ -1,7 +1,9 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { VehicleAdminService } from '../../../core/services/vehicle-admin.service';
-import { Vehicle } from '../../../core/models/vehicle.model';
+import { Vehicle } from '../../../core/models/vehicle.models';
+import { VehicleAdminApiService } from '../../../core/services/vehicle-admin-api.service';
+import { VehicleSearchParams } from '../../../core/models/vehicle.models';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-vehicles-list',
@@ -15,6 +17,8 @@ export class VehiclesList implements OnInit {
   protected readonly filterStatus = signal<string>('');
   protected readonly filterBrand = signal('');
   protected readonly deleteConfirmId = signal<string | null>(null);
+  protected readonly isLoading = signal(false);
+  protected readonly deletingId = signal<string | null>(null);
 
   protected readonly filteredVehicles = computed(() => {
     let list = [...this.vehicles()];
@@ -33,12 +37,42 @@ export class VehiclesList implements OnInit {
   });
 
   constructor(
-    private vehicleAdminService: VehicleAdminService,
+    private vehicleAdminApi: VehicleAdminApiService,
+    private toastService: ToastService,
     private router: Router,
   ) {}
 
   ngOnInit(): void {
-    this.vehicleAdminService.getAll().subscribe((v: Vehicle[]) => this.vehicles.set(v));
+    this.loadVehicles();
+  }
+
+  private buildSearchParams(): VehicleSearchParams {
+    return {
+      q: this.search() || null,
+      // Potential future extension: map other filters to backend query params
+    };
+  }
+
+  private loadVehicles(): void {
+    this.isLoading.set(true);
+    const params = this.buildSearchParams();
+    this.vehicleAdminApi.getAll(params).subscribe({
+      next: (page) => {
+        this.vehicles.set(page.content);
+      },
+      error: () => {
+        this.vehicles.set([]);
+        this.toastService.showError('Impossible de charger les véhicules.');
+      },
+      complete: () => {
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  onSearchInput(value: string): void {
+    this.search.set(value);
+    this.loadVehicles();
   }
 
   confirmDelete(id: string): void {
@@ -50,8 +84,18 @@ export class VehiclesList implements OnInit {
   }
 
   deleteVehicle(id: string): void {
-    this.vehicleAdminService.delete(id).subscribe((ok: boolean) => {
-      if (ok) this.deleteConfirmId.set(null);
+    this.deletingId.set(id);
+    this.vehicleAdminApi.delete(id).subscribe({
+      next: () => {
+        this.vehicles.update((list) => list.filter((v) => v.id !== id));
+        this.toastService.showSuccess('Véhicule supprimé.');
+        this.deleteConfirmId.set(null);
+        this.deletingId.set(null);
+      },
+      error: () => {
+        this.toastService.showError('Échec de la suppression du véhicule.');
+        this.deletingId.set(null);
+      },
     });
   }
 

@@ -1,6 +1,8 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
-import { VehiclePublicService } from '../../../core/services/vehicle-public.service';
-import { Vehicle } from '../../../core/models/vehicle.model';
+import { Vehicle } from '../../../core/models/vehicle.models';
+import { VehiclePublicApiService } from '../../../core/services/vehicle-public-api.service';
+import { VehicleSearchParams } from '../../../core/models/vehicle.models';
+import { ToastService } from '../../../core/services/toast.service';
 
 type FuelType = Vehicle['fuelType'];
 type Gearbox = Vehicle['gearbox'];
@@ -25,6 +27,7 @@ export class VehiclesMarketplace implements OnInit {
   protected readonly gearbox = signal<Gearbox | ''>('');
   protected readonly location = signal<string>('');
   protected readonly currentPage = signal(1);
+  protected readonly isLoading = signal(false);
 
   protected readonly fuelOptions: FuelType[] = ['Diesel', 'Essence', 'Hybrid', 'Electric'];
   protected readonly gearboxOptions: Gearbox[] = ['Manuelle', 'Automatique'];
@@ -64,10 +67,15 @@ export class VehiclesMarketplace implements OnInit {
     Math.max(1, Math.ceil(this.filteredVehicles().length / PAGE_SIZE))
   );
 
-  constructor(private vehicleService: VehiclePublicService) {}
+  private searchTimeoutId: number | null = null;
+
+  constructor(
+    private vehicleApi: VehiclePublicApiService,
+    private toastService: ToastService,
+  ) {}
 
   ngOnInit(): void {
-    this.vehicleService.getAll().subscribe((v) => this.vehicles.set(v));
+    this.loadVehicles();
   }
 
   resetFilters(): void {
@@ -80,10 +88,61 @@ export class VehiclesMarketplace implements OnInit {
     this.gearbox.set('');
     this.location.set('');
     this.currentPage.set(1);
+    this.loadVehicles();
   }
 
   setPage(p: number): void {
     this.currentPage.set(Math.max(1, Math.min(p, this.totalPages())));
+  }
+
+  onSearchInput(value: string): void {
+    this.search.set(value);
+    this.currentPage.set(1);
+    if (this.searchTimeoutId !== null) {
+      window.clearTimeout(this.searchTimeoutId);
+    }
+    this.searchTimeoutId = window.setTimeout(() => {
+      this.loadVehicles();
+    }, 300);
+  }
+
+  onFilterChange(): void {
+    this.currentPage.set(1);
+    if (this.searchTimeoutId !== null) {
+      window.clearTimeout(this.searchTimeoutId);
+      this.searchTimeoutId = null;
+    }
+    this.loadVehicles();
+  }
+
+  private buildSearchParams(): VehicleSearchParams {
+    return {
+      q: this.search() || null,
+      minPrice: this.priceMin(),
+      maxPrice: this.priceMax(),
+      minYear: this.yearMin(),
+      maxYear: this.yearMax(),
+      fuelType: this.fuelType() || null,
+      gearbox: this.gearbox() || null,
+      location: this.location() || null,
+    };
+  }
+
+  private loadVehicles(): void {
+    this.isLoading.set(true);
+    const params = this.buildSearchParams();
+    this.vehicleApi.search(params).subscribe({
+      next: (page) => {
+        this.vehicles.set(page.content);
+      },
+      error: () => {
+        this.vehicles.set([]);
+        this.toastService.showError('Impossible de charger les véhicules.');
+      },
+      complete: () => {
+        this.isLoading.set(false);
+      },
+    });
   }
 
   formatPrice(n: number): string {

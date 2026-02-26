@@ -8,40 +8,40 @@
       type="text"
       placeholder="Marque / modèle"
       [value]="search()"
-      (input)="search.set($any($event.target).value); currentPage.set(1)"
+      (input)="onSearchInput($any($event.target).value)"
       class="rounded-xl border border-slate-200 px-3 py-2 text-sm w-40 min-w-[140px]"
     />
     <input
       type="number"
       placeholder="Prix min"
       [value]="priceMin() ?? ''"
-      (input)="priceMin.set($any($event.target).value ? +$any($event.target).value : null); currentPage.set(1)"
+      (input)="priceMin.set($any($event.target).value ? +$any($event.target).value : null); onFilterChange()"
       class="rounded-xl border border-slate-200 px-3 py-2 text-sm w-24"
     />
     <input
       type="number"
       placeholder="Prix max"
       [value]="priceMax() ?? ''"
-      (input)="priceMax.set($any($event.target).value ? +$any($event.target).value : null); currentPage.set(1)"
+      (input)="priceMax.set($any($event.target).value ? +$any($event.target).value : null); onFilterChange()"
       class="rounded-xl border border-slate-200 px-3 py-2 text-sm w-24"
     />
     <input
       type="number"
       placeholder="Année min"
       [value]="yearMin() ?? ''"
-      (input)="yearMin.set($any($event.target).value ? +$any($event.target).value : null); currentPage.set(1)"
+      (input)="yearMin.set($any($event.target).value ? +$any($event.target).value : null); onFilterChange()"
       class="rounded-xl border border-slate-200 px-3 py-2 text-sm w-24"
     />
     <input
       type="number"
       placeholder="Année max"
       [value]="yearMax() ?? ''"
-      (input)="yearMax.set($any($event.target).value ? +$any($event.target).value : null); currentPage.set(1)"
+      (input)="yearMax.set($any($event.target).value ? +$any($event.target).value : null); onFilterChange()"
       class="rounded-xl border border-slate-200 px-3 py-2 text-sm w-24"
     />
     <select
       [value]="fuelType()"
-      (change)="fuelType.set($any($event.target).value); currentPage.set(1)"
+      (change)="fuelType.set($any($event.target).value); onFilterChange()"
       class="rounded-xl border border-slate-200 px-3 py-2 text-sm w-32"
     >
       <option value="">Carburant</option>
@@ -51,7 +51,7 @@
     </select>
     <select
       [value]="gearbox()"
-      (change)="gearbox.set($any($event.target).value); currentPage.set(1)"
+      (change)="gearbox.set($any($event.target).value); onFilterChange()"
       class="rounded-xl border border-slate-200 px-3 py-2 text-sm w-36"
     >
       <option value="">Boîte</option>
@@ -61,7 +61,7 @@
     </select>
     <select
       [value]="location()"
-      (change)="location.set($any($event.target).value); currentPage.set(1)"
+      (change)="location.set($any($event.target).value); onFilterChange()"
       class="rounded-xl border border-slate-200 px-3 py-2 text-sm w-32"
     >
       <option value="">Localisation</option>
@@ -78,49 +78,70 @@
     </button>
   </div>
 
-  <!-- Grid -->
-  <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-    @for (v of paginatedVehicles(); track v.id) {
-      <a
-        [routerLink]="['/vehicles', v.id]"
-        class="group flex flex-col rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow"
-      >
-        <div class="relative aspect-[4/3] bg-slate-100">
-          <img [src]="v.imageUrls[0]" [alt]="v.brand + ' ' + v.model" class="h-full w-full object-cover" />
-          @if (v.badge) {
-            <span
-              class="absolute top-2 right-2 rounded-full px-2.5 py-1 text-xs font-semibold"
-              [ngClass]="{ 'bg-emerald-500 text-white': v.badge === 'Nouveau', 'bg-amber-500 text-white': v.badge === 'Bon prix' }"
-            >
-              {{ v.badge }}
-            </span>
-          }
-        </div>
-        <div class="flex flex-col flex-1 p-4">
-          <h2 class="text-lg font-semibold text-slate-900 group-hover:text-[#135bec]">
-            {{ v.brand }} {{ v.model }}
-          </h2>
-          <div class="mt-2 flex flex-wrap gap-1.5 text-xs text-slate-500">
-            <span class="rounded-full bg-slate-100 px-2 py-0.5">{{ v.year }}</span>
-            <span class="rounded-full bg-slate-100 px-2 py-0.5">{{ v.mileageKm | number }} km</span>
-            <span class="rounded-full bg-slate-100 px-2 py-0.5">{{ v.gearbox }}</span>
-            <span class="rounded-full bg-slate-100 px-2 py-0.5">{{ v.fuelType }}</span>
+  <!-- Grid / Loading / Empty states -->
+  <div class="mt-8">
+    @if (isLoading()) {
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        @for (s of [1, 2, 3, 4, 5, 6]; track s) {
+          <div class="flex flex-col rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden animate-pulse">
+            <div class="aspect-[4/3] bg-slate-100"></div>
+            <div class="p-4 space-y-2">
+              <div class="h-4 w-2/3 rounded bg-slate-100"></div>
+              <div class="h-3 w-1/2 rounded bg-slate-100"></div>
+              <div class="flex gap-2 mt-2">
+                <span class="h-5 w-12 rounded-full bg-slate-100"></span>
+                <span class="h-5 w-16 rounded-full bg-slate-100"></span>
+              </div>
+              <div class="h-5 w-24 rounded bg-slate-100 mt-4 ml-auto"></div>
+            </div>
           </div>
-          <p class="mt-1 text-xs text-slate-500 flex items-center gap-1">
-            <span class="material-symbols-outlined text-[14px]">location_on</span>
-            {{ v.location }}
-          </p>
-          <p class="mt-auto pt-3 text-right text-lg font-bold text-[#135bec]">
-            {{ formatPrice(v.price) }}
-          </p>
-        </div>
-      </a>
+        }
+      </div>
+    } @else {
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        @for (v of paginatedVehicles(); track v.id) {
+          <a
+            [routerLink]="['/vehicles', v.id]"
+            class="group flex flex-col rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+          >
+            <div class="relative aspect-[4/3] bg-slate-100">
+              <img [src]="v.imageUrls[0]" [alt]="v.brand + ' ' + v.model" class="h-full w-full object-cover" />
+              @if (v.badge) {
+                <span
+                  class="absolute top-2 right-2 rounded-full px-2.5 py-1 text-xs font-semibold"
+                  [ngClass]="{ 'bg-emerald-500 text-white': v.badge === 'Nouveau', 'bg-amber-500 text-white': v.badge === 'Bon prix' }"
+                >
+                  {{ v.badge }}
+                </span>
+              }
+            </div>
+            <div class="flex flex-col flex-1 p-4">
+              <h2 class="text-lg font-semibold text-slate-900 group-hover:text-[#135bec]">
+                {{ v.brand }} {{ v.model }}
+              </h2>
+              <div class="mt-2 flex flex-wrap gap-1.5 text-xs text-slate-500">
+                <span class="rounded-full bg-slate-100 px-2 py-0.5">{{ v.year }}</span>
+                <span class="rounded-full bg-slate-100 px-2 py-0.5">{{ v.mileageKm | number }} km</span>
+                <span class="rounded-full bg-slate-100 px-2 py-0.5">{{ v.gearbox }}</span>
+                <span class="rounded-full bg-slate-100 px-2 py-0.5">{{ v.fuelType }}</span>
+              </div>
+              <p class="mt-1 text-xs text-slate-500 flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">location_on</span>
+                {{ v.location }}
+              </p>
+              <p class="mt-auto pt-3 text-right text-lg font-bold text-[#135bec]">
+                {{ formatPrice(v.price) }}
+              </p>
+            </div>
+          </a>
+        }
+      </div>
+
+      @if (paginatedVehicles().length === 0) {
+        <p class="mt-12 text-center text-slate-500">Aucun véhicule trouvé.</p>
+      }
     }
   </div>
-
-  @if (paginatedVehicles().length === 0) {
-    <p class="mt-12 text-center text-slate-500">Aucun véhicule trouvé.</p>
-  }
 
   <!-- Pagination -->
   @if (totalPages() > 1) {

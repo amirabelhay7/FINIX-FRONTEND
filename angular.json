@@ -65,7 +65,8 @@
               "buildTarget": "infinix-frontend:build:production"
             },
             "development": {
-              "buildTarget": "infinix-frontend:build:development"
+              "buildTarget": "infinix-frontend:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

@@ -1,7 +1,8 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { VehicleAdminService } from '../../../core/services/vehicle-admin.service';
-import { Vehicle } from '../../../core/models/vehicle.model';
+import { Vehicle } from '../../../core/models/vehicle.models';
+import { VehicleAdminApiService } from '../../../core/services/vehicle-admin-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-vehicle-admin-detail',
@@ -12,18 +13,34 @@ import { Vehicle } from '../../../core/models/vehicle.model';
 export class VehicleAdminDetail implements OnInit {
   protected readonly vehicle = signal<Vehicle | null>(null);
   protected readonly currentImageIndex = signal(0);
+  protected readonly isLoading = signal(false);
 
   constructor(
     private route: ActivatedRoute,
-    private vehicleAdminService: VehicleAdminService,
+    private vehicleAdminApi: VehicleAdminApiService,
+    private toastService: ToastService,
     private router: Router,
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
-    this.vehicleAdminService.getById(id).subscribe((v: Vehicle | undefined) => {
-      this.vehicle.set(v ?? null);
+    this.isLoading.set(true);
+    this.vehicleAdminApi.getById(id).subscribe({
+      next: (v: Vehicle) => {
+        this.vehicle.set(v ?? null);
+        if (!v) {
+          this.toastService.showError('Véhicule introuvable.');
+          this.router.navigate(['/admin/vehicles']);
+        }
+      },
+      error: () => {
+        this.toastService.showError('Impossible de charger le véhicule.');
+        this.router.navigate(['/admin/vehicles']);
+      },
+      complete: () => {
+        this.isLoading.set(false);
+      },
     });
   }
 

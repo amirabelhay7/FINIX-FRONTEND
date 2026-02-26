@@ -1,0 +1,38 @@
+<div class="fixed inset-x-0 top-4 z-50 flex justify-center pointer-events-none">
+  <div class="w-full max-w-md px-4 space-y-2">
+    @for (toast of toastService.toasts(); track toast.id) {
+      <div
+        class="pointer-events-auto flex items-start gap-3 rounded-2xl border px-4 py-3 shadow-lg bg-white"
+        [ngClass]="{
+          'border-emerald-200': toast.type === 'success',
+          'border-red-200': toast.type === 'error',
+          'border-slate-200': toast.type === 'info'
+        }"
+      >
+        <span
+          class="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-white text-sm"
+          [ngClass]="{
+            'bg-emerald-500': toast.type === 'success',
+            'bg-red-500': toast.type === 'error',
+            'bg-slate-500': toast.type === 'info'
+          }"
+        >
+          <span class="material-symbols-outlined text-[18px]">
+            {{ toast.type === 'success' ? 'check' : toast.type === 'error' ? 'error' : 'info' }}
+          </span>
+        </span>
+        <div class="flex-1 text-sm text-slate-800">
+          {{ toast.text }}
+        </div>
+        <button
+          type="button"
+          class="ml-2 rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+          (click)="toastService.dismiss(toast.id)"
+        >
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>
+

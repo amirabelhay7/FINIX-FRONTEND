@@ -1,5 +1,6 @@
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
@@ -18,6 +19,8 @@ import { ModulesPage } from './features/frontoffice/modules-page';
 import { ModuleDetailPage } from './features/frontoffice/module-detail-page';
 import { VehiclesMarketplace } from './features/frontoffice/vehicles-marketplace/vehicles-marketplace';
 import { VehicleDetail } from './features/frontoffice/vehicle-detail/vehicle-detail';
+import { ToastContainer } from './shared/toast-container/toast-container';
+import { ApiInterceptor } from './core/interceptors/api.interceptor';
 
 @NgModule({
   declarations: [
@@ -37,9 +40,17 @@ import { VehicleDetail } from './features/frontoffice/vehicle-detail/vehicle-det
     ModuleDetailPage,
     VehiclesMarketplace,
     VehicleDetail,
+    ToastContainer,
   ],
-  imports: [BrowserModule, AppRoutingModule],
-  providers: [provideBrowserGlobalErrorListeners()],
+  imports: [BrowserModule, HttpClientModule, AppRoutingModule],
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ApiInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [App],
 })
 export class AppModule {}
