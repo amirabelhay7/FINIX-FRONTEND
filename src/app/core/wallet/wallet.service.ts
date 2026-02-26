@@ -1,13 +1,17 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { WalletApi, TransactionApi, TransactionRequestApi } from '../../models';
+import { AuthService } from '../auth/auth.service';
 
 const API = 'http://localhost:8081/api';
 
 @Injectable({ providedIn: 'root' })
 export class WalletService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private auth: AuthService,
+  ) {}
 
   getMyWallet(): Observable<WalletApi> {
     return this.http.get<WalletApi>(`${API}/wallets/me`);
@@ -74,6 +78,32 @@ export class WalletService {
 
   deleteWalletAdmin(walletId: number): Observable<void> {
     return this.http.delete<void>(`${API}/wallets/admin/${walletId}`);
+  }
+
+  private adminOptions(): { headers?: HttpHeaders } {
+    const token = this.auth.getToken();
+    if (!token) return {};
+    return {
+      headers: new HttpHeaders({ Authorization: `Bearer ${token}` }),
+    };
+  }
+
+  /** Admin: fill (deposit) into any wallet. */
+  adminDepositWallet(walletId: number, amount: number, description?: string): Observable<WalletApi> {
+    return this.http.post<WalletApi>(
+      `${API}/wallets/admin/${walletId}/deposit`,
+      { amount, description: description ?? undefined } as TransactionRequestApi,
+      this.adminOptions()
+    );
+  }
+
+  /** Admin: deduct (withdraw) from any wallet. */
+  adminWithdrawWallet(walletId: number, amount: number, description?: string): Observable<WalletApi> {
+    return this.http.post<WalletApi>(
+      `${API}/wallets/admin/${walletId}/withdraw`,
+      { amount, description: description ?? undefined } as TransactionRequestApi,
+      this.adminOptions()
+    );
   }
 
   getAllTransactionsAdmin(): Observable<TransactionApi[]> {

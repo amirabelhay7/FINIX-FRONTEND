@@ -1,44 +1,110 @@
-<div class="space-y-8 pb-10">
-    <div class="flex items-center gap-4">
-        <a [routerLink]="backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+<div class="tx-list-page page">
+  <header class="page-header">
+    <a [routerLink]="backRoute" class="back-link" aria-label="Back">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <div class="title-block">
+      <h1 class="page-title">{{ pageTitle }}</h1>
+      <p class="page-subtitle">Search, filter and sort all wallet transactions</p>
     </div>
-    <p *ngIf="error" class="text-red-600 text-sm font-medium">{{ error }}</p>
-    <div *ngIf="loading" class="py-12 text-center text-gray-500 font-medium">Loading transactions…</div>
-    <div *ngIf="!loading && !error" class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-gray-50 flex flex-wrap gap-4">
-            <input type="text" [placeholder]="searchPlaceholder" class="flex-1 min-w-[200px] px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-            <select class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
-                <option *ngFor="let opt of typeOptions" [value]="opt.value">{{ opt.label }}</option>
-            </select>
+  </header>
+
+  <p *ngIf="error" class="error-banner">{{ error }}</p>
+
+  <div *ngIf="loading" class="loading-state">
+    <span class="material-symbols-outlined spin">progress_activity</span>
+    <span>Loading transactions…</span>
+  </div>
+
+  <div *ngIf="!loading && !error" class="card">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input
+          type="text"
+          [placeholder]="searchPlaceholder"
+          [(ngModel)]="searchQuery"
+          class="search-input"
+        />
+      </div>
+      <div class="filters">
+        <select [(ngModel)]="typeFilter" class="filter-select">
+          <option *ngFor="let opt of typeOptions" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+        <select [(ngModel)]="statusFilter" class="filter-select">
+          <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+        <div class="sort-wrap">
+          <span class="sort-label">Sort by</span>
+          <select [(ngModel)]="sortKey" (ngModelChange)="onSortKeyChange($event)" class="filter-select sort-select">
+            <option *ngFor="let o of sortOptions" [value]="o.key">{{ o.label }}</option>
+          </select>
+          <button type="button" class="sort-dir-btn" (click)="setSort(sortKey)" [attr.aria-label]="sortDir === 'asc' ? 'Ascending' : 'Descending'">
+            <span class="material-symbols-outlined">{{ sortIcon(sortKey) }}</span>
+          </button>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Ref</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Type</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Amount</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Status</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Date</th>
-                        <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    <tr *ngFor="let row of rows" class="hover:bg-gray-50">
-                        <td class="py-4 px-6 font-mono text-gray-500">{{ row.id }}</td>
-                        <td class="py-4 px-6 font-mono">{{ row.ref }}</td>
-                        <td class="py-4 px-6 font-medium">{{ row.type }}</td>
-                        <td class="py-4 px-6 font-bold" [ngClass]="row.amountClass">{{ row.amount }}</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="row.statusClass">{{ row.status }}</span></td>
-                        <td class="py-4 px-6 text-gray-600">{{ row.date }}</td>
-                        <td class="py-4 px-6 text-right"><a [routerLink]="row.viewRoute" class="text-[#135bec] font-bold hover:underline">{{ viewLabel }}</a></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+      </div>
     </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="col-id sortable" (click)="setSort('id')">
+              <span>ID</span>
+              <span class="material-symbols-outlined th-icon">{{ sortIcon('id') }}</span>
+            </th>
+            <th class="col-ref sortable" (click)="setSort('ref')">
+              <span>Reference</span>
+              <span class="material-symbols-outlined th-icon">{{ sortIcon('ref') }}</span>
+            </th>
+            <th class="col-type sortable" (click)="setSort('type')">
+              <span>Type</span>
+              <span class="material-symbols-outlined th-icon">{{ sortIcon('type') }}</span>
+            </th>
+            <th class="col-amount sortable" (click)="setSort('amount')">
+              <span>Amount</span>
+              <span class="material-symbols-outlined th-icon">{{ sortIcon('amount') }}</span>
+            </th>
+            <th class="col-status sortable" (click)="setSort('status')">
+              <span>Status</span>
+              <span class="material-symbols-outlined th-icon">{{ sortIcon('status') }}</span>
+            </th>
+            <th class="col-date sortable" (click)="setSort('date')">
+              <span>Date</span>
+              <span class="material-symbols-outlined th-icon">{{ sortIcon('date') }}</span>
+            </th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows" class="row">
+            <td class="col-id"><span class="cell-mono">{{ row.id }}</span></td>
+            <td class="col-ref"><span class="cell-mono">{{ row.ref }}</span></td>
+            <td class="col-type"><span class="cell-type">{{ row.type }}</span></td>
+            <td class="col-amount"><span class="cell-amount" [ngClass]="row.amountClass">{{ row.amount }}</span></td>
+            <td class="col-status"><span class="badge" [ngClass]="row.statusClass">{{ row.status }}</span></td>
+            <td class="col-date"><span class="cell-date">{{ row.date }}</span></td>
+            <td class="col-actions">
+              <a [routerLink]="row.viewRoute" class="action-link">
+                <span class="material-symbols-outlined">open_in_new</span>
+                {{ viewLabel }}
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!loading && filteredRows.length === 0" class="empty-state">
+      <span class="material-symbols-outlined empty-icon">receipt_long</span>
+      <p class="empty-text">{{ emptyMessage }}</p>
+      <p *ngIf="searchQuery || typeFilter || statusFilter" class="empty-hint">Try clearing search or filters.</p>
+    </div>
+
+    <div *ngIf="filteredRows.length > 0" class="result-meta">
+      Showing {{ filteredRows.length }} transaction{{ filteredRows.length === 1 ? '' : 's' }}
+      <span *ngIf="rows.length !== filteredRows.length"> (filtered from {{ rows.length }})</span>
+    </div>
+  </div>
 </div>

@@ -1,0 +1,208 @@
+/* --- Theme (matches list + global primary) --- */
+.tx-detail-page {
+  --tx-primary: #135bec;
+  --tx-primary-soft: rgba(19, 91, 236, 0.08);
+  --tx-ink: #0f172a;
+  --tx-ink-muted: #475569;
+  --tx-ink-subtle: #64748b;
+  --tx-surface: #ffffff;
+  --tx-surface-elevated: #f8fafc;
+  --tx-border: #e2e8f0;
+  --tx-border-light: #f1f5f9;
+  --tx-success: #059669;
+  --tx-success-bg: #ecfdf5;
+  --tx-warning: #b45309;
+  --tx-warning-bg: #fffbeb;
+  --tx-danger: #dc2626;
+  --tx-danger-bg: #fef2f2;
+  --tx-radius: 12px;
+  --tx-radius-sm: 8px;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+.tx-detail-page {
+  padding: 0 1.5rem 2rem;
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 50vh;
+}
+
+/* --- Error --- */
+.tx-detail-page .error-banner {
+  padding: 0.875rem 1rem;
+  background: var(--tx-danger-bg);
+  color: var(--tx-danger);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--tx-radius-sm);
+  margin-bottom: 1rem;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+/* --- Loading --- */
+.tx-detail-page .loading-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 4rem 2rem;
+  color: var(--tx-ink-subtle);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.tx-detail-page .loading-wrap .material-symbols-outlined {
+  font-size: 1.5rem;
+  color: var(--tx-primary);
+}
+
+.tx-detail-page .spin {
+  animation: tx-detail-spin 0.9s linear infinite;
+}
+
+@keyframes tx-detail-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Header: back + title block --- */
+.tx-detail-page .detail-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 0.25rem 0;
+}
+
+.tx-detail-page .back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--tx-ink-muted);
+  background: var(--tx-surface-elevated);
+  border: 1px solid var(--tx-border);
+  border-radius: var(--tx-radius-sm);
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.tx-detail-page .back-link:hover {
+  color: var(--tx-primary);
+  background: var(--tx-primary-soft);
+  border-color: rgba(19, 91, 236, 0.25);
+}
+
+.tx-detail-page .detail-title {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: var(--tx-ink);
+  letter-spacing: -0.03em;
+  margin: 0 0 0.2rem 0;
+}
+
+.tx-detail-page .detail-subtitle {
+  font-size: 0.8125rem;
+  color: var(--tx-ink-subtle);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* --- Card: field list --- */
+.tx-detail-page .detail-card {
+  background: var(--tx-surface);
+  border-radius: var(--tx-radius);
+  border: 1px solid var(--tx-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  position: relative;
+}
+
+.tx-detail-page .detail-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--tx-primary) 0%, rgba(19, 91, 236, 0.4) 100%);
+  border-radius: 4px 0 0 0;
+}
+
+.tx-detail-page .detail-fields {
+  margin: 0;
+  padding: 1.25rem 1.5rem 1.25rem 1.75rem;
+  display: grid;
+  gap: 0 1.5rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.tx-detail-page .detail-field {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--tx-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tx-detail-page .detail-field:last-child,
+.tx-detail-page .detail-field.full-width {
+  border-bottom: none;
+}
+
+.tx-detail-page .detail-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.tx-detail-page .detail-field dt {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--tx-ink-subtle);
+  margin: 0;
+}
+
+.tx-detail-page .detail-field dd {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--tx-ink);
+  margin: 0;
+}
+
+.tx-detail-page .detail-field dd .font-mono {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 0.875rem;
+}
+
+/* Badge (status) */
+.tx-detail-page .detail-field dd .badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+}
+
+.tx-detail-page .detail-field dd .bg-green-50,
+.tx-detail-page .detail-field dd .bg-emerald-50 {
+  background: var(--tx-success-bg);
+  color: var(--tx-success);
+}
+.tx-detail-page .detail-field dd .bg-yellow-50,
+.tx-detail-page .detail-field dd .bg-amber-50 {
+  background: var(--tx-warning-bg);
+  color: var(--tx-warning);
+}
+.tx-detail-page .detail-field dd .bg-gray-100 {
+  background: var(--tx-border-light);
+  color: var(--tx-ink-muted);
+}
+
+/* Amount highlight */
+.tx-detail-page .detail-field.amount-highlight dd {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--tx-ink);
+}

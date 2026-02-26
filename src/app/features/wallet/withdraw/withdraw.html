@@ -12,10 +12,13 @@
 
     <div class="bg-gradient-to-r from-[#135bec] to-[#3b78ff] rounded-2xl p-5 text-white">
         <p class="text-[10px] text-blue-200 uppercase tracking-widest font-black">{{ balanceLabel }}</p>
-        <p class="text-2xl font-black mt-1">{{ balanceAmount }}</p>
+        <p class="text-2xl font-black mt-1">{{ loading ? 'Loading…' : balanceAmount }}</p>
     </div>
 
-    <p *ngIf="error" class="text-red-600 text-sm font-medium">{{ error }}</p>
+    <div *ngIf="error" class="withdraw-error-box" role="alert">
+        <span class="material-symbols-outlined withdraw-error-icon">error</span>
+        <p class="withdraw-error-text">{{ error }}</p>
+    </div>
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
         <div class="space-y-2">
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ amountLabel }}</label>

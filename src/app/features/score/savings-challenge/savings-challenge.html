@@ -1,60 +1,116 @@
-<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+<div class="savings-page">
+  <div class="savings-header">
+    <div>
+      <h1 class="savings-title">{{ pageTitle }}</h1>
+      <p class="savings-subtitle">{{ pageSubtitle }}</p>
+    </div>
+    <a [routerLink]="backRoute" class="savings-back">{{ backLabel }}</a>
+  </div>
 
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
+  <div *ngIf="loading" class="savings-loading">
+    <span class="material-symbols-outlined savings-spinner">progress_activity</span>
+    <p>Loading…</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="savings-error">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+    <!-- Not enrolled: list challenges -->
+    <div *ngIf="!enrollment" class="savings-not-enrolled">
+      <h2 class="savings-section-title">{{ notEnrolledTitle }}</h2>
+      <p class="savings-section-subtitle">{{ notEnrolledSubtitle }}</p>
+      <div class="savings-challenge-cards">
+        <div *ngFor="let ch of challenges" class="savings-challenge-card">
+          <div class="savings-challenge-card-inner">
+            <p class="savings-challenge-name">{{ ch.name }}</p>
+            <p class="savings-challenge-detail">{{ ch.amountTnd }} TND every {{ ch.periodMonths }} months · +{{ ch.pointsPerPeriod }} pts per period</p>
+            <button type="button" class="savings-btn-join" [disabled]="loadingAction" (click)="joinChallenge(ch)">
+              <span class="material-symbols-outlined">add</span>
+              {{ joinLabel }}
+            </button>
+          </div>
         </div>
-        <a [routerLink]="backRoute" class="text-sm font-bold text-[#135bec] hover:underline">{{ backLabel }}</a>
+      </div>
+      <p *ngIf="challenges.length === 0" class="savings-empty">No challenges available right now.</p>
     </div>
 
-    <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl">
-        <div class="relative z-10">
-            <p class="text-[10px] text-green-200 uppercase tracking-widest font-black mb-2">{{ commitmentLabel }}</p>
-            <h2 class="text-4xl font-black">{{ commitmentAmount }} <span class="text-xl text-green-200">{{ commitmentUnit }}</span></h2>
-            <p class="text-sm text-green-100 mt-2">{{ commitmentNote }}</p>
-            <div class="mt-6 flex items-center gap-4">
-                <div class="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
-                    <div class="h-full bg-white rounded-full" [style.width.%]="progressPercent"></div>
-                </div>
-                <span class="text-sm font-black">{{ progressText }}</span>
+    <!-- Enrolled: commitment, progress, pay, withdraw, history -->
+    <div *ngIf="enrollment" class="savings-enrolled">
+      <div class="savings-hero">
+        <p class="savings-hero-label">Your commitment</p>
+        <h2 class="savings-hero-amount">{{ commitmentAmount }} <span class="savings-hero-unit">{{ commitmentUnit }}</span></h2>
+        <p class="savings-hero-note">{{ commitmentNote }}</p>
+        <div class="savings-progress-wrap">
+          <div class="savings-progress-bar">
+            <div class="savings-progress-fill" [style.width.%]="progressPercent"></div>
+          </div>
+          <span class="savings-progress-text">{{ progressText }}</span>
+        </div>
+      </div>
+
+      <div class="savings-cards">
+        <div class="savings-card">
+          <p class="savings-card-label">Total saved (challenge)</p>
+          <p class="savings-card-value">{{ totalSavedAmount }}</p>
+          <p class="savings-card-note">Can be used as down payment for credit</p>
+        </div>
+        <div class="savings-card">
+          <p class="savings-card-label">Points earned (savings)</p>
+          <p class="savings-card-value savings-card-value-pts">{{ pointsEarnedAmount }}</p>
+          <p class="savings-card-note">{{ pointsNote }}</p>
+        </div>
+      </div>
+
+      <div class="savings-actions">
+        <button type="button" class="savings-btn-pay" [disabled]="loadingAction" (click)="payPeriod()">
+          <span class="material-symbols-outlined">savings</span>
+          {{ payPeriodLabel }}
+        </button>
+        <button *ngIf="canWithdraw" type="button" class="savings-btn-withdraw" [disabled]="loadingAction" (click)="withdraw()">
+          <span class="material-symbols-outlined">account_balance_wallet</span>
+          {{ withdrawLabel }}
+        </button>
+      </div>
+      <p class="savings-no-penalty">{{ noPenaltyNote }}</p>
+
+      <div class="savings-history-card">
+        <h4 class="savings-history-title">
+          <span class="material-symbols-outlined">calendar_month</span>
+          {{ monthlyHistoryTitle }}
+        </h4>
+        <div class="savings-history-list">
+          <div *ngFor="let row of monthlyHistory" class="savings-history-row">
+            <div class="savings-history-icon">
+              <span class="material-symbols-outlined">check_circle</span>
             </div>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ totalSavedLabel }}</p>
-            <p class="text-2xl font-black text-gray-900 mt-1">{{ totalSavedAmount }}</p>
-            <p class="text-xs text-gray-500 mt-1">{{ totalSavedNote }}</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ pointsEarnedLabel }}</p>
-            <p class="text-2xl font-black text-[#135bec] mt-1">{{ pointsEarnedAmount }}</p>
-            <p class="text-xs text-gray-500 mt-1">{{ pointsEarnedNote }}</p>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-gray-50">
-            <h4 class="font-bold text-gray-800 flex items-center">
-                <span class="material-symbols-outlined mr-2 text-green-500 text-[20px]">calendar_month</span>
-                {{ monthlyHistoryTitle }}
-            </h4>
-        </div>
-        <div class="divide-y divide-gray-50">
-            <div class="flex items-center px-6 py-4" *ngFor="let row of monthlyHistory">
-                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
-                    <span class="material-symbols-outlined text-green-600 text-[18px]">check_circle</span>
-                </div>
-                <div class="flex-1"><p class="text-sm font-bold text-gray-800">{{ row.month }}</p><p class="text-xs text-gray-500">{{ row.detail }}</p></div>
-                <span class="text-xs font-bold" [ngClass]="row.statusClass">{{ row.statusLabel }}</span>
+            <div class="savings-history-text">
+              <p class="savings-history-month">{{ row.month }}</p>
+              <p class="savings-history-detail">{{ row.detail }}</p>
             </div>
+            <span class="savings-history-status" [ngClass]="row.statusClass">{{ row.statusLabel }}</span>
+          </div>
         </div>
-    </div>
+        <p *ngIf="monthlyHistory.length === 0" class="savings-history-empty">No periods paid yet. Use “{{ payPeriodLabel }}” when ready.</p>
+      </div>
 
-    <div class="bg-blue-50 rounded-2xl border border-blue-100 p-4">
-        <p class="text-sm text-gray-700"><strong>Tip:</strong> {{ tipText }}</p>
+      <div class="savings-tip">
+        <p><strong>Tip:</strong> {{ tipText }}</p>
+      </div>
     </div>
+  </ng-container>
 
+  <!-- Pay error modal (e.g. insufficient balance) -->
+  <div *ngIf="showPayModal" class="savings-modal-overlay" (click)="closePayModal()">
+    <div class="savings-modal" (click)="$event.stopPropagation()">
+      <div class="savings-modal-icon">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+      </div>
+      <h3 class="savings-modal-title">Couldn’t complete payment</h3>
+      <p class="savings-modal-message">{{ payModalMessage }}</p>
+      <button type="button" class="savings-modal-btn" (click)="closePayModal()">OK</button>
+    </div>
+  </div>
 </div>

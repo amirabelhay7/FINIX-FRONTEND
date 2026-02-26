@@ -81,6 +81,38 @@ export interface SavingsMonthRow {
   statusClass: string;
 }
 
+// Savings challenge (API)
+export interface SavingsChallengeApi {
+  id: number;
+  name: string;
+  amountTnd: number;
+  periodMonths: number;
+  pointsPerPeriod: number;
+  isActive: boolean;
+}
+
+export interface SavingsPeriodPaymentApi {
+  id: number;
+  paidAt: string;
+  periodEndAt: string | null;
+  amount: number;
+  pointsEarned: number;
+  periodCompleted: boolean; // true when points have been awarded (period end passed)
+}
+
+export interface SavingsEnrollmentApi {
+  id: number;
+  challenge: SavingsChallengeApi;
+  startDate: string;
+  status: string;
+  balance: number;
+  totalDeposited: number;
+  periodsCompleted: number;
+  lastPeriodPaidAt: string | null;
+  createdAt: string;
+  periodHistory: SavingsPeriodPaymentApi[];
+}
+
 export interface VerifiedDocumentRow {
   title: string;
   detail: string;

@@ -93,6 +93,7 @@ export class Frontoffice implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.checkUserAuthentication();
     this.auth.validateSession().subscribe(() => this.checkUserAuthentication());
     this.routerSub = this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd)

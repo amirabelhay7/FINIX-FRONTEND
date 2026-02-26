@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import {
   UserScoreApi,
@@ -17,7 +18,9 @@ import {
   GuaranteeApi,
   GuaranteeRequest,
   UserDocumentApi,
-  DocumentVerificationLogApi
+  DocumentVerificationLogApi,
+  SavingsChallengeApi,
+  SavingsEnrollmentApi
 } from '../../models';
 
 const API = 'http://localhost:8081/api';
@@ -48,6 +51,29 @@ export class ScoreService {
       return this.http.get<boolean>(url, { params: { requiredScore: String(requiredScore) } });
     }
     return this.http.get<boolean>(url);
+  }
+
+  // ---------- Savings challenge ----------
+  getSavingsChallenges(): Observable<SavingsChallengeApi[]> {
+    return this.http.get<SavingsChallengeApi[]>(`${API}/scoring/savings-challenges`);
+  }
+
+  enrollSavingsChallenge(challengeId: number): Observable<SavingsEnrollmentApi> {
+    return this.http.post<SavingsEnrollmentApi>(`${API}/scoring/savings-challenges/enroll?challengeId=${challengeId}`, {});
+  }
+
+  getMySavingsChallenge(): Observable<SavingsEnrollmentApi | null> {
+    return this.http.get<SavingsEnrollmentApi>(`${API}/scoring/me/savings-challenge`, { observe: 'response' }).pipe(
+      map(res => res.status === 204 ? null : (res.body ?? null))
+    );
+  }
+
+  paySavingsPeriod(): Observable<SavingsEnrollmentApi> {
+    return this.http.post<SavingsEnrollmentApi>(`${API}/scoring/me/savings-challenge/pay`, {});
+  }
+
+  withdrawSavingsChallenge(): Observable<SavingsEnrollmentApi> {
+    return this.http.post<SavingsEnrollmentApi>(`${API}/scoring/me/savings-challenge/withdraw`, {});
   }
 
   getMyScoreHistory(): Observable<ScoreHistoryEntryApi[]> {

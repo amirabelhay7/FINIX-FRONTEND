@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs/operators';
 import { WalletFormOption } from '../../../models';
 import { WalletService } from '../../../core/wallet/wallet.service';
 
@@ -23,6 +24,8 @@ export class Withdraw implements OnInit {
   ];
 
   balanceAmount = '0.00 DT';
+  /** Numeric balance for client-side validation (withdraw not more than balance) */
+  balanceNum = 0;
   amount: number | null = null;
   description = '';
   loading = true;
@@ -32,17 +35,26 @@ export class Withdraw implements OnInit {
   constructor(
     private walletService: WalletService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    this.walletService.getMyWallet().subscribe({
-      next: (w) => {
-        this.balanceAmount = w.balance.toFixed(2) + ' DT';
+    this.loading = true;
+    this.walletService.getMyWallet().pipe(
+      finalize(() => {
         this.loading = false;
+        this.cdr.detectChanges();
+      }),
+    ).subscribe({
+      next: (w) => {
+        const bal = w?.balance ?? 0;
+        this.balanceNum = bal;
+        this.balanceAmount = bal.toFixed(2) + ' DT';
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        this.loading = false;
         this.error = err?.error?.message || err?.message || 'Failed to load balance';
+        this.cdr.detectChanges();
       },
     });
   }
@@ -51,15 +63,28 @@ export class Withdraw implements OnInit {
     const amt = this.amount != null ? Number(this.amount) : 0;
     if (amt <= 0) {
       this.error = 'Enter a valid amount.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (amt > this.balanceNum) {
+      this.error = `Insufficient balance. Your available balance is ${this.balanceAmount}.`;
+      this.cdr.detectChanges();
       return;
     }
     this.error = null;
     this.submitting = true;
+    this.cdr.detectChanges();
     this.walletService.withdraw(amt, this.description || undefined).subscribe({
       next: () => this.router.navigate(['/wallet']),
       error: (err) => {
         this.submitting = false;
-        this.error = err?.error?.message || err?.message || 'Withdrawal failed';
+        if (err?.status === 401) {
+          this.error = 'Your session may have expired. Please log in again.';
+        } else {
+          const msg = (typeof err?.error === 'object' && err?.error?.message) ? err.error.message : (typeof err?.error === 'string' ? err.error : err?.message);
+          this.error = msg || 'Withdrawal failed. Try again.';
+        }
+        this.cdr.detectChanges();
       },
     });
   }

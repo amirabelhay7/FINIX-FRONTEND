@@ -1,0 +1,518 @@
+/* Savings challenge — user sign up, pay period, withdraw (no penalty) */
+
+.savings-page {
+  --sc-accent: #059669;
+  --sc-accent-light: #ecfdf5;
+  --sc-surface: #f8fafc;
+  --sc-border: #e2e8f0;
+  --sc-text: #1e293b;
+  --sc-muted: #64748b;
+  max-width: 42rem;
+  margin: 0 auto;
+  padding-bottom: 2.5rem;
+}
+
+.savings-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.savings-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--sc-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.savings-subtitle {
+  font-size: 0.9rem;
+  color: var(--sc-muted);
+  margin: 0;
+}
+
+.savings-back {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--sc-accent);
+  text-decoration: none;
+}
+
+.savings-back:hover {
+  text-decoration: underline;
+}
+
+.savings-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: var(--sc-muted);
+}
+
+.savings-spinner {
+  font-size: 2.5rem;
+  color: var(--sc-accent);
+  animation: savings-spin 0.8s linear infinite;
+}
+
+@keyframes savings-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.savings-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+  color: #b91c1c;
+  font-size: 0.9375rem;
+}
+
+.savings-error .material-symbols-outlined { font-size: 1.25rem; }
+.savings-error p { margin: 0; }
+
+/* Not enrolled */
+.savings-not-enrolled {
+  margin-top: 0.5rem;
+}
+
+.savings-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--sc-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.savings-section-subtitle {
+  font-size: 0.9rem;
+  color: var(--sc-muted);
+  margin: 0 0 1.25rem 0;
+}
+
+.savings-challenge-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.savings-challenge-card {
+  background: #fff;
+  border: 1px solid var(--sc-border);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.savings-challenge-card-inner {
+  padding: 1.25rem 1.5rem;
+}
+
+.savings-challenge-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--sc-text);
+  margin: 0 0 0.35rem 0;
+}
+
+.savings-challenge-detail {
+  font-size: 0.9rem;
+  color: var(--sc-muted);
+  margin: 0 0 1rem 0;
+}
+
+.savings-btn-join {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--sc-accent);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.savings-btn-join:hover:not(:disabled) {
+  background: #047857;
+}
+
+.savings-btn-join:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.savings-btn-join .material-symbols-outlined { font-size: 1.125rem; }
+
+.savings-empty {
+  font-size: 0.9rem;
+  color: var(--sc-muted);
+  margin: 1rem 0 0 0;
+}
+
+/* Enrolled */
+.savings-enrolled {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.savings-hero {
+  background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%);
+  border-radius: 1.25rem;
+  padding: 1.5rem 1.75rem;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+}
+
+.savings-hero-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.85);
+  margin: 0 0 0.35rem 0;
+}
+
+.savings-hero-amount {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin: 0 0 0.25rem 0;
+}
+
+.savings-hero-unit {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+}
+
+.savings-hero-note {
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.9);
+  margin: 0 0 1rem 0;
+}
+
+.savings-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.savings-progress-bar {
+  flex: 1;
+  height: 0.5rem;
+  background: rgba(255,255,255,0.25);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.savings-progress-fill {
+  height: 100%;
+  background: #fff;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.savings-progress-text {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.savings-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 520px) {
+  .savings-cards { grid-template-columns: 1fr; }
+}
+
+.savings-card {
+  background: #fff;
+  border: 1px solid var(--sc-border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.savings-card-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sc-muted);
+  margin: 0 0 0.35rem 0;
+}
+
+.savings-card-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--sc-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.savings-card-value-pts {
+  color: var(--sc-accent);
+}
+
+.savings-card-note {
+  font-size: 0.75rem;
+  color: var(--sc-muted);
+  margin: 0;
+}
+
+.savings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.savings-btn-pay {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--sc-accent);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+  transition: background 0.2s, transform 0.15s;
+}
+
+.savings-btn-pay:hover:not(:disabled) {
+  background: #047857;
+  transform: translateY(-1px);
+}
+
+.savings-btn-pay:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.savings-btn-withdraw {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--sc-text);
+  background: #fff;
+  border: 1px solid var(--sc-border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.savings-btn-withdraw:hover:not(:disabled) {
+  background: var(--sc-surface);
+  border-color: #cbd5e1;
+}
+
+.savings-btn-withdraw:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.savings-no-penalty {
+  font-size: 0.8125rem;
+  color: var(--sc-muted);
+  margin: -0.25rem 0 0 0;
+}
+
+.savings-history-card {
+  background: #fff;
+  border: 1px solid var(--sc-border);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.savings-history-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--sc-text);
+  margin: 0;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--sc-surface);
+}
+
+.savings-history-title .material-symbols-outlined {
+  font-size: 1.25rem;
+  color: var(--sc-accent);
+}
+
+.savings-history-list {
+  padding: 0;
+}
+
+.savings-history-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--sc-surface);
+}
+
+.savings-history-row:last-child {
+  border-bottom: none;
+}
+
+.savings-history-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background: var(--sc-accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.savings-history-icon .material-symbols-outlined {
+  font-size: 1.25rem;
+  color: var(--sc-accent);
+}
+
+.savings-history-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.savings-history-month {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--sc-text);
+  margin: 0 0 0.15rem 0;
+}
+
+.savings-history-detail {
+  font-size: 0.8125rem;
+  color: var(--sc-muted);
+  margin: 0;
+}
+
+.savings-history-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.sc-status-done {
+  color: #059669;
+}
+
+.sc-status-pending {
+  color: var(--sc-muted);
+}
+
+/* Pay error modal */
+.savings-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.savings-modal {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem 1.75rem;
+  max-width: 22rem;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.savings-modal-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: #fef2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.savings-modal-icon .material-symbols-outlined {
+  font-size: 1.75rem;
+  color: #dc2626;
+}
+
+.savings-modal-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--sc-text);
+  margin: 0 0 0.5rem 0;
+}
+
+.savings-modal-message {
+  font-size: 0.9375rem;
+  color: var(--sc-muted);
+  line-height: 1.5;
+  margin: 0 0 1.25rem 0;
+}
+
+.savings-modal-btn {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--sc-accent);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.savings-modal-btn:hover {
+  background: #047857;
+}
+
+.savings-history-empty {
+  font-size: 0.9rem;
+  color: var(--sc-muted);
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+}
+
+.savings-tip {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.savings-tip p {
+  font-size: 0.9rem;
+  color: #1e40af;
+  margin: 0;
+}

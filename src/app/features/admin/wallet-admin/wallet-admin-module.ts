@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 import { WalletAdminRoutingModule } from './wallet-admin-routing-module';
 import { List } from './list/list';
@@ -21,6 +22,7 @@ import { TransactionDetail } from './transaction-detail/transaction-detail';
   imports: [
     CommonModule,
     RouterModule,
+    FormsModule,
     WalletAdminRoutingModule
   ]
 })

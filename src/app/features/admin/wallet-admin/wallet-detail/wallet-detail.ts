@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AdminWalletDetailData, AdminWalletRecentTx, TransactionApi } from '../../../../models';
 import { WalletService } from '../../../../core/wallet/wallet.service';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 function txToRecent(t: TransactionApi): AdminWalletRecentTx {
   const positive = ['DEPOSIT', 'TRANSFER_IN', 'AGENT_TOP_UP'].includes(t.transactionType);
@@ -57,11 +58,16 @@ export class WalletDetail implements OnInit {
   error: string | null = null;
   updatingStatus = false;
   deleting = false;
+  adjustAmount: number | null = null;
+  adjustDescription = '';
+  adjustLoading = false;
+  adjustError: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private walletService: WalletService,
+    private auth: AuthService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -138,6 +144,70 @@ export class WalletDetail implements OnInit {
       error: (err) => {
         this.deleting = false;
         this.error = err?.error?.message || err?.message || 'Failed to delete wallet';
+      },
+    });
+  }
+
+  adminFill(): void {
+    if (!this.walletId || this.adjustLoading) return;
+    const amt = this.adjustAmount != null ? Number(this.adjustAmount) : 0;
+    if (amt <= 0) {
+      this.adjustError = 'Enter a valid amount.';
+      this.cdr.detectChanges();
+      return;
+    }
+    this.adjustError = null;
+    this.adjustLoading = true;
+    this.walletService.adminDepositWallet(this.walletId, amt, this.adjustDescription || undefined).subscribe({
+      next: (w) => {
+        this.vm.balance = w.balance.toFixed(2) + ' TND';
+        this.adjustAmount = null;
+        this.adjustDescription = '';
+        this.adjustLoading = false;
+        this.loadTransactions();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.adjustLoading = false;
+        if (err?.status === 401) {
+          this.adjustError = 'Session expired or not authorized. Please log in again as admin.';
+          this.auth.logout();
+        } else {
+          this.adjustError = (typeof err?.error === 'object' && err?.error?.message) ? err.error.message : (err?.message || 'Fill failed');
+        }
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  adminDeduct(): void {
+    if (!this.walletId || this.adjustLoading) return;
+    const amt = this.adjustAmount != null ? Number(this.adjustAmount) : 0;
+    if (amt <= 0) {
+      this.adjustError = 'Enter a valid amount.';
+      this.cdr.detectChanges();
+      return;
+    }
+    this.adjustError = null;
+    this.adjustLoading = true;
+    this.walletService.adminWithdrawWallet(this.walletId, amt, this.adjustDescription || undefined).subscribe({
+      next: (w) => {
+        this.vm.balance = w.balance.toFixed(2) + ' TND';
+        this.adjustAmount = null;
+        this.adjustDescription = '';
+        this.adjustLoading = false;
+        this.loadTransactions();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.adjustLoading = false;
+        if (err?.status === 401) {
+          this.adjustError = 'Session expired or not authorized. Please log in again as admin.';
+          this.auth.logout();
+        } else {
+          this.adjustError = (typeof err?.error === 'object' && err?.error?.message) ? err.error.message : (err?.message || 'Deduct failed');
+        }
+        this.cdr.detectChanges();
       },
     });
   }

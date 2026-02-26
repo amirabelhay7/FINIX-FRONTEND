@@ -16,8 +16,8 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError((err: HttpErrorResponse) => {
         if (err.status !== 401) return throwError(() => err);
-        // Don't logout on 401 for auth, notifications, or document upload (so user sees error instead of being kicked out)
-        if (req.url.includes('/api/auth') || req.url.includes('/api/notifications') || req.url.includes('/api/user-documents')) {
+        // Don't logout on 401 for auth, notifications, document upload, or wallet (show error in UI instead of redirect)
+        if (req.url.includes('/api/auth') || req.url.includes('/api/notifications') || req.url.includes('/api/user-documents') || req.url.includes('/api/wallets')) {
           return throwError(() => err);
         }
         this.auth.logout();
