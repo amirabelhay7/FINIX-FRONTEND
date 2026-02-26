@@ -1,0 +1,130 @@
+<div class="space-y-6">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Gestion des véhicules</h1>
+      <p class="mt-1 text-sm text-slate-500">Liste et actions CRUD.</p>
+    </div>
+    <a
+      routerLink="/admin/vehicles/new"
+      class="inline-flex items-center gap-2 rounded-xl bg-[#135bec] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-200/50 hover:bg-blue-700"
+    >
+      <span class="material-symbols-outlined text-[18px]">add</span>
+      Add Vehicle
+    </a>
+  </div>
+
+  <!-- Search + filters -->
+  <div class="flex flex-wrap gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+    <input
+      type="text"
+      placeholder="Search..."
+      [value]="search()"
+      (input)="search.set($any($event.target).value)"
+      class="rounded-xl border border-slate-200 px-3 py-2 text-sm w-48"
+    />
+    <select
+      [value]="filterStatus()"
+      (change)="filterStatus.set($any($event.target).value)"
+      class="rounded-xl border border-slate-200 px-3 py-2 text-sm w-36"
+    >
+      <option value="">Status</option>
+      <option value="DRAFT">DRAFT</option>
+      <option value="PUBLISHED">PUBLISHED</option>
+    </select>
+    <select
+      [value]="filterBrand()"
+      (change)="filterBrand.set($any($event.target).value)"
+      class="rounded-xl border border-slate-200 px-3 py-2 text-sm w-36"
+    >
+      <option value="">Brand</option>
+      @for (b of brands(); track b) {
+        <option [value]="b">{{ b }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Table -->
+  <div class="rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="border-b border-slate-100 bg-slate-50/50 text-left">
+            <th class="py-3 px-4 font-semibold text-slate-600">Image</th>
+            <th class="py-3 px-4 font-semibold text-slate-600">Brand</th>
+            <th class="py-3 px-4 font-semibold text-slate-600">Model</th>
+            <th class="py-3 px-4 font-semibold text-slate-600">Year</th>
+            <th class="py-3 px-4 font-semibold text-slate-600">Km</th>
+            <th class="py-3 px-4 font-semibold text-slate-600">Price</th>
+            <th class="py-3 px-4 font-semibold text-slate-600">Status</th>
+            <th class="py-3 px-4 font-semibold text-slate-600">Created</th>
+            <th class="py-3 px-4 font-semibold text-slate-600 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (v of filteredVehicles(); track v.id) {
+            <tr class="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
+              <td class="py-3 px-4">
+                <img [src]="v.imageUrls[0]" alt="" class="h-10 w-14 rounded object-cover" />
+              </td>
+              <td class="py-3 px-4 font-semibold text-slate-900">{{ v.brand }}</td>
+              <td class="py-3 px-4 text-slate-700">{{ v.model }}</td>
+              <td class="py-3 px-4 text-slate-600">{{ v.year }}</td>
+              <td class="py-3 px-4 text-slate-600">{{ v.mileageKm | number }}</td>
+              <td class="py-3 px-4 font-semibold text-slate-900">{{ formatPrice(v.price) }}</td>
+              <td class="py-3 px-4">
+                <span
+                  class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold"
+                  [ngClass]="{ 'bg-amber-50 text-amber-700': v.status === 'DRAFT', 'bg-emerald-50 text-emerald-700': v.status === 'PUBLISHED' }"
+                >
+                  {{ v.status }}
+                </span>
+              </td>
+              <td class="py-3 px-4 text-slate-500">{{ formatDate(v.createdAt) }}</td>
+              <td class="py-3 px-4 text-right">
+                <a [routerLink]="['/admin/vehicles', v.id]" class="text-[#135bec] hover:underline mr-2">View</a>
+                <a [routerLink]="['/admin/vehicles', v.id, 'edit']" class="text-[#135bec] hover:underline mr-2">Edit</a>
+                <button
+                  type="button"
+                  (click)="confirmDelete(v.id)"
+                  class="text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  @if (filteredVehicles().length === 0) {
+    <p class="py-12 text-center text-slate-500">Aucun véhicule trouvé.</p>
+  }
+</div>
+
+<!-- Delete confirm dialog -->
+@if (deleteConfirmId()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="cancelDelete()">
+    <div class="rounded-2xl bg-white p-6 shadow-xl max-w-md mx-4" (click)="$event.stopPropagation()">
+      <h3 class="text-lg font-semibold text-slate-900">Supprimer ce véhicule ?</h3>
+      <p class="mt-2 text-sm text-slate-600">Cette action est irréversible.</p>
+      <div class="mt-6 flex gap-3 justify-end">
+        <button
+          type="button"
+          (click)="cancelDelete()"
+          class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="deleteVehicle(deleteConfirmId()!)"
+          class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+        >
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}

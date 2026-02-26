@@ -1,0 +1,102 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">{{ isEdit() ? 'Modifier le véhicule' : 'Nouveau véhicule' }}</h1>
+    <p class="mt-1 text-sm text-slate-500">Remplissez le formulaire et enregistrez.</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Brand *</label>
+        <input formControlName="brand" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          placeholder="Ex: Renault" />
+        @if (form.get('brand')?.invalid && form.get('brand')?.touched) {
+          <p class="mt-1 text-xs text-red-600">Requis</p>
+        }
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Model *</label>
+        <input formControlName="model" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          placeholder="Ex: Clio" />
+        @if (form.get('model')?.invalid && form.get('model')?.touched) {
+          <p class="mt-1 text-xs text-red-600">Requis</p>
+        }
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Year *</label>
+        <input formControlName="year" type="number" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+        @if (form.get('year')?.invalid && form.get('year')?.touched) {
+          <p class="mt-1 text-xs text-red-600">Année invalide (1990 - aujourd'hui)</p>
+        }
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Mileage (km) *</label>
+        <input formControlName="mileageKm" type="number" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+        @if (form.get('mileageKm')?.invalid && form.get('mileageKm')?.touched) {
+          <p class="mt-1 text-xs text-red-600">Doit être ≥ 0</p>
+        }
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Price (TND) *</label>
+        <input formControlName="price" type="number" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+        @if (form.get('price')?.invalid && form.get('price')?.touched) {
+          <p class="mt-1 text-xs text-red-600">Doit être ≥ 0</p>
+        }
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Fuel type *</label>
+        <select formControlName="fuelType" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+          @for (f of fuelOptions; track f) {
+            <option [value]="f">{{ f }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Gearbox *</label>
+        <select formControlName="gearbox" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+          @for (g of gearboxOptions; track g) {
+            <option [value]="g">{{ g }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Location *</label>
+        <select formControlName="location" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+          @for (l of locationOptions; track l) {
+            <option [value]="l">{{ l }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Status *</label>
+        <select formControlName="status" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+          @for (s of statusOptions; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </div>
+    </div>
+    <div>
+      <label class="block text-sm font-semibold text-slate-700 mb-1">Description</label>
+      <textarea formControlName="description" rows="4" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+        placeholder="Description du véhicule"></textarea>
+    </div>
+    <div>
+      <label class="block text-sm font-semibold text-slate-700 mb-1">Image URLs (placeholder – upload à venir)</label>
+      <p class="text-xs text-slate-500 mb-2">URLs séparées par des virgules ou une seule URL.</p>
+      <input formControlName="imageUrlInput" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+        placeholder="https://example.com/img1.jpg" />
+      <p class="mt-1 text-xs text-slate-500">Pour l'instant, une URL par défaut est utilisée.</p>
+    </div>
+
+    <div class="flex gap-3 pt-4">
+      <button type="submit" class="rounded-xl bg-[#135bec] px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+        Enregistrer
+      </button>
+      <button type="button" (click)="onCancel()"
+        class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+        Annuler
+      </button>
+    </div>
+  </form>
+</div>

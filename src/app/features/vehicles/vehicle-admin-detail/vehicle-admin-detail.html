@@ -1,0 +1,73 @@
+<div class="space-y-6">
+  @if (vehicle(); as v) {
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">{{ v.brand }} {{ v.model }}</h1>
+        <p class="mt-1 text-sm text-slate-500">{{ v.year }} · {{ v.mileageKm | number }} km</p>
+      </div>
+      <div class="flex gap-2">
+        <button
+          (click)="edit()"
+          class="rounded-xl bg-[#135bec] px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          Modifier
+        </button>
+        <a
+          routerLink="/admin/vehicles"
+          class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+        >
+          Retour
+        </a>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <div class="lg:col-span-2 space-y-4">
+        <img [src]="v.imageUrls[currentImageIndex()] || v.imageUrls[0]" alt="" class="w-full rounded-xl object-cover h-64" />
+        @if (v.imageUrls.length > 1) {
+          <div class="flex gap-2 flex-wrap">
+            @for (img of v.imageUrls; track $index) {
+              <button
+                type="button"
+                (click)="setImageIndex($index)"
+                [class]="currentImageIndex() === $index ? 'ring-2 ring-[#135bec]' : ''"
+                class="rounded-lg overflow-hidden w-16 h-16"
+              >
+                <img [src]="img" alt="" class="w-full h-full object-cover" />
+              </button>
+            }
+          </div>
+        }
+      </div>
+      <div class="space-y-4">
+        <p class="text-2xl font-bold text-slate-900">{{ formatPrice(v.price) }}</p>
+        <div class="space-y-2 text-sm">
+          <p><span class="font-semibold text-slate-600">Brand:</span> {{ v.brand }}</p>
+          <p><span class="font-semibold text-slate-600">Model:</span> {{ v.model }}</p>
+          <p><span class="font-semibold text-slate-600">Year:</span> {{ v.year }}</p>
+          <p><span class="font-semibold text-slate-600">Mileage:</span> {{ v.mileageKm | number }} km</p>
+          <p><span class="font-semibold text-slate-600">Fuel:</span> {{ v.fuelType }}</p>
+          <p><span class="font-semibold text-slate-600">Gearbox:</span> {{ v.gearbox }}</p>
+          <p><span class="font-semibold text-slate-600">Location:</span> {{ v.location }}</p>
+          <p>
+            <span class="font-semibold text-slate-600">Status:</span>
+            <span
+              class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ml-1"
+              [ngClass]="{ 'bg-amber-50 text-amber-700': v.status === 'DRAFT', 'bg-emerald-50 text-emerald-700': v.status === 'PUBLISHED' }"
+            >
+              {{ v.status }}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+    @if (v.description) {
+      <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-slate-900 mb-2">Description</h2>
+        <p class="text-sm text-slate-600 whitespace-pre-wrap">{{ v.description }}</p>
+      </div>
+    }
+  } @else {
+    <p class="text-slate-500">Véhicule non trouvé.</p>
+  }
+</div>

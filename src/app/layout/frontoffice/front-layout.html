@@ -1,0 +1,131 @@
+<div class="flex min-h-screen flex-col font-sans">
+  <!-- Top Navbar -->
+  <header
+    class="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80"
+  >
+    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <!-- Logo -->
+      <a
+        routerLink="/home"
+        class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#135bec] focus:ring-offset-2 rounded-lg"
+      >
+        <img src="assets/brand/finix-logo.svg" alt="FINIX" class="h-9" />
+      </a>
+
+      <!-- Desktop nav -->
+      <nav class="hidden lg:flex lg:items-center lg:gap-0.5">
+        @for (link of navLinks; track link.path) {
+          <a
+            [routerLink]="link.path"
+            routerLinkActive="bg-slate-100 text-[#135bec]"
+            [routerLinkActiveOptions]="{ exact: link.path === '/home' }"
+            class="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 whitespace-nowrap"
+          >
+            {{ link.label }}
+          </a>
+        }
+      </nav>
+
+      <!-- Right: Login / Register -->
+      <div class="flex items-center gap-2">
+        <a
+          routerLink="/auth/login"
+          class="hidden sm:inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+        >
+          Login
+        </a>
+        <a
+          routerLink="/auth/register"
+          class="inline-flex items-center justify-center rounded-xl bg-[#135bec] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-200/50 hover:bg-blue-700"
+        >
+          Register
+        </a>
+
+        <!-- Mobile menu button -->
+        <button
+          type="button"
+          class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+          aria-label="Toggle menu"
+          (click)="toggleMobileMenu()"
+        >
+          <span class="material-symbols-outlined">
+            {{ mobileMenuOpen() ? 'close' : 'menu' }}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    @if (mobileMenuOpen()) {
+      <div class="border-t border-slate-100 bg-white lg:hidden">
+        <nav class="flex flex-col gap-1 px-4 py-3">
+          @for (link of navLinks; track link.path) {
+            <a
+              [routerLink]="link.path"
+              (click)="closeMobileMenu()"
+              class="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              {{ link.label }}
+            </a>
+          }
+          <div class="mt-2 flex flex-col gap-1 border-t border-slate-100 pt-3">
+            <a
+              routerLink="/auth/login"
+              (click)="closeMobileMenu()"
+              class="rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-700"
+            >
+              Login
+            </a>
+            <a
+              routerLink="/auth/register"
+              (click)="closeMobileMenu()"
+              class="rounded-lg px-3 py-2.5 text-sm font-semibold text-[#135bec]"
+            >
+              Register
+            </a>
+          </div>
+        </nav>
+      </div>
+    }
+  </header>
+
+  <!-- Main content -->
+  <main class="flex-1">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-slate-50/80">
+    <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
+        <div class="col-span-2">
+          <div class="flex items-center gap-2">
+            <img src="assets/brand/finix-logo.svg" alt="FINIX" class="h-8" />
+          </div>
+          <p class="mt-3 max-w-xs text-sm text-slate-500">
+            The finance ecosystem for modern credit, scoring, wallets, and insurance.
+          </p>
+        </div>
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500">Product</h4>
+          <ul class="mt-3 space-y-2 text-sm">
+            <li><a routerLink="/modules" class="text-slate-600 hover:text-[#135bec]">Modules</a></li>
+            <li><a routerLink="/services" class="text-slate-600 hover:text-[#135bec]">Services</a></li>
+            <li><a routerLink="/pricing" class="text-slate-600 hover:text-[#135bec]">Pricing</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500">Company</h4>
+          <ul class="mt-3 space-y-2 text-sm">
+            <li><a routerLink="/about" class="text-slate-600 hover:text-[#135bec]">About</a></li>
+            <li><a routerLink="/contact" class="text-slate-600 hover:text-[#135bec]">Contact</a></li>
+            <li><a routerLink="/faq" class="text-slate-600 hover:text-[#135bec]">FAQ</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-10 border-t border-slate-200 pt-8 text-center text-sm text-slate-500">
+        &copy; {{ currentYear }} FINIX. All rights reserved.
+      </div>
+    </div>
+  </footer>
+</div>

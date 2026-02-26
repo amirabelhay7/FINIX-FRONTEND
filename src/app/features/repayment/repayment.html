@@ -1,0 +1,90 @@
+<div class="space-y-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-[0.35em] uppercase text-slate-500">
+        Repayment
+      </p>
+      <h1 class="mt-2 text-2xl md:text-3xl font-black text-slate-900">
+        Repayment schedule
+      </h1>
+      <p class="mt-1 text-xs md:text-sm text-slate-500 max-w-md">
+        Lightweight view of upcoming installments and delinquency for the demo environment.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    @for (metric of metrics; track metric.label) {
+      <div class="finix-card p-5 space-y-2">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+          {{ metric.label }}
+        </p>
+        <p class="text-2xl font-black text-slate-900">
+          {{ metric.value }}
+        </p>
+        <p class="text-xs text-slate-500">
+          {{ metric.subtitle }}
+        </p>
+      </div>
+    }
+  </div>
+
+  <div class="finix-card p-5 space-y-4">
+    <div class="flex items-center justify-between">
+      <p class="text-sm font-semibold text-slate-900">Repayment schedule</p>
+      <span class="text-xs text-slate-500">Static front-end table</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-xs text-slate-500 border-b border-slate-100">
+            <th class="py-2 pr-4 text-left font-semibold">Due date</th>
+            <th class="py-2 px-4 text-left font-semibold">Customer</th>
+            <th class="py-2 px-4 text-left font-semibold">Product</th>
+            <th class="py-2 px-4 text-right font-semibold">Installment</th>
+            <th class="py-2 pl-4 text-right font-semibold">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of schedule; track row.dueDate + row.customer) {
+            <tr class="border-b border-slate-50 last:border-0">
+              <td class="py-3 pr-4 text-slate-800 font-semibold">
+                {{ row.dueDate }}
+              </td>
+              <td class="py-3 px-4 text-slate-700">
+                {{ row.customer }}
+              </td>
+              <td class="py-3 px-4 text-slate-600">
+                {{ row.product }}
+              </td>
+              <td class="py-3 px-4 text-right tabular-nums text-slate-900 font-semibold">
+                {{ row.installment }}
+              </td>
+              <td class="py-3 pl-4 text-right">
+                <span
+                  class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                  [ngClass]="{
+                    'bg-emerald-50 text-emerald-700': row.status === 'Paid',
+                    'bg-amber-50 text-amber-700': row.status === 'Upcoming',
+                    'bg-red-50 text-red-600': row.status === 'Overdue'
+                  }"
+                >
+                  <span
+                    class="h-1.5 w-1.5 rounded-full"
+                    [ngClass]="{
+                      'bg-emerald-500': row.status === 'Paid',
+                      'bg-amber-400': row.status === 'Upcoming',
+                      'bg-red-500': row.status === 'Overdue'
+                    }"
+                  ></span>
+                  {{ row.status }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+

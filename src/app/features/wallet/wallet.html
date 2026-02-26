@@ -1,0 +1,98 @@
+<div class="space-y-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-[0.35em] uppercase text-slate-500">
+        Wallet
+      </p>
+      <h1 class="mt-2 text-2xl md:text-3xl font-black text-slate-900">
+        Wallet & ledger
+      </h1>
+      <p class="mt-1 text-xs md:text-sm text-slate-500 max-w-md">
+        Track balances, collateral locks and recent wallet transactions.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    @for (metric of metrics; track metric.label) {
+      <div class="finix-card p-5 space-y-2">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+          {{ metric.label }}
+        </p>
+        <p class="text-2xl font-black text-slate-900">
+          {{ metric.value }}
+        </p>
+        <p class="text-xs text-slate-500">
+          {{ metric.subtitle }}
+        </p>
+      </div>
+    }
+  </div>
+
+  <div class="finix-card p-5 space-y-4">
+    <div class="flex items-center justify-between">
+      <p class="text-sm font-semibold text-slate-900">Recent transactions</p>
+      <span class="text-xs text-slate-500">Static list for the demo</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-xs text-slate-500 border-b border-slate-100">
+            <th class="py-2 pr-4 text-left font-semibold">Reference</th>
+            <th class="py-2 px-4 text-left font-semibold">Type</th>
+            <th class="py-2 px-4 text-left font-semibold">Counterparty</th>
+            <th class="py-2 px-4 text-right font-semibold">Amount</th>
+            <th class="py-2 pl-4 text-right font-semibold">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (tx of transactions; track tx.id) {
+            <tr class="border-b border-slate-50 last:border-0">
+              <td class="py-3 pr-4 font-mono text-[11px] text-slate-500">
+                {{ tx.id }}
+              </td>
+              <td class="py-3 px-4">
+                <span
+                  class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold"
+                  [ngClass]="{
+                    'bg-emerald-50 text-emerald-700': tx.type === 'Deposit',
+                    'bg-blue-50 text-blue-700': tx.type === 'Repayment',
+                    'bg-amber-50 text-amber-700': tx.type === 'Payout'
+                  }"
+                >
+                  {{ tx.type }}
+                </span>
+              </td>
+              <td class="py-3 px-4 text-slate-700">
+                {{ tx.counterparty }}
+              </td>
+              <td class="py-3 px-4 text-right tabular-nums text-slate-900 font-semibold">
+                {{ tx.amount }}
+              </td>
+              <td class="py-3 pl-4 text-right">
+                <span
+                  class="inline-flex items-center gap-1 text-[11px] font-semibold"
+                  [ngClass]="{
+                    'text-emerald-600': tx.status === 'Completed',
+                    'text-amber-600': tx.status === 'Pending'
+                  }"
+                >
+                  <span
+                    class="h-1.5 w-1.5 rounded-full"
+                    [ngClass]="{
+                      'bg-emerald-500': tx.status === 'Completed',
+                      'bg-amber-400': tx.status === 'Pending'
+                    }"
+                  ></span>
+                  {{ tx.status }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+

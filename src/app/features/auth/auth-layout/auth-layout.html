@@ -1,0 +1,46 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4 py-10">
+  <div class="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+    <!-- Brand / Copy -->
+    <div class="hidden lg:block text-slate-100 space-y-6">
+      <p class="text-xs font-semibold tracking-[0.35em] uppercase text-sky-400">
+        FINIX
+      </p>
+      <h1 class="text-4xl font-black leading-tight">
+        Front-office console<br />
+        for modern credit ecosystems.
+      </h1>
+      <p class="text-sm text-slate-400 max-w-md">
+        Log in to explore dashboards for credit, scoring, wallets, insurance, and more.
+        Everything is mocked and instant, perfect for design and product reviews.
+      </p>
+      <div class="flex items-center gap-3 text-xs text-slate-400">
+        <span class="inline-flex h-7 w-7 rounded-full bg-sky-500/10 text-sky-400 items-center justify-center">
+          <span class="material-symbols-outlined text-base">bolt</span>
+        </span>
+        <span>Static front-end only · No live data or external API calls.</span>
+      </div>
+    </div>
+
+    <!-- Auth Card -->
+    <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-sky-900/40 border border-slate-100 p-8 md:p-10">
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-2">
+          <div class="h-9 w-9 rounded-2xl bg-slate-900 flex items-center justify-center rotate-3 shadow-lg shadow-slate-900/50">
+            <span class="material-symbols-outlined text-white text-xl">account_balance</span>
+          </div>
+          <div>
+            <p class="text-xs font-semibold tracking-[0.3em] uppercase text-slate-500">
+              FINIX
+            </p>
+            <p class="text-sm font-semibold text-slate-900">
+              Front Office
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
+

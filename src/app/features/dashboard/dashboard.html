@@ -1,0 +1,255 @@
+<div class="space-y-8">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-[0.35em] uppercase text-slate-500">
+        Overview
+      </p>
+      <h1 class="mt-2 text-2xl md:text-3xl font-black text-slate-900">
+        back-office dashboard
+      </h1>
+      <p class="mt-1 text-xs md:text-sm text-slate-500 max-w-md">
+        High-level view of profit, orders, active users and operational traffic across FINIX modules.
+      </p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button
+        class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+        type="button"
+      >
+        <span class="material-symbols-outlined text-[18px]">download</span>
+        Export
+      </button>
+      <button
+        class="inline-flex items-center gap-2 rounded-2xl bg-slate-900 text-white px-4 py-2 text-xs font-semibold shadow-lg shadow-slate-900/20"
+        type="button"
+      >
+        <span class="material-symbols-outlined text-[18px]">bolt</span>
+        Quick action
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="kpi-grid">
+    @for (kpi of kpis; track kpi.id) {
+      <div class="finix-card p-5 flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+            {{ kpi.label }}
+          </p>
+          <span class="material-symbols-outlined text-slate-300 text-[20px]">
+            {{
+              kpi.id === 'profit'
+                ? 'trending_up'
+                : kpi.id === 'orders'
+                ? 'shopping_bag'
+                : kpi.id === 'income'
+                ? 'payments'
+                : 'group'
+            }}
+          </span>
+        </div>
+        <p class="text-2xl font-black text-slate-900">
+          {{ kpi.value }}
+        </p>
+        <p
+          class="text-xs font-medium"
+          [class.text-emerald-500]="kpi.trend === 'up'"
+          [class.text-red-500]="kpi.trend === 'down'"
+          [class.text-slate-500]="kpi.trend === 'flat'"
+        >
+          {{ kpi.delta }}
+        </p>
+      </div>
+    }
+  </div>
+
+  <!-- Middle row: traffic + chart -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Traffic card -->
+    <div class="finix-card p-5 space-y-4 lg:col-span-1">
+      <div class="flex items-center justify-between">
+        <p class="text-sm font-semibold text-slate-900">Traffic</p>
+        <span class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+          This week
+        </span>
+      </div>
+      <ul class="space-y-3 text-sm">
+        @for (point of traffic; track point.day) {
+          <li class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span
+                class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[11px] font-semibold text-slate-700"
+              >
+                {{ point.day.slice(0, 1) }}
+              </span>
+              <span class="text-slate-600">{{ point.day }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-24 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  class="h-full bg-gradient-to-r from-[#135bec] to-sky-400"
+                  [style.width.%]="(point.value / 80) * 100"
+                ></div>
+              </div>
+              <span class="tabular-nums text-slate-800 font-semibold">
+                {{ point.value }}k
+              </span>
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!-- Chart placeholder -->
+    <div class="finix-card p-5 lg:col-span-2 flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-semibold text-slate-900">Revenue & orders</p>
+          <p class="text-xs text-slate-500">
+            Placeholder chart · hook up to ngx-charts or Chart.js when backend is ready.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs">
+          <span class="inline-flex items-center gap-1 text-slate-500">
+            <span class="h-1.5 w-4 rounded-full bg-[#135bec]"></span>
+            Revenue
+          </span>
+          <span class="inline-flex items-center gap-1 text-slate-500">
+            <span class="h-1.5 w-4 rounded-full bg-emerald-400"></span>
+            Orders
+          </span>
+        </div>
+      </div>
+
+      <div
+        class="relative mt-2 h-48 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 overflow-hidden"
+      >
+        <div class="absolute inset-x-8 inset-y-6 border border-white/5 rounded-3xl"></div>
+        <div class="absolute inset-0">
+          <div
+            class="absolute inset-y-6 left-8 right-8 border-l border-dashed border-white/10"
+          ></div>
+          <div
+            class="absolute inset-y-6 left-1/2 right-8 border-l border-dashed border-white/10"
+          ></div>
+          <div
+            class="absolute inset-y-6 left-[66%] right-8 border-l border-dashed border-white/10"
+          ></div>
+        </div>
+        <div
+          class="absolute inset-0 flex items-end justify-around px-10 pb-6 gap-6"
+        >
+          <div
+            class="w-8 rounded-xl bg-gradient-to-t from-[#135bec] to-sky-400 h-20"
+          ></div>
+          <div
+            class="w-8 rounded-xl bg-gradient-to-t from-[#135bec] to-sky-400 h-32"
+          ></div>
+          <div
+            class="w-8 rounded-xl bg-gradient-to-t from-[#135bec] to-sky-400 h-24"
+          ></div>
+          <div
+            class="w-8 rounded-xl bg-gradient-to-t from-emerald-500 to-emerald-300 h-16"
+          ></div>
+          <div
+            class="w-8 rounded-xl bg-gradient-to-t from-emerald-500 to-emerald-300 h-28"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders summary -->
+  <div class="finix-card p-5 space-y-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-semibold text-slate-900">Orders summary</p>
+        <p class="text-xs text-slate-500">
+          Snapshot of recent activity across channels.
+        </p>
+      </div>
+      <div
+        class="inline-flex items-center rounded-full bg-slate-100 p-1 text-xs font-semibold"
+      >
+        <button
+          type="button"
+          class="px-3 py-1 rounded-full"
+          [class.bg-white]="activeTab === 'orders'"
+          [class.text-slate-900]="activeTab === 'orders'"
+          [class.text-slate-500]="activeTab !== 'orders'"
+          (click)="setTab('orders')"
+        >
+          Orders
+        </button>
+        <button
+          type="button"
+          class="px-3 py-1 rounded-full"
+          [class.bg-white]="activeTab === 'profit'"
+          [class.text-slate-900]="activeTab === 'profit'"
+          [class.text-slate-500]="activeTab !== 'profit'"
+          (click)="setTab('profit')"
+        >
+          Profit
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-xs text-slate-500 border-b border-slate-100">
+            <th class="py-2 pr-4 text-left font-semibold">Order</th>
+            <th class="py-2 px-4 text-left font-semibold">Channel</th>
+            <th class="py-2 px-4 text-left font-semibold">Customer</th>
+            <th class="py-2 px-4 text-right font-semibold">Amount</th>
+            <th class="py-2 pl-4 text-right font-semibold">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of orders; track row.id) {
+            <tr class="border-b border-slate-50 last:border-0">
+              <td class="py-3 pr-4 text-slate-900 font-semibold">
+                {{ row.id }}
+              </td>
+              <td class="py-3 px-4 text-slate-600">
+                {{ row.channel }}
+              </td>
+              <td class="py-3 px-4 text-slate-600">
+                {{ row.customer }}
+              </td>
+              <td
+                class="py-3 px-4 text-right tabular-nums text-slate-900 font-semibold"
+              >
+                {{ row.amount }}
+              </td>
+              <td class="py-3 pl-4 text-right">
+                <span
+                  class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                  [ngClass]="{
+                    'bg-emerald-50 text-emerald-700': row.status === 'Completed',
+                    'bg-amber-50 text-amber-700': row.status === 'Pending',
+                    'bg-red-50 text-red-600': row.status === 'Failed'
+                  }"
+                >
+                  <span
+                    class="h-1.5 w-1.5 rounded-full"
+                    [ngClass]="{
+                      'bg-emerald-500': row.status === 'Completed',
+                      'bg-amber-400': row.status === 'Pending',
+                      'bg-red-500': row.status === 'Failed'
+                    }"
+                  ></span>
+                  {{ row.status }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+

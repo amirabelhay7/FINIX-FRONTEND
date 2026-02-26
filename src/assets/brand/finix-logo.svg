@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="128" viewBox="0 0 320 128" role="img" aria-label="FINIX logo">
+  <!-- Icon background -->
+  <circle cx="64" cy="64" r="60" fill="#0f172a"/>
+  
+  <!-- Bank icon -->
+  <g fill="#ffffff">
+    <!-- Roof -->
+    <polygon points="32,54 64,34 96,54" />
+    <!-- Roof base line -->
+    <rect x="32" y="54" width="64" height="6" rx="2"/>
+    <!-- Columns -->
+    <rect x="38" y="62" width="10" height="30" rx="2"/>
+    <rect x="53" y="62" width="10" height="30" rx="2"/>
+    <rect x="65" y="62" width="10" height="30" rx="2"/>
+    <rect x="80" y="62" width="10" height="30" rx="2"/>
+    <!-- Base -->
+    <rect x="34" y="92" width="60" height="8" rx="2"/>
+    <!-- Steps -->
+    <rect x="30" y="102" width="68" height="6" rx="2" opacity="0.95"/>
+  </g>
+
+  <!-- FINIX text -->
+  <text x="140" y="78"
+        font-family="Plus Jakarta Sans, DM Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif"
+        font-size="54"
+        font-weight="800"
+        letter-spacing="1.5"
+        fill="#0f172a">
+    FINIX
+  </text>
+</svg>
