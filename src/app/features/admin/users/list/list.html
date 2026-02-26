@@ -1,57 +1,95 @@
-<div class="space-y-8 pb-10">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
-        </div>
-        <a routerLink="/admin/users/new" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
-            <span class="material-symbols-outlined mr-2 text-[18px]">person_add</span>Add User
-        </a>
+<div class="users-list-page">
+  <header class="page-header">
+    <div class="title-block">
+      <h1 class="page-title">{{ pageTitle }}</h1>
+      <p class="page-subtitle">{{ pageSubtitle }}</p>
+    </div>
+    <a routerLink="/admin/users/new" class="btn-primary">
+      <span class="material-symbols-outlined">person_add</span>
+      Add user
+    </a>
+  </header>
+
+  <p *ngIf="error" class="error-banner">{{ error }}</p>
+
+  <div *ngIf="loading" class="loading-state">
+    <span class="material-symbols-outlined spin">progress_activity</span>
+    <span>Loading users…</span>
+  </div>
+
+  <div *ngIf="!loading && !error" class="card">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input
+          type="text"
+          placeholder="Search by name, email, CIN, role…"
+          [(ngModel)]="searchQuery"
+          class="search-input"
+        />
+      </div>
+      <select [(ngModel)]="roleFilter" class="filter-select">
+        <option *ngFor="let opt of roleOptions" [value]="opt.value">{{ opt.label }}</option>
+      </select>
     </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-gray-50 flex flex-wrap items-center gap-4">
-            <div class="relative flex-1 min-w-[200px]">
-                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">search</span>
-                <input type="text" placeholder="Search by name, email, CIN..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-            </div>
-            <select class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
-                <option value="">All roles</option>
-                <option>CLIENT</option>
-                <option>AGENT</option>
-                <option>SELLER</option>
-                <option>INSURER</option>
-                <option>ADMIN</option>
-            </select>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Name</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Email</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Role</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">CIN</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">City</th>
-                        <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    <tr class="hover:bg-gray-50 transition-colors" *ngFor="let user of users">
-                        <td class="py-4 px-6 font-mono text-gray-500">{{ user.id }}</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">{{ user.name }}</td>
-                        <td class="py-4 px-6 text-gray-600">{{ user.email }}</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="user.roleClass">{{ user.role }}</span></td>
-                        <td class="py-4 px-6 font-mono text-gray-500">{{ user.cin }}</td>
-                        <td class="py-4 px-6 text-gray-600">{{ user.city }}</td>
-                        <td class="py-4 px-6 text-right">
-                            <a [routerLink]="user.viewRoute" class="text-[#135bec] font-bold hover:underline mr-2">View</a>
-                            <a [routerLink]="user.editRoute" class="text-gray-600 font-bold hover:underline">Edit</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="col-id">ID</th>
+            <th class="col-name">Name</th>
+            <th class="col-email">Email</th>
+            <th class="col-role">Role</th>
+            <th class="col-cin">CIN</th>
+            <th class="col-city">City</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers" class="row" [class.row-current-user]="isCurrentUser(user)">
+            <td class="col-id"><span class="cell-mono">{{ user.id }}</span></td>
+            <td class="col-name">
+              <span class="cell-name">{{ user.name }}</span>
+              <span *ngIf="isCurrentUser(user)" class="you-badge">You</span>
+            </td>
+            <td class="col-email"><span class="cell-email">{{ user.email }}</span></td>
+            <td class="col-role"><span class="badge" [ngClass]="user.roleClass">{{ user.role }}</span></td>
+            <td class="col-cin"><span class="cell-mono">{{ user.cin }}</span></td>
+            <td class="col-city">{{ user.city }}</td>
+            <td class="col-actions">
+              <a [routerLink]="user.viewRoute" class="action-link">View</a>
+              <a [routerLink]="user.editRoute" class="action-link action-edit">Edit</a>
+              <button type="button" class="action-btn danger" (click)="deleteUser(user, $event)" [disabled]="deletingId === user.id || confirmDialogOpen">
+                {{ deletingId === user.id ? '…' : 'Delete' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+
+    <div *ngIf="filteredUsers.length === 0" class="empty-state">
+      <span class="material-symbols-outlined empty-icon">group_off</span>
+      <p class="empty-text">No users match your filters.</p>
+      <p *ngIf="searchQuery || roleFilter" class="empty-hint">Try clearing search or role filter.</p>
+    </div>
+
+    <div *ngIf="filteredUsers.length > 0" class="result-meta">
+      Showing {{ filteredUsers.length }} user{{ filteredUsers.length === 1 ? '' : 's' }}
+      <span *ngIf="users.length !== filteredUsers.length"> (filtered from {{ users.length }})</span>
+    </div>
+  </div>
+
+  <app-confirm-dialog
+    [isOpen]="confirmDialogOpen"
+    title="Delete user"
+    [message]="confirmDeleteMessage"
+    confirmLabel="Delete"
+    cancelLabel="Cancel"
+    variant="danger"
+    [confirmLoading]="confirmDeleteLoading"
+    (confirm)="onConfirmDelete()"
+    (cancel)="onCancelConfirm()"
+  ></app-confirm-dialog>
 </div>

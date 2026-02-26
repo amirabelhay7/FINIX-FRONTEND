@@ -1,0 +1,19 @@
+<div *ngIf="isOpen" class="confirm-dialog-backdrop" (click)="onBackdropClick($event)">
+  <div class="confirm-dialog-card" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title">
+    <div class="confirm-dialog-icon" [attr.data-variant]="variant">
+      <span class="material-symbols-outlined">{{ iconName }}</span>
+    </div>
+    <h2 id="confirm-dialog-title" class="confirm-dialog-title">{{ title }}</h2>
+    <p class="confirm-dialog-message">{{ message }}</p>
+    <div class="confirm-dialog-actions">
+      <button type="button" class="confirm-dialog-btn cancel" (click)="onCancel()" [disabled]="confirmLoading">
+        {{ cancelLabel }}
+      </button>
+      <button type="button" class="confirm-dialog-btn confirm" [attr.data-variant]="variant"
+              (click)="onConfirm()" [disabled]="confirmLoading">
+        <span *ngIf="!confirmLoading">{{ confirmLabel }}</span>
+        <span *ngIf="confirmLoading" class="confirm-dialog-spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>

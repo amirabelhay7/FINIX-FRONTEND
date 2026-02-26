@@ -1,12 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 import { UsersRoutingModule } from './users-routing-module';
+import { SharedModule } from '../../../shared/shared-module';
 import { List } from './list/list';
 import { UserDetail } from './user-detail/user-detail';
 import { UserForm } from './user-form/user-form';
-
 
 @NgModule({
   declarations: [
@@ -17,7 +18,9 @@ import { UserForm } from './user-form/user-form';
   imports: [
     CommonModule,
     RouterModule,
-    UsersRoutingModule
+    FormsModule,
+    UsersRoutingModule,
+    SharedModule
   ]
 })
 export class UsersModule { }

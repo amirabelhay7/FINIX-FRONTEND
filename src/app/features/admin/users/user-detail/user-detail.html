@@ -1,37 +1,39 @@
-<div class="space-y-8 pb-10">
-    <div class="flex items-center gap-4">
-        <a [routerLink]="vm.backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <div class="flex-1">
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ vm.pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ vm.pageSubtitle }}</p>
-        </div>
-        <a [routerLink]="vm.editRoute" class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">{{ vm.editLabel }}</a>
-    </div>
+<div class="user-detail-page">
+  <p *ngIf="error" class="error-banner">{{ error }}</p>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <h4 class="font-bold text-gray-800 mb-4 flex items-center">
-                <span class="material-symbols-outlined mr-2 text-[#135bec]">person</span>{{ vm.identityTitle }}
-            </h4>
-            <dl class="space-y-3 text-sm">
-                <div *ngFor="let field of vm.identityFields" class="flex justify-between">
-                    <dt class="text-gray-500">{{ field.label }}</dt>
-                    <dd class="font-bold text-gray-800"><span *ngIf="field.valueClass" [ngClass]="field.valueClass">{{ field.value }}</span><span *ngIf="!field.valueClass">{{ field.value }}</span></dd>
-                </div>
-            </dl>
+  <div *ngIf="loading" class="loading-wrap">
+    <span class="material-symbols-outlined spin">progress_activity</span>
+    <span>Loading user…</span>
+  </div>
+
+  <ng-container *ngIf="!loading && !error && vm.identityFields.length">
+    <header class="detail-header">
+      <a [routerLink]="vm.backRoute" class="back-link" aria-label="Back">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </a>
+      <div class="header-content">
+        <h1 class="detail-title">{{ vm.pageTitle }}</h1>
+        <p class="detail-subtitle">{{ vm.pageSubtitle }}</p>
+      </div>
+      <div class="header-actions">
+        <a [routerLink]="vm.editRoute" class="btn-primary">{{ vm.editLabel }}</a>
+        <button type="button" class="btn-danger" (click)="deleteUser()" [disabled]="deleting">
+          {{ deleting ? 'Deleting…' : 'Delete' }}
+        </button>
+      </div>
+    </header>
+
+    <div class="detail-card">
+      <h2 class="card-heading">
+        <span class="material-symbols-outlined">person</span>
+        {{ vm.identityTitle }}
+      </h2>
+      <dl class="detail-fields">
+        <div *ngFor="let field of vm.identityFields" class="detail-field">
+          <dt>{{ field.label }}</dt>
+          <dd [ngClass]="field.valueClass">{{ field.value }}</dd>
         </div>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <h4 class="font-bold text-gray-800 mb-4 flex items-center">
-                <span class="material-symbols-outlined mr-2 text-amber-500">history</span>{{ vm.loginHistoryTitle }}
-            </h4>
-            <div class="space-y-2">
-                <div *ngFor="let item of vm.loginHistoryItems" class="flex items-center justify-between py-2 border-b border-gray-50 text-sm">
-                    <span class="text-gray-600">{{ item.date }}</span>
-                    <span class="text-gray-400 text-xs">{{ item.ip }}</span>
-                </div>
-            </div>
-        </div>
+      </dl>
     </div>
+  </ng-container>
 </div>

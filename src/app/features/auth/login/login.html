@@ -138,30 +138,15 @@
                 </button>
             </div>
 
-            <!-- Demo — quick login -->
+            <!-- Demo — quick login by role (card style) -->
             <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-6 mb-2">{{ demoSectionLabel }}</p>
-            <div class="flex flex-wrap gap-2">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                 <button *ngFor="let account of demoAccounts" type="button"
-                    class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:border-[#135bec]/50 hover:bg-blue-50/50 transition-all"
+                    class="flex flex-col items-center p-3 bg-white border border-gray-100 rounded-xl hover:border-[#135bec]/30 hover:bg-blue-50/50 transition-all cursor-pointer group"
                     (click)="loginWithDemo(account)">
-                    {{ account.label }}
+                    <span class="material-symbols-outlined text-gray-400 text-[20px] group-hover:text-[#135bec] transition-colors">{{ demoRoleIcon[account.role] || 'person' }}</span>
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1 group-hover:text-[#135bec]">{{ account.label }}</p>
                 </button>
-            </div>
-
-            <!-- Divider -->
-            <div class="flex items-center my-6 space-x-4">
-                <div class="flex-1 h-px bg-gray-200"></div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{{ orContinueLabel }}</p>
-                <div class="flex-1 h-px bg-gray-200"></div>
-            </div>
-
-            <!-- Role Badges -->
-            <div class="grid grid-cols-4 gap-2">
-                <div *ngFor="let role of roleBadges" (click)="selectPortalRole(role.label)"
-                    class="flex flex-col items-center p-3 bg-white border border-gray-100 rounded-xl hover:border-[#135bec]/30 hover:bg-blue-50/50 transition-all cursor-pointer group">
-                    <span class="material-symbols-outlined text-gray-400 text-[20px] group-hover:text-[#135bec] transition-colors">{{ role.icon }}</span>
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1 group-hover:text-[#135bec]">{{ role.label }}</p>
-                </div>
             </div>
 
         </div>

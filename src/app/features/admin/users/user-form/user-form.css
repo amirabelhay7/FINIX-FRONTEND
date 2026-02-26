@@ -1,0 +1,171 @@
+.user-form-page {
+  --primary: #135bec;
+  --primary-soft: rgba(19, 91, 236, 0.08);
+  --ink: #0f172a;
+  --ink-muted: #475569;
+  --ink-subtle: #64748b;
+  --border: #e2e8f0;
+  --surface: #fff;
+  --surface-elevated: #f8fafc;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  padding: 0 1.5rem 2rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.user-form-page .form-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.user-form-page .back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--ink-muted);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.user-form-page .back-link:hover {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.user-form-page .form-title {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+
+.user-form-page .error-banner {
+  padding: 0.875rem 1rem;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.user-form-page .loading-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 4rem;
+  color: var(--ink-subtle);
+  font-weight: 500;
+}
+
+.user-form-page .loading-wrap .material-symbols-outlined { font-size: 1.5rem; color: var(--primary); }
+.user-form-page .spin { animation: user-form-spin 0.9s linear infinite; }
+@keyframes user-form-spin { to { transform: rotate(360deg); } }
+
+.user-form-page .form-card {
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  padding: 1.5rem 1.75rem;
+  position: relative;
+}
+
+.user-form-page .form-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--primary) 0%, rgba(19,91,236,0.4) 100%);
+  border-radius: 4px 0 0 0;
+}
+
+.user-form-page .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.user-form-page .field {
+  margin-bottom: 1rem;
+}
+
+.user-form-page .form-grid .field { margin-bottom: 1rem; }
+
+.user-form-page .field label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-subtle);
+  margin-bottom: 0.35rem;
+}
+
+.user-form-page .field label .optional { font-weight: 500; text-transform: none; color: var(--ink-muted); }
+
+.user-form-page .field input,
+.user-form-page .field select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+}
+
+.user-form-page .field input:focus,
+.user-form-page .field select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.user-form-page .form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.user-form-page .btn-primary {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.user-form-page .btn-primary:hover:not(:disabled) { background: #0d47c2; }
+.user-form-page .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.user-form-page .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ink-muted);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.user-form-page .btn-secondary:hover { background: #e2e8f0; color: var(--ink); }

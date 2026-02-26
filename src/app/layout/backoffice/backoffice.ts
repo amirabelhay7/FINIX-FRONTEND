@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectorRef } from '@angular/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { NotificationService } from '../../core/notification/notification.service';
 import { NotificationApi } from '../../models';
@@ -14,26 +14,29 @@ export class Backoffice implements OnInit {
   protected showUserMenu = false;
   protected showNotificationPanel = false;
   protected currentUser: { id: number; email: string; firstName: string; lastName: string; role: string } | null = null;
+  protected userAvatarUrl = 'https://ui-avatars.com/api/?name=Admin&background=135bec&color=fff';
   protected notifications: NotificationApi[] = [];
   protected unreadCount = 0;
-  protected get userAvatarUrl(): string {
-    const u = this.currentUser;
-    const name = u ? `${u.firstName}+${u.lastName}` : 'Admin';
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=135bec&color=fff`;
-  }
 
   constructor(
     private auth: AuthService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     this.auth.validateSession().subscribe(() => {
-      this.currentUser = this.auth.getCurrentUser();
-      if (this.currentUser) {
-        this.loadNotifications();
-        this.notificationService.getUnreadCount().subscribe({ next: c => { this.unreadCount = c; }, error: () => { this.unreadCount = 0; } });
-      }
+      setTimeout(() => {
+        const user = this.auth.getCurrentUser();
+        if (user) {
+          this.currentUser = user;
+          const name = `${user.firstName}+${user.lastName}`.trim() || 'Admin';
+          this.userAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=135bec&color=fff`;
+          this.loadNotifications();
+          this.notificationService.getUnreadCount().subscribe({ next: c => { this.unreadCount = c; }, error: () => { this.unreadCount = 0; } });
+        }
+        this.cdr.detectChanges();
+      }, 0);
     });
   }
 

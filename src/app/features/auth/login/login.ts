@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { LoginRoleBadge, DemoAccount } from '../../../models';
+import { DemoAccount } from '../../../models';
 import { AuthService } from '../../../core/auth/auth.service';
 
 /**
@@ -17,7 +17,6 @@ export class Login implements OnInit {
   password = '';
   rememberMe = false;
   showPassword = false;
-  selectedPortalRole = '';
   loading = false;
   errorMessage = '';
   sessionExpiredMessage = '';
@@ -36,7 +35,6 @@ export class Login implements OnInit {
   readonly passwordPlaceholder = '••••••••••';
   readonly rememberLabel = 'Keep me signed in for 30 days';
   readonly submitLabel = 'Sign In';
-  readonly orContinueLabel = 'or continue with';
   readonly demoSectionLabel = 'Demo — quick login by role';
   readonly brandName = 'FINIX';
   readonly heroBadge = 'Micro-Finance Ecosystem';
@@ -55,12 +53,14 @@ export class Login implements OnInit {
   readonly scoreMax = '850';
   readonly tierLabel = 'Gold Tier — Excellent Standing';
 
-  readonly roleBadges: LoginRoleBadge[] = [
-    { icon: 'person', label: 'Client' },
-    { icon: 'support_agent', label: 'Agent' },
-    { icon: 'storefront', label: 'Seller' },
-    { icon: 'shield', label: 'Insurer' },
-  ];
+  /** Icons for demo login cards by role. */
+  readonly demoRoleIcon: Record<string, string> = {
+    CLIENT: 'person',
+    AGENT: 'support_agent',
+    SELLER: 'storefront',
+    INSURER: 'shield',
+    ADMIN: 'admin_panel_settings',
+  };
 
   /** Demo accounts for quick login (colleagues/students). */
   readonly demoAccounts: DemoAccount[] = [
@@ -88,10 +88,6 @@ export class Login implements OnInit {
     this.showPassword = !this.showPassword;
   }
 
-  selectPortalRole(role: string): void {
-    this.selectedPortalRole = role;
-  }
-
   setDemoAccount(account: DemoAccount): void {
     this.email = account.email;
     this.password = account.password;
@@ -113,7 +109,10 @@ export class Login implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err?.error?.error || 'Invalid email or password.';
+        const msg = err?.error?.error || 'Invalid email or password.';
+        this.errorMessage = err?.status === 401
+          ? msg + ' Demo accounts use password: Demo123!'
+          : msg;
       },
     });
   }

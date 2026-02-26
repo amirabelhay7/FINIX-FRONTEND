@@ -13,6 +13,38 @@ export interface UserListItem {
   editRoute: string;
 }
 
+/** API response: user from backend (no password). */
+export interface AdminUserApi {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber?: number;
+  dateOfBirth?: string;
+  cin?: number;
+  address?: string;
+  city?: string;
+  role: string;
+  localisation?: string;
+  commercialRegister?: string;
+}
+
+/** API request: admin create user. */
+export interface AdminCreateUserRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phoneNumber?: number;
+  dateOfBirth?: string;
+  cin?: number;
+  address?: string;
+  city?: string;
+  role: string;
+  localisation?: string;
+  commercialRegister?: string;
+}
+
 export interface LoanRequestAdmin {
   id: number;
   clientName: string;

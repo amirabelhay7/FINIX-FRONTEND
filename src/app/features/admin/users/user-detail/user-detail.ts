@@ -1,40 +1,103 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AdminUserDetailData } from '../../../../models';
+import { AdminUserService } from '../../../../core/user/admin-user.service';
 
-/**
- * ViewModel: admin user detail (MVVM).
- * All static data in VM; view only binds.
- */
 @Component({
   selector: 'app-user-detail',
   standalone: false,
   templateUrl: './user-detail.html',
   styleUrl: './user-detail.css',
 })
-export class UserDetail {
-  readonly vm: AdminUserDetailData = {
+export class UserDetail implements OnInit {
+  vm: AdminUserDetailData = {
     backRoute: '/admin/users',
-    pageTitle: 'User #1',
-    pageSubtitle: 'Amadou Kone · CLIENT',
+    pageTitle: 'User',
+    pageSubtitle: '—',
     editLabel: 'Edit',
-    editRoute: '/admin/users/edit/1',
+    editRoute: '/admin/users',
     identityTitle: 'Identity',
-    identityFields: [
-      { label: 'First name', value: 'Amadou' },
-      { label: 'Last name', value: 'Kone' },
-      { label: 'Email', value: 'amadou.kone@email.com' },
-      { label: 'Phone', value: '+216 12 345 678' },
-      { label: 'CIN', value: '12345678' },
-      { label: 'Date of birth', value: '1990-05-15' },
-      { label: 'Address', value: '12 Rue de la République' },
-      { label: 'City', value: 'Tunis' },
-      { label: 'Role', value: 'CLIENT', valueClass: 'px-2 py-0.5 rounded text-xs bg-blue-50 text-[#135bec]' },
-    ],
+    identityFields: [],
     loginHistoryTitle: 'Login history',
-    loginHistoryItems: [
-      { date: '2025-02-24 10:32', ip: 'IP 192.168.1.1' },
-      { date: '2025-02-23 14:20', ip: 'IP 192.168.1.1' },
-    ],
+    loginHistoryItems: [],
   };
+  loading = true;
+  error: string | null = null;
+  deleting = false;
 
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private adminUser: AdminUserService,
+    private cdr: ChangeDetectorRef,
+  ) {}
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    const numId = id ? +id : 0;
+    if (!numId) {
+      this.loading = false;
+      this.error = 'Invalid user id';
+      this.cdr.detectChanges();
+      return;
+    }
+    this.adminUser.getById(numId).pipe(
+      finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }),
+    ).subscribe({
+      next: (u) => {
+        const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || '—';
+        const role = u.role || '—';
+        const roleClass = role === 'ADMIN' ? 'badge-admin' : role === 'CLIENT' ? 'badge-client' : role === 'AGENT' ? 'badge-agent' : role === 'SELLER' ? 'badge-seller' : role === 'INSURER' ? 'badge-insurer' : 'badge-default';
+        this.vm = {
+          backRoute: '/admin/users',
+          pageTitle: name,
+          pageSubtitle: role,
+          editLabel: 'Edit',
+          editRoute: '/admin/users/edit/' + u.id,
+          identityTitle: 'Identity',
+          identityFields: [
+            { label: 'First name', value: u.firstName ?? '—' },
+            { label: 'Last name', value: u.lastName ?? '—' },
+            { label: 'Email', value: u.email ?? '—' },
+            { label: 'Phone', value: u.phoneNumber != null ? String(u.phoneNumber) : '—' },
+            { label: 'CIN', value: u.cin != null ? String(u.cin) : '—' },
+            { label: 'Date of birth', value: u.dateOfBirth ? new Date(u.dateOfBirth).toLocaleDateString() : '—' },
+            { label: 'Address', value: u.address ?? '—' },
+            { label: 'City', value: u.city ?? '—' },
+            { label: 'Role', value: role, valueClass: roleClass },
+          ],
+          loginHistoryTitle: 'Login history',
+          loginHistoryItems: [],
+        };
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = err?.error?.message || err?.message || 'Failed to load user';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  deleteUser(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    const numId = id ? +id : 0;
+    if (!numId || !confirm('Delete this user? This cannot be undone.')) return;
+    this.deleting = true;
+    this.adminUser.delete(numId).pipe(
+      finalize(() => {
+        this.deleting = false;
+        this.cdr.detectChanges();
+      }),
+    ).subscribe({
+      next: () => this.router.navigate(['/admin/users']),
+      error: (err) => {
+        this.error = err?.error?.message || err?.message || 'Failed to delete user';
+        this.cdr.detectChanges();
+      },
+    });
+  }
 }
