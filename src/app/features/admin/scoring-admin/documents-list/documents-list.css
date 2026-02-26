@@ -354,6 +354,26 @@
   color: #b91c1c;
 }
 
+.badge-deleted {
+  background: #f1f5f9;
+  color: var(--doc-muted);
+  margin-left: 0.35rem;
+}
+
+.col-user .user-link {
+  color: var(--doc-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.col-user .user-link:hover {
+  text-decoration: underline;
+}
+
+.col-user .badge-deleted {
+  vertical-align: middle;
+}
+
 .status-by {
   display: block;
   font-size: 0.75rem;

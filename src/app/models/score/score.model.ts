@@ -248,8 +248,10 @@ export interface UserDocumentApi {
   dateVerification?: string;
   verificationNotes?: string;
   documentType: string;
-  userId: number;
+  userId?: number;
   userName?: string;
+  /** True when the document owner has been soft-deleted (name still shown for audit). */
+  userDeleted?: boolean;
   verifiedByName?: string;
   category?: string;
   description?: string;

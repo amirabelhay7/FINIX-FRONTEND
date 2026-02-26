@@ -154,6 +154,19 @@
   cursor: pointer;
 }
 
+.users-list-page .include-deleted-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.users-list-page .include-deleted-wrap input { cursor: pointer; }
+
 .users-list-page .table-wrap { overflow-x: auto; margin-left: 4px; }
 .users-list-page .table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
 
@@ -228,6 +241,12 @@
 .users-list-page .badge.role-insurer { background: #ede9fe; color: #6d28d9; }
 .users-list-page .badge.role-admin { background: #f1f5f9; color: #475569; }
 .users-list-page .badge.role-default { background: #f1f5f9; color: #64748b; }
+.users-list-page .badge.badge-active { background: #d1fae5; color: #047857; }
+.users-list-page .badge.badge-deleted { background: #fef2f2; color: #b91c1c; }
+
+.users-list-page .table tbody .row.row-deleted { background: #fef2f2; opacity: 0.92; }
+.users-list-page .table tbody .row.row-deleted:hover { background: #fee2e2; }
+.users-list-page .col-status { min-width: 5.5rem; }
 
 .users-list-page .action-link {
   display: inline-block;

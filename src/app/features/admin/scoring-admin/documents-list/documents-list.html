@@ -81,7 +81,14 @@
                 {{ doc.fileName }}
               </td>
               <td class="col-type">{{ doc.documentType }}</td>
-              <td class="col-user">{{ doc.userName || doc.userId }}</td>
+              <td class="col-user">
+                <ng-container *ngIf="doc.userName || doc.userId">
+                  <a *ngIf="doc.userId && !doc.userDeleted" [routerLink]="['/admin/users', doc.userId]" class="user-link">{{ doc.userName || ('User #' + doc.userId) }}</a>
+                  <span *ngIf="doc.userDeleted || !doc.userId">{{ doc.userName || ('User #' + doc.userId) }}</span>
+                  <span *ngIf="doc.userDeleted" class="badge badge-deleted" title="Account deleted">Deleted</span>
+                </ng-container>
+                <span *ngIf="!doc.userName && !doc.userId">—</span>
+              </td>
               <td class="col-date">{{ formatDate(doc.uploadedAt) }}</td>
               <td class="col-status">
                 <span *ngIf="doc.verified" class="badge badge-verified">Verified</span>

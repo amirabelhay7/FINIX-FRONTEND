@@ -54,6 +54,8 @@ export class WalletDetail implements OnInit {
     recentTransactions: [],
   };
   walletId: number | null = null;
+  /** When true, owner is soft-deleted; wallet is read-only (no fill, deduct, status, delete). */
+  clientDeleted = false;
   loading = true;
   error: string | null = null;
   updatingStatus = false;
@@ -87,12 +89,15 @@ export class WalletDetail implements OnInit {
     ).subscribe({
       next: (w) => {
         try {
+          this.clientDeleted = !!w.clientDeleted;
+          const status = this.clientDeleted ? 'Deleted (account)' : (w.isActive ? 'Active' : 'Inactive');
+          const statusClass = this.clientDeleted ? 'bg-red-50 text-red-700' : (w.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600');
           this.vm = {
             ...this.vm,
             pageTitle: 'Wallet **' + (w.accountNumber?.slice(-4) ?? '—'),
             pageSubtitle: w.clientEmail ?? '—',
-            status: w.isActive ? 'Active' : 'Inactive',
-            statusClass: w.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600',
+            status,
+            statusClass,
             balance: w.balance.toFixed(2) + ' TND',
             currency: w.currency ?? 'TND',
             accountNumber: w.accountNumber ?? '—',
@@ -119,7 +124,7 @@ export class WalletDetail implements OnInit {
   }
 
   toggleStatus(): void {
-    if (!this.walletId || this.updatingStatus) return;
+    if (!this.walletId || this.updatingStatus || this.clientDeleted) return;
     const newActive = this.vm.status !== 'Active';
     this.updatingStatus = true;
     this.walletService.updateWalletStatusAdmin(this.walletId, newActive).subscribe({
@@ -136,7 +141,7 @@ export class WalletDetail implements OnInit {
   }
 
   deleteWallet(): void {
-    if (!this.walletId || this.deleting) return;
+    if (!this.walletId || this.deleting || this.clientDeleted) return;
     if (!confirm('Are you sure you want to delete this wallet? This cannot be undone.')) return;
     this.deleting = true;
     this.walletService.deleteWalletAdmin(this.walletId).subscribe({
@@ -149,7 +154,7 @@ export class WalletDetail implements OnInit {
   }
 
   adminFill(): void {
-    if (!this.walletId || this.adjustLoading) return;
+    if (!this.walletId || this.adjustLoading || this.clientDeleted) return;
     const amt = this.adjustAmount != null ? Number(this.adjustAmount) : 0;
     if (amt <= 0) {
       this.adjustError = 'Enter a valid amount.';
@@ -181,7 +186,7 @@ export class WalletDetail implements OnInit {
   }
 
   adminDeduct(): void {
-    if (!this.walletId || this.adjustLoading) return;
+    if (!this.walletId || this.adjustLoading || this.clientDeleted) return;
     const amt = this.adjustAmount != null ? Number(this.adjustAmount) : 0;
     if (amt <= 0) {
       this.adjustError = 'Enter a valid amount.';

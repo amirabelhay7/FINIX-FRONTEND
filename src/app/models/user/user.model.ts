@@ -11,6 +11,8 @@ export interface UserListItem {
   city: string;
   viewRoute: string;
   editRoute: string;
+  /** ISO-8601 when soft-deleted; undefined for active users. */
+  deletedAt?: string;
 }
 
 /** API response: user from backend (no password). */
@@ -27,6 +29,8 @@ export interface AdminUserApi {
   role: string;
   localisation?: string;
   commercialRegister?: string;
+  /** ISO-8601 when soft-deleted; null for active users. */
+  deletedAt?: string | null;
 }
 
 /** API request: admin create user. */

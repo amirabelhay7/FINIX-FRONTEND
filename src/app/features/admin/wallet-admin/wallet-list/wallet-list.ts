@@ -31,15 +31,20 @@ export class WalletList implements OnInit {
       next: (list) => {
         try {
           const arr = Array.isArray(list) ? list : [];
-          this.wallets = arr.map((w: WalletApi) => ({
-            id: w.id,
-            account: w.accountNumber ? `**${w.accountNumber.slice(-4)}` : '—',
-            clientEmail: w.clientEmail ?? '—',
-            balance: w.balance.toFixed(2) + ' TND',
-            status: w.isActive ? 'Active' : 'Inactive',
-            statusClass: w.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600',
-            viewRoute: '/admin/wallet/wallets/' + w.id,
-          }));
+          this.wallets = arr.map((w: WalletApi) => {
+            const clientDeleted = !!w.clientDeleted;
+            const status = clientDeleted ? 'Deleted' : (w.isActive ? 'Active' : 'Inactive');
+            const statusClass = clientDeleted ? 'bg-red-50 text-red-700' : (w.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600');
+            return {
+              id: w.id,
+              account: w.accountNumber ? `**${w.accountNumber.slice(-4)}` : '—',
+              clientEmail: w.clientEmail ?? '—',
+              balance: w.balance.toFixed(2) + ' TND',
+              status,
+              statusClass,
+              viewRoute: '/admin/wallet/wallets/' + w.id,
+            };
+          });
         } catch (e) {
           this.error = (e instanceof Error ? e.message : 'Invalid response') as string;
         }

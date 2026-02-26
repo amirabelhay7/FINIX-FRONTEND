@@ -13,7 +13,7 @@ const ROLE_CLASS: Record<string, string> = {
   ADMIN: 'role-admin',
 };
 
-function apiToListItem(u: { id: number; firstName: string; lastName: string; email: string; role: string; cin?: number; city?: string }): UserListItem {
+function apiToListItem(u: { id: number; firstName: string; lastName: string; email: string; role: string; cin?: number; city?: string; deletedAt?: string | null }): UserListItem {
   const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || '—';
   const role = u.role || '—';
   return {
@@ -26,6 +26,7 @@ function apiToListItem(u: { id: number; firstName: string; lastName: string; ema
     city: u.city || '—',
     viewRoute: '/admin/users/' + u.id,
     editRoute: '/admin/users/edit/' + u.id,
+    deletedAt: u.deletedAt ?? undefined,
   };
 }
 
@@ -42,6 +43,8 @@ export class List implements OnInit {
   users: UserListItem[] = [];
   searchQuery = '';
   roleFilter = '';
+  /** When true, list includes soft-deleted users. */
+  includeDeleted = false;
   loading = true;
   error: string | null = null;
   deletingId: number | null = null;
@@ -68,6 +71,10 @@ export class List implements OnInit {
     const cu = this.currentUser;
     if (!cu) return false;
     return user.id === cu.id || user.email === cu.email;
+  }
+
+  isDeleted(user: UserListItem): boolean {
+    return !!user.deletedAt;
   }
 
   get filteredUsers(): UserListItem[] {
@@ -97,8 +104,10 @@ export class List implements OnInit {
     { value: 'ADMIN', label: 'Admin' },
   ];
 
-  ngOnInit(): void {
-    this.adminUser.getAll().pipe(
+  loadUsers(): void {
+    this.loading = true;
+    this.error = null;
+    this.adminUser.getAll(this.includeDeleted).pipe(
       finalize(() => {
         this.loading = false;
         this.cdr.detectChanges();
@@ -115,10 +124,19 @@ export class List implements OnInit {
     });
   }
 
+  ngOnInit(): void {
+    this.loadUsers();
+  }
+
+  onIncludeDeletedChange(): void {
+    this.loadUsers();
+  }
+
   /** Opens the confirm dialog for deleting a user. */
   deleteUser(user: UserListItem, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
+    if (this.isDeleted(user)) return;
     this.userToDelete = user;
     this.confirmDialogOpen = true;
   }
@@ -146,7 +164,11 @@ export class List implements OnInit {
       }),
     ).subscribe({
       next: () => {
-        this.users = this.users.filter((u) => u.id !== user.id);
+        if (this.includeDeleted) {
+          this.loadUsers();
+        } else {
+          this.users = this.users.filter((u) => u.id !== user.id);
+        }
         if (this.isCurrentUser(user)) {
           this.auth.logout();
         }

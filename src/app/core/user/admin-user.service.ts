@@ -22,8 +22,12 @@ export class AdminUserService {
     };
   }
 
-  getAll(): Observable<AdminUserApi[]> {
-    return this.http.get<AdminUserApi[]>(`${API}/users`, this.authOptions());
+  getAll(includeDeleted = false): Observable<AdminUserApi[]> {
+    const options = {
+      ...this.authOptions(),
+      params: { includeDeleted: String(includeDeleted) } as Record<string, string>,
+    };
+    return this.http.get<AdminUserApi[]>(`${API}/users`, options);
   }
 
   getById(id: number): Observable<AdminUserApi> {

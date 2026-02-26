@@ -31,6 +31,10 @@
       <select [(ngModel)]="roleFilter" class="filter-select">
         <option *ngFor="let opt of roleOptions" [value]="opt.value">{{ opt.label }}</option>
       </select>
+      <label class="include-deleted-wrap">
+        <input type="checkbox" [(ngModel)]="includeDeleted" (ngModelChange)="onIncludeDeletedChange()" />
+        <span>Include deleted users</span>
+      </label>
     </div>
 
     <div class="table-wrap">
@@ -41,13 +45,14 @@
             <th class="col-name">Name</th>
             <th class="col-email">Email</th>
             <th class="col-role">Role</th>
+            <th class="col-status">Status</th>
             <th class="col-cin">CIN</th>
             <th class="col-city">City</th>
             <th class="col-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let user of filteredUsers" class="row" [class.row-current-user]="isCurrentUser(user)">
+          <tr *ngFor="let user of filteredUsers" class="row" [class.row-deleted]="isDeleted(user)" [class.row-current-user]="isCurrentUser(user)">
             <td class="col-id"><span class="cell-mono">{{ user.id }}</span></td>
             <td class="col-name">
               <span class="cell-name">{{ user.name }}</span>
@@ -55,12 +60,16 @@
             </td>
             <td class="col-email"><span class="cell-email">{{ user.email }}</span></td>
             <td class="col-role"><span class="badge" [ngClass]="user.roleClass">{{ user.role }}</span></td>
+            <td class="col-status">
+              <span *ngIf="isDeleted(user)" class="badge badge-deleted" [title]="'Deleted ' + (user.deletedAt | date:'medium')">Deleted</span>
+              <span *ngIf="!isDeleted(user)" class="badge badge-active">Active</span>
+            </td>
             <td class="col-cin"><span class="cell-mono">{{ user.cin }}</span></td>
             <td class="col-city">{{ user.city }}</td>
             <td class="col-actions">
               <a [routerLink]="user.viewRoute" class="action-link">View</a>
-              <a [routerLink]="user.editRoute" class="action-link action-edit">Edit</a>
-              <button type="button" class="action-btn danger" (click)="deleteUser(user, $event)" [disabled]="deletingId === user.id || confirmDialogOpen">
+              <a *ngIf="!isDeleted(user)" [routerLink]="user.editRoute" class="action-link action-edit">Edit</a>
+              <button *ngIf="!isDeleted(user)" type="button" class="action-btn danger" (click)="deleteUser(user, $event)" [disabled]="deletingId === user.id || confirmDialogOpen">
                 {{ deletingId === user.id ? '…' : 'Delete' }}
               </button>
             </td>

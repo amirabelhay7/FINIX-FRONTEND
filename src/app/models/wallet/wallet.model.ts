@@ -10,6 +10,8 @@ export interface WalletApi {
   accountNumber: string;
   isActive: boolean;
   clientEmail: string;
+  /** True when the wallet owner has been soft-deleted; wallet is read-only. */
+  clientDeleted?: boolean;
 }
 
 /** API response: single transaction from backend */
