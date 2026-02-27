@@ -48,6 +48,7 @@ export class Guarantees implements OnInit {
     });
   }
 
+  /** For "Created" / "Accepted" (past dates): e.g. "Today", "3 days ago". */
   formatDate(iso: string | undefined): string {
     if (!iso) return '—';
     const d = new Date(iso);
@@ -56,9 +57,28 @@ export class Guarantees implements OnInit {
     const diffDays = Math.floor(diffMs / 86400000);
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffDays > 0 && diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays > 0 && diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
     return d.toLocaleDateString();
+  }
+
+  /** For "Expires": future = "in X days" / date; past = "expired X days ago". */
+  formatExpires(iso: string | undefined): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = d.getTime() - now.getTime();
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffDays > 0) {
+      if (diffDays === 1) return 'tomorrow';
+      if (diffDays < 30) return `in ${diffDays} days`;
+      return `on ${d.toLocaleDateString()}`;
+    }
+    if (diffDays === 0) return 'today';
+    const ago = Math.abs(diffDays);
+    if (ago === 1) return 'expired yesterday';
+    if (ago < 30) return `expired ${ago} days ago`;
+    return `expired on ${d.toLocaleDateString()}`;
   }
 
   selectTab(tab: string) {

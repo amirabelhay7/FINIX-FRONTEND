@@ -1,0 +1,60 @@
+<div class="guarantee-create-admin-page">
+  <header class="guarantee-create-admin-header">
+    <a [routerLink]="backRoute" class="guarantee-create-admin-back">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <div>
+      <h1 class="guarantee-create-admin-title">{{ pageTitle }}</h1>
+      <p class="guarantee-create-admin-subtitle">{{ pageSubtitle }}</p>
+    </div>
+  </header>
+
+  <div *ngIf="loadingClients" class="guarantee-create-admin-loading">
+    <span class="material-symbols-outlined">progress_activity</span>
+    <p>Loading clients…</p>
+  </div>
+
+  <div *ngIf="error" class="guarantee-create-admin-error">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loadingClients && clients.length === 0 && !error" class="guarantee-create-admin-error">
+    <p>No clients found. Guarantees are only between customers (CLIENT role).</p>
+  </div>
+
+  <div *ngIf="!loadingClients && clients.length > 0" class="guarantee-create-admin-card">
+    <form (ngSubmit)="submit()">
+      <div class="guarantee-create-admin-group">
+        <label for="guarantorId">Guarantor (client giving the guarantee)</label>
+        <select id="guarantorId" [(ngModel)]="guarantorId" name="guarantorId" required class="guarantee-create-admin-select">
+          <option [ngValue]="null">Select a client…</option>
+          <option *ngFor="let u of clients" [ngValue]="u.id">{{ clientLabel(u) }}</option>
+        </select>
+      </div>
+      <div class="guarantee-create-admin-group">
+        <label for="beneficiaryId">Beneficiary (client receiving the guarantee)</label>
+        <select id="beneficiaryId" [(ngModel)]="beneficiaryId" name="beneficiaryId" required class="guarantee-create-admin-select">
+          <option [ngValue]="null">Select a client…</option>
+          <option *ngFor="let u of clients" [ngValue]="u.id">{{ clientLabel(u) }}</option>
+        </select>
+      </div>
+      <div class="guarantee-create-admin-group">
+        <label for="pointsOffered">Points (10–100)</label>
+        <input id="pointsOffered" type="number" [(ngModel)]="pointsOffered" name="pointsOffered" min="10" max="100" class="guarantee-create-admin-input" />
+      </div>
+      <div class="guarantee-create-admin-group">
+        <label for="reason">Reason (5–500 characters)</label>
+        <textarea id="reason" [(ngModel)]="reason" name="reason" rows="3" minlength="5" maxlength="500" class="guarantee-create-admin-textarea" placeholder="e.g. Supporting their first loan application"></textarea>
+      </div>
+      <div class="guarantee-create-admin-group">
+        <label for="validityMonths">Validity (months, 1–12)</label>
+        <input id="validityMonths" type="number" [(ngModel)]="validityMonths" name="validityMonths" min="1" max="12" class="guarantee-create-admin-input" />
+      </div>
+      <div class="guarantee-create-admin-actions">
+        <button type="submit" [disabled]="loading" class="guarantee-create-admin-btn primary">Create guarantee</button>
+        <a [routerLink]="backRoute" class="guarantee-create-admin-btn secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,82 @@
+<div class="achievement-form-page">
+  <header class="achievement-form-header">
+    <a [routerLink]="backRoute" class="achievement-form-back" aria-label="Back to achievements">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <div class="achievement-form-header-icon-wrap">
+      <span class="material-symbols-outlined">emoji_events</span>
+    </div>
+    <div>
+      <h1 class="achievement-form-title">{{ editId != null ? 'Edit achievement' : 'New achievement' }}</h1>
+      <p class="achievement-form-subtitle">{{ editId != null ? 'Update title, description, points, and type.' : 'Add a gamification badge (DOCUMENT, PROFILE, WALLET, GUARANTEE, LOAN, TIER_UPGRADE).' }}</p>
+    </div>
+  </header>
+
+  <div *ngIf="loadingData" class="achievement-form-loading">
+    <span class="material-symbols-outlined">progress_activity</span>
+    <p>Loading achievement…</p>
+  </div>
+
+  <div *ngIf="error" class="achievement-form-error">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+  </div>
+
+  <div class="achievement-form-card" *ngIf="!loadingData">
+    <div class="achievement-form-card-inner">
+      <form (ngSubmit)="save()">
+        <p class="achievement-form-section-title">Required</p>
+        <div class="achievement-form-group">
+          <label class="achievement-form-label" for="title">Title</label>
+          <input id="title" type="text" [(ngModel)]="title" name="title" placeholder="e.g. Identity verified" class="achievement-form-input" minlength="3" maxlength="100" />
+        </div>
+        <div class="achievement-form-group">
+          <label class="achievement-form-label" for="achievementType">Type</label>
+          <select id="achievementType" [(ngModel)]="achievementType" name="achievementType" class="achievement-form-select" required>
+            <option *ngFor="let opt of typeOptions" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
+        <div class="achievement-form-group">
+          <label class="achievement-form-label" for="description">Description</label>
+          <textarea id="description" rows="4" [(ngModel)]="description" name="description" placeholder="At least 10 characters. e.g. Upload a clear CIN and have it verified." class="achievement-form-textarea" minlength="10" maxlength="500"></textarea>
+        </div>
+        <div class="achievement-form-row">
+          <div class="achievement-form-group">
+            <label class="achievement-form-label" for="points">Points (1–1000)</label>
+            <input id="points" type="number" [(ngModel)]="pointsAwarded" name="pointsAwarded" min="1" max="1000" placeholder="25" class="achievement-form-input" />
+          </div>
+          <div class="achievement-form-group">
+            <label class="achievement-form-label" for="tierRequired">Tier required (optional)</label>
+            <input id="tierRequired" type="number" [(ngModel)]="tierRequired" name="tierRequired" min="0" placeholder="—" class="achievement-form-input" />
+          </div>
+        </div>
+        <div class="achievement-form-group">
+          <label class="achievement-form-label optional" for="badgeColor">Badge color (e.g. #059669)</label>
+          <input id="badgeColor" type="text" [(ngModel)]="badgeColor" name="badgeColor" placeholder="#059669" class="achievement-form-input" maxlength="20" />
+        </div>
+        <div class="achievement-form-group achievement-form-check">
+          <input id="isSecret" type="checkbox" [(ngModel)]="isSecret" name="isSecret" class="achievement-form-checkbox" />
+          <label class="achievement-form-label" for="isSecret">Secret achievement (hidden until unlocked)</label>
+        </div>
+
+        <p class="achievement-form-section-title mt">Optional</p>
+        <div class="achievement-form-group">
+          <label class="achievement-form-label optional" for="iconUrl">Icon URL</label>
+          <input id="iconUrl" type="text" [(ngModel)]="iconUrl" name="iconUrl" placeholder="Icon URL" class="achievement-form-input" />
+        </div>
+        <div class="achievement-form-group">
+          <label class="achievement-form-label optional" for="tutorialUrl">Tutorial URL</label>
+          <input id="tutorialUrl" type="url" [(ngModel)]="tutorialUrl" name="tutorialUrl" placeholder="External link" class="achievement-form-input" />
+        </div>
+
+        <div class="achievement-form-actions">
+          <button type="submit" [disabled]="loading" class="achievement-form-btn-primary">
+            <span class="material-symbols-outlined" style="font-size: 1.125rem;">add</span>
+            {{ saveLabel }}
+          </button>
+          <a [routerLink]="cancelRoute" class="achievement-form-btn-secondary">{{ cancelLabel }}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

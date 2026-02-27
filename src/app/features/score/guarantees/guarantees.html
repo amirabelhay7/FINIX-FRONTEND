@@ -74,7 +74,7 @@
                     <div class="flex items-center justify-between text-xs pt-3 border-t border-gray-100">
                         <div>
                             <p class="text-gray-500">Created {{ formatDate(guarantee.createdAt) }}</p>
-                            <p class="text-gray-500">Expires {{ guarantee.expiresAt ? formatDate(guarantee.expiresAt) : '—' }}</p>
+                            <p class="text-gray-500">Expires {{ guarantee.expiresAt ? formatExpires(guarantee.expiresAt) : '—' }}</p>
                         </div>
                         <div class="flex items-center space-x-2">
                             <span class="px-2 py-1 rounded-full" [class.bg-green-100]="guarantee.isAccepted" [class.text-green-600]="guarantee.isAccepted" [class.bg-amber-100]="!guarantee.isAccepted" [class.text-amber-700]="!guarantee.isAccepted">{{ guarantee.isAccepted ? 'Accepted' : 'Pending' }}</span>
@@ -118,7 +118,7 @@
                     <div class="flex items-center justify-between text-xs pt-3 border-t border-gray-100">
                         <div>
                             <p class="text-gray-500">Created {{ formatDate(guarantee.createdAt) }}</p>
-                            <p class="text-gray-500">Expires {{ guarantee.expiresAt ? formatDate(guarantee.expiresAt) : '—' }}</p>
+                            <p class="text-gray-500">Expires {{ guarantee.expiresAt ? formatExpires(guarantee.expiresAt) : '—' }}</p>
                         </div>
                         <div class="flex items-center space-x-2">
                             <span class="px-2 py-1 rounded-full" [class.bg-green-100]="guarantee.isAccepted" [class.text-green-600]="guarantee.isAccepted" [class.bg-amber-100]="!guarantee.isAccepted" [class.text-amber-700]="!guarantee.isAccepted">{{ guarantee.isAccepted ? 'Accepted' : 'Pending' }}</span>

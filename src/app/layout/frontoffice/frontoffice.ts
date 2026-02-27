@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
@@ -51,6 +51,7 @@ export class Frontoffice implements OnInit, OnDestroy {
   ];
   private static readonly NAV_SELLER: NavItem[] = [
     { path: '/', label: 'Home' },
+    { path: '/wallet', label: 'Wallet' },
     { path: '/seller/dashboard', label: 'Dashboard' },
     { path: '/seller/listings', label: 'Listings' },
     { path: '/seller/orders', label: 'Orders' },
@@ -58,6 +59,11 @@ export class Frontoffice implements OnInit, OnDestroy {
   private static readonly NAV_INSURER: NavItem[] = [
     { path: '/', label: 'Home' },
     { path: '/insurer', label: 'Dashboard' },
+  ];
+  /** Admin has no front-office wallet/score; only Home and link to backoffice. */
+  private static readonly NAV_ADMIN: NavItem[] = [
+    { path: '/', label: 'Home' },
+    { path: '/admin/dashboard', label: 'Admin dashboard' },
   ];
   private static readonly NAV_GUEST: NavItem[] = [
     { path: '/', label: 'Home' },
@@ -70,7 +76,8 @@ export class Frontoffice implements OnInit, OnDestroy {
       case 'AGENT': return Frontoffice.NAV_AGENT;
       case 'SELLER': return Frontoffice.NAV_SELLER;
       case 'INSURER': return Frontoffice.NAV_INSURER;
-      default: return Frontoffice.NAV_CLIENT;
+      case 'ADMIN': return Frontoffice.NAV_ADMIN;
+      default: return Frontoffice.NAV_GUEST;
     }
   }
 
@@ -89,7 +96,8 @@ export class Frontoffice implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private auth: AuthService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -109,7 +117,20 @@ export class Frontoffice implements OnInit, OnDestroy {
       this.isLoggedIn = true;
       this.currentUser = this.auth.getCurrentUser();
       this.userRole = this.currentUser?.role || 'CLIENT';
-      this.notificationService.getUnreadCount().subscribe({ next: c => { this.unreadCount = c; }, error: () => { this.unreadCount = 0; } });
+      this.notificationService.getUnreadCount().subscribe({
+        next: c => {
+          setTimeout(() => {
+            this.unreadCount = c;
+            this.cdr.detectChanges();
+          }, 0);
+        },
+        error: () => {
+          setTimeout(() => {
+            this.unreadCount = 0;
+            this.cdr.detectChanges();
+          }, 0);
+        }
+      });
     } else {
       this.isLoggedIn = false;
       this.currentUser = null;

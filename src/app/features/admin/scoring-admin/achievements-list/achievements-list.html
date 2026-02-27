@@ -9,10 +9,10 @@
         <p class="achievements-subtitle">{{ pageSubtitle }}</p>
       </div>
     </div>
-    <button type="button" class="achievements-add-btn">
+    <a routerLink="/admin/scoring/achievements/new" class="achievements-add-btn">
       <span class="material-symbols-outlined">add</span>
       {{ addAchievementLabel }}
-    </button>
+    </a>
   </header>
 
   <div *ngIf="loading" class="achievements-loading">

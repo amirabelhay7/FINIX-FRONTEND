@@ -65,13 +65,18 @@
       </div>
 
       <div class="savings-actions">
-        <button type="button" class="savings-btn-pay" [disabled]="loadingAction" (click)="payPeriod()">
+        <button type="button" class="savings-btn-pay" [disabled]="loadingAction || !canPayNextPeriod" (click)="payPeriod()">
           <span class="material-symbols-outlined">savings</span>
           {{ payPeriodLabel }}
         </button>
+        <p *ngIf="nextPeriodDueMessage" class="savings-next-due">{{ nextPeriodDueMessage }}</p>
         <button *ngIf="canWithdraw" type="button" class="savings-btn-withdraw" [disabled]="loadingAction" (click)="withdraw()">
           <span class="material-symbols-outlined">account_balance_wallet</span>
           {{ withdrawLabel }}
+        </button>
+        <button type="button" class="savings-btn-leave" [disabled]="loadingAction" (click)="openLeaveModal()">
+          <span class="material-symbols-outlined">exit_to_app</span>
+          {{ leaveChallengeLabel }}
         </button>
       </div>
       <p class="savings-no-penalty">{{ noPenaltyNote }}</p>
@@ -111,6 +116,21 @@
       <h3 class="savings-modal-title">Couldn’t complete payment</h3>
       <p class="savings-modal-message">{{ payModalMessage }}</p>
       <button type="button" class="savings-modal-btn" (click)="closePayModal()">OK</button>
+    </div>
+  </div>
+
+  <!-- Leave challenge confirmation -->
+  <div *ngIf="showLeaveModal" class="savings-modal-overlay" (click)="closeLeaveModal()">
+    <div class="savings-modal" (click)="$event.stopPropagation()">
+      <div class="savings-modal-icon">
+        <span class="material-symbols-outlined">exit_to_app</span>
+      </div>
+      <h3 class="savings-modal-title">{{ leaveChallengeConfirmTitle }}</h3>
+      <p class="savings-modal-message">{{ leaveChallengeConfirmMessage }}</p>
+      <div class="savings-modal-actions">
+        <button type="button" class="savings-modal-btn secondary" (click)="closeLeaveModal()">Cancel</button>
+        <button type="button" class="savings-modal-btn" (click)="confirmLeaveChallenge()">Leave challenge</button>
+      </div>
     </div>
   </div>
 </div>

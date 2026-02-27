@@ -49,22 +49,22 @@
         <div class="p-5 border-b border-gray-50 flex flex-wrap items-center gap-3">
             <div class="flex items-center bg-gray-50 rounded-lg border border-gray-200 px-3 py-2">
                 <span class="material-symbols-outlined text-gray-400 text-[18px] mr-2">search</span>
-                <input type="text" [(ngModel)]="filterSearch" placeholder="Search transactions..." class="text-sm font-medium text-gray-800 bg-transparent outline-none placeholder-gray-400 w-48" />
+                <input type="text" [(ngModel)]="filterSearch" (ngModelChange)="currentPage = 1" placeholder="Search transactions..." class="text-sm font-medium text-gray-800 bg-transparent outline-none placeholder-gray-400 w-48" />
             </div>
-            <select class="text-xs font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#135bec]" [(ngModel)]="filterType">
+            <select class="text-xs font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#135bec]" [(ngModel)]="filterType" (ngModelChange)="currentPage = 1">
                 <option value="">All Types</option>
                 <option value="DEPOSIT">Deposit</option>
                 <option value="WITHDRAWAL">Withdrawal</option>
                 <option value="TRANSFER">Transfer</option>
                 <option value="AGENT_TOP_UP">Agent top-up</option>
             </select>
-            <select class="text-xs font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#135bec]" [(ngModel)]="filterDateRange">
+            <select class="text-xs font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#135bec]" [(ngModel)]="filterDateRange" (ngModelChange)="currentPage = 1">
                 <option value="all">All time</option>
                 <option value="7">Last 7 days</option>
                 <option value="30">Last 30 days</option>
                 <option value="90">Last 3 months</option>
             </select>
-            <select class="text-xs font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#135bec]" [(ngModel)]="filterStatus">
+            <select class="text-xs font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#135bec]" [(ngModel)]="filterStatus" (ngModelChange)="currentPage = 1">
                 <option value="">All status</option>
                 <option value="Success">Success</option>
                 <option value="PENDING">Pending</option>
@@ -85,10 +85,10 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50 text-sm font-medium">
-                    <tr *ngIf="getFilteredTransactions().length === 0" class="bg-gray-50/50">
+                    <tr *ngIf="getPaginatedTransactions().length === 0" class="bg-gray-50/50">
                         <td colspan="6" class="px-6 py-8 text-center text-gray-500 text-sm">No transactions match your filters.</td>
                     </tr>
-                    <tr [routerLink]="tx.id ? ['/wallet/transactions', tx.id] : null" [class.cursor-pointer]="tx.id" class="hover:bg-gray-50/50 transition-colors" *ngFor="let tx of getFilteredTransactions()">
+                    <tr [routerLink]="tx.id ? ['/wallet/transactions', tx.id] : null" [class.cursor-pointer]="tx.id" class="hover:bg-gray-50/50 transition-colors" *ngFor="let tx of getPaginatedTransactions()">
                         <td class="px-6 py-4 font-mono text-[10px] text-gray-400">{{ tx.ref }}</td>
                         <td class="px-6 py-4"><span class="px-2 py-0.5 text-[10px] rounded border font-bold" [ngClass]="tx.typeClass">{{ tx.type }}</span></td>
                         <td class="px-6 py-4 text-gray-600 font-medium text-xs">{{ tx.description }}</td>
@@ -100,16 +100,22 @@
             </table>
         </div>
 
-        <div class="px-6 py-4 border-t border-gray-50 flex items-center justify-between">
-            <p class="text-xs text-gray-400 font-medium">{{ getFilteredTransactions().length }} of {{ transactions.length }} transaction(s)</p>
+        <div class="px-6 py-4 border-t border-gray-50 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-4">
+                <p class="text-xs text-gray-400 font-medium">{{ paginationRange }} transaction(s)</p>
+                <select class="text-xs font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#135bec]" [ngModel]="pageSize" (ngModelChange)="pageSize = $event; onPageSizeChange()">
+                    <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }} per page</option>
+                </select>
+            </div>
             <div class="flex items-center space-x-1">
-                <button type="button" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:bg-gray-100 rounded-lg transition-colors">
+                <button type="button" class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" [class.text-gray-400]="currentPage > 1" [class.hover:bg-gray-100]="currentPage > 1" [class.text-gray-300]="currentPage <= 1" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">
                     <span class="material-symbols-outlined text-[18px]">chevron_left</span>
                 </button>
-                <button type="button" class="w-8 h-8 flex items-center justify-center text-white bg-[#135bec] rounded-lg text-xs font-bold">1</button>
-                <button type="button" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-lg text-xs font-bold">2</button>
-                <button type="button" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-lg text-xs font-bold">3</button>
-                <button type="button" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:bg-gray-100 rounded-lg transition-colors">
+                <ng-container *ngFor="let p of getPageNumbers()">
+                    <button *ngIf="p !== -1" type="button" class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-colors" [class.text-white]="p === currentPage" [class.bg-[#135bec]]="p === currentPage" [class.text-gray-500]="p !== currentPage" [class.hover:bg-gray-100]="p !== currentPage" (click)="goToPage(p)">{{ p }}</button>
+                    <span *ngIf="p === -1" class="w-8 h-8 flex items-center justify-center text-gray-400 text-xs">…</span>
+                </ng-container>
+                <button type="button" class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" [class.text-gray-400]="currentPage < totalPages" [class.hover:bg-gray-100]="currentPage < totalPages" [class.text-gray-300]="currentPage >= totalPages" [disabled]="currentPage >= totalPages" (click)="goToPage(currentPage + 1)">
                     <span class="material-symbols-outlined text-[18px]">chevron_right</span>
                 </button>
             </div>

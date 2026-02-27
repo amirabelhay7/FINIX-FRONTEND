@@ -16,6 +16,7 @@ export class DocumentUpload implements OnInit {
   readonly backLabel = 'Back to score';
   readonly uploadTitle = 'Upload a document';
   readonly uploadHint = 'Accepted: electricity bill, invoice, rent receipt, ID, proof of income. Each verified document earns points.';
+  readonly multipleHint = 'You can upload multiple documents of the same type (e.g. a new utility bill each month).';
   readonly dropLabel = 'Drop file here or click to browse';
   readonly dropHint = 'PDF, JPG, PNG · max 5 MB';
   readonly documentTypeLabel = 'Document type';

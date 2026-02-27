@@ -111,6 +111,8 @@ export interface SavingsEnrollmentApi {
   lastPeriodPaidAt: string | null;
   createdAt: string;
   periodHistory: SavingsPeriodPaymentApi[];
+  /** When the next period payment is allowed (null/absent = can pay now). ISO-8601 */
+  nextPeriodDueAt?: string | null;
 }
 
 export interface VerifiedDocumentRow {

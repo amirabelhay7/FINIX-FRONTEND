@@ -50,6 +50,13 @@
       <p class="text-xs font-bold text-gray-500 uppercase mb-1">Reason</p>
       <p class="text-sm text-gray-600">{{ guarantee.reason }}</p>
     </div>
-    <a [routerLink]="backRoute" class="inline-block px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">Back to list</a>
+    <div *ngIf="actionError" class="mt-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm">{{ actionError }}</div>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a [routerLink]="backRoute" class="inline-block px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all">Back to list</a>
+      <ng-container *ngIf="!guarantee.isAccepted">
+        <button type="button" (click)="acceptGuarantee()" [disabled]="accepting || rejecting" class="px-6 py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 disabled:opacity-50">Accept (as admin)</button>
+        <button type="button" (click)="rejectGuarantee()" [disabled]="accepting || rejecting" class="px-6 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-bold hover:bg-amber-700 disabled:opacity-50">Reject</button>
+      </ng-container>
+    </div>
   </div>
 </div>

@@ -44,34 +44,49 @@ export class GuaranteeCreate {
       this.cdr.detectChanges();
       return;
     }
-    if (this.beneficiaryId == null || this.beneficiaryId <= 0) {
+    const beneficiaryId = Number(this.beneficiaryId);
+    if (!Number.isInteger(beneficiaryId) || beneficiaryId <= 0) {
       this.error = 'Please enter a valid beneficiary user ID.';
       this.cdr.detectChanges();
       return;
     }
-    if (this.pointsOffered < 10 || this.pointsOffered > 100) {
+    const pointsOffered = Number(this.pointsOffered);
+    if (pointsOffered < 10 || pointsOffered > 100) {
       this.error = 'Points must be between 10 and 100.';
       this.cdr.detectChanges();
       return;
     }
-    if (!this.reason.trim()) {
+    const reason = this.reason.trim();
+    if (!reason) {
       this.error = 'Reason is required.';
       this.cdr.detectChanges();
       return;
     }
+    if (reason.length < 5) {
+      this.error = 'Reason must be at least 5 characters.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (reason.length > 500) {
+      this.error = 'Reason cannot exceed 500 characters.';
+      this.cdr.detectChanges();
+      return;
+    }
+    const validityMonths = Math.min(12, Math.max(1, Number(this.validityMonths) || 6));
     this.loading = true;
     this.error = null;
     this.cdr.detectChanges();
-    this.scoreService.createGuaranteeMe({
-      guarantorId: user.id,
-      beneficiaryId: this.beneficiaryId,
-      pointsOffered: this.pointsOffered,
-      reason: this.reason.trim(),
-      validityMonths: this.validityMonths
-    }).subscribe({
+    const body = {
+      guarantorId: Number(user.id),
+      beneficiaryId,
+      pointsOffered,
+      reason,
+      validityMonths
+    };
+    this.scoreService.createGuaranteeMe(body).subscribe({
       next: () => this.router.navigate(['/score/guarantees']),
       error: (err) => {
-        this.error = err?.error?.message || err?.message || 'Create failed';
+        this.error = err?.error?.message || 'Create failed. Check: beneficiary user ID exists, reason 5–500 characters, points 10–100. You cannot guarantee yourself and you can have at most 3 active guarantees.';
         this.loading = false;
         this.cdr.detectChanges();
       }

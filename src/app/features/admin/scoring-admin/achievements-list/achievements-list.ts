@@ -22,6 +22,7 @@ export class AchievementsList implements OnInit {
     { value: 'WALLET', label: 'WALLET' },
     { value: 'GUARANTEE', label: 'GUARANTEE' },
     { value: 'LOAN', label: 'LOAN' },
+    { value: 'TIER_UPGRADE', label: 'TIER_UPGRADE' },
   ];
   readonly editLabel = 'Edit';
   readonly deleteLabel = 'Delete';
@@ -73,7 +74,7 @@ export class AchievementsList implements OnInit {
       points: String(a.pointsAwarded ?? 0),
       status: a.status || 'ACTIVE',
       statusClass: (a.status === 'ACTIVE' || !a.status) ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600',
-      editRoute: `/admin/scoring/achievements/${a.id}`,
+      editRoute: `/admin/scoring/achievements/edit/${a.id}`,
     }));
   }
 

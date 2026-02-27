@@ -74,6 +74,11 @@ export class Transactions implements OnInit {
   filterDateRange = 'all';
   filterStatus = '';
 
+  /** Pagination: client-side over filtered list */
+  currentPage = 1;
+  pageSize = 10;
+  readonly pageSizeOptions = [10, 25, 50, 100];
+
   constructor(
     private walletService: WalletService,
     private cdr: ChangeDetectorRef
@@ -145,6 +150,56 @@ export class Transactions implements OnInit {
       );
     }
     return list;
+  }
+
+  /** Total number of filtered transactions. */
+  get filteredTotal(): number {
+    return this.getFilteredTransactions().length;
+  }
+
+  /** Total number of pages for current pageSize. */
+  get totalPages(): number {
+    const n = this.filteredTotal;
+    return n === 0 ? 1 : Math.ceil(n / this.pageSize);
+  }
+
+  /** Slice of filtered transactions for the current page. */
+  getPaginatedTransactions(): TransactionRow[] {
+    const list = this.getFilteredTransactions();
+    const start = (this.currentPage - 1) * this.pageSize;
+    return list.slice(start, start + this.pageSize);
+  }
+
+  /** Human-readable range for footer (e.g. "1–10 of 45"). */
+  get paginationRange(): string {
+    const total = this.filteredTotal;
+    if (total === 0) return '0 of 0';
+    const start = (this.currentPage - 1) * this.pageSize + 1;
+    const end = Math.min(this.currentPage * this.pageSize, total);
+    return `${start}–${end} of ${total}`;
+  }
+
+  goToPage(page: number): void {
+    const p = Math.max(1, Math.min(page, this.totalPages));
+    if (p !== this.currentPage) {
+      this.currentPage = p;
+      this.cdr.detectChanges();
+    }
+  }
+
+  /** Page numbers to show in pagination (use -1 for ellipsis). */
+  getPageNumbers(): number[] {
+    const total = this.totalPages;
+    const current = this.currentPage;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    if (current <= 3) return [1, 2, 3, 4, -1, total];
+    if (current >= total - 2) return [1, -1, total - 3, total - 2, total - 1, total];
+    return [1, -1, current - 1, current, current + 1, -1, total];
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+    this.cdr.detectChanges();
   }
 
   onExportCsv(): void {

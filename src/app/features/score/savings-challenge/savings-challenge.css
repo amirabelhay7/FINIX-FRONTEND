@@ -308,6 +308,13 @@
   transform: none;
 }
 
+.savings-next-due {
+  font-size: 0.8125rem;
+  color: var(--sc-muted);
+  margin: 0;
+  width: 100%;
+}
+
 .savings-btn-withdraw {
   display: inline-flex;
   align-items: center;
@@ -332,6 +339,34 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+.savings-btn-leave {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--sc-muted);
+  background: transparent;
+  border: 1px solid var(--sc-border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.savings-btn-leave:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.savings-btn-leave:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.savings-btn-leave .material-symbols-outlined { font-size: 1.125rem; }
 
 .savings-no-penalty {
   font-size: 0.8125rem;
@@ -495,6 +530,25 @@
 
 .savings-modal-btn:hover {
   background: #047857;
+}
+
+.savings-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.savings-modal-btn.secondary {
+  background: #fff;
+  color: var(--sc-text);
+  border: 1px solid var(--sc-border);
+}
+
+.savings-modal-btn.secondary:hover {
+  background: var(--sc-surface);
+  border-color: #cbd5e1;
 }
 
 .savings-history-empty {

@@ -1,0 +1,135 @@
+.guarantee-create-admin-page {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding-bottom: 2rem;
+}
+
+.guarantee-create-admin-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.guarantee-create-admin-back {
+  display: inline-flex;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  color: #64748b;
+  text-decoration: none;
+}
+
+.guarantee-create-admin-back:hover {
+  background: #f1f5f9;
+  color: #0d9488;
+}
+
+.guarantee-create-admin-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.guarantee-create-admin-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.guarantee-create-admin-loading,
+.guarantee-create-admin-error {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.guarantee-create-admin-loading {
+  background: #f8fafc;
+  color: #0d9488;
+}
+
+.guarantee-create-admin-error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.guarantee-create-admin-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.guarantee-create-admin-group {
+  margin-bottom: 1.25rem;
+}
+
+.guarantee-create-admin-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.375rem;
+}
+
+.guarantee-create-admin-select,
+.guarantee-create-admin-input,
+.guarantee-create-admin-textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.guarantee-create-admin-textarea {
+  min-height: 4rem;
+  resize: vertical;
+}
+
+.guarantee-create-admin-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.guarantee-create-admin-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+}
+
+.guarantee-create-admin-btn.primary {
+  background: #0d9488;
+  color: #fff;
+}
+
+.guarantee-create-admin-btn.primary:hover:not(:disabled) {
+  background: #0f766e;
+}
+
+.guarantee-create-admin-btn.primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.guarantee-create-admin-btn.secondary {
+  background: #fff;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.guarantee-create-admin-btn.secondary:hover {
+  background: #f8fafc;
+}

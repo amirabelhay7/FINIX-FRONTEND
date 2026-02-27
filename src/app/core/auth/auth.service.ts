@@ -22,7 +22,9 @@ export class AuthService {
    */
   validateSession(): Observable<void> {
     if (!this.getToken()) return of(undefined);
-    return this.http.get<unknown>(`${API}/scoring/me/score`, { observe: 'response' }).pipe(
+    // Use a lightweight endpoint that is accessible to all authenticated roles
+    // (CLIENT, ADMIN, AGENT, etc.) just to validate the token.
+    return this.http.get<unknown>(`${API}/notifications/me/unread-count`, { observe: 'response' }).pipe(
       map(() => undefined),
       catchError(() => of(undefined))
     );
@@ -81,25 +83,19 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  redirectByRole(role: string): void {
+  /** Path to redirect to after login or when accessing a route not allowed for this role. */
+  getRoleHome(role: string): string {
     switch (role) {
-      case 'CLIENT':
-        this.router.navigate(['/wallet']);
-        break;
-      case 'AGENT':
-        this.router.navigate(['/agent']);
-        break;
-      case 'SELLER':
-        this.router.navigate(['/seller']);
-        break;
-      case 'INSURER':
-        this.router.navigate(['/insurer']);
-        break;
-      case 'ADMIN':
-        this.router.navigate(['/admin/dashboard']);
-        break;
-      default:
-        this.router.navigate(['/wallet']);
+      case 'CLIENT': return '/wallet';
+      case 'AGENT': return '/agent';
+      case 'SELLER': return '/seller';
+      case 'INSURER': return '/insurer';
+      case 'ADMIN': return '/admin/dashboard';
+      default: return '/';
     }
+  }
+
+  redirectByRole(role: string): void {
+    this.router.navigate([this.getRoleHome(role)]);
   }
 }

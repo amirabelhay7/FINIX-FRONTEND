@@ -58,6 +58,25 @@
   margin: 0;
 }
 
+.guarantees-header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--guar-accent);
+  color: #fff;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
+}
+
+.guarantees-header-btn:hover {
+  background: #0f766e;
+  color: #fff;
+}
+
 .guarantees-stats {
   display: flex;
   gap: 1rem;

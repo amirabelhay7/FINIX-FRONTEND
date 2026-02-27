@@ -9,6 +9,10 @@
         <p class="guarantees-subtitle">{{ pageSubtitle }}</p>
       </div>
     </div>
+    <a routerLink="/admin/scoring/guarantees/create" class="guarantees-header-btn">
+      <span class="material-symbols-outlined">add</span>
+      Create guarantee
+    </a>
   </header>
 
   <div *ngIf="loading" class="guarantees-loading">

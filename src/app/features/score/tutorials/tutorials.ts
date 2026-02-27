@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
+import { AuthService } from '../../../core/auth/auth.service';
 import { ScoreService } from '../../../core/score/score.service';
 import { TutorialApi } from '../../../models';
 
@@ -25,6 +26,7 @@ export class Tutorials implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private scoreService: ScoreService,
+    private auth: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -49,7 +51,8 @@ export class Tutorials implements OnInit {
     }).pipe(finalize(() => { this.loading = false; this.cdr.detectChanges(); })).subscribe({
       next: ({ all: allList, completed }) => {
         const completedIds = new Set((completed ?? []).map(t => t.id));
-        this.tutorials = (allList ?? []).map(t => this.toDisplay(t, completedIds.has(t.id)));
+        const currentUserId = this.auth.getCurrentUser()?.id;
+        this.tutorials = (allList ?? []).map(t => this.toDisplay(t, completedIds.has(t.id), currentUserId));
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -59,8 +62,9 @@ export class Tutorials implements OnInit {
     });
   }
 
-  private toDisplay(t: TutorialApi, isCompleted: boolean): TutorialApi & { status: string; color: string; icon: string; progress?: number } {
-    const status = isCompleted ? 'COMPLETED' : (t.status === 'IN_PROGRESS' ? 'IN_PROGRESS' : 'NOT_STARTED');
+  private toDisplay(t: TutorialApi, isCompleted: boolean, currentUserId?: number): TutorialApi & { status: string; color: string; icon: string; progress?: number } {
+    const inProgress = !isCompleted && currentUserId != null && t.userId === currentUserId;
+    const status = isCompleted ? 'COMPLETED' : (inProgress ? 'IN_PROGRESS' : 'NOT_STARTED');
     const typeMap: Record<string, string> = { DOCUMENT: 'description', PROFILE: 'person', WALLET: 'account_balance_wallet', GUARANTEE: 'handshake' };
     const colorMap: Record<string, string> = { DOCUMENT: 'blue', PROFILE: 'green', WALLET: 'purple', GUARANTEE: 'orange' };
     return {

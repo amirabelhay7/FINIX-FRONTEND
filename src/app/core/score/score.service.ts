@@ -76,6 +76,13 @@ export class ScoreService {
     return this.http.post<SavingsEnrollmentApi>(`${API}/scoring/me/savings-challenge/withdraw`, {});
   }
 
+  /** Leave challenge: withdraw balance to wallet and cancel enrollment. Returns 204. */
+  leaveSavingsChallenge(): Observable<void> {
+    return this.http.post<void>(`${API}/scoring/me/savings-challenge/leave`, {}, { observe: 'response' }).pipe(
+      map(() => undefined)
+    );
+  }
+
   getMyScoreHistory(): Observable<ScoreHistoryEntryApi[]> {
     return this.http.get<ScoreHistoryEntryApi[]>(`${API}/score-history/me`);
   }
@@ -208,6 +215,10 @@ export class ScoreService {
     return this.http.post<AchievementApi>(`${API}/achievements`, request);
   }
 
+  updateAchievement(id: number, request: AchievementRequest): Observable<AchievementApi> {
+    return this.http.put<AchievementApi>(`${API}/achievements/${id}`, request);
+  }
+
   deleteAchievement(id: number): Observable<void> {
     return this.http.delete<void>(`${API}/achievements/${id}`);
   }
@@ -235,6 +246,21 @@ export class ScoreService {
 
   createGuaranteeMe(request: GuaranteeRequest): Observable<GuaranteeApi> {
     return this.http.post<GuaranteeApi>(`${API}/guarantees/me`, request);
+  }
+
+  /** Admin: create a guarantee between two clients. */
+  createGuaranteeAdmin(request: GuaranteeRequest): Observable<GuaranteeApi> {
+    return this.http.post<GuaranteeApi>(`${API}/guarantees/admin/create`, request);
+  }
+
+  /** Admin: accept a guarantee on behalf of the beneficiary. */
+  acceptGuaranteeAdmin(id: number): Observable<GuaranteeApi> {
+    return this.http.post<GuaranteeApi>(`${API}/guarantees/${id}/admin/accept`, {});
+  }
+
+  /** Admin: reject a guarantee. */
+  rejectGuaranteeAdmin(id: number): Observable<void> {
+    return this.http.post<void>(`${API}/guarantees/${id}/admin/reject`, {});
   }
 
   acceptGuaranteeMe(id: number): Observable<GuaranteeApi> {

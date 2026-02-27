@@ -17,7 +17,8 @@
             <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">upload_file</span>
             {{ uploadTitle }}
         </h4>
-        <p class="text-xs text-gray-500 mb-4">{{ uploadHint }}</p>
+        <p class="text-xs text-gray-500 mb-2">{{ uploadHint }}</p>
+        <p class="text-xs text-gray-500 mb-4">{{ multipleHint }}</p>
         <input #fileInput type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png" (change)="onFileSelected($event)" />
         <div class="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-[#135bec]/40 transition-colors cursor-pointer" (click)="triggerFileInput(fileInput)">
             <span class="material-symbols-outlined text-gray-400 text-4xl mb-2">cloud_upload</span>

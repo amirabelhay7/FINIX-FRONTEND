@@ -23,6 +23,9 @@ export class SavingsChallenge implements OnInit {
   readonly joinLabel = 'Join this challenge';
   readonly payPeriodLabel = 'Pay this period';
   readonly withdrawLabel = 'Withdraw to wallet';
+  readonly leaveChallengeLabel = 'Leave challenge';
+  readonly leaveChallengeConfirmTitle = 'Leave savings challenge?';
+  readonly leaveChallengeConfirmMessage = 'Your current balance will be returned to your wallet (no penalty). You will no longer be in this challenge and can join another one later.';
   readonly noPenaltyNote = 'You can withdraw your savings anytime with no penalty. Points are only awarded after each period ends (money left in the challenge).';
   readonly monthlyHistoryTitle = 'Period history';
   readonly tipText = 'Pay each period from your wallet. Points are added to your score only after the period ends. No penalty if you withdraw early.';
@@ -35,6 +38,7 @@ export class SavingsChallenge implements OnInit {
   error: string | null = null;
   showPayModal = false;
   payModalMessage = '';
+  showLeaveModal = false;
   challenges: SavingsChallengeApi[] = [];
   enrollment: SavingsEnrollmentApi | null = null;
   monthlyHistory: SavingsMonthRow[] = [];
@@ -209,5 +213,51 @@ export class SavingsChallenge implements OnInit {
 
   get canWithdraw(): boolean {
     return (this.enrollment?.balance ?? 0) > 0;
+  }
+
+  /** True when the user is allowed to pay the next period (no cooldown or cooldown passed). */
+  get canPayNextPeriod(): boolean {
+    const dueAt = this.enrollment?.nextPeriodDueAt;
+    if (!dueAt) return true;
+    return new Date(dueAt).getTime() <= Date.now();
+  }
+
+  /** Message when Pay is disabled because next period is not yet due. */
+  get nextPeriodDueMessage(): string {
+    const dueAt = this.enrollment?.nextPeriodDueAt;
+    if (!dueAt || this.canPayNextPeriod) return '';
+    const d = new Date(dueAt);
+    return `Next payment available after ${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}.`;
+  }
+
+  openLeaveModal(): void {
+    this.showLeaveModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeLeaveModal(): void {
+    this.showLeaveModal = false;
+    this.cdr.detectChanges();
+  }
+
+  confirmLeaveChallenge(): void {
+    if (!this.enrollment) return;
+    this.loadingAction = true;
+    this.error = null;
+    this.closeLeaveModal();
+    this.cdr.detectChanges();
+    this.scoreService.leaveSavingsChallenge().pipe(
+      finalize(() => { this.loadingAction = false; this.cdr.detectChanges(); })
+    ).subscribe({
+      next: () => {
+        this.enrollment = null;
+        this.monthlyHistory = [];
+        this.load();
+      },
+      error: (err) => {
+        this.error = (err?.error?.message || err?.message) || 'Could not leave challenge';
+        this.cdr.detectChanges();
+      },
+    });
   }
 }

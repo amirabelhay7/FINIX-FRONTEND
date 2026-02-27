@@ -13,9 +13,11 @@ import { TutorialsList } from './tutorials-list/tutorials-list';
 import { TutorialForm } from './tutorial-form/tutorial-form';
 import { TutorialDetail } from './tutorial-detail/tutorial-detail';
 import { AchievementsList } from './achievements-list/achievements-list';
+import { AchievementForm } from './achievement-form/achievement-form';
 import { AchievementDetail } from './achievement-detail/achievement-detail';
 import { GuaranteesList } from './guarantees-list/guarantees-list';
 import { GuaranteeDetail } from './guarantee-detail/guarantee-detail';
+import { GuaranteeCreateAdmin } from './guarantee-create/guarantee-create-admin';
 import { DocumentsList } from './documents-list/documents-list';
 
 @NgModule({
@@ -29,9 +31,11 @@ import { DocumentsList } from './documents-list/documents-list';
     TutorialForm,
     TutorialDetail,
     AchievementsList,
+    AchievementForm,
     AchievementDetail,
     GuaranteesList,
     GuaranteeDetail,
+    GuaranteeCreateAdmin,
     DocumentsList
   ],
   imports: [
