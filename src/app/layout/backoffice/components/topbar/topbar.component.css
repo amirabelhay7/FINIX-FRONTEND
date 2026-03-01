@@ -1,0 +1,79 @@
+/* ================================================================
+   TOPBAR COMPONENT — FINIX
+   ================================================================ */
+
+.topbar {
+  position: fixed;
+  top: 0; left: var(--sidebar-w); right: 0;
+  height: var(--topbar-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--g200);
+  display: flex; align-items: center;
+  padding: 0 1.75rem;
+  z-index: 400;
+  gap: 1rem;
+  box-shadow: var(--sh-xs);
+}
+
+.tb-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem; font-weight: 700;
+  color: var(--g900);
+  line-height: 1.2;
+}
+
+.tb-breadcrumb {
+  font-size: .775rem; color: var(--g400);
+  display: flex; align-items: center; gap: .35rem;
+  margin-top: .15rem;
+}
+.tb-breadcrumb span { color: var(--g500); font-weight: 500; }
+.tb-sep { font-size: .7rem; color: var(--g300); }
+
+.tb-right {
+  display: flex; align-items: center; gap: .75rem;
+  margin-left: auto;
+}
+
+.tb-search {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .4rem .9rem;
+  background: var(--g50);
+  border: 1.5px solid var(--g200);
+  border-radius: var(--r8);
+  font-size: .825rem; color: var(--g400);
+  transition: all .2s; width: 230px;
+}
+.tb-search:focus-within {
+  border-color: var(--blue);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(31,111,234,.07);
+  width: 270px;
+}
+.tb-search input {
+  border: none; background: none; outline: none;
+  font-size: .825rem; color: var(--g700); width: 100%;
+}
+.tb-search input::placeholder { color: var(--g400); }
+
+.tb-btn {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--g50);
+  border: 1.5px solid var(--g200);
+  border-radius: var(--r8);
+  color: var(--g500);
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+}
+.tb-btn:hover { background: var(--soft); border-color: var(--blue); color: var(--blue); }
+
+.notif-dot {
+  position: absolute; top: 5px; right: 5px;
+  width: 7px; height: 7px;
+  background: var(--warning);
+  border-radius: 50%;
+  border: 1.5px solid var(--white);
+  animation: pulse 2s infinite;
+}

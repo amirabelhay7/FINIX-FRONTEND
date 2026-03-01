@@ -1,46 +1,50 @@
-/* You can add global styles to this file, and also import other style files */
+  :root {
+    --blue:       #1F6FEA;
+    --blue-dark:  #1558c0;
+    --blue-light: #4d8ff0;
+    --navy:       #0B1C2D;
+    --navy2:      #122338;
+    --steel:      #5B8DEF;
+    --soft:       #EAF2FF;
+    --success:    #2ECC71;
+    --warning:    #F5A623;
+    --danger:     #E74C3C;
+    --purple:     #8B5CF6;
+    --teal:       #06B6D4;
+    --chart1:     #3B82F6;
+    --chart2:     #93C5FD;
+    --chart3:     #CBD5E1;
 
-@import "@angular/material/prebuilt-themes/azure-blue.css";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+    --white:   #FFFFFF;
+    --g50:     #F5F7FA;
+    --g100:    #EEF2F8;
+    --g200:    #DDE4EF;
+    --g300:    #C4CEDF;
+    --g400:    #8FA3BC;
+    --g500:    #5E7A96;
+    --g700:    #2E3A4A;
+    --g900:    #0B1C2D;
 
-:root {
-    --primary-color: #135bec;
-}
+    --sh-xs:   0 1px 4px rgba(11,28,45,.07);
+    --sh-sm:   0 2px 10px rgba(11,28,45,.09);
+    --sh-md:   0 6px 24px rgba(11,28,45,.11);
+    --sh-lg:   0 16px 48px rgba(11,28,45,.14);
+    --sh-blue: 0 4px 18px rgba(31,111,234,.28);
 
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-}
-.custom-scrollbar:hover::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-}
+    --sidebar-w: 340px;
+    --topbar-h:  80px;
 
-.material-symbols-outlined {
-    font-family: 'Material Symbols Outlined';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 24px;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-smoothing: antialiased;
-    -webkit-font-feature-settings: 'liga';
-    -webkit-font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
+    --r4:  4px;
+    --r8:  8px;
+    --r12: 12px;
+    --r16: 16px;
+    --r20: 20px;
+    --r24: 24px;
 
-.filled-icon {
-    font-variation-settings: 'FILL' 1;
-}
+    --ease: cubic-bezier(.4,0,.2,1);
+    --pct: 0;
+    --h: 0px;
+    --w: 0%;
+    --rc: var(--blue);
+    --kc: var(--blue);
+  }
