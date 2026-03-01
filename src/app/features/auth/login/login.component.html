@@ -1,0 +1,205 @@
+<div class="finix-login">
+
+  <!-- ══════════════════════════════════════
+       LEFT — DYNAMIC PANEL
+  ══════════════════════════════════════ -->
+  <aside class="fl-left" id="left-panel">
+    <div class="fl-grid"></div>
+    <div class="fl-orb fl-orb-1" [style.background]="orb1Bg"></div>
+    <div class="fl-orb fl-orb-2" [style.background]="orb2Bg"></div>
+    <div class="fl-scan"></div>
+
+    <div class="fl-logo">
+      <div class="fl-logo-mark" [style.background]="logoMarkBg" [style.box-shadow]="logoMarkShadow">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="fl-logo-name">FIN<em>'</em>IX</div>
+      <div class="fl-logo-div"></div>
+      <div class="fl-logo-sub">Pro</div>
+    </div>
+
+    <div class="fl-body">
+      <div class="fl-tag" [style.background]="leftTagBg" [style.border-color]="leftTagBorder" [style.color]="leftTagColor">
+        <div class="fl-tag-dot" [style.background]="leftTagDotColor"></div>
+        <span>{{ leftTagTxt }}</span>
+      </div>
+
+      <div class="fl-icon-wrap" [style.background]="iconWrapBg" [style.box-shadow]="iconWrapShadow">
+        <div [innerHTML]="leftIcon"></div>
+      </div>
+
+      <h1 class="fl-h1">
+        <span [innerHTML]="h1Top"></span><br>
+        <span class="fl-grad" [style.background-image]="gradStyle">{{ h1Grad }}</span>
+      </h1>
+      <p class="fl-desc">{{ leftDesc }}</p>
+      <div class="fl-features">
+        <div class="fl-feat" *ngFor="let feat of leftFeatures; let i = index" [style.animation-delay]="(i * 0.07) + 's'">
+          <span class="fl-feat-dot" [style.background]="cfg?.color || '#5B8DEF'"></span>
+          {{ feat }}
+        </div>
+      </div>
+    </div>
+
+    <div class="fl-stats">
+      <div><div class="fl-stat-val">AES<em>-256</em></div><div class="fl-stat-lbl">Chiffrement</div></div>
+      <div><div class="fl-stat-val">2<em>FA</em></div><div class="fl-stat-lbl">Authentification</div></div>
+      <div><div class="fl-stat-val">30<em>min</em></div><div class="fl-stat-lbl">Session max</div></div>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════
+       RIGHT — AUTH
+  ══════════════════════════════════════ -->
+  <main class="fl-right">
+    <div class="fl-auth-box">
+
+      <!-- ── ROLE SELECT ── -->
+      <div class="fl-view" [class.active]="currentView === 'role-select'">
+        <div class="fl-eyebrow">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Accès sécurisé
+        </div>
+        <div class="fl-rs-title">Choisissez<br>votre profil</div>
+        <div class="fl-rs-sub">Sélectionnez votre rôle pour accéder à votre espace de travail FIN'IX Pro.</div>
+
+        <div class="fl-note">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>Les comptes sont créés exclusivement par l'administrateur IMF. Contactez votre responsable si vous n'avez pas encore reçu vos identifiants.</span>
+        </div>
+
+        <div class="fl-rc-grid">
+          <div class="fl-rc" [class.sel]="currentRole === 'agent'" (click)="selectRole('agent')" style="--rc-col:#1F6FEA;">
+            <div class="fl-rc-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fl-rc-ico" style="background:rgba(31,111,234,.1);"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1F6FEA" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div class="fl-rc-name">Agent IMF</div>
+            <div class="fl-rc-desc">Dossiers & clients</div>
+            <div class="fl-rc-tags"><span class="fl-rc-tag">Crédits</span><span class="fl-rc-tag">Clients</span><span class="fl-rc-tag">Suivi</span></div>
+          </div>
+
+          <div class="fl-rc" [class.sel]="currentRole === 'insurer'" (click)="selectRole('insurer')" style="--rc-col:#2ECC71;">
+            <div class="fl-rc-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fl-rc-ico" style="background:rgba(46,204,113,.1);"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2ECC71" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div class="fl-rc-name">Assureur</div>
+            <div class="fl-rc-desc">Contrats & polices</div>
+            <div class="fl-rc-tags"><span class="fl-rc-tag">Polices</span><span class="fl-rc-tag">Sinistres</span></div>
+          </div>
+
+          <div class="fl-rc" [class.sel]="currentRole === 'admin'" (click)="selectRole('admin')" style="--rc-col:#F5A623;">
+            <div class="fl-rc-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fl-rc-ico" style="background:rgba(245,166,35,.1);"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+            <div class="fl-rc-name">Admin IMF</div>
+            <div class="fl-rc-desc">Config. & supervision</div>
+            <div class="fl-rc-tags"><span class="fl-rc-tag">Users</span><span class="fl-rc-tag">Système</span></div>
+          </div>
+        </div>
+
+        <button class="fl-cta" [class.ready]="ctaReady" (click)="goToLogin()" [style.background]="ctaBg" [style.box-shadow]="ctaShadow">
+          <span>{{ ctaTxt }}</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+
+      <!-- ── LOGIN ── -->
+      <div class="fl-view" [class.active]="currentView === 'login'">
+        <div class="fl-login-top">
+          <button class="fl-back-btn" (click)="goBack()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <div class="fl-chip" [style.background]="chipBg" [style.color]="chipColor"><div class="fl-chip-dot" [style.background]="chipColor"></div><span>{{ chipLabel }}</span></div>
+        </div>
+
+        <div class="fl-login-title">Connexion sécurisée</div>
+        <div class="fl-login-sub">Entrez vos identifiants professionnels pour accéder à votre espace de travail.</div>
+
+        <div class="fl-session-pill">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Session fermée automatiquement après 30 min d'inactivité
+        </div>
+
+        <div class="fl-alert" [class.show]="alertVisible" [class.err]="alertType === 'err'" [class.ok]="alertType === 'ok'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>{{ alertText }}</span>
+        </div>
+
+        <form (ngSubmit)="handleLogin()">
+          <div class="fl-field">
+            <label class="fl-field-label">E-mail professionnel <a (click)="showForgot()">Mot de passe oublié ?</a></label>
+            <div class="fl-inp-wrap">
+              <span class="fl-inp-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+              <input class="fl-field-inp" [class.err]="emailError" type="text" [(ngModel)]="email" name="email" placeholder="prenom.nom&#64;finix.tn ou admin" autocomplete="email" (input)="clearErrors()">
+            </div>
+            <div class="fl-field-err" [class.show]="emailError">Adresse e-mail invalide.</div>
+          </div>
+
+          <div class="fl-field">
+            <label class="fl-field-label">Mot de passe</label>
+            <div class="fl-inp-wrap">
+              <span class="fl-inp-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+              <input class="fl-field-inp" [class.err]="pwError" [type]="pwVisible ? 'text' : 'password'" [(ngModel)]="password" name="password" placeholder="••••••••••" autocomplete="current-password" (input)="clearErrors()">
+              <button type="button" class="fl-pw-eye" (click)="togglePw()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <ng-container *ngIf="!pwVisible"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></ng-container>
+                  <ng-container *ngIf="pwVisible"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></ng-container>
+                </svg>
+              </button>
+            </div>
+            <div class="fl-field-err" [class.show]="pwError">Mot de passe incorrect (min 4 caractères).</div>
+          </div>
+
+          <div class="fl-remember"><input type="checkbox" id="fl-remember" [(ngModel)]="rememberMe" name="rememberMe"><label for="fl-remember">Rester connecté (usage privé uniquement)</label></div>
+
+          <button type="submit" class="fl-sub-btn" [disabled]="loginLoading" [style.background]="subBtnBg" [style.box-shadow]="subBtnShadow">
+            <div class="fl-spinner" [style.display]="loginLoading ? 'block' : 'none'"></div>
+            <span>{{ loginLoading ? 'Vérification…' : 'Accéder à mon espace' }}</span>
+            <svg *ngIf="!loginLoading" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </form>
+
+        <div class="fl-trust">
+          <div class="fl-trust-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> SSL 256-bit</div>
+          <div class="fl-trust-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 2FA</div>
+          <div class="fl-trust-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Audit log</div>
+        </div>
+        <div style="text-align:center;margin-top:1rem;font-size:.875rem;color:#8FA3BC;">Problème d'accès ? <a style="color:#1F6FEA;font-weight:600;cursor:pointer;">Contacter l'admin IMF</a></div>
+        <div style="text-align:center;margin-top:1.5rem;padding:.875rem;background:#FFFBEB;border:1px solid rgba(245,166,35,.2);border-radius:10px;font-size:.875rem;color:#92400E;">
+          💡 <strong>Demo :</strong> Tapez <code style="background:rgba(0,0,0,.06);padding:.15rem .5rem;border-radius:5px;">admin</code> / <code style="background:rgba(0,0,0,.06);padding:.15rem .5rem;border-radius:5px;">admin</code> pour accéder au backoffice
+        </div>
+      </div>
+
+      <!-- ── OTP ── -->
+      <div class="fl-view" [class.active]="currentView === 'otp'">
+        <div class="fl-otp-top">
+          <div class="fl-otp-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1F6FEA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div class="fl-otp-title">Vérification 2FA</div>
+          <div class="fl-otp-sub">Code envoyé au numéro professionnel enregistré<br><span class="fl-otp-tel">+216 •• ••• •••</span></div>
+        </div>
+        <div class="fl-otp-row">
+          <input *ngFor="let d of otpDigits; let i = index" class="fl-otp-inp" [class.filled]="otpDigits[i]" type="text" maxlength="1" inputmode="numeric" [value]="otpDigits[i]" (input)="onOtpInput(i, $event)" (keydown)="onOtpKeydown(i, $event)">
+        </div>
+        <div class="fl-otp-meta">Expire dans <span>{{ otpCountdown }}</span> &nbsp;·&nbsp; <button class="fl-otp-resend" [disabled]="otpResendDisabled" (click)="resendOtp()">Renvoyer</button></div>
+        <button class="fl-sub-btn" [disabled]="!otpComplete || otpLoading" (click)="verifyOtp()" [style.background]="subBtnBg" [style.box-shadow]="subBtnShadow" [style.opacity]="otpComplete ? '1' : '.4'" [style.pointer-events]="otpComplete ? 'all' : 'none'">
+          <div class="fl-spinner" [style.display]="otpLoading ? 'block' : 'none'"></div>
+          <span>{{ otpLoading ? 'Vérification…' : 'Vérifier le code' }}</span>
+          <svg *ngIf="!otpLoading" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+        <div style="text-align:center;margin-top:1.25rem;font-size:.9rem;"><a (click)="currentView = 'login'" style="color:#1F6FEA;font-weight:600;cursor:pointer;">← Retour à la connexion</a></div>
+      </div>
+
+      <!-- ── SUCCESS ── -->
+      <div class="fl-view" [class.active]="currentView === 'success'">
+        <div class="fl-suc-center">
+          <div class="fl-suc-ring"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="fl-suc-title">{{ sucTitle }}</div>
+          <div class="fl-suc-sub">{{ sucSub }}</div>
+          <div class="fl-suc-feats">
+            <div class="fl-suc-feat"><div class="fl-suc-dot" [style.background]="sucDotColor"></div><span>{{ sucF1 }}</span></div>
+            <div class="fl-suc-feat"><div class="fl-suc-dot" [style.background]="sucDotColor"></div><span>{{ sucF2 }}</span></div>
+            <div class="fl-suc-feat"><div class="fl-suc-dot" [style.background]="sucDotColor"></div><span>{{ sucF3 }}</span></div>
+          </div>
+          <button class="fl-suc-btn" (click)="goToDashboard()"><span>{{ sucCta }}</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
