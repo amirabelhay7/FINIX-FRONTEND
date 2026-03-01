@@ -1,0 +1,174 @@
+/* ═══════════════════════════════════════════════════════════════
+   FINIX LOGIN — 100% SELF-CONTAINED
+   Scoped under .finix-login with fl- prefix — zero conflicts
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes flFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes flSlideIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes flPopIn{0%{transform:scale(.8);opacity:0}65%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+@keyframes flCheckPop{0%{transform:scale(0) rotate(-30deg);opacity:0}65%{transform:scale(1.1) rotate(4deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes flSpin{to{transform:rotate(360deg)}}
+@keyframes flPulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes flShimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+@keyframes flScan{from{top:0%}to{top:100%}}
+@keyframes flTagBounce{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes flOrb1{0%,100%{transform:translate(0,0)}50%{transform:translate(25px,-18px)}}
+@keyframes flOrb2{0%,100%{transform:translate(0,0)}50%{transform:translate(-18px,22px)}}
+@keyframes flIconFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.04)}}
+
+/* ─── ROOT ─── */
+.finix-login{display:flex;width:100%;min-height:100vh;font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;margin:0;padding:0;}
+.finix-login *,.finix-login *::before,.finix-login *::after{box-sizing:border-box;}
+.finix-login button{font-family:inherit;cursor:pointer;border:none;background:none;}
+.finix-login input{font-family:inherit;}
+
+/* ══════════════════════════════════════ LEFT ══════════════════════════════════════ */
+.finix-login .fl-left{width:45%;min-height:100vh;background:#0B1C2D;position:relative;overflow:hidden;display:flex;flex-direction:column;padding:3rem 3.5rem;}
+.finix-login .fl-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(91,141,239,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(91,141,239,.055) 1px,transparent 1px);background-size:46px 46px;}
+.finix-login .fl-orb{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;}
+.finix-login .fl-orb-1{width:400px;height:400px;top:-100px;left:-100px;animation:flOrb1 10s ease-in-out infinite;}
+.finix-login .fl-orb-2{width:280px;height:280px;bottom:-60px;right:-60px;animation:flOrb2 12s ease-in-out infinite;}
+.finix-login .fl-scan{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(91,141,239,.7),transparent);animation:flScan 7s linear infinite;pointer-events:none;}
+
+.finix-login .fl-logo{position:relative;z-index:3;display:flex;align-items:center;gap:1rem;animation:flFadeUp .5s cubic-bezier(.4,0,.2,1) both;}
+.finix-login .fl-logo-mark{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.finix-login .fl-logo-name{font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:800;color:#fff;}
+.finix-login .fl-logo-name em{color:#5B8DEF;font-style:normal;}
+.finix-login .fl-logo-div{width:1px;height:20px;background:rgba(255,255,255,.1);}
+.finix-login .fl-logo-sub{font-size:.72rem;color:rgba(255,255,255,.28);letter-spacing:.14em;text-transform:uppercase;font-weight:500;}
+
+.finix-login .fl-body{flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:3;}
+.finix-login .fl-tag{display:inline-flex;align-items:center;gap:.6rem;border-radius:100px;padding:.44rem 1.1rem;font-size:.78rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;width:fit-content;margin-bottom:2rem;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);}
+.finix-login .fl-tag-dot{width:7px;height:7px;border-radius:50%;animation:flPulse 2s infinite;}
+
+.finix-login .fl-icon-wrap{width:160px;height:160px;border-radius:36px;display:flex;align-items:center;justify-content:center;margin-bottom:2.75rem;animation:flIconFloat 4s ease-in-out infinite;position:relative;}
+.finix-login .fl-icon-wrap::after{content:'';position:absolute;inset:0;border-radius:36px;background:linear-gradient(135deg,rgba(255,255,255,.12) 0%,transparent 55%);}
+
+.finix-login .fl-h1{font-family:'Sora',sans-serif;font-size:3.25rem;font-weight:800;color:#fff;line-height:1.1;margin-bottom:1.25rem;letter-spacing:-.025em;}
+.finix-login .fl-h1 .fl-grad{-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.finix-login .fl-desc{font-size:1.1rem;color:rgba(255,255,255,.42);line-height:1.75;max-width:420px;margin-bottom:2.75rem;}
+
+.finix-login .fl-features{display:flex;flex-wrap:wrap;gap:.7rem;}
+.finix-login .fl-feat{display:inline-flex;align-items:center;gap:.55rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);border-radius:100px;padding:.5rem 1.25rem;font-size:.92rem;font-weight:500;color:rgba(255,255,255,.6);animation:flFadeUp .4s cubic-bezier(.4,0,.2,1) both;}
+.finix-login .fl-feat:hover{background:rgba(255,255,255,.12);transform:translateY(-2px);}
+.finix-login .fl-feat-dot{width:7px;height:7px;border-radius:50%;}
+
+.finix-login .fl-stats{position:relative;z-index:3;display:flex;gap:3rem;padding-top:2.25rem;border-top:1px solid rgba(255,255,255,.07);animation:flFadeUp .5s cubic-bezier(.4,0,.2,1) .5s both;}
+.finix-login .fl-stat-val{font-family:'Sora',sans-serif;font-size:1.7rem;font-weight:800;color:#fff;line-height:1;margin-bottom:.35rem;}
+.finix-login .fl-stat-val em{color:#5B8DEF;font-style:normal;}
+.finix-login .fl-stat-lbl{font-size:.82rem;color:rgba(255,255,255,.26);text-transform:uppercase;letter-spacing:.1em;}
+
+/* ══════════════════════════════════════ RIGHT ══════════════════════════════════════ */
+.finix-login .fl-right{width:55%;min-height:100vh;background:#fff;display:flex;align-items:center;justify-content:center;padding:3.5rem;position:relative;overflow-y:auto;}
+.finix-login .fl-right::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 55% 35% at 100% 0%,rgba(234,242,255,.8) 0%,transparent 55%),radial-gradient(ellipse 35% 40% at 0% 100%,rgba(91,141,239,.04) 0%,transparent 50%);}
+.finix-login .fl-auth-box{width:100%;max-width:600px;position:relative;z-index:2;}
+
+.finix-login .fl-view{display:none;}
+.finix-login .fl-view.active{display:block;animation:flSlideIn .3s cubic-bezier(.4,0,.2,1) both;}
+
+/* ── ROLE SELECT ── */
+.finix-login .fl-eyebrow{display:inline-flex;align-items:center;gap:.55rem;background:#EAF2FF;border:1px solid rgba(31,111,234,.18);border-radius:100px;padding:.55rem 1.4rem;font-size:.88rem;font-weight:700;color:#1F6FEA;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.75rem;animation:flTagBounce .4s cubic-bezier(.34,1.56,.64,1) both;}
+.finix-login .fl-rs-title{font-family:'Sora',sans-serif;font-size:2.875rem;font-weight:800;color:#0B1C2D;letter-spacing:-.03em;line-height:1.12;margin-bottom:1rem;}
+.finix-login .fl-rs-sub{font-size:1.15rem;color:#5E7A96;line-height:1.65;margin-bottom:2.5rem;}
+.finix-login .fl-note{display:flex;align-items:flex-start;gap:.875rem;background:#FFFBEB;border:1px solid rgba(245,166,35,.2);border-left:3.5px solid #F5A623;border-radius:12px;padding:1.15rem 1.3rem;font-size:1.025rem;color:#92400E;line-height:1.55;margin-bottom:2.5rem;}
+
+/* Cards */
+.finix-login .fl-rc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;margin-bottom:2.5rem;}
+.finix-login .fl-rc{background:#fff;border:2.5px solid #DDE4EF;border-radius:18px;padding:2.25rem 1.5rem 1.625rem;cursor:pointer;transition:all .22s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;text-align:center;}
+.finix-login .fl-rc::after{content:'';position:absolute;top:0;left:0;right:0;height:3.5px;background:var(--rc-col,#1F6FEA);transform:scaleX(0);transform-origin:left;transition:transform .25s cubic-bezier(.4,0,.2,1);}
+.finix-login .fl-rc:hover::after,.finix-login .fl-rc.sel::after{transform:scaleX(1);}
+.finix-login .fl-rc:hover{border-color:var(--rc-col,#1F6FEA);transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.08);}
+.finix-login .fl-rc.sel{border-color:var(--rc-col,#1F6FEA);background:color-mix(in srgb,var(--rc-col,#1F6FEA) 5%,white);box-shadow:0 0 0 5px color-mix(in srgb,var(--rc-col,#1F6FEA) 12%,transparent);transform:translateY(-4px);}
+
+.finix-login .fl-rc-check{position:absolute;top:.875rem;right:.875rem;width:26px;height:26px;border-radius:50%;background:var(--rc-col,#1F6FEA);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0);transition:all .22s cubic-bezier(.34,1.56,.64,1);}
+.finix-login .fl-rc.sel .fl-rc-check{opacity:1;transform:scale(1);animation:flCheckPop .3s cubic-bezier(.34,1.56,.64,1);}
+
+.finix-login .fl-rc-ico{width:72px;height:72px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;transition:transform .2s cubic-bezier(.34,1.56,.64,1);}
+.finix-login .fl-rc:hover .fl-rc-ico,.finix-login .fl-rc.sel .fl-rc-ico{transform:scale(1.1);}
+
+.finix-login .fl-rc-name{font-family:'Sora',sans-serif;font-size:1.25rem;font-weight:800;color:#0B1C2D;margin-bottom:.5rem;}
+.finix-login .fl-rc-desc{font-size:.975rem;color:#5E7A96;line-height:1.5;}
+
+.finix-login .fl-rc-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.125rem;justify-content:center;}
+.finix-login .fl-rc-tag{font-size:.82rem;font-weight:600;padding:.3rem .8rem;border-radius:7px;background:#EEF2F8;color:#5E7A96;}
+.finix-login .fl-rc.sel .fl-rc-tag{background:color-mix(in srgb,var(--rc-col,#1F6FEA) 12%,white);color:var(--rc-col,#1F6FEA);}
+
+/* CTA */
+.finix-login .fl-cta{width:100%;padding:1.25rem 2rem;background:#0B1C2D;color:#fff;border-radius:14px;font-family:'Sora',sans-serif;font-size:1.25rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:.75rem;transition:all .25s cubic-bezier(.4,0,.2,1);box-shadow:0 4px 18px rgba(11,28,45,.2);opacity:.4;pointer-events:none;position:relative;overflow:hidden;cursor:pointer;}
+.finix-login .fl-cta.ready{opacity:1;pointer-events:all;}
+.finix-login .fl-cta.ready:hover{transform:translateY(-2px);}
+.finix-login .fl-cta::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);background-size:500px 100%;animation:flShimmer 3s infinite;}
+
+/* ── LOGIN VIEW ── */
+.finix-login .fl-login-top{display:flex;align-items:center;gap:1.125rem;margin-bottom:2.5rem;}
+.finix-login .fl-back-btn{width:46px;height:46px;background:#F5F7FA;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#5E7A96;transition:all .2s;flex-shrink:0;}
+.finix-login .fl-back-btn:hover{background:#EAF2FF;color:#1F6FEA;}
+.finix-login .fl-chip{display:inline-flex;align-items:center;gap:.55rem;border-radius:100px;padding:.42rem 1.15rem;font-size:.88rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.finix-login .fl-chip-dot{width:8px;height:8px;border-radius:50%;}
+
+.finix-login .fl-login-title{font-family:'Sora',sans-serif;font-size:2.625rem;font-weight:800;color:#0B1C2D;letter-spacing:-.03em;margin-bottom:.625rem;}
+.finix-login .fl-login-sub{font-size:1.125rem;color:#5E7A96;line-height:1.65;margin-bottom:2.5rem;}
+.finix-login .fl-session-pill{display:flex;align-items:center;gap:.875rem;background:#EAF2FF;border-radius:12px;padding:1.05rem 1.375rem;font-size:1.025rem;color:#1F6FEA;font-weight:500;margin-bottom:2.25rem;}
+
+.finix-login .fl-alert{display:none;align-items:flex-start;gap:.75rem;border-radius:12px;padding:1rem 1.125rem;margin-bottom:1.75rem;font-size:1rem;line-height:1.5;}
+.finix-login .fl-alert.show{display:flex;animation:flFadeUp .2s cubic-bezier(.4,0,.2,1);}
+.finix-login .fl-alert.err{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;}
+.finix-login .fl-alert.ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;}
+
+.finix-login .fl-field{margin-bottom:1.625rem;}
+.finix-login .fl-field-label{display:flex;align-items:center;justify-content:space-between;font-size:1.025rem;font-weight:600;color:#2E3A4A;margin-bottom:.625rem;}
+.finix-login .fl-field-label a{font-size:.975rem;color:#1F6FEA;cursor:pointer;}
+.finix-login .fl-field-label a:hover{text-decoration:underline;}
+.finix-login .fl-inp-wrap{position:relative;}
+.finix-login .fl-inp-ico{position:absolute;left:1.15rem;top:50%;transform:translateY(-50%);color:#8FA3BC;pointer-events:none;display:flex;}
+.finix-login .fl-inp-wrap:focus-within .fl-inp-ico{color:#1F6FEA;}
+.finix-login .fl-field-inp{width:100%;padding:1.05rem 1.25rem 1.05rem 3.25rem;background:#F5F7FA;border:2px solid #DDE4EF;border-radius:12px;font-size:1.1rem;color:#0B1C2D;outline:none;transition:all .2s cubic-bezier(.4,0,.2,1);font-family:'DM Sans',sans-serif;}
+.finix-login .fl-field-inp:focus{background:#fff;border-color:#1F6FEA;box-shadow:0 0 0 4px rgba(31,111,234,.1);}
+.finix-login .fl-field-inp::placeholder{color:#8FA3BC;}
+.finix-login .fl-pw-eye{position:absolute;right:1.15rem;top:50%;transform:translateY(-50%);color:#8FA3BC;padding:.25rem;}
+.finix-login .fl-pw-eye:hover{color:#1F6FEA;}
+.finix-login .fl-field-err{font-size:.88rem;color:#EF4444;margin-top:.45rem;font-weight:500;display:none;}
+.finix-login .fl-field-err.show{display:block;animation:flFadeUp .2s cubic-bezier(.4,0,.2,1);}
+.finix-login .fl-field-inp.err{border-color:#EF4444;box-shadow:0 0 0 4px rgba(239,68,68,.08);}
+
+.finix-login .fl-remember{display:flex;align-items:center;gap:.75rem;margin-bottom:2.25rem;}
+.finix-login .fl-remember input{width:19px;height:19px;accent-color:#1F6FEA;cursor:pointer;}
+.finix-login .fl-remember label{font-size:1.025rem;color:#5E7A96;cursor:pointer;}
+
+.finix-login .fl-sub-btn{width:100%;padding:1.25rem 2rem;color:#fff;border:none;border-radius:14px;font-family:'Sora',sans-serif;font-size:1.25rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:.75rem;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;margin-bottom:1.75rem;}
+.finix-login .fl-sub-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);background-size:500px 100%;animation:flShimmer 3s infinite;}
+.finix-login .fl-sub-btn:hover{transform:translateY(-2px);}
+.finix-login .fl-sub-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.finix-login .fl-spinner{width:20px;height:20px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:flSpin .65s linear infinite;display:none;}
+
+.finix-login .fl-trust{display:flex;align-items:center;justify-content:center;gap:2.5rem;padding-top:1.75rem;border-top:1px solid #EEF2F8;}
+.finix-login .fl-trust-item{display:flex;align-items:center;gap:.5rem;font-size:.95rem;color:#8FA3BC;font-weight:500;}
+
+/* ── OTP ── */
+.finix-login .fl-otp-top{text-align:center;margin-bottom:2.5rem;}
+.finix-login .fl-otp-icon{width:84px;height:84px;background:#EAF2FF;border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.75rem;animation:flPopIn .4s cubic-bezier(.34,1.56,.64,1) both;}
+.finix-login .fl-otp-title{font-family:'Sora',sans-serif;font-size:2.625rem;font-weight:800;color:#0B1C2D;margin-bottom:.625rem;}
+.finix-login .fl-otp-sub{font-size:1.1rem;color:#5E7A96;line-height:1.65;}
+.finix-login .fl-otp-tel{color:#1F6FEA;font-weight:600;}
+.finix-login .fl-otp-row{display:flex;justify-content:center;gap:.9rem;margin:2.25rem 0;}
+.finix-login .fl-otp-inp{width:60px;height:68px;background:#F5F7FA;border:2px solid #DDE4EF;border-radius:14px;font-family:'Sora',sans-serif;font-size:1.7rem;font-weight:800;color:#0B1C2D;text-align:center;outline:none;transition:all .2s cubic-bezier(.4,0,.2,1);}
+.finix-login .fl-otp-inp:focus{background:#fff;border-color:#1F6FEA;box-shadow:0 0 0 4px rgba(31,111,234,.1);transform:translateY(-2px) scale(1.04);}
+.finix-login .fl-otp-inp.filled{border-color:#1F6FEA;background:#EAF2FF;}
+.finix-login .fl-otp-meta{text-align:center;font-size:1rem;color:#5E7A96;margin-bottom:2.25rem;}
+.finix-login .fl-otp-meta span{color:#1F6FEA;font-weight:700;}
+.finix-login .fl-otp-resend{color:#8FA3BC;font-weight:600;font-family:inherit;font-size:1rem;cursor:pointer;background:none;border:none;}
+.finix-login .fl-otp-resend:not(:disabled):hover{color:#1F6FEA;}
+.finix-login .fl-otp-resend:disabled{opacity:.4;cursor:default;}
+
+/* ── SUCCESS ── */
+.finix-login .fl-suc-center{text-align:center;padding:1.75rem 0;}
+.finix-login .fl-suc-ring{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#2ECC71,#16A34A);display:flex;align-items:center;justify-content:center;margin:0 auto 2.25rem;box-shadow:0 10px 34px rgba(46,204,113,.28);animation:flPopIn .45s cubic-bezier(.34,1.56,.64,1) both;}
+.finix-login .fl-suc-title{font-family:'Sora',sans-serif;font-size:2.625rem;font-weight:800;color:#0B1C2D;margin-bottom:.625rem;}
+.finix-login .fl-suc-sub{font-size:1.1rem;color:#5E7A96;line-height:1.65;margin-bottom:2.75rem;}
+.finix-login .fl-suc-feats{display:flex;flex-direction:column;gap:.875rem;margin-bottom:2.75rem;text-align:left;}
+.finix-login .fl-suc-feat{display:flex;align-items:center;gap:1.1rem;background:#F5F7FA;border-radius:12px;padding:1.05rem 1.375rem;font-size:1.075rem;color:#2E3A4A;font-weight:500;}
+.finix-login .fl-suc-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+.finix-login .fl-suc-btn{width:100%;padding:1.25rem;background:#0B1C2D;color:#fff;border:none;border-radius:14px;font-family:'Sora',sans-serif;font-size:1.25rem;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:.75rem;box-shadow:0 4px 18px rgba(11,28,45,.2);}
+.finix-login .fl-suc-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(11,28,45,.28);}
+
+@media(max-width:860px){.finix-login .fl-left{display:none;}.finix-login .fl-right{width:100%;}}
