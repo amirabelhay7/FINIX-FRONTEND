@@ -148,6 +148,76 @@
       </div>
       Rapports
     </button>
+    <!-- Marketing -->
+<div class="sb-section">Marketing</div>
+
+<button
+  class="sb-item"
+  [ngClass]="{ 'active': currentPage === 'campaigns' }"
+  (click)="switchPage('campaigns')">
+  <div class="sb-ico">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+    </svg>
+  </div>
+  Campagnes
+</button>
+
+<button
+  class="sb-item"
+  [ngClass]="{ 'active': currentPage === 'segments' }"
+  (click)="switchPage('segments')">
+  <div class="sb-ico">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <circle cx="12" cy="12" r="6"/>
+      <circle cx="12" cy="12" r="2"/>
+    </svg>
+  </div>
+  Segments clients
+</button>
+
+<!-- Pilotage Financier -->
+<div class="sb-section">Pilotage Financier</div>
+
+<button
+  class="sb-item"
+  [ngClass]="{ 'active': currentPage === 'indicators' }"
+  (click)="switchPage('indicators')">
+  <div class="sb-ico">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    </svg>
+  </div>
+  Indicateurs
+</button>
+
+<button
+  class="sb-item"
+  [ngClass]="{ 'active': currentPage === 'treasury' }"
+  (click)="switchPage('treasury')">
+  <div class="sb-ico">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+    </svg>
+  </div>
+  Comptes trésorerie
+</button>
+
+<button
+  class="sb-item"
+  [ngClass]="{ 'active': currentPage === 'simulations' }"
+  (click)="switchPage('simulations')">
+  <div class="sb-ico">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/>
+      <line x1="12" y1="20" x2="12" y2="4"/>
+      <line x1="6" y1="20" x2="6" y2="14"/>
+    </svg>
+  </div>
+  Simulations
+</button>
 
     <!-- Système -->
     <div class="sb-section">Système</div>
