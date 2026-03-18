@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MarketingCampaign, CustomerSegment } from '../../../models/marketing.model';
 import { FinancialIndicator, TreasuryAccount, FundingSimulation } from '../../../models/steering.model';
+import { MarketingCampaignService } from '../../../services/marketing/marketing-campaign.service';
+import { CustomerSegmentService } from '../../../services/marketing/customer-segment.service';
+import { FinancialIndicatorService } from '../../../services/steering/financial-indicator.service';
+import { TreasuryAccountService } from '../../../services/steering/treasury-account.service';
+import { FundingSimulationService } from '../../../services/steering/funding-simulation.service';
+
+
 
 interface PipelineCard {
   name: string;
@@ -24,6 +31,13 @@ interface PipelineColumn {
   styleUrl: './backoffice.component.css',
 })
 export class BackofficeComponent implements OnInit {
+  constructor(
+  private campaignService: MarketingCampaignService,
+  private segmentService: CustomerSegmentService,
+  private indicatorService: FinancialIndicatorService,
+  private treasuryService: TreasuryAccountService,
+  private simulationService: FundingSimulationService
+) {}
   selectedPage = 'dashboard';
   hover = false;
   showModal = false;
@@ -37,8 +51,12 @@ export class BackofficeComponent implements OnInit {
   simulations: FundingSimulation[] = [];
 
   ngOnInit(): void {
-    // sera branché sur les services HTTP dans l'étape suivante
-  }
+  this.loadCampaigns();
+  this.loadSegments();
+  this.loadIndicators();
+  this.loadTreasuryAccounts();
+  this.loadSimulations();
+}
   countByStatus(status: string): number {
   return this.campaigns.filter(c => c.status === status).length;
 }
@@ -47,20 +65,68 @@ export class BackofficeComponent implements OnInit {
     this.selectedPage = page;
   }
 
-  // ── Placeholders Marketing ──
-  openCampaignForm() {}
-  editCampaign(c: any) {}
-  deleteCampaign(id: any) {}
-  openSegmentForm() {}
-  editSegment(s: any) {}
-  deleteSegment(id: any) {}
+  // ── Marketing ──
+openCampaignForm() {}
+editCampaign(c: any) {}
+deleteCampaign(id: any): void {
+  if (!id) return;
+  this.campaignService.delete(id).subscribe({
+    next: () => this.loadCampaigns(),
+    error: err => console.error('Delete campaign error', err)
+  });
+}
+openSegmentForm() {}
+editSegment(s: any) {}
+deleteSegment(id: any): void {
+  if (!id) return;
+  this.segmentService.delete(id).subscribe({
+    next: () => this.loadSegments(),
+    error: err => console.error('Delete segment error', err)
+  });
+}
 
-  // ── Placeholders Steering ──
-  openIndicatorForm() {}
-  openTreasuryForm() {}
-  editTreasury(t: any) {}
-  viewMovements(id: any) {}
-  openSimulationForm() {}
+// ── Steering ──
+openIndicatorForm() {}
+openTreasuryForm() {}
+editTreasury(t: any) {}
+viewMovements(id: any) {}
+openSimulationForm() {}
+
+// ── Load methods ──
+loadCampaigns(): void {
+  this.campaignService.getAll().subscribe({
+    next: data => this.campaigns = data,
+    error: err => console.error('Campaigns error', err)
+  });
+}
+
+loadSegments(): void {
+  this.segmentService.getAll().subscribe({
+    next: data => this.segments = data,
+    error: err => console.error('Segments error', err)
+  });
+}
+
+loadIndicators(): void {
+  this.indicatorService.getAll().subscribe({
+    next: data => this.indicators = data,
+    error: err => console.error('Indicators error', err)
+  });
+}
+
+loadTreasuryAccounts(): void {
+  this.treasuryService.getAll().subscribe({
+    next: data => this.treasuryAccounts = data,
+    error: err => console.error('Treasury error', err)
+  });
+}
+
+loadSimulations(): void {
+  this.simulationService.getAll().subscribe({
+    next: data => this.simulations = data,
+    error: err => console.error('Simulations error', err)
+  });
+}
 
   dossiers = [
     {

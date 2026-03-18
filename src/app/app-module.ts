@@ -14,6 +14,7 @@ import { SidebarComponent } from './layout/backoffice/components/sidebar/sidebar
 import { TopbarComponent } from './layout/backoffice/components/topbar/topbar.component';
 import { FormsModule } from '@angular/forms';
 import { BackofficeComponent } from './layout/backoffice/backoffice/backoffice.component';
+import { provideHttpClient } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { BackofficeComponent } from './layout/backoffice/backoffice/backoffice.c
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideHttpClient()
   ],
   bootstrap: [App]
 })
