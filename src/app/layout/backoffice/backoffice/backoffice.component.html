@@ -737,6 +737,102 @@
         <div><div class="ph-eyebrow">Stratégie Marketing</div><div class="ph-title">Segments clients</div><div class="ph-desc">Définissez les profils de clientèle cibles</div></div>
         <div class="ph-actions"><button class="btn btn-primary" (click)="openSegmentForm()">+ Nouveau segment</button></div>
       </div>
+            <!-- FORMULAIRE INLINE SEGMENT -->
+      <div *ngIf="showSegmentModal" class="panel" style="border:2px solid var(--blue);margin-bottom:1rem;">
+        <div class="panel-head">
+          <div class="panel-title"><span class="ptdot"></span>{{ editingSegmentId ? 'Modifier le segment' : 'Nouveau segment' }}</div>
+        </div>
+        <div class="panel-body">
+
+          <div *ngIf="segmentError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
+            ⚠ {{ segmentError }}
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nom *</label>
+              <input class="form-input" type="text" [(ngModel)]="segmentForm.name"
+                placeholder="Ex: Jeunes Actifs Urbains"
+                [style.borderColor]="segmentForm.name?.length > 0 && (segmentForm.name?.length < 3 || segmentForm.name?.length > 100) ? 'var(--danger)' : ''">
+              <span *ngIf="segmentForm.name?.length > 0 && segmentForm.name?.length < 3"
+                style="color:var(--danger);font-size:.75rem;">Minimum 3 caractères</span>
+              <span *ngIf="segmentForm.name?.length > 100"
+                style="color:var(--danger);font-size:.75rem;">Maximum 100 caractères</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type emploi *</label>
+              <select class="form-input" [(ngModel)]="segmentForm.employmentType">
+                <option value="SALARIED">SALARIED</option>
+                <option value="SELF_EMPLOYED">SELF_EMPLOYED</option>
+                <option value="UNEMPLOYED">UNEMPLOYED</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">Description *</label>
+            <textarea class="form-input" rows="3" [(ngModel)]="segmentForm.description"
+              placeholder="Décrivez le segment… (min 10 caractères)"
+              [style.borderColor]="segmentForm.description?.length > 0 && (segmentForm.description?.length < 10 || segmentForm.description?.length > 500) ? 'var(--danger)' : ''"></textarea>
+            <span *ngIf="segmentForm.description?.length > 0 && segmentForm.description?.length < 10"
+              style="color:var(--danger);font-size:.75rem;">Minimum 10 caractères ({{ segmentForm.description?.length }}/10)</span>
+            <span *ngIf="segmentForm.description?.length > 500"
+              style="color:var(--danger);font-size:.75rem;">Maximum 500 caractères</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Revenu min (TND) *</label>
+              <input class="form-input" type="number" [(ngModel)]="segmentForm.minIncome"
+                placeholder="Ex: 500"
+                [style.borderColor]="segmentForm.minIncome !== null && segmentForm.minIncome < 0 ? 'var(--danger)' : ''">
+              <span *ngIf="segmentForm.minIncome !== null && segmentForm.minIncome < 0"
+                style="color:var(--danger);font-size:.75rem;">Le revenu min doit être >= 0</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Revenu max (TND) *</label>
+              <input class="form-input" type="number" [(ngModel)]="segmentForm.maxIncome"
+                placeholder="Ex: 3000"
+                [style.borderColor]="segmentForm.maxIncome !== null && segmentForm.maxIncome <= 0 ? 'var(--danger)' : ''">
+              <span *ngIf="segmentForm.maxIncome !== null && segmentForm.maxIncome <= 0"
+                style="color:var(--danger);font-size:.75rem;">Le revenu max doit être > 0</span>
+              <span *ngIf="segmentForm.minIncome !== null && segmentForm.maxIncome !== null && segmentForm.minIncome >= segmentForm.maxIncome"
+                style="color:var(--danger);font-size:.75rem;">Le revenu max doit être supérieur au revenu min</span>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">Zone géographique *</label>
+            <input class="form-input" type="text" [(ngModel)]="segmentForm.geographicZone"
+              placeholder="Ex: Grand Tunis"
+              [style.borderColor]="segmentForm.geographicZone?.length > 0 && (segmentForm.geographicZone?.length < 2 || segmentForm.geographicZone?.length > 100) ? 'var(--danger)' : ''">
+            <span *ngIf="segmentForm.geographicZone?.length > 0 && segmentForm.geographicZone?.length < 2"
+              style="color:var(--danger);font-size:.75rem;">Minimum 2 caractères</span>
+            <span *ngIf="segmentForm.geographicZone?.length > 100"
+              style="color:var(--danger);font-size:.75rem;">Maximum 100 caractères</span>
+          </div>
+
+          <div style="display:flex;gap:.75rem;margin-top:1rem;">
+            <button type="button" class="btn btn-success" (click)="saveSegment()"
+              [disabled]="!segmentForm.name || segmentForm.name.length < 3 ||
+                          !segmentForm.description || segmentForm.description.length < 10 ||
+                          segmentForm.minIncome === null || segmentForm.minIncome < 0 ||
+                          !segmentForm.maxIncome || segmentForm.maxIncome <= 0 ||
+                          segmentForm.minIncome >= segmentForm.maxIncome ||
+                          !segmentForm.geographicZone || segmentForm.geographicZone.length < 2"
+              [style.opacity]="!segmentForm.name || segmentForm.name.length < 3 ||
+                          !segmentForm.description || segmentForm.description.length < 10 ||
+                          segmentForm.minIncome === null || segmentForm.minIncome < 0 ||
+                          !segmentForm.maxIncome || segmentForm.maxIncome <= 0 ||
+                          segmentForm.minIncome >= segmentForm.maxIncome ||
+                          !segmentForm.geographicZone || segmentForm.geographicZone.length < 2 ? '0.5' : '1'">
+              ✓ {{ editingSegmentId ? 'Mettre à jour' : 'Créer le segment' }}
+            </button>
+            <button type="button" class="btn btn-outline" (click)="closeSegmentModal()">Annuler</button>
+          </div>
+
+        </div>
+      </div>
       <div class="panel s2">
         <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Liste des segments</div><span style="font-size:.75rem;color:var(--g400)">{{ segments.length }} segments</span></div>
         <div class="tbl-wrap">

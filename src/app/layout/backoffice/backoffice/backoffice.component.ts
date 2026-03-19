@@ -57,6 +57,18 @@ campaignForm: any = {
 };
 editingCampaignId: number | null = null;
 campaignError = '';
+// ── Modal Segment ──
+showSegmentModal = false;
+segmentError = '';
+editingSegmentId: number | null = null;
+segmentForm: any = {
+  name: '',
+  description: '',
+  minIncome: null,
+  maxIncome: null,
+  employmentType: 'SALARIED',
+  geographicZone: ''
+};
 
 openCampaignForm() {
   this.campaignForm = {
@@ -152,8 +164,67 @@ deleteCampaign(id: any): void {
     error: err => console.error('Delete campaign error', err)
   });
 }
-openSegmentForm() {}
-editSegment(s: any) {}
+openSegmentForm() {
+  this.segmentForm = {
+    name: '',
+    description: '',
+    minIncome: null,
+    maxIncome: null,
+    employmentType: 'SALARIED',
+    geographicZone: ''
+  };
+  this.editingSegmentId = null;
+  this.segmentError = '';
+  this.showSegmentModal = true;
+}
+editSegment(s: any) {
+  this.segmentForm = {
+    name: s.name,
+    description: s.description,
+    minIncome: s.minIncome,
+    maxIncome: s.maxIncome,
+    employmentType: s.employmentType,
+    geographicZone: s.geographicZone
+  };
+  this.editingSegmentId = s.id;
+  this.segmentError = '';
+  this.showSegmentModal = true;
+}
+
+closeSegmentModal() {
+  this.showSegmentModal = false;
+  this.segmentError = '';
+}
+
+saveSegment() {
+  if (this.editingSegmentId) {
+    this.segmentService.update(this.editingSegmentId, this.segmentForm).subscribe({
+      next: () => { this.loadSegments(); this.closeSegmentModal(); },
+      error: err => {
+        if (err.status === 409) {
+          this.segmentError = 'Ce nom de segment existe déjà. Veuillez choisir un nom différent.';
+        } else if (err.status === 400) {
+          this.segmentError = err.error?.message || 'Données invalides. Vérifiez les champs.';
+        } else {
+          this.segmentError = 'Une erreur est survenue. Réessayez.';
+        }
+      }
+    });
+  } else {
+    this.segmentService.add(this.segmentForm).subscribe({
+      next: () => { this.loadSegments(); this.closeSegmentModal(); },
+      error: err => {
+        if (err.status === 409) {
+          this.segmentError = 'Ce nom de segment existe déjà. Veuillez choisir un nom différent.';
+        } else if (err.status === 400) {
+          this.segmentError = err.error?.message || 'Données invalides. Vérifiez les champs.';
+        } else {
+          this.segmentError = 'Une erreur est survenue. Réessayez.';
+        }
+      }
+    });
+  }
+}
 deleteSegment(id: any): void {
   if (!id) return;
   this.segmentService.delete(id).subscribe({
