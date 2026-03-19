@@ -748,3 +748,15 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
 
 /* kpi-row gap */
 .kpi-row { gap: 1.125rem; }
+
+/* Fix modals dans main grid */
+.modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(15,23,42,.5);
+  backdrop-filter: blur(4px);
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  animation: fadeIn .2s ease; }

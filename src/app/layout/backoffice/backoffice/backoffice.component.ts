@@ -43,6 +43,84 @@ export class BackofficeComponent implements OnInit {
   showModal = false;
   decisionNote = '';
 
+
+  // ── Modal Campaign ──
+showCampaignModal = false;
+campaignForm: any = {
+  name: '',
+  description: '',
+  campaignType: 'PROMOTION',
+  startDate: '',
+  endDate: '',
+  budget: null,
+  status: 'PLANNED'
+};
+editingCampaignId: number | null = null;
+campaignError = '';
+
+openCampaignForm() {
+  this.campaignForm = {
+    name: '',
+    description: '',
+    campaignType: 'PROMOTION',
+    startDate: '',
+    endDate: '',
+    budget: null,
+    status: 'PLANNED'
+  };
+  this.editingCampaignId = null;
+  this.showCampaignModal = true;
+}
+
+editCampaign(c: any) {
+  this.campaignForm = {
+    name: c.name,
+    description: c.description,
+    campaignType: c.campaignType,
+    startDate: c.startDate,
+    endDate: c.endDate,
+    budget: c.budget,
+    status: c.status
+  };
+  this.editingCampaignId = c.id;
+  this.showCampaignModal = true;
+}
+
+closeCampaignModal() {
+  this.showCampaignModal = false;
+  this.campaignError = '';
+}
+
+saveCampaign() {
+  if (this.editingCampaignId) {
+    this.campaignService.update(this.editingCampaignId, this.campaignForm).subscribe({
+      next: () => { this.loadCampaigns(); this.closeCampaignModal(); this.campaignError = ''; },
+      error: err => {
+        if (err.status === 409) {
+          this.campaignError = 'Ce nom de campagne existe déjà. Veuillez choisir un nom différent.';
+        } else if (err.status === 400) {
+          this.campaignError = err.error?.message || 'Données invalides. Vérifiez les champs.';
+        } else {
+          this.campaignError = 'Une erreur est survenue. Réessayez.';
+        }
+      }
+    });
+  } else {
+    this.campaignService.add(this.campaignForm).subscribe({
+      next: () => { this.loadCampaigns(); this.closeCampaignModal(); this.campaignError = ''; },
+      error: err => {
+        if (err.status === 409) {
+          this.campaignError = 'Ce nom de campagne existe déjà. Veuillez choisir un nom différent.';
+        } else if (err.status === 400) {
+          this.campaignError = err.error?.message || 'Données invalides. Vérifiez les champs.';
+        } else {
+          this.campaignError = 'Une erreur est survenue. Réessayez.';
+        }
+      }
+    });
+  }
+}
+
   // ── Mes modules ──
   campaigns: MarketingCampaign[] = [];
   segments: CustomerSegment[] = [];
@@ -66,8 +144,7 @@ export class BackofficeComponent implements OnInit {
   }
 
   // ── Marketing ──
-openCampaignForm() {}
-editCampaign(c: any) {}
+
 deleteCampaign(id: any): void {
   if (!id) return;
   this.campaignService.delete(id).subscribe({

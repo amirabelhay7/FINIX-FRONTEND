@@ -598,8 +598,109 @@
     <div class="page" [class.active]="selectedPage === 'campaigns'" id="page-campaigns">
       <div class="ph s1">
         <div><div class="ph-eyebrow">Stratégie Marketing</div><div class="ph-title">Campagnes</div><div class="ph-desc">Gérez vos campagnes et mesurez leur impact sur les crédits</div></div>
-        <div class="ph-actions"><button class="btn btn-primary" (click)="openCampaignForm()">+ Nouvelle campagne</button></div>
+        <button class="btn btn-primary" (click)="openCampaignForm()">+ Nouvelle campagne</button>
       </div>
+
+            <!-- FORMULAIRE INLINE CAMPAGNE -->
+      <div *ngIf="showCampaignModal" class="panel" style="border:2px solid var(--blue);margin-bottom:1rem;">
+        <div class="panel-head">
+          <div class="panel-title"><span class="ptdot"></span>{{ editingCampaignId ? 'Modifier la campagne' : 'Nouvelle campagne' }}</div>
+        </div>
+        <div class="panel-body">
+          <div *ngIf="campaignError"
+              style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
+            ⚠ {{ campaignError }}
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nom *</label>
+              <input class="form-input" type="text" [(ngModel)]="campaignForm.name"
+                placeholder="Ex: Moto Express Spring 2026"
+                [style.borderColor]="campaignForm.name?.length > 0 && (campaignForm.name?.length < 3 || campaignForm.name?.length > 100) ? 'var(--danger)' : ''">
+              <span *ngIf="campaignForm.name?.length > 0 && campaignForm.name?.length < 3"
+                style="color:var(--danger);font-size:.75rem;">Minimum 3 caractères</span>
+              <span *ngIf="campaignForm.name?.length > 100"
+                style="color:var(--danger);font-size:.75rem;">Maximum 100 caractères</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type *</label>
+              <select class="form-input" [(ngModel)]="campaignForm.campaignType">
+                <option value="PROMOTION">PROMOTION</option>
+                <option value="ACQUISITION">ACQUISITION</option>
+                <option value="RETENTION">RETENTION</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">Description *</label>
+            <textarea class="form-input" rows="3" [(ngModel)]="campaignForm.description"
+              placeholder="Décrivez l'objectif de la campagne… (min 10 caractères)"
+              [style.borderColor]="campaignForm.description?.length > 0 && (campaignForm.description?.length < 10 || campaignForm.description?.length > 1000) ? 'var(--danger)' : ''"></textarea>
+            <span *ngIf="campaignForm.description?.length > 0 && campaignForm.description?.length < 10"
+              style="color:var(--danger);font-size:.75rem;">Minimum 10 caractères ({{ campaignForm.description?.length }}/10)</span>
+            <span *ngIf="campaignForm.description?.length > 1000"
+              style="color:var(--danger);font-size:.75rem;">Maximum 1000 caractères</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Date début *</label>
+              <input class="form-input" type="date" [(ngModel)]="campaignForm.startDate"
+                [style.borderColor]="campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate ? 'var(--danger)' : ''">
+              <span *ngIf="campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate"
+                style="color:var(--danger);font-size:.75rem;">La date début doit être avant la date fin</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date fin *</label>
+              <input class="form-input" type="date" [(ngModel)]="campaignForm.endDate"
+                [style.borderColor]="campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate ? 'var(--danger)' : ''">
+              <span *ngIf="campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate"
+                style="color:var(--danger);font-size:.75rem;">La date fin doit être après la date début</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Budget (TND) *</label>
+              <input class="form-input" type="number" [(ngModel)]="campaignForm.budget"
+                placeholder="Ex: 15000"
+                [style.borderColor]="campaignForm.budget !== null && campaignForm.budget <= 0 ? 'var(--danger)' : ''">
+              <span *ngIf="campaignForm.budget !== null && campaignForm.budget <= 0"
+                style="color:var(--danger);font-size:.75rem;">Le budget doit être supérieur à 0</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Statut *</label>
+              <select class="form-input" [(ngModel)]="campaignForm.status">
+                <option value="PLANNED">PLANNED</option>
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="FINISHED">FINISHED</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:.75rem;margin-top:1rem;">
+            <button class="btn btn-success" (click)="saveCampaign()"
+              [disabled]="!campaignForm.name || campaignForm.name.length < 3 ||
+                          !campaignForm.description || campaignForm.description.length < 10 ||
+                          !campaignForm.startDate || !campaignForm.endDate ||
+                          campaignForm.startDate >= campaignForm.endDate ||
+                          !campaignForm.budget || campaignForm.budget <= 0"
+              [style.opacity]="!campaignForm.name || campaignForm.name.length < 3 ||
+                          !campaignForm.description || campaignForm.description.length < 10 ||
+                          !campaignForm.startDate || !campaignForm.endDate ||
+                          campaignForm.startDate >= campaignForm.endDate ||
+                          !campaignForm.budget || campaignForm.budget <= 0 ? '0.5' : '1'">
+              ✓ {{ editingCampaignId ? 'Mettre à jour' : 'Créer la campagne' }}
+            </button>
+            <button class="btn btn-primary" (click)="showCampaignModal ? closeCampaignModal() : openCampaignForm()">
+  {{ showCampaignModal ? '✕ Annuler' : '+ Nouvelle campagne' }}
+</button>          </div>
+
+        </div>
+      </div>
+
       <div class="kpi-row s2">
         <div class="kpi" style="--kc:var(--blue);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(59,130,246,.12);">📣</div><div class="kpi-trend success">Total</div></div><div class="kpi-val">{{ campaigns.length }}</div><div class="kpi-lbl">Total campagnes</div><div class="kpi-foot">Chargées depuis le backend</div></div>
         <div class="kpi" style="--kc:var(--success);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(16,185,129,.12);">✓</div><div class="kpi-trend success">En cours</div></div><div class="kpi-val">{{ countByStatus('ACTIVE') }}</div><div class="kpi-lbl">Campagnes actives</div><div class="kpi-foot">Status ACTIVE</div></div>
@@ -745,6 +846,7 @@
       </div>
     </div>
 
+
     <!-- ═══════════════════════════════════════════════════════
          MODAL — DÉCISION DOSSIER
          ═══════════════════════════════════════════════════════ -->
@@ -779,4 +881,5 @@
     </div>
 
   </main>
+
 </div>

@@ -48,6 +48,41 @@
     --w: 0%;
     --rc: var(--blue);
     --kc: var(--blue);
+
+    .modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  background: rgba(15,23,42,.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+main.main {
+  transform: none !important;
+  filter: none !important;
+}
+
+.layout-wrapper {
+  transform: none !important;
+  filter: none !important;
+}
+
+.modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  background: rgba(15,23,42,.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
   }
 
 
