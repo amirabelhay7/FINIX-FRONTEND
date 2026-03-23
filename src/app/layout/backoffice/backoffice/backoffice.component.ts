@@ -251,7 +251,9 @@ openSegmentAssignment(campaign: any) {
   this.campaignSegmentLinkService.getSegmentIdsByCampaign(campaign.id).subscribe({
     next: ids => {
   this.assignedSegmentIds = [...ids];
-  this.cdr.detectChanges();
+  this.cleanupOrphanAssignedSegments(); // ← supprime les IDs orphelins
+  this.selectedSegmentToAssign = null;
+  this.cdr.detectChanges(); // si OnPush
 },
     error: err => console.error('Error loading segments', err)
   });
@@ -273,8 +275,9 @@ assignSegment() {
       this.campaignSegmentLinkService.getSegmentIdsByCampaign(this.selectedCampaignForSegments.id).subscribe({
   next: ids => {
   this.assignedSegmentIds = [...ids];
+  this.cleanupOrphanAssignedSegments(); // ← supprime les IDs orphelins
   this.selectedSegmentToAssign = null;
-  this.cdr.detectChanges();
+  this.cdr.detectChanges(); // si OnPush
 },
   error: err => console.error('Error reloading segments', err)
 });
@@ -293,14 +296,28 @@ unassignSegment(segmentId: number) {
       this.campaignSegmentLinkService.getSegmentIdsByCampaign(this.selectedCampaignForSegments.id).subscribe({
   next: ids => {
   this.assignedSegmentIds = [...ids];
+  this.cleanupOrphanAssignedSegments(); // ← supprime les IDs orphelins
   this.selectedSegmentToAssign = null;
-  this.cdr.detectChanges();
+  this.cdr.detectChanges(); // si OnPush
 },
   error: err => console.error('Error reloading segments', err)
 });
     },
     error: err => console.error('Unassign error', err)
   });
+}
+// filtrer les assignations orphelines
+cleanupOrphanAssignedSegments() {
+  this.assignedSegmentIds = this.assignedSegmentIds.filter(id =>
+    this.segments.some(s => s.id === id)
+  );
+}
+// retourne uniquement les segments assignés qui existent encore dans segments
+// Les segments supprimés globalement disparaîtront donc de la liste
+get validAssignedSegments(): number[] {
+  return this.assignedSegmentIds.filter(id =>
+    this.segments.some(s => s.id === id)
+  );
 }
 
 getSegmentName(segmentId: number): string {

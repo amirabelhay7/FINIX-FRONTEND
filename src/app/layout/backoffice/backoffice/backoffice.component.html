@@ -613,8 +613,8 @@
               <!-- Segments déjà assignés -->
               <div style="margin-bottom:1.25rem;">
                 <div style="font-size:.75rem;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;">Segments assignés</div>
-                <div *ngIf="assignedSegmentIds.length === 0" style="color:var(--g400);font-size:.85rem;">Aucun segment assigné</div>
-                <div *ngFor="let segId of assignedSegmentIds"
+                <div *ngIf="validAssignedSegments.length === 0" style="color:var(--g400);font-size:.85rem;">Aucun segment assigné</div>
+                <div *ngFor="let segId of validAssignedSegments"
                     style="display:flex;align-items:center;justify-content:space-between;padding:.5rem .75rem;background:var(--g50);border-radius:var(--r8);margin-bottom:.5rem;border:1px solid var(--g200);">
                   <div style="display:flex;align-items:center;gap:.5rem;">
                     <span style="width:8px;height:8px;border-radius:50%;background:var(--purple);display:inline-block;"></span>
