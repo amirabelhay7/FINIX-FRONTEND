@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { MarketingCampaign, CustomerSegment } from '../../../models/marketing.model';
 import { FinancialIndicator, TreasuryAccount, FundingSimulation } from '../../../models/steering.model';
 import { MarketingCampaignService } from '../../../services/marketing/marketing-campaign.service';
@@ -6,6 +7,7 @@ import { CustomerSegmentService } from '../../../services/marketing/customer-seg
 import { FinancialIndicatorService } from '../../../services/steering/financial-indicator.service';
 import { TreasuryAccountService } from '../../../services/steering/treasury-account.service';
 import { FundingSimulationService } from '../../../services/steering/funding-simulation.service';
+import { CampaignSegmentLinkService } from '../../../services/marketing/campaign-segment-link.service';
 
 
 
@@ -36,7 +38,9 @@ export class BackofficeComponent implements OnInit {
   private segmentService: CustomerSegmentService,
   private indicatorService: FinancialIndicatorService,
   private treasuryService: TreasuryAccountService,
-  private simulationService: FundingSimulationService
+  private simulationService: FundingSimulationService,
+  private campaignSegmentLinkService: CampaignSegmentLinkService,
+  private cdr: ChangeDetectorRef
 ) {}
   selectedPage = 'dashboard';
   hover = false;
@@ -56,6 +60,10 @@ campaignForm: any = {
   status: 'PLANNED'
 };
 editingCampaignId: number | null = null;
+// ── Segment Link ──
+selectedCampaignForSegments: any = null;
+assignedSegmentIds: number[] = [];
+selectedSegmentToAssign: number | null = null;
 campaignError = '';
 // ── Modal Segment ──
 showSegmentModal = false;
@@ -231,6 +239,73 @@ deleteSegment(id: any): void {
     next: () => this.loadSegments(),
     error: err => console.error('Delete segment error', err)
   });
+}
+// campaignSegmentLink
+isAssigned(segmentId: number): boolean {
+  return this.assignedSegmentIds.includes(segmentId);
+}
+openSegmentAssignment(campaign: any) {
+  this.selectedCampaignForSegments = campaign;
+  this.selectedSegmentToAssign = null;
+  this.assignedSegmentIds = [];
+  this.campaignSegmentLinkService.getSegmentIdsByCampaign(campaign.id).subscribe({
+    next: ids => {
+  this.assignedSegmentIds = [...ids];
+  this.cdr.detectChanges();
+},
+    error: err => console.error('Error loading segments', err)
+  });
+}
+
+closeSegmentAssignment() {
+  this.selectedCampaignForSegments = null;
+  this.assignedSegmentIds = [];
+  this.selectedSegmentToAssign = null;
+}
+
+assignSegment() {
+  if (!this.selectedSegmentToAssign || !this.selectedCampaignForSegments) return;
+  this.campaignSegmentLinkService.assign(
+    this.selectedCampaignForSegments.id,
+    this.selectedSegmentToAssign
+  ).subscribe({
+    next: () => {
+      this.campaignSegmentLinkService.getSegmentIdsByCampaign(this.selectedCampaignForSegments.id).subscribe({
+  next: ids => {
+  this.assignedSegmentIds = [...ids];
+  this.selectedSegmentToAssign = null;
+  this.cdr.detectChanges();
+},
+  error: err => console.error('Error reloading segments', err)
+});
+    },
+    error: err => console.error('Assign error', err)
+  });
+}
+
+unassignSegment(segmentId: number) {
+  if (!this.selectedCampaignForSegments) return;
+  this.campaignSegmentLinkService.unassign(
+    this.selectedCampaignForSegments.id,
+    segmentId
+  ).subscribe({
+    next: () => {
+      this.campaignSegmentLinkService.getSegmentIdsByCampaign(this.selectedCampaignForSegments.id).subscribe({
+  next: ids => {
+  this.assignedSegmentIds = [...ids];
+  this.selectedSegmentToAssign = null;
+  this.cdr.detectChanges();
+},
+  error: err => console.error('Error reloading segments', err)
+});
+    },
+    error: err => console.error('Unassign error', err)
+  });
+}
+
+getSegmentName(segmentId: number): string {
+  const segment = this.segments.find(s => s.id === segmentId);
+  return segment ? segment.name : 'Segment #' + segmentId;
 }
 
 // ── Steering ──

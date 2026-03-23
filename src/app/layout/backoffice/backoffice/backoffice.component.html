@@ -602,6 +602,49 @@
       </div>
 
             <!-- FORMULAIRE INLINE CAMPAGNE -->
+      <!-- PANNEAU ASSIGNATION SEGMENTS -->
+          <div *ngIf="selectedCampaignForSegments" class="panel" style="border:2px solid var(--purple);margin-bottom:1rem;">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ptdot" style="background:var(--purple)"></span>Segments assignés — {{ selectedCampaignForSegments.name }}</div>
+              <button type="button" class="btn btn-outline btn-sm" (click)="closeSegmentAssignment()">✕ Fermer</button>
+            </div>
+            <div class="panel-body">
+
+              <!-- Segments déjà assignés -->
+              <div style="margin-bottom:1.25rem;">
+                <div style="font-size:.75rem;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;">Segments assignés</div>
+                <div *ngIf="assignedSegmentIds.length === 0" style="color:var(--g400);font-size:.85rem;">Aucun segment assigné</div>
+                <div *ngFor="let segId of assignedSegmentIds"
+                    style="display:flex;align-items:center;justify-content:space-between;padding:.5rem .75rem;background:var(--g50);border-radius:var(--r8);margin-bottom:.5rem;border:1px solid var(--g200);">
+                  <div style="display:flex;align-items:center;gap:.5rem;">
+                    <span style="width:8px;height:8px;border-radius:50%;background:var(--purple);display:inline-block;"></span>
+                    <span style="font-size:.85rem;font-weight:600;color:var(--g700);">{{ getSegmentName(segId) }}</span>
+                  </div>
+                  <button type="button" class="btn btn-danger btn-xs" (click)="unassignSegment(segId)">Désassigner</button>
+                </div>
+              </div>
+
+              <!-- Assigner un nouveau segment -->
+              <div style="border-top:1px solid var(--g200);padding-top:1rem;">
+                <div style="font-size:.75rem;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;">Assigner un segment</div>
+                <div style="display:flex;gap:.75rem;align-items:center;">
+                  <select class="form-input" style="flex:1;" [(ngModel)]="selectedSegmentToAssign">
+                    <option [ngValue]="null">-- Choisir un segment --</option>
+                    <option *ngFor="let s of segments" [ngValue]="s.id"
+                      [disabled]="isAssigned(s.id!)">
+                      {{ s.name }} {{ isAssigned(s.id!) ? '(déjà assigné)' : '' }}
+                    </option>
+                  </select>
+                  <button type="button" class="btn btn-success" (click)="assignSegment()"
+                    [disabled]="!selectedSegmentToAssign"
+                    [style.opacity]="!selectedSegmentToAssign ? '0.5' : '1'">
+                    + Assigner
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
       <div *ngIf="showCampaignModal" class="panel" style="border:2px solid var(--blue);margin-bottom:1rem;">
         <div class="panel-head">
           <div class="panel-title"><span class="ptdot"></span>{{ editingCampaignId ? 'Modifier la campagne' : 'Nouvelle campagne' }}</div>
@@ -720,7 +763,12 @@
                 <td style="font-size:.8rem;">{{ c.startDate }}</td>
                 <td style="font-size:.8rem;">{{ c.endDate }}</td>
                 <td><span class="badge" [ngClass]="{'b-actif':c.status==='ACTIVE','b-review':c.status==='PLANNED','b-pending':c.status==='FINISHED'}">{{ c.status }}</span></td>
-                <td><div style="display:flex;gap:.375rem"><button class="btn btn-ghost btn-xs" (click)="editCampaign(c)">Modifier</button><button class="btn btn-danger btn-xs" (click)="deleteCampaign(c.id)">Supprimer</button></div></td>
+                <td><div style="display:flex;gap:.375rem">
+                    <button class="btn btn-ghost btn-xs" (click)="editCampaign(c)">Modifier</button>
+                    <button class="btn btn-outline btn-xs" (click)="openSegmentAssignment(c)">Segments</button>
+                    <button class="btn btn-danger btn-xs" (click)="deleteCampaign(c.id)">Supprimer</button>
+                  </div>
+                </td>
               </tr>
               <tr *ngIf="campaigns.length === 0"><td colspan="7" style="text-align:center;color:var(--g400);padding:2rem;">Aucune campagne trouvée</td></tr>
             </tbody>
