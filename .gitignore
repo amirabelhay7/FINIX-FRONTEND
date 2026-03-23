@@ -54,6 +54,7 @@ lerna-debug.log*
 !.vscode/extensions.json
 !.vscode/mcp.json
 .history/
+.vscode
 
 # ============ Test / coverage ============
 /coverage

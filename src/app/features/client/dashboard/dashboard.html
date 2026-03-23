@@ -1,0 +1,166 @@
+<div class="page-body">
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Vue d'ensemble</div>
+      <div class="ph-title">Bonjour, {{ firstName }} 👋</div>
+      <div class="ph-desc">Situation financière au 28 Février 2026 — Agence Tunis Centre</div>
+    </div>
+    <div class="ph-actions">
+      <button class="btn btn-outline">📄 Relevé de compte</button>
+      <button class="btn btn-primary">💳 Demande de crédit</button>
+    </div>
+  </div>
+
+  <!-- KPIs row -->
+  <div class="kpi-row s2">
+    <div class="kpi" style="--kc:var(--blue);">
+      <div class="kpi-top">
+        <div class="kpi-ico">💳</div>
+        <div class="kpi-badge kb-up">↑ +1 ce mois</div>
+      </div>
+      <div><div class="kpi-val">3</div><div class="kpi-lbl">Crédits actifs</div></div>
+      <div class="kpi-foot">Capacité restante : <b>15 000 TND</b></div>
+    </div>
+    <div class="kpi" style="--kc:var(--success);">
+      <div class="kpi-top">
+        <div class="kpi-ico" style="background:var(--fx-success-soft);">💰</div>
+        <div class="kpi-badge kb-up">✓ Score 742</div>
+      </div>
+      <div><div class="kpi-val"><small>TND </small>24 500</div><div class="kpi-lbl">Encours total</div></div>
+      <div class="kpi-foot">Remboursé : <b>18 200 TND (74%)</b></div>
+    </div>
+    <div class="kpi" style="--kc:var(--warning);">
+      <div class="kpi-top">
+        <div class="kpi-ico" style="background:var(--fx-warning-soft);">📅</div>
+        <div class="kpi-badge kb-warn">⚠ Dans 5 jours</div>
+      </div>
+      <div><div class="kpi-val"><small>TND </small>850</div><div class="kpi-lbl">Prochaine échéance</div></div>
+      <div class="kpi-foot">Date limite : <b>05 Mars 2026</b></div>
+    </div>
+    <div class="kpi" style="--kc:var(--steel);">
+      <div class="kpi-top">
+        <div class="kpi-ico" style="background:var(--fx-blue-soft);">🚗</div>
+        <div class="kpi-badge kb-neu">● 2 véhicules</div>
+      </div>
+      <div><div class="kpi-val">742<small>/850</small></div><div class="kpi-lbl">Score de crédit</div></div>
+      <div class="kpi-foot">Profil : <b>Bon emprunteur ✓</b></div>
+    </div>
+  </div>
+
+  <!-- Credits table + Activity -->
+  <div class="g21 mb2 s3">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="ptdot"></span>Dossiers de crédit actifs</div>
+        <button class="btn btn-ghost btn-sm" routerLink="/client/credits">Voir tout →</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Référence</th><th>Type</th><th>Montant</th><th>Progression</th><th>Statut</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="td-ref">#CR-2024-001</span></td>
+              <td><div class="td-primary">Crédit Automobile</div><div class="td-sub">Toyota Corolla · 48 mois</div></td>
+              <td><span class="td-amount">12 500 TND</span></td>
+              <td><div class="bar-mini"><div class="bar-mini-fill" style="--w:72%"></div></div><div class="bar-mini-txt">72% remboursé</div></td>
+              <td><span class="badge b-actif">Actif</span></td>
+            </tr>
+            <tr>
+              <td><span class="td-ref">#CR-2024-018</span></td>
+              <td><div class="td-primary">Consommation</div><div class="td-sub">Personnel · 24 mois</div></td>
+              <td><span class="td-amount">7 000 TND</span></td>
+              <td><div class="bar-mini"><div class="bar-mini-fill" style="--w:45%"></div></div><div class="bar-mini-txt">45% remboursé</div></td>
+              <td><span class="badge b-actif">Actif</span></td>
+            </tr>
+            <tr>
+              <td><span class="td-ref">#CR-2025-043</span></td>
+              <td><div class="td-primary">Immobilier</div><div class="td-sub">Appartement · 180 mois</div></td>
+              <td><span class="td-amount">85 000 TND</span></td>
+              <td><div class="bar-mini"><div class="bar-mini-fill" style="--w:5%;background:var(--g300)"></div></div><div class="bar-mini-txt">5% remboursé</div></td>
+              <td><span class="badge b-review">En étude</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="ptdot"></span>Activité récente</div>
+        <span class="badge b-review">Live</span>
+      </div>
+      <div class="activity-list">
+        <div class="act-item">
+          <div class="act-timeline"><div class="act-dot"></div><div class="act-line"></div></div>
+          <div class="act-body"><div class="act-title">Remboursement reçu — <span>#CR-2024-001</span></div><div class="act-meta">Aujourd'hui · 09:14 · Virement</div></div>
+          <div class="act-val">850 TND</div>
+        </div>
+        <div class="act-item">
+          <div class="act-timeline"><div class="act-dot"></div><div class="act-line"></div></div>
+          <div class="act-body"><div class="act-title">Dossier soumis — <span>#CR-2025-043</span></div><div class="act-meta">Hier · 14:30 · En analyse</div></div>
+          <div class="act-val">85 000 TND</div>
+        </div>
+        <div class="act-item">
+          <div class="act-timeline"><div class="act-dot"></div><div class="act-line"></div></div>
+          <div class="act-body"><div class="act-title">Score mis à jour — <span>+12 points</span></div><div class="act-meta">23 Fév · Recalcul auto</div></div>
+          <div class="act-val">742 pts</div>
+        </div>
+        <div class="act-item">
+          <div class="act-timeline"><div class="act-dot"></div></div>
+          <div class="act-body"><div class="act-title">Assurance renouvelée — <span>Toyota</span></div><div class="act-meta">18 Fév · Renouvellement auto</div></div>
+          <div class="act-val">1 200 TND</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Charts + Alerts -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 300px;gap:1rem;" class="s4">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="ptdot"></span>Remboursements 2025-2026</div>
+        <button class="btn btn-ghost btn-sm">Mensuel ▾</button>
+      </div>
+      <div class="panel-body">
+        <div class="chart-bar">
+          <div class="cb-row"><div class="cb-lbl">Oct 2025</div><div class="cb-track"><div class="cb-fill cbf-blue" style="--w:80%;--d:.1s"></div></div><div class="cb-num">1 270</div></div>
+          <div class="cb-row"><div class="cb-lbl">Nov 2025</div><div class="cb-track"><div class="cb-fill cbf-blue" style="--w:80%;--d:.2s"></div></div><div class="cb-num">1 270</div></div>
+          <div class="cb-row"><div class="cb-lbl">Déc 2025</div><div class="cb-track"><div class="cb-fill cbf-blue" style="--w:90%;--d:.3s"></div></div><div class="cb-num">1 390</div></div>
+          <div class="cb-row"><div class="cb-lbl">Jan 2026</div><div class="cb-track"><div class="cb-fill cbf-green" style="--w:73%;--d:.4s"></div></div><div class="cb-num">1 150</div></div>
+          <div class="cb-row"><div class="cb-lbl">Fév 2026</div><div class="cb-track"><div class="cb-fill cbf-blue" style="--w:82%;--d:.5s"></div></div><div class="cb-num">1 270</div></div>
+          <div class="cb-row"><div class="cb-lbl">Mar 2026</div><div class="cb-track"><div class="cb-fill cbf-warn" style="--w:54%;--d:.6s"></div></div><div class="cb-num" style="color:var(--warning)">850 ⚠</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Répartition encours</div></div>
+      <div class="panel-body">
+        <div class="donut-wrap">
+          <div class="donut-ring">
+            <svg class="donut-svg" viewBox="0 0 140 140">
+              <defs><linearGradient id="dg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="var(--fx-chart-1)"/><stop offset="100%" stop-color="var(--fx-chart-2)"/></linearGradient></defs>
+              <circle class="dcbg" cx="70" cy="70" r="55"/><circle class="dcfg" cx="70" cy="70" r="55"/>
+            </svg>
+            <div class="donut-label"><div class="dl-val">74%</div><div class="dl-sub">Remboursé</div></div>
+          </div>
+          <div class="donut-legend">
+            <div class="dleg"><div class="dleg-dot" style="background:var(--fx-chart-1)"></div><span class="dleg-name">Auto</span><span class="dleg-val">12 500 TND</span></div>
+            <div class="dleg"><div class="dleg-dot" style="background:var(--fx-chart-2)"></div><span class="dleg-name">Conso</span><span class="dleg-val">7 000 TND</span></div>
+            <div class="dleg"><div class="dleg-dot" style="background:var(--fx-chart-3)"></div><span class="dleg-name">Immo</span><span class="dleg-val">5 000 TND</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="ptdot" style="background:var(--warning)"></span>Alertes</div>
+        <button class="btn btn-ghost btn-xs">Tout voir</button>
+      </div>
+      <div class="alerts-list">
+        <div class="alert-row"><div class="alert-ico ico-warn">⚠️</div><div><div class="alert-title">Échéance J-5</div><div class="alert-desc">850 TND le 05/03</div><div class="alert-time">2h</div></div><div class="unread"></div></div>
+        <div class="alert-row"><div class="alert-ico ico-info">📋</div><div><div class="alert-title">Dossier en analyse</div><div class="alert-desc">#CR-2025-043</div><div class="alert-time">Hier</div></div><div class="unread"></div></div>
+        <div class="alert-row"><div class="alert-ico ico-ok">✅</div><div><div class="alert-title">Score +12 pts</div><div class="alert-desc">Nouveau : 742/850</div><div class="alert-time">23 Fév</div></div></div>
+        <div class="alert-row"><div class="alert-ico ico-danger">❗</div><div><div class="alert-title">Document requis</div><div class="alert-desc">Justificatif revenu</div><div class="alert-time">12 Fév</div></div><div class="unread" style="background:var(--danger)"></div></div>
+      </div>
+    </div>
+  </div>
+</div>

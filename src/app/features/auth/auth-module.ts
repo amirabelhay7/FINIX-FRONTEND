@@ -6,12 +6,14 @@ import { AuthRoutingModule } from './auth-routing-module';
 import { LoginComponent } from './login/login.component';
 import { Register } from './register/register';
 import { ForgotPassword } from './forgot-password/forgot-password';
+import { LoginClient } from './login-client/login-client';
 
 @NgModule({
   declarations: [
     LoginComponent,
     Register,
     ForgotPassword,
+    LoginClient,
   ],
   imports: [
     CommonModule,

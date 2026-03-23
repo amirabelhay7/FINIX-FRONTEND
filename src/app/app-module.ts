@@ -1,44 +1,41 @@
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
-import { AuthModule } from './features/auth/auth-module';
+import { SharedModule } from './shared/shared-module';
 import { AgentLayout } from './layout/agent/agent';
 import { SellerLayout } from './layout/seller/seller';
-import { Spinner } from './shared/components/spinner/spinner';
-import { Alert } from './shared/components/alert/alert';
-import { Button } from './shared/components/button/button';
-import { Modal } from './shared/components/modal/modal';
+import { InsurerLayout } from './layout/insurer/insurer';
 import { SidebarComponent } from './layout/backoffice/components/sidebar/sidebar';
 import { TopbarComponent } from './layout/backoffice/components/topbar/topbar.component';
-import { FormsModule } from '@angular/forms';
-import { BackofficeComponent } from './layout/backoffice/backoffice/backoffice.component';
+import { BackofficeComponent } from './layout/backoffice/backoffice.component';
+import { authInterceptor } from './services/auth/auth.interceptor';
+import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 
 @NgModule({
   declarations: [
     App,
     AgentLayout,
     SellerLayout,
-    Spinner,
-    Alert,
-    Button,
-    Modal,
+    InsurerLayout,
     SidebarComponent,
     BackofficeComponent,
     TopbarComponent,
-
-
+    UnauthorizedComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-
+    SharedModule,
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideHttpClient(withInterceptors([authInterceptor])),
   ],
   bootstrap: [App]
 })
-export class AppModule { }
+export class AppModule {}

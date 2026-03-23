@@ -3,17 +3,19 @@
    ================================================================ */
 
 :host {
-  --sidebar-w: 340px;
+  --sidebar-w: 210px;
 }
 
 .sidebar {
   position: fixed; left: 0; top: 0; bottom: 0;
-  width: 340px;
-  background: var(--navy);
+  width: 210px;
+  background: var(--sidebar-bg, var(--navy));
   display: flex; flex-direction: column;
   z-index: 500;
-  border-right: 1px solid rgba(255,255,255,.06);
+  border-right: 1px solid var(--sidebar-border, rgba(255,255,255,.06));
   overflow: hidden;
+  transition: background .3s ease;
+  font-family: 'Figtree', -apple-system, sans-serif;
 }
 
 .sidebar::after {
@@ -25,131 +27,131 @@
 
 /* ── Brand ─────────────────────────────────────── */
 .sb-brand {
-  display: flex; align-items: center; gap: .875rem;
-  padding: 1.375rem 1.5rem 1.25rem;
+  display: flex; align-items: center; gap: .625rem;
+  padding: 1rem 1rem .875rem;
   border-bottom: 1px solid rgba(255,255,255,.06);
   flex-shrink: 0;
 }
 
 .sb-logo {
-  width: 42px; height: 42px;
+  width: 34px; height: 34px;
   background: linear-gradient(135deg, var(--blue), var(--steel));
-  border-radius: 10px;
+  border-radius: 9px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   box-shadow: var(--sh-blue);
   flex-shrink: 0;
 }
 
 .sb-name {
   font-family: 'Sora', sans-serif;
-  font-size: 1.25rem; font-weight: 800;
+  font-size: 1.05rem; font-weight: 800;
   color: #fff; letter-spacing: .01em; line-height: 1.2;
 }
 .sb-name span { color: var(--steel); }
 
 .sb-sub {
-  font-size: .65rem;
-  color: rgba(255,255,255,.3);
-  letter-spacing: .1em;
+  font-size: .55rem;
+  color: rgba(255,255,255,.28);
+  letter-spacing: .14em;
   text-transform: uppercase;
-  margin-top: .15rem;
+  margin-top: .05rem;
 }
 
 /* ── Admin Badge ───────────────────────────────── */
 .sb-admin-badge {
-  margin: 1rem 1.25rem .375rem;
-  display: flex; align-items: center; gap: .625rem;
-  padding: .55rem 1rem;
-  background: rgba(139,92,246,.15);
-  border: 1px solid rgba(139,92,246,.28);
-  border-radius: 8px;
+  margin: .75rem .75rem .25rem;
+  display: flex; align-items: center; gap: .45rem;
+  padding: .4rem .7rem;
+  background: rgba(139,92,246,.12);
+  border: 1px solid rgba(139,92,246,.22);
+  border-radius: 7px;
   flex-shrink: 0;
 }
 
 .sab-dot {
-  width: 7px; height: 7px;
+  width: 6px; height: 6px;
   background: #8B5CF6; border-radius: 50%;
   animation: pulse 2s infinite;
   flex-shrink: 0;
 }
 
 .sab-txt {
-  font-size: .775rem; font-weight: 700;
+  font-size: .62rem; font-weight: 700;
   color: #a78bfa;
-  letter-spacing: .06em; text-transform: uppercase;
+  letter-spacing: .08em; text-transform: uppercase;
 }
 
 /* ── Nav ───────────────────────────────────────── */
 .sb-nav {
   flex: 1;
   overflow-y: auto;
-  padding: .75rem 1rem 1rem;
+  padding: .375rem .625rem;
   display: flex;
   flex-direction: column;
 }
 .sb-nav::-webkit-scrollbar { display: none; }
 
 .sb-section {
-  font-size: .675rem; font-weight: 700;
-  color: rgba(255,255,255,.28);
+  font-size: .575rem; font-weight: 700;
+  color: rgba(255,255,255,.2);
   letter-spacing: .1em; text-transform: uppercase;
-  padding: 1.1rem .5rem .5rem;
+  padding: .875rem .4rem .35rem;
   flex-shrink: 0;
 }
 .sb-section:first-child { padding-top: .375rem; }
 
 .sb-item {
-  display: flex; align-items: center; gap: .75rem;
-  padding: .8rem 1rem;
-  border-radius: 10px;
-  font-size: .9375rem; font-weight: 500;
-  color: rgba(255,255,255,.5);
+  display: flex; align-items: center; gap: .55rem;
+  padding: .5rem .65rem;
+  border-radius: 7px;
+  font-size: .8rem; font-weight: 500;
+  color: rgba(255,255,255,.42);
   cursor: pointer;
-  transition: all .2s cubic-bezier(.4,0,.2,1);
+  transition: all .18s cubic-bezier(.4,0,.2,1);
   position: relative;
   border: 1px solid transparent;
   background: none; width: 100%; text-align: left;
-  margin-bottom: .225rem;
+  margin-bottom: .1rem;
   letter-spacing: .01em;
 }
 
 .sb-item:hover {
-  color: rgba(255,255,255,.9);
-  background: rgba(255,255,255,.07);
+  color: rgba(255,255,255,.82);
+  background: rgba(255,255,255,.05);
 }
 
 .sb-item.active {
   color: #fff;
-  background: linear-gradient(90deg, rgba(31,111,234,.28), rgba(31,111,234,.09));
-  border-color: rgba(31,111,234,.25);
+  background: linear-gradient(90deg, rgba(31,111,234,.22), rgba(31,111,234,.06));
+  border-color: rgba(31,111,234,.2);
   font-weight: 600;
 }
 
 .sb-item.active::before {
   content: '';
-  position: absolute; left: -16px; top: 50%;
-  translate: 0 -50%;
-  width: 3px; height: 55%;
+  position: absolute; left: -10px; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 50%;
   background: var(--blue);
   border-radius: 0 3px 3px 0;
 }
 
 .sb-ico {
-  width: 24px; height: 24px;
+  width: 18px; height: 18px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  opacity: .7;
+  opacity: .55;
 }
 .sb-item.active .sb-ico { opacity: 1; }
-.sb-item:hover .sb-ico  { opacity: .9; }
+.sb-item:hover .sb-ico  { opacity: .8; }
 
 .sb-badge {
   margin-left: auto;
   background: var(--blue); color: #fff;
-  font-size: .675rem; font-weight: 800;
-  padding: .175rem .55rem;
-  border-radius: 10px; min-width: 24px;
+  font-size: .55rem; font-weight: 800;
+  padding: .08rem .4rem;
+  border-radius: 10px; min-width: 18px;
   text-align: center; line-height: 1.5;
 }
 .sb-badge.warn    { background: var(--warning); }
@@ -158,28 +160,28 @@
 
 /* ── Footer / User ─────────────────────────────── */
 .sb-footer {
-  padding: 1rem 1.25rem;
-  border-top: 1px solid rgba(255,255,255,.07);
+  padding: .625rem .75rem;
+  border-top: 1px solid rgba(255,255,255,.06);
   flex-shrink: 0;
 }
 
 .sb-user {
-  display: flex; align-items: center; gap: .75rem;
-  padding: .625rem .75rem;
-  border-radius: 10px;
-  cursor: pointer; transition: all .2s;
+  display: flex; align-items: center; gap: .55rem;
+  padding: .45rem .5rem;
+  border-radius: 7px;
+  cursor: pointer; transition: all .18s;
 }
-.sb-user:hover { background: rgba(255,255,255,.07); }
+.sb-user:hover { background: rgba(255,255,255,.05); }
 
 .sb-avatar {
-  width: 36px; height: 36px;
+  width: 30px; height: 30px;
   background: linear-gradient(135deg, #8B5CF6, #3B82F6);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: .8rem; font-weight: 800; color: #fff;
+  font-size: .65rem; font-weight: 800; color: #fff;
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(139,92,246,.3);
 }
 
-.sb-uname { font-size: .9375rem; font-weight: 600; color: #fff; }
-.sb-urole { font-size: .7rem; color: rgba(255,255,255,.4); margin-top: .1rem; }
+.sb-uname { font-size: .8rem; font-weight: 600; color: #fff; }
+.sb-urole { font-size: .6rem; color: rgba(255,255,255,.35); margin-top: .05rem; }
