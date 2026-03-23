@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 interface PipelineCard {
   name: string;
@@ -20,16 +22,74 @@ interface PipelineColumn {
   standalone: false,
   templateUrl: './backoffice.component.html',
   styleUrl: './backoffice.component.css',
-
+  encapsulation: ViewEncapsulation.None,
 })
-export class BackofficeComponent {
+export class BackofficeComponent implements OnInit, OnDestroy {
   selectedPage = 'dashboard';
   hover = false;
   showModal = false;
   decisionNote = '';
+  currentTheme: 'light' | 'dark' = 'light';
+
+  /* ── Users management ── */
+  private readonly API = 'http://localhost:8081/api';
+  usersList: any[] = [];
+  usersLoading = false;
+  showUserModal = false;
+  editingUserId: number | null = null;
+  addUserError = '';
+  addUserLoading = false;
+  newUser: any = { firstName: '', lastName: '', email: '', password: '', role: 'AGENT', phoneNumber: '', address: '', city: '', agenceCode: '', region: '', insurerName: '', insurerEmail: '' };
+  showViewUserModal = false;
+  viewUser: any = null;
+
+  /* ── Logs ── */
+  logsList: any[] = [];
+  logsLoading = false;
+  usersTab: 'users' | 'logs' = 'users';
+
+  constructor(private renderer: Renderer2, private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
+
+  logout(): void {
+    localStorage.removeItem('finix_access_token');
+    localStorage.removeItem('currentUser');
+    this.router.navigate(['/login']);
+  }
+
+  ngOnInit(): void {
+    const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
+    this.currentTheme = saved || 'light';
+    this.applyTheme();
+  }
+
+  toggleTheme(): void {
+    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('finix_theme', this.currentTheme);
+    this.applyTheme();
+  }
+
+  ngOnDestroy(): void {
+    this.renderer.removeAttribute(document.documentElement, 'data-theme');
+  }
+
+  private applyTheme(): void {
+    this.renderer.setAttribute(document.documentElement, 'data-theme', this.currentTheme);
+  }
 
   onPageChange(page: string) {
     this.selectedPage = page;
+    if (page === 'users') {
+      this.usersTab = 'users';
+      this.loadUsers();
+      this.loadLogs();
+    }
+    if (page === 'clients') {
+      this.loadClients();
+    }
+  }
+
+  switchUsersTab(tab: 'users' | 'logs'): void {
+    this.usersTab = tab;
   }
 
 
@@ -166,38 +226,8 @@ export class BackofficeComponent {
     }
   ];
 
-  clients = [
-    {
-      initials: "BM",
-      name: "Bilel Mrabet",
-      email: "bilel.mrabet@email.com",
-      phone: "+216 20 123 456",
-      cin: "08 123 456",
-      city: "Tunis",
-      score: 742,
-      scoreColor: "var(--success)",
-      credits: "3 active",
-      encours: "24 500 TND",
-      kyc: "Complete",
-      status: "Active",
-      statusClass: "b-actif"
-    },
-    {
-      initials: "LB",
-      name: "Leila Bourguiba",
-      email: "l.bourguiba@email.com",
-      phone: "+216 22 654 321",
-      cin: "12 456 789",
-      city: "Sousse",
-      score: 610,
-      scoreColor: "var(--warning)",
-      credits: "1 active",
-      encours: "32 500 TND",
-      kyc: "Partial",
-      status: "Active",
-      statusClass: "b-actif"
-    }
-  ];
+  clients: any[] = [];
+  clientsLoading = false;
 
 
   pipelineColumns: PipelineColumn[] = [
@@ -579,7 +609,206 @@ export class BackofficeComponent {
     console.log("More info requested", this.decisionNote);
   }
 
+  /* ── Clients API ── */
+  loadClients(): void {
+    this.clientsLoading = true;
+    this.http.get<any[]>(`${this.API}/users`).subscribe({
+      next: (users) => {
+        this.clients = users
+          .filter((u: any) => u.role === 'CLIENT')
+          .map((u: any) => ({
+            id: u.id,
+            initials: ((u.firstName?.[0] || '') + (u.lastName?.[0] || '')).toUpperCase(),
+            name: (u.firstName || '') + ' ' + (u.lastName || ''),
+            email: u.email || '—',
+            phone: u.phoneNumber ? '+216 ' + u.phoneNumber : '—',
+            cin: u.cin || '—',
+            city: u.city || '—',
+            status: 'Active',
+            statusClass: 'b-actif'
+          }));
+        this.clientsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.clientsLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
+  /* ── Logs API ── */
+  loadLogs(): void {
+    this.logsLoading = true;
+    this.http.get<any[]>(`${this.API}/users/logs`).subscribe({
+      next: (logs) => {
+        this.logsList = logs;
+        this.logsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.logsLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
+  /* ── Users API ── */
+  loadUsers(): void {
+    this.usersLoading = true;
+    this.http.get<any[]>(`${this.API}/users`).subscribe({
+      next: (users) => {
+        this.usersList = users.filter((u: any) => u.role === 'AGENT' || u.role === 'INSURER');
+        this.usersLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.usersLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
+  /* Create */
+  openAddUser(): void {
+    this.editingUserId = null;
+    this.newUser = { firstName: '', lastName: '', email: '', password: '', role: 'AGENT', phoneNumber: '', address: '', city: '', agenceCode: '', region: '', insurerName: '', insurerEmail: '' };
+    this.addUserError = '';
+    this.showUserModal = true;
+  }
+
+  /* Edit */
+  openEditUser(user: any): void {
+    this.editingUserId = user.id;
+    this.newUser = {
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      password: '',
+      role: user.role || 'AGENT',
+      phoneNumber: user.phoneNumber || '',
+      address: user.address || '',
+      city: user.city || '',
+      agenceCode: user.agenceCode || '',
+      region: user.region || '',
+      insurerName: user.insurerName || '',
+      insurerEmail: user.insurerEmail || '',
+    };
+    this.addUserError = '';
+    this.showUserModal = true;
+  }
+
+  closeUserModal(): void {
+    this.showUserModal = false;
+  }
+
+  /* View */
+  openViewUser(user: any): void {
+    this.viewUser = user;
+    this.showViewUserModal = true;
+  }
+
+  closeViewUser(): void {
+    this.showViewUserModal = false;
+  }
+
+  /* Submit create or update */
+  submitUser(): void {
+    console.log('[ADMIN] submitUser() called');
+    console.log('[ADMIN] newUser:', JSON.stringify(this.newUser));
+    this.addUserError = '';
+    if (!this.newUser.firstName || !this.newUser.lastName || !this.newUser.email) {
+      this.addUserError = 'Veuillez remplir tous les champs obligatoires.';
+      console.log('[ADMIN] Validation failed: champs obligatoires manquants');
+      return;
+    }
+    if (!this.editingUserId && !this.newUser.password) {
+      this.addUserError = 'Le mot de passe est obligatoire pour un nouveau compte.';
+      console.log('[ADMIN] Validation failed: password manquant');
+      return;
+    }
+    console.log('[ADMIN] Validation passed, sending request...');
+    this.addUserLoading = true;
+
+    if (this.editingUserId) {
+      // UPDATE
+      const payload: any = {
+        firstName: this.newUser.firstName,
+        lastName: this.newUser.lastName,
+        email: this.newUser.email,
+        phoneNumber: this.newUser.phoneNumber ? Number(this.newUser.phoneNumber) : null,
+        address: this.newUser.address || null,
+        city: this.newUser.city || null,
+        role: this.newUser.role,
+      };
+      if (this.newUser.password) {
+        payload.password = this.newUser.password;
+      }
+      if (this.newUser.role === 'AGENT') {
+        payload.agenceCode = this.newUser.agenceCode ? Number(this.newUser.agenceCode) : null;
+        payload.region = this.newUser.region ? Number(this.newUser.region) : null;
+      } else if (this.newUser.role === 'INSURER') {
+        payload.insurerName = this.newUser.insurerName;
+        payload.insurerEmail = this.newUser.insurerEmail;
+      }
+      this.http.put(`${this.API}/users/${this.editingUserId}`, payload).subscribe({
+        next: () => {
+          this.addUserLoading = false;
+          this.showUserModal = false;
+          this.cdr.detectChanges();
+          this.loadUsers();
+        },
+        error: (err: any) => {
+          this.addUserLoading = false;
+          this.addUserError = err.error?.message || 'Erreur lors de la mise à jour.';
+          this.cdr.detectChanges();
+        }
+      });
+    } else {
+      // CREATE
+      const payload: any = {
+        firstName: this.newUser.firstName,
+        lastName: this.newUser.lastName,
+        email: this.newUser.email,
+        password: this.newUser.password,
+        role: this.newUser.role,
+        phoneNumber: this.newUser.phoneNumber ? Number(this.newUser.phoneNumber) : null,
+      };
+      if (this.newUser.role === 'AGENT') {
+        payload.agenceCode = this.newUser.agenceCode ? Number(this.newUser.agenceCode) : null;
+        payload.region = this.newUser.region ? Number(this.newUser.region) : null;
+      } else if (this.newUser.role === 'INSURER') {
+        payload.insurerName = this.newUser.insurerName;
+        payload.insurerEmail = this.newUser.insurerEmail;
+      }
+      console.log('[ADMIN] Creating user with payload:', JSON.stringify(payload));
+      this.http.post(`${this.API}/auth/register`, payload).subscribe({
+        next: (res) => {
+          console.log('[ADMIN] User created successfully:', res);
+          this.addUserLoading = false;
+          this.showUserModal = false;
+          this.cdr.detectChanges();
+          this.loadUsers();
+        },
+        error: (err: any) => {
+          console.error('[ADMIN] Create user error:', err);
+          this.addUserLoading = false;
+          this.addUserError = err.error?.message || err.message || 'Erreur lors de la création.';
+          this.cdr.detectChanges();
+        }
+      });
+    }
+  }
+
+  /* Delete */
+  deleteUser(id: number): void {
+    this.http.delete(`${this.API}/users/${id}`).subscribe({
+      next: () => this.loadUsers(),
+      error: (err: any) => console.error('[ADMIN] Delete error:', err)
+    });
+  }
+
+  getUserInitials(user: any): string {
+    return ((user.firstName?.[0] || '') + (user.lastName?.[0] || '')).toUpperCase();
+  }
 }

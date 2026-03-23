@@ -1,73 +1,80 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-frontoffice',
   standalone: true,
   templateUrl: './frontoffice.html',
   styleUrl: './frontoffice.css',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive]
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NgFor, NgIf],
+  encapsulation: ViewEncapsulation.None,
 })
-export class Frontoffice implements OnInit {
+export class Frontoffice implements OnInit, OnDestroy {
+  currentTheme: 'light' | 'dark' = 'dark';
 
-  // User role and authentication state
-  userRole: string = '';
-  isLoggedIn: boolean = false;
-  currentUser: any = null;
-  showUserMenu: boolean = false;
-  showBreadcrumbs: boolean = false;
-  currentModule: string = '';
-  flashMessage: string = '';
+  navTabs = [
+    { label: 'Dashboard', icon: '🏠', route: '/client/dashboard' },
+    { label: 'Mes Crédits', icon: '💳', route: '/client/credits', badge: '3' },
+    { label: 'Remboursements', icon: '💸', route: '/client/repayments', badge: '1', badgeClass: 'warn' },
+    { label: 'Véhicules', icon: '🚗', route: '/client/vehicles' },
+    { label: 'Assurance', icon: '🛡️', route: '/client/insurance' },
+    { label: 'Wallet', icon: '👛', route: '/client/wallet' },
+    { label: 'Mon Score', icon: '📊', route: '/client/score' },
+    { label: 'Documents', icon: '📄', route: '/client/documents' }
+  ];
 
-  constructor(private router: Router) {}
+  showUserDropdown = false;
+  userName = '';
+  userInitials = '';
+  userEmail = '';
+  userRole = '';
 
-  ngOnInit() {
-    // Initialize user state (this would come from authentication service)
-    this.checkUserAuthentication();
+  constructor(private router: Router, private renderer: Renderer2) {}
+
+  ngOnInit(): void {
+    const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
+    this.currentTheme = saved || 'dark';
+    this.applyTheme();
+    this.loadUser();
   }
 
-  checkUserAuthentication() {
-    // This would typically get user data from an authentication service
-    const userData = localStorage.getItem('currentUser');
-    const token = localStorage.getItem('authToken');
-
-    if (token && userData) {
-      this.isLoggedIn = true;
-      this.currentUser = JSON.parse(userData);
-      this.userRole = this.currentUser?.role || 'CLIENT';
-    } else {
-      this.isLoggedIn = false;
-      this.currentUser = null;
-      this.userRole = '';
-    }
+  private loadUser(): void {
+    try {
+      const raw = localStorage.getItem('currentUser');
+      if (raw) {
+        const user = JSON.parse(raw);
+        this.userName = user.name || 'Utilisateur';
+        this.userRole = (user.role || 'CLIENT');
+        this.userEmail = user.email || '';
+      }
+    } catch { }
+    const parts = this.userName.split(' ');
+    this.userInitials = parts.map((p: string) => p[0]).join('').toUpperCase().slice(0, 2);
   }
 
-  toggleUserMenu() {
-    this.showUserMenu = !this.showUserMenu;
+  ngOnDestroy(): void {
+    this.renderer.removeAttribute(document.documentElement, 'data-theme');
+  }
+
+  toggleTheme(): void {
+    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('finix_theme', this.currentTheme);
+    this.applyTheme();
+  }
+
+  private applyTheme(): void {
+    this.renderer.setAttribute(document.documentElement, 'data-theme', this.currentTheme);
+  }
+
+  toggleUserDropdown() {
+    this.showUserDropdown = !this.showUserDropdown;
   }
 
   logout() {
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('finix_access_token');
     localStorage.removeItem('currentUser');
-    this.isLoggedIn = false;
-    this.currentUser = null;
-    this.userRole = '';
-    this.showUserMenu = false;
-    this.router.navigate(['/login']);
-  }
-
-  // Method to set flash messages
-  setFlashMessage(message: string) {
-    this.flashMessage = message;
-    setTimeout(() => {
-      this.flashMessage = '';
-    }, 5000);
-  }
-
-  // Method to set current module for breadcrumbs
-  setCurrentModule(module: string) {
-    this.currentModule = module;
-    this.showBreadcrumbs = true;
+    this.showUserDropdown = false;
+    this.router.navigate(['/login-client']);
   }
 }

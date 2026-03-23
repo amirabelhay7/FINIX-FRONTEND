@@ -1,106 +1,81 @@
-<div class="min-h-screen bg-gray-50 flex flex-col font-sans">
-
-    <header class="sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-
-                <div class="flex items-center space-x-2 cursor-pointer" routerLink="/">
-                    <div class="w-8 h-8 bg-[#135bec] rounded-lg flex items-center justify-center rotate-3 shadow-lg shadow-blue-200">
-                        <span class="material-symbols-outlined text-white text-xl">account_balance</span>
-                    </div>
-                    <span class="text-xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-[#135bec] to-blue-600">
-                        FINIX
-                    </span>
-                </div>
-
-                <!-- Centered Navigation -->
-                <nav class="hidden lg:flex items-center space-x-1 flex-1 justify-center mx-8">
-                    <a routerLink="/" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium rounded-md">Home</a>
-                    <a routerLink="/credit" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#135bec] hover:bg-gray-50 rounded-md transition-all">Credit</a>
-                    <a routerLink="/score" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#135bec] hover:bg-gray-50 rounded-md transition-all">Scoring</a>
-                    <a routerLink="/wallet" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#135bec] hover:bg-gray-50 rounded-md transition-all">Wallet</a>
-                    <a routerLink="/insurance" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#135bec] hover:bg-gray-50 rounded-md transition-all">Insurance</a>
-                    <a routerLink="/repayment" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#135bec] hover:bg-gray-50 rounded-md transition-all">Repayment</a>
-                    <a routerLink="/vehicles" routerLinkActive="bg-blue-50 text-[#135bec]" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#135bec] hover:bg-gray-50 rounded-md transition-all">Vehicles</a>
-                </nav>
-
-                <div class="flex items-center space-x-4">
-                    <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full relative">
-                        <span class="material-symbols-outlined text-[22px]">notifications</span>
-                        <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                    </button>
-
-                    <div class="h-6 w-px bg-gray-200"></div>
-
-                    <div class="flex items-center cursor-pointer group px-2 py-1 hover:bg-gray-50 rounded-lg transition-colors">
-                        <img src="https://ui-avatars.com/api/?name=Alex+Johnson&background=135bec&color=fff"
-                             class="h-8 w-8 rounded-full border border-gray-200" alt="User" />
-                        <div class="ml-2 hidden sm:block">
-                            <p class="text-xs font-bold text-gray-800 leading-none">Alex Johnson</p>
-                            <p class="text-[10px] text-[#135bec] font-bold uppercase tracking-tighter">Verified Client</p>
-                        </div>
-                        <span class="material-symbols-outlined text-gray-400 text-sm ml-1">expand_more</span>
-                    </div>
-
-                    <button class="lg:hidden p-2 text-gray-600">
-                        <span class="material-symbols-outlined">menu</span>
-                    </button>
-                </div>
-            </div>
+<!-- TOPBAR - dark navy bar -->
+<div class="topbar">
+  <div class="tb-brand">
+    <img class="tb-logo-img" src="/assets/logo.png" alt="FIN'IX Logo">
+    <div class="tb-name">FIN<span>'IX</span></div>
+  </div>
+  <div class="tb-divider"></div>
+  <div class="tb-sub">Institution de Microfinance · Agréée BCT</div>
+  <div class="tb-right">
+    
+    <button class="tb-btn">🔔<span class="notif-dot"></span></button>
+    <button class="tb-btn">⚙️</button>
+    <button class="tb-theme-toggle" (click)="toggleTheme()" title="Changer le thème">
+      {{ currentTheme === 'dark' ? '☀️' : '🌙' }}
+    </button>
+    <div class="tb-user" (click)="toggleUserDropdown()" style="position:relative;">
+      <div class="tb-avatar">{{ userInitials }}</div>
+      <div>
+        <div class="tb-uname">{{ userName }}</div>
+        <div class="tb-urole">{{ userRole }}</div>
+      </div>
+      <span style="color:rgba(255,255,255,.3);font-size:.65rem;margin-left:.25rem;">▾</span>
+      <!-- User dropdown -->
+      <div class="dropdown" [class.dropdown-hidden]="!showUserDropdown" (click)="$event.stopPropagation()">
+        <div class="dp-head">
+          <div class="dp-av">{{ userInitials }}</div>
+          <div>
+            <div class="dp-name">{{ userName }}</div>
+            <div class="dp-email">{{ userEmail }}</div>
+          </div>
         </div>
-    </header>
-
-    <main class="flex-grow">
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <router-outlet></router-outlet>
+        <div style="padding:.25rem 0;">
+          <button class="dp-item">👤 Mon profil</button>
+          <button class="dp-item">🔐 Sécurité</button>
+          <button class="dp-item">🔔 Notifications</button>
+          <div class="dp-sep"></div>
+          <button class="dp-item">📞 Contacter un agent</button>
+          <button class="dp-item">❓ Aide & Support</button>
+          <div class="dp-sep"></div>
+          <button class="dp-item red" (click)="logout()">🚪 Déconnexion</button>
         </div>
-    </main>
-
-    <footer class="bg-white border-t border-gray-200">
-        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                <div class="col-span-2">
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-6 h-6 bg-gray-900 rounded flex items-center justify-center">
-                            <span class="material-symbols-outlined text-white text-xs">dataset</span>
-                        </div>
-                        <span class="text-lg font-black tracking-tighter uppercase italic text-gray-900">FINIX</span>
-                    </div>
-                    <p class="text-sm text-gray-500 max-w-xs">
-                        The ultimate ecosystem for sellers and financial service providers. Secure, fast, and transparent.
-                    </p>
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4">Store</h4>
-                    <ul class="space-y-2 text-sm text-gray-500">
-                        <li><a href="#" class="hover:text-[#135bec]">Dashboard</a></li>
-                        <li><a href="#" class="hover:text-[#135bec]">Listings</a></li>
-                        <li><a href="#" class="hover:text-[#135bec]">Reviews</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4">Support</h4>
-                    <ul class="space-y-2 text-sm text-gray-500">
-                        <li><a href="#" class="hover:text-[#135bec]">Help Center</a></li>
-                        <li><a href="#" class="hover:text-[#135bec]">Seller Guide</a></li>
-                        <li><a href="#" class="hover:text-[#135bec]">Contact Us</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4">Legal</h4>
-                    <ul class="space-y-2 text-sm text-gray-500">
-                        <li><a href="#" class="hover:text-[#135bec]">Privacy</a></li>
-                        <li><a href="#" class="hover:text-[#135bec]">Terms</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="mt-12 pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                <p class="text-xs text-gray-400 font-medium">© 2026 FINIX Ecosystem. All rights reserved.</p>
-                <div class="flex space-x-6">
-                    <span class="material-symbols-outlined text-gray-400 cursor-pointer hover:text-blue-600 transition-colors">public</span>
-                    <span class="material-symbols-outlined text-gray-400 cursor-pointer hover:text-blue-400 transition-colors">alternate_email</span>
-                </div>
-            </div>
-        </div>
-    </footer>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- CLIENT NAVBAR with routerLink tabs -->
+<nav class="client-nav">
+  <a *ngFor="let tab of navTabs"
+     class="nav-tab"
+     [routerLink]="tab.route"
+     routerLinkActive="active">
+    {{tab.icon}} {{tab.label}}
+    <span *ngIf="tab.badge" class="nav-tab-badge" [class.warn]="tab.badgeClass === 'warn'">{{tab.badge}}</span>
+  </a>
+  <div class="nav-actions">
+    <div class="search-wrap">
+      <span>🔍</span>
+      <input type="text" placeholder="Rechercher...">
+    </div>
+    <button class="btn-new">+ Nouvelle demande</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+  <router-outlet></router-outlet>
+  <!-- FOOTER -->
+  <footer>
+    <div>
+      <div class="ft-brand">FIN<span>'IX</span></div>
+      <div class="ft-copy" style="margin-top:.25rem;">© 2026 FIN'IX — Institution de Microfinance agréée BCT n°2019-IMF-042</div>
+    </div>
+    <div class="ft-links">
+      <a href="#" class="ft-link">Confidentialité</a>
+      <a href="#" class="ft-link">CGU</a>
+      <a href="#" class="ft-link">Aide</a>
+      <a href="#" class="ft-link">Contact</a>
+    </div>
+  </footer>
+</main>
