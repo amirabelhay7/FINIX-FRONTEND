@@ -23,4 +23,7 @@ export class CampaignSegmentLinkService {
   getSegmentIdsByCampaign(campaignId: number): Observable<number[]> {
     return this.http.get<number[]>(`${this.url}/segments/${campaignId}`);
   }
+  getCampaignIdsBySegment(segmentId: number): Observable<number[]> {
+  return this.http.get<number[]>(`${this.url}/campaigns/${segmentId}`);
+}
 }

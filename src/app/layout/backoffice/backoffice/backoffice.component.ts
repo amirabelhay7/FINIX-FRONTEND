@@ -25,6 +25,16 @@ interface PipelineColumn {
   count: number;
   cards: PipelineCard[];
 }
+interface SegmentWithCampaignsDTO {
+  segmentId: number;
+  segmentName: string;
+  minIncome: number;
+  maxIncome: number;
+  employmentType: string;
+  geographicZone: string;
+  campaignIds: number[];
+  campaignNames: string[];
+}
 
 @Component({
   selector: 'app-backoffice',
@@ -144,6 +154,7 @@ saveCampaign() {
   // ── Mes modules ──
   campaigns: MarketingCampaign[] = [];
   segments: CustomerSegment[] = [];
+  segmentsWithCampaigns: SegmentWithCampaignsDTO[] = [];
   indicators: FinancialIndicator[] = [];
   treasuryAccounts: TreasuryAccount[] = [];
   simulations: FundingSimulation[] = [];
@@ -154,6 +165,14 @@ saveCampaign() {
   this.loadIndicators();
   this.loadTreasuryAccounts();
   this.loadSimulations();
+  // On charge d'abord les campagnes, puis une fois reçues on charge les segments avec leurs campagnes
+  this.campaignService.getAll().subscribe({
+    next: data => {
+      this.campaigns = data;
+      this.loadSegmentsWithCampaigns(); // ← appelé seulement après que campaigns est prêt
+    },
+    error: err => console.error('Campaigns error', err)
+  });
 }
   countByStatus(status: string): number {
   return this.campaigns.filter(c => c.status === status).length;
@@ -238,6 +257,39 @@ deleteSegment(id: any): void {
   this.segmentService.delete(id).subscribe({
     next: () => this.loadSegments(),
     error: err => console.error('Delete segment error', err)
+  });
+}
+loadSegmentsWithCampaigns() {
+  this.segmentService.getAll().subscribe({
+    next: (segments) => {
+      this.segmentsWithCampaigns = segments.map(s => ({
+        segmentId: s.id as number,
+        segmentName: s.name,
+        description: s.description,
+        minIncome: s.minIncome,
+        maxIncome: s.maxIncome,
+        employmentType: s.employmentType,
+        geographicZone: s.geographicZone,
+        campaignIds: [] as number[],
+        campaignNames: [] as string[]
+      }));
+
+      this.campaigns.forEach(campaign => {
+        this.campaignSegmentLinkService.getSegmentIdsByCampaign(campaign.id!).subscribe({
+          next: (segmentIds) => {
+            segmentIds.forEach(segId => {
+              const dto = this.segmentsWithCampaigns.find(d => d.segmentId === segId);
+              if (dto && !dto.campaignIds.includes(campaign.id!)) {
+                dto.campaignIds.push(campaign.id!);
+                dto.campaignNames.push(campaign.name);
+              }
+            });
+          },
+          error: (err) => console.error('Error loading segments for campaign', campaign.id, err)
+        });
+      });
+    },
+    error: (err) => console.error('Error loading segments', err)
   });
 }
 // campaignSegmentLink
