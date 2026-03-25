@@ -8,6 +8,8 @@ import { FinancialIndicatorService } from '../../../services/steering/financial-
 import { TreasuryAccountService } from '../../../services/steering/treasury-account.service';
 import { FundingSimulationService } from '../../../services/steering/funding-simulation.service';
 import { CampaignSegmentLinkService } from '../../../services/marketing/campaign-segment-link.service';
+import { CampaignCreditLinkService } from '../../../services/marketing/campaign-credit-link.service';
+import { CampaignCreditLink } from '../../../models/marketing.model';
 
 
 
@@ -50,7 +52,8 @@ export class BackofficeComponent implements OnInit {
   private treasuryService: TreasuryAccountService,
   private simulationService: FundingSimulationService,
   private campaignSegmentLinkService: CampaignSegmentLinkService,
-  private cdr: ChangeDetectorRef
+  private cdr: ChangeDetectorRef,
+  private campaignCreditLinkService: CampaignCreditLinkService
 ) {}
   selectedPage = 'dashboard';
   hover = false;
@@ -75,6 +78,21 @@ selectedCampaignForSegments: any = null;
 assignedSegmentIds: number[] = [];
 selectedSegmentToAssign: number | null = null;
 campaignError = '';
+// ── Credit Link ──
+selectedCampaignForCredits: any = null;
+campaignCredits: CampaignCreditLink[] = [];
+showCreditForm = false;
+creditLinkError = '';
+creditForm: any = {
+  campaignId: null,
+  creditId: null,
+  creditAmount: null,
+  interestAmount: null,
+  appliedDiscountRate: null,
+  grantedDate: ''
+};
+today = new Date().toISOString().split('T')[0];
+
 // ── Modal Segment ──
 showSegmentModal = false;
 segmentError = '';
@@ -226,7 +244,7 @@ closeSegmentModal() {
 saveSegment() {
   if (this.editingSegmentId) {
     this.segmentService.update(this.editingSegmentId, this.segmentForm).subscribe({
-      next: () => { this.loadSegments(); this.closeSegmentModal(); },
+      next: () => { this.loadSegments(); this.loadSegmentsWithCampaigns();this.closeSegmentModal(); },
       error: err => {
         if (err.status === 409) {
           this.segmentError = 'Ce nom de segment existe déjà. Veuillez choisir un nom différent.';
@@ -238,24 +256,46 @@ saveSegment() {
       }
     });
   } else {
-    this.segmentService.add(this.segmentForm).subscribe({
-      next: () => { this.loadSegments(); this.closeSegmentModal(); },
-      error: err => {
-        if (err.status === 409) {
-          this.segmentError = 'Ce nom de segment existe déjà. Veuillez choisir un nom différent.';
-        } else if (err.status === 400) {
-          this.segmentError = err.error?.message || 'Données invalides. Vérifiez les champs.';
-        } else {
-          this.segmentError = 'Une erreur est survenue. Réessayez.';
-        }
+  this.segmentService.add(this.segmentForm).subscribe({
+    next: (newSegment) => {
+      // Ajout instantané local
+      this.segments = [...this.segments, newSegment];
+      this.segmentsWithCampaigns = [...this.segmentsWithCampaigns, {
+        segmentId: newSegment.id as number,
+        segmentName: newSegment.name,
+        minIncome: newSegment.minIncome,
+        maxIncome: newSegment.maxIncome,
+        employmentType: newSegment.employmentType,
+        geographicZone: newSegment.geographicZone,
+        campaignIds: [],
+        campaignNames: []
+      }];
+      this.closeSegmentModal();
+      // Resync en arrière-plan
+      this.loadSegmentsWithCampaigns();
+    },
+    error: err => {
+      if (err.status === 409) {
+        this.segmentError = 'Ce nom de segment existe déjà. Veuillez choisir un nom différent.';
+      } else if (err.status === 400) {
+        this.segmentError = err.error?.message || 'Données invalides. Vérifiez les champs.';
+      } else {
+        this.segmentError = 'Une erreur est survenue. Réessayez.';
       }
-    });
-  }
+    }
+  });
+}
 }
 deleteSegment(id: any): void {
   if (!id) return;
   this.segmentService.delete(id).subscribe({
-    next: () => this.loadSegments(),
+    next: () => {
+      // Suppression instantanée locale
+      this.segments = this.segments.filter(s => s.id !== id);
+      this.segmentsWithCampaigns = this.segmentsWithCampaigns.filter(s => s.segmentId !== id);
+      // Resync en arrière-plan
+      this.loadSegmentsWithCampaigns();
+    },
     error: err => console.error('Delete segment error', err)
   });
 }
@@ -292,6 +332,7 @@ loadSegmentsWithCampaigns() {
     error: (err) => console.error('Error loading segments', err)
   });
 }
+
 // campaignSegmentLink
 isAssigned(segmentId: number): boolean {
   return this.assignedSegmentIds.includes(segmentId);
@@ -376,6 +417,71 @@ getSegmentName(segmentId: number): string {
   const segment = this.segments.find(s => s.id === segmentId);
   return segment ? segment.name : 'Segment #' + segmentId;
 }
+openCreditLink(campaign: any) {
+  this.selectedCampaignForCredits = campaign;
+  this.showCreditForm = false;
+  this.creditLinkError = '';
+  this.campaignCredits = []; // ← vide immédiatement avant l'appel
+  this.creditForm = {
+    campaignId: campaign.id,
+    creditId: null,
+    creditAmount: null,
+    interestAmount: null,
+    appliedDiscountRate: null,
+    grantedDate: ''
+  };
+  this.campaignCreditLinkService.getByCampaign(campaign.id).subscribe({
+    next: data => this.campaignCredits = data,
+    error: err => console.error('Error loading credits', err)
+  });
+}
+
+closeCreditLink() {
+  this.selectedCampaignForCredits = null;
+  this.campaignCredits = [];
+  this.showCreditForm = false;
+  this.creditLinkError = '';
+}
+
+saveCreditLink() {
+  this.campaignCreditLinkService.add(this.creditForm).subscribe({
+    next: () => {
+      this.showCreditForm = false;
+      this.creditLinkError = '';
+      this.campaignCreditLinkService.getByCampaign(this.selectedCampaignForCredits.id).subscribe({
+        next: data => this.campaignCredits = [...data],
+        error: err => console.error('Error reloading credits', err)
+      });
+    },
+    error: err => {
+      if (err.status === 409) {
+        this.creditLinkError = 'Ce crédit est déjà lié à une campagne.';
+      } else if (err.status === 400) {
+        this.creditLinkError = err.error?.message || 'Données invalides.';
+      } else {
+        this.creditLinkError = 'Une erreur est survenue.';
+      }
+    }
+  });
+}
+
+deleteCreditLink(id: any) {
+  this.campaignCreditLinkService.delete(id).subscribe({
+    next: () => {
+      this.campaignCredits = this.campaignCredits.filter(c => c.id !== id);
+    },
+    error: err => console.error('Delete credit link error', err)
+  });
+}
+
+getTotalFinanced(): number {
+  return this.campaignCredits.reduce((sum, c) => sum + (c.creditAmount || 0), 0);
+}
+
+getTotalInterest(): number {
+  return this.campaignCredits.reduce((sum, c) => sum + (c.interestAmount || 0), 0);
+}
+
 
 // ── Steering ──
 openIndicatorForm() {}

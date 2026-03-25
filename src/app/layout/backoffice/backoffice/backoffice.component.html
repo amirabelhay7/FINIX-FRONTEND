@@ -602,6 +602,137 @@
       </div>
 
             <!-- FORMULAIRE INLINE CAMPAGNE -->
+             <!-- PANNEAU CREDIT LINK -->
+      <div *ngIf="selectedCampaignForCredits" class="panel" style="border:2px solid var(--success);margin-bottom:1rem;">
+        <div class="panel-head">
+          <div class="panel-title"><span class="ptdot" style="background:var(--success)"></span>Crédits liés — {{ selectedCampaignForCredits.name }}</div>
+          <button type="button" class="btn btn-primary btn-sm" (click)="showCreditForm = !showCreditForm">
+            {{ showCreditForm ? '✕ Annuler' : '+ Lier un crédit' }}
+          </button>
+          <button type="button" class="btn btn-outline btn-sm" (click)="closeCreditLink()">✕ Fermer</button>
+        </div>
+        <div class="panel-body">
+
+          <!-- Formulaire ajout crédit -->
+          <div *ngIf="showCreditForm" style="background:var(--g50);border-radius:var(--r8);padding:1rem;margin-bottom:1rem;border:1px solid var(--g200);">
+
+            <div *ngIf="creditLinkError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:var(--r8);padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
+              ⚠ {{ creditLinkError }}
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">ID Crédit *</label>
+                <input class="form-input" type="number" [(ngModel)]="creditForm.creditId"
+                  placeholder="Ex: 101"
+                  [style.borderColor]="creditForm.creditId !== null && creditForm.creditId <= 0 ? 'var(--danger)' : ''">
+                <span *ngIf="creditForm.creditId !== null && creditForm.creditId <= 0"
+                  style="color:var(--danger);font-size:.75rem;">L'ID crédit doit être > 0</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Montant crédit (TND) *</label>
+                <input class="form-input" type="number" [(ngModel)]="creditForm.creditAmount"
+                  placeholder="Ex: 8500"
+                  [style.borderColor]="creditForm.creditAmount !== null && creditForm.creditAmount <= 0 ? 'var(--danger)' : ''">
+                <span *ngIf="creditForm.creditAmount !== null && creditForm.creditAmount <= 0"
+                  style="color:var(--danger);font-size:.75rem;">Le montant doit être > 0</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Intérêts (TND) *</label>
+                <input class="form-input" type="number" [(ngModel)]="creditForm.interestAmount"
+                  placeholder="Ex: 425"
+                  [style.borderColor]="creditForm.interestAmount !== null && creditForm.interestAmount < 0 ? 'var(--danger)' : ''">
+                <span *ngIf="creditForm.interestAmount !== null && creditForm.interestAmount < 0"
+                  style="color:var(--danger);font-size:.75rem;">Les intérêts doivent être >= 0</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Taux de remise (%) *</label>
+                <input class="form-input" type="number" [(ngModel)]="creditForm.appliedDiscountRate"
+                  placeholder="Ex: 1.5"
+                  [style.borderColor]="creditForm.appliedDiscountRate !== null && (creditForm.appliedDiscountRate < 0 || creditForm.appliedDiscountRate > 100) ? 'var(--danger)' : ''">
+                <span *ngIf="creditForm.appliedDiscountRate !== null && (creditForm.appliedDiscountRate < 0 || creditForm.appliedDiscountRate > 100)"
+                  style="color:var(--danger);font-size:.75rem;">Le taux doit être entre 0 et 100</span>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label class="form-label">Date d'octroi *</label>
+              <input class="form-input" type="date" [(ngModel)]="creditForm.grantedDate"
+                [max]="today">
+              <span *ngIf="creditForm.grantedDate && creditForm.grantedDate > today"
+                style="color:var(--danger);font-size:.75rem;">La date ne peut pas être dans le futur</span>
+            </div>
+
+            <div style="display:flex;gap:.75rem;">
+              <button type="button" class="btn btn-success" (click)="saveCreditLink()"
+                [disabled]="!creditForm.creditId || creditForm.creditId <= 0 ||
+                            !creditForm.creditAmount || creditForm.creditAmount <= 0 ||
+                            creditForm.interestAmount === null || creditForm.interestAmount < 0 ||
+                            creditForm.appliedDiscountRate === null || creditForm.appliedDiscountRate < 0 || creditForm.appliedDiscountRate > 100 ||
+                            !creditForm.grantedDate"
+                [style.opacity]="!creditForm.creditId || creditForm.creditId <= 0 ||
+                            !creditForm.creditAmount || creditForm.creditAmount <= 0 ||
+                            creditForm.interestAmount === null || creditForm.interestAmount < 0 ||
+                            creditForm.appliedDiscountRate === null || creditForm.appliedDiscountRate < 0 || creditForm.appliedDiscountRate > 100 ||
+                            !creditForm.grantedDate ? '0.5' : '1'">
+                ✓ Lier ce crédit
+              </button>
+              <button type="button" class="btn btn-outline" (click)="showCreditForm = false; creditLinkError = ''">Annuler</button>
+            </div>
+          </div>
+
+          <!-- Stats de la campagne -->
+          <div class="kpi-row" style="margin-bottom:1rem;" *ngIf="campaignCredits.length > 0">
+            <div class="kpi" style="--kc:var(--blue);">
+              <div class="kpi-val" style="font-size:1.5rem;">{{ campaignCredits.length }}</div>
+              <div class="kpi-lbl">Crédits liés</div>
+            </div>
+            <div class="kpi" style="--kc:var(--success);">
+              <div class="kpi-val" style="font-size:1.2rem;">{{ getTotalFinanced() | number }} TND</div>
+              <div class="kpi-lbl">Total financé</div>
+            </div>
+            <div class="kpi" style="--kc:var(--purple);">
+              <div class="kpi-val" style="font-size:1.2rem;">{{ getTotalInterest() | number }} TND</div>
+              <div class="kpi-lbl">Total intérêts</div>
+            </div>
+          </div>
+
+          <!-- Liste des crédits liés -->
+          <div *ngIf="campaignCredits.length === 0 && !showCreditForm"
+            style="text-align:center;color:var(--g400);padding:2rem;">
+            Aucun crédit lié à cette campagne
+          </div>
+
+          <div class="tbl-wrap" *ngIf="campaignCredits.length > 0">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID Crédit</th>
+                  <th>Montant</th>
+                  <th>Intérêts</th>
+                  <th>Taux remise</th>
+                  <th>Date octroi</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cl of campaignCredits">
+                  <td><span class="td-ref">#{{ cl.creditId }}</span></td>
+                  <td class="td-amount">{{ cl.creditAmount | number }} TND</td>
+                  <td class="td-amount">{{ cl.interestAmount | number }} TND</td>
+                  <td><span class="badge b-blue">{{ cl.appliedDiscountRate }}%</span></td>
+                  <td style="font-size:.8rem;">{{ cl.grantedDate }}</td>
+                  <td><button type="button" class="btn btn-danger btn-xs" (click)="deleteCreditLink(cl.id)">Supprimer</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
       <!-- PANNEAU ASSIGNATION SEGMENTS -->
           <div *ngIf="selectedCampaignForSegments" class="panel" style="border:2px solid var(--purple);margin-bottom:1rem;">
             <div class="panel-head">
@@ -689,12 +820,21 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Date début *</label>
-              <input class="form-input" type="date" [(ngModel)]="campaignForm.startDate"
-                [style.borderColor]="campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate ? 'var(--danger)' : ''">
-              <span *ngIf="campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate"
-                style="color:var(--danger);font-size:.75rem;">La date début doit être avant la date fin</span>
-            </div>
+                <label class="form-label">Date début *</label>
+                <input class="form-input" type="date" [(ngModel)]="campaignForm.startDate"
+                  [min]="today"
+                  [style.borderColor]="(campaignForm.startDate && campaignForm.startDate < today) ||
+                                      (campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate)
+                                      ? 'var(--danger)' : ''">
+                <span *ngIf="campaignForm.startDate && campaignForm.startDate < today"
+                  style="color:var(--danger);font-size:.75rem;">
+                  La date début ne peut pas être dans le passé
+                </span>
+                <span *ngIf="campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate"
+                  style="color:var(--danger);font-size:.75rem;">
+                  La date début doit être avant la date fin
+                </span>
+              </div>
             <div class="form-group">
               <label class="form-label">Date fin *</label>
               <input class="form-input" type="date" [(ngModel)]="campaignForm.endDate"
@@ -766,6 +906,7 @@
                 <td><div style="display:flex;gap:.375rem">
                     <button class="btn btn-ghost btn-xs" (click)="editCampaign(c)">Modifier</button>
                     <button class="btn btn-outline btn-xs" (click)="openSegmentAssignment(c)">Segments</button>
+                    <button class="btn btn-ghost btn-xs" (click)="openCreditLink(c)">Crédits</button>
                     <button class="btn btn-danger btn-xs" (click)="deleteCampaign(c.id)">Supprimer</button>
                   </div>
                 </td>
