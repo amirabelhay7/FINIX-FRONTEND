@@ -47,7 +47,10 @@ const routes: Routes = [
       { path: 'risk', component: BackofficeComponent },
       { path: 'rapports', component: BackofficeComponent },
       { path: 'settings', component: BackofficeComponent },
-      { path: 'users', component: BackofficeComponent },
+      {
+        path: 'users',
+        loadChildren: () => import('./features/admin/users/users-module').then((m) => m.UsersModule),
+      },
       { path: '**', redirectTo: 'dashboard' },
     ],
   },
