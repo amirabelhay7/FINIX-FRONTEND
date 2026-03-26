@@ -1510,11 +1510,11 @@
       <div class="ph s1">
         <div>
           <div class="ph-eyebrow">Configuration</div>
-          <div class="ph-title">Paramètres</div>
-          <div class="ph-desc">Configuration système, utilisateurs et règles métier</div>
+          <div class="ph-title">Settings</div>
+          <div class="ph-desc">System configuration, users, and business rules</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-primary">Sauvegarder la configuration</button>
+          <button class="btn btn-primary">Save configuration</button>
         </div>
       </div>
 
@@ -1527,13 +1527,13 @@
             </div>
             <div class="panel-body" style="padding: 0.5rem">
               <div class="settings-nav">
-                <button class="sn-item active">Général</button>
-                <button class="sn-item">Utilisateurs & Rôles</button>
-                <button class="sn-item">Règles métier</button>
+                <button class="sn-item active">General</button>
+                <button class="sn-item">Users & Roles</button>
+                <button class="sn-item">Business rules</button>
                 <button class="sn-item">Notifications</button>
-                <button class="sn-item">Sécurité</button>
-                <button class="sn-item">Sauvegarde</button>
-                <button class="sn-item">Intégrations</button>
+                <button class="sn-item">Security</button>
+                <button class="sn-item">Backup</button>
+                <button class="sn-item">Integrations</button>
               </div>
             </div>
           </div>
@@ -1541,32 +1541,32 @@
 
         <!-- Formulaires de configuration -->
         <div style="display: flex; flex-direction: column; gap: 1.25rem">
-          <!-- Paramètres généraux -->
+          <!-- General settings -->
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title"><span class="ptdot"></span>Paramètres généraux</div>
+              <div class="panel-title"><span class="ptdot"></span>General settings</div>
             </div>
             <div class="panel-body">
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">Nom de l'institution</label>
+                  <label class="form-label">Institution name</label>
                   <input class="form-input" type="text" value="FIN'IX — Crédit & Assurance" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Identifiant fiscal</label>
+                  <label class="form-label">Tax ID</label>
                   <input class="form-input" type="text" value="TN-2019-00182741" />
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">Devise</label>
+                  <label class="form-label">Currency</label>
                   <select class="form-input">
-                    <option>TND — Dinar Tunisien</option>
+                    <option>TND — Tunisian dinar</option>
                     <option>EUR</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Fuseau horaire</label>
+                  <label class="form-label">Time zone</label>
                   <select class="form-input">
                     <option>Africa/Tunis (UTC+1)</option>
                   </select>
@@ -1575,45 +1575,45 @@
             </div>
           </div>
 
-          <!-- Règles de scoring -->
+          <!-- Scoring rules -->
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title"><span class="ptdot"></span>Règles de scoring</div>
+              <div class="panel-title"><span class="ptdot"></span>Scoring rules</div>
             </div>
             <div class="panel-body">
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">Score min. approbation auto</label>
+                  <label class="form-label">Min score for auto-approval</label>
                   <input class="form-input" type="number" value="700" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Score min. dossier standard</label>
+                  <label class="form-label">Min score for standard review</label>
                   <input class="form-input" type="number" value="600" />
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">Taux endettement max (%)</label>
+                  <label class="form-label">Max debt ratio (%)</label>
                   <input class="form-input" type="number" value="40" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Montant max non garanti (TND)</label>
+                  <label class="form-label">Max unsecured amount (TND)</label>
                   <input class="form-input" type="number" value="15000" />
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Notifications automatiques -->
+          <!-- Automated notifications -->
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title"><span class="ptdot"></span>Notifications automatiques</div>
+              <div class="panel-title"><span class="ptdot"></span>Automated notifications</div>
             </div>
             <div class="panel-body" style="padding: 0.25rem 1.25rem">
               <div class="toggle-row">
                 <div class="toggle-info">
-                  <div class="toggle-label">Alertes impayés</div>
-                  <div class="toggle-sub">Envoyer SMS au client dès le J+1 de retard</div>
+                  <div class="toggle-label">Overdue alerts</div>
+                  <div class="toggle-sub">Send SMS to the client starting Day +1</div>
                 </div>
                 <button
                   class="toggle"
@@ -1623,8 +1623,8 @@
               </div>
               <div class="toggle-row">
                 <div class="toggle-info">
-                  <div class="toggle-label">Rappels renouvellement assurance</div>
-                  <div class="toggle-sub">Notifier 30 jours avant expiration</div>
+                  <div class="toggle-label">Insurance renewal reminders</div>
+                  <div class="toggle-sub">Notify 30 days before expiration</div>
                 </div>
                 <button
                   class="toggle"
@@ -1634,8 +1634,8 @@
               </div>
               <div class="toggle-row">
                 <div class="toggle-info">
-                  <div class="toggle-label">Rapport mensuel automatique</div>
-                  <div class="toggle-sub">Générer et envoyer le rapport le 1er du mois</div>
+                  <div class="toggle-label">Automatic monthly report</div>
+                  <div class="toggle-sub">Generate and send the report on the 1st of the month</div>
                 </div>
                 <button
                   class="toggle"
