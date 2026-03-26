@@ -468,7 +468,7 @@
   color: var(--fx-txt-2); margin-bottom: .35rem;
 }
 
-/* Dossiers breakdown grid */
+/* Files breakdown grid */
 .cfm-dossier-grid {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: .5rem; margin-top: .5rem;
