@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 
 /* ═══════════════════════════════════════════════
    SHARED THEME VARIABLES (dark / light)
