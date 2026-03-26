@@ -40,7 +40,10 @@ const routes: Routes = [
       { path: 'dashboard', component: BackofficeComponent },
       { path: 'notifications', component: BackofficeComponent },
       { path: 'clients', component: BackofficeComponent },
-      { path: 'credits', component: BackofficeComponent },
+      {
+        path: 'credits',
+        loadChildren: () => import('./features/admin/credit-center/credit-center-module').then((m) => m.CreditCenterModule),
+      },
       {
         path: 'repayments',
         loadChildren: () => import('./features/admin/repayments-admin/repayments-admin-module').then((m) => m.RepaymentsAdminModule),
