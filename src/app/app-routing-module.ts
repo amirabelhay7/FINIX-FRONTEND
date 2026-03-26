@@ -49,7 +49,10 @@ const routes: Routes = [
         path: 'vehicles',
         loadChildren: () => import('./features/admin/vehicles-admin/vehicles-admin-module').then((m) => m.VehiclesAdminModule),
       },
-      { path: 'insurance', component: BackofficeComponent },
+      {
+        path: 'insurance',
+        loadChildren: () => import('./features/admin/insurance-desk/insurance-desk-module').then((m) => m.InsuranceDeskModule),
+      },
       { path: 'risk', component: BackofficeComponent },
       { path: 'rapports', component: BackofficeComponent },
       { path: 'settings', component: BackofficeComponent },

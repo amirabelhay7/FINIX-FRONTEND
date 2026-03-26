@@ -40,4 +40,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Routed `/admin/users` to the dedicated `UsersModule` (nested lazy route) to start extracting admin pages into feature modules for better long-term maintainability.
 - Routed `/admin/repayments` to the dedicated `RepaymentsAdminModule` to continue splitting admin sections into proper nested feature routes.
 - Routed `/admin/vehicles` to the dedicated `VehiclesAdminModule` to modularize fleet management under admin nested routes.
+- Routed `/admin/insurance` to the dedicated `InsuranceDeskModule` to extract insurance management into a proper nested admin feature module.
 
