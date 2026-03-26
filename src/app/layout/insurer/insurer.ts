@@ -55,39 +55,39 @@ export class InsurerLayout implements OnInit, OnDestroy {
   showAddCatalogModal = false;
 
   stats = [
-    { label: 'Polices actives', value: '248', icon: '🛡️', trend: '+12 ce mois', trendClass: 'up' },
-    { label: 'Sinistres en cours', value: '17', icon: '⚠️', trend: '-3 vs mois dernier', trendClass: 'up' },
-    { label: 'Renouvellements', value: '34', icon: '🔄', trend: '+8 ce mois', trendClass: 'up' },
-    { label: 'Primes collectées', value: '1.2M', suffix: 'TND', icon: '💰', trend: '+15.4%', trendClass: 'up' },
+    { label: 'Active policies', value: '248', icon: '🛡️', trend: '+12 this month', trendClass: 'up' },
+    { label: 'Claims in progress', value: '17', icon: '⚠️', trend: '-3 vs last month', trendClass: 'up' },
+    { label: 'Renewals', value: '34', icon: '🔄', trend: '+8 this month', trendClass: 'up' },
+    { label: 'Premiums collected', value: '1.2M', suffix: 'TND', icon: '💰', trend: '+15.4%', trendClass: 'up' },
   ];
 
   offers: InsuranceOffer[] = [
-    { id: 1, name: 'Auto Tous Risques', type: 'auto', price: 850, duration: '12 mois', coverage: 'Tous risques + assistance 24h', status: 'active', subscribers: 156, date: '15 Mars 2026' },
-    { id: 2, name: 'Auto Tiers', type: 'auto', price: 420, duration: '12 mois', coverage: 'Responsabilité civile', status: 'active', subscribers: 312, date: '12 Mars 2026' },
-    { id: 3, name: 'Habitation Premium', type: 'habitation', price: 680, duration: '12 mois', coverage: 'Incendie + vol + dégâts des eaux', status: 'active', subscribers: 89, date: '10 Mars 2026' },
-    { id: 4, name: 'Santé Famille', type: 'sante', price: 1200, duration: '12 mois', coverage: 'Hospitalisation + soins courants', status: 'active', subscribers: 245, date: '8 Mars 2026' },
-    { id: 5, name: 'Vie Épargne', type: 'vie', price: 150, duration: '60 mois', coverage: 'Capital garanti + épargne', status: 'draft', subscribers: 0, date: '5 Mars 2026' },
-    { id: 6, name: 'Auto Jeune Conducteur', type: 'auto', price: 1100, duration: '12 mois', coverage: 'Tous risques + formation', status: 'expired', subscribers: 67, date: '1 Mars 2026' },
+    { id: 1, name: 'Comprehensive Auto', type: 'auto', price: 850, duration: '12 months', coverage: 'Comprehensive + 24/7 assistance', status: 'active', subscribers: 156, date: 'Mar 15, 2026' },
+    { id: 2, name: 'Third-Party Auto', type: 'auto', price: 420, duration: '12 months', coverage: 'Third-party liability', status: 'active', subscribers: 312, date: 'Mar 12, 2026' },
+    { id: 3, name: 'Premium Home', type: 'habitation', price: 680, duration: '12 months', coverage: 'Fire + theft + water damage', status: 'active', subscribers: 89, date: 'Mar 10, 2026' },
+    { id: 4, name: 'Family Health', type: 'sante', price: 1200, duration: '12 months', coverage: 'Hospitalization + outpatient care', status: 'active', subscribers: 245, date: 'Mar 8, 2026' },
+    { id: 5, name: 'Life Savings', type: 'vie', price: 150, duration: '60 months', coverage: 'Guaranteed capital + savings', status: 'draft', subscribers: 0, date: 'Mar 5, 2026' },
+    { id: 6, name: 'Young Driver Auto', type: 'auto', price: 1100, duration: '12 months', coverage: 'Comprehensive + training', status: 'expired', subscribers: 67, date: 'Mar 1, 2026' },
   ];
 
   events: InsuranceEvent[] = [
-    { id: 1, title: 'Déclaration sinistre auto', type: 'sinistre', client: 'Mohamed Ben Ali', date: '20 Mars 2026', status: 'urgent', description: 'Accident de circulation — dommages matériels' },
-    { id: 2, title: 'Renouvellement police habitation', type: 'renouvellement', client: 'Fatma Trabelsi', date: '18 Mars 2026', status: 'en_cours', description: 'Renouvellement annuel — ajustement prime' },
-    { id: 3, title: 'Nouvelle souscription santé', type: 'nouveau', client: 'Ahmed Khelifi', date: '17 Mars 2026', status: 'en_cours', description: 'Souscription famille — 4 bénéficiaires' },
-    { id: 4, title: 'Résiliation contrat auto', type: 'resiliation', client: 'Sonia Mansour', date: '15 Mars 2026', status: 'traite', description: 'Résiliation à échéance — changement assureur' },
-    { id: 5, title: 'Sinistre dégât des eaux', type: 'sinistre', client: 'Karim Bouaziz', date: '14 Mars 2026', status: 'en_cours', description: 'Fuite canalisation — expertise en cours' },
-    { id: 6, title: 'Nouveau contrat vie', type: 'nouveau', client: 'Leila Hamdi', date: '12 Mars 2026', status: 'traite', description: 'Assurance vie épargne — durée 10 ans' },
+    { id: 1, title: 'Auto claim declaration', type: 'sinistre', client: 'Mohamed Ben Ali', date: 'Mar 20, 2026', status: 'urgent', description: 'Traffic accident — property damage' },
+    { id: 2, title: 'Home policy renewal', type: 'renouvellement', client: 'Fatma Trabelsi', date: 'Mar 18, 2026', status: 'en_cours', description: 'Annual renewal — premium adjustment' },
+    { id: 3, title: 'New health subscription', type: 'nouveau', client: 'Ahmed Khelifi', date: 'Mar 17, 2026', status: 'en_cours', description: 'Family subscription — 4 beneficiaries' },
+    { id: 4, title: 'Auto contract cancellation', type: 'resiliation', client: 'Sonia Mansour', date: 'Mar 15, 2026', status: 'traite', description: 'End-of-term cancellation — switching insurer' },
+    { id: 5, title: 'Water damage claim', type: 'sinistre', client: 'Karim Bouaziz', date: 'Mar 14, 2026', status: 'en_cours', description: 'Pipe leak — assessment in progress' },
+    { id: 6, title: 'New life contract', type: 'nouveau', client: 'Leila Hamdi', date: 'Mar 12, 2026', status: 'traite', description: 'Life savings insurance — 10-year term' },
   ];
 
   catalogs: CatalogItem[] = [
-    { id: 1, name: 'Assurance Automobile', category: 'Auto', description: 'Gamme complète de couvertures pour véhicules particuliers et professionnels', icon: '🚗', offersCount: 5 },
-    { id: 2, name: 'Assurance Habitation', category: 'Habitation', description: 'Protection du logement contre les risques courants et catastrophes', icon: '🏠', offersCount: 3 },
-    { id: 3, name: 'Assurance Santé', category: 'Santé', description: 'Couvertures médicales individuelles et familiales', icon: '🏥', offersCount: 4 },
-    { id: 4, name: 'Assurance Vie', category: 'Vie', description: "Produits d'épargne et de prévoyance à long terme", icon: '💎', offersCount: 2 },
-    { id: 5, name: 'Assurance Professionnelle', category: 'Pro', description: 'Solutions pour les entreprises et professionnels indépendants', icon: '🏢', offersCount: 3 },
+    { id: 1, name: 'Auto Insurance', category: 'Auto', description: 'Full range of coverages for personal and professional vehicles', icon: '🚗', offersCount: 5 },
+    { id: 2, name: 'Home Insurance', category: 'Home', description: 'Home protection against common risks and disasters', icon: '🏠', offersCount: 3 },
+    { id: 3, name: 'Health Insurance', category: 'Health', description: 'Individual and family medical coverage', icon: '🏥', offersCount: 4 },
+    { id: 4, name: 'Life Insurance', category: 'Life', description: 'Long-term savings and protection products', icon: '💎', offersCount: 2 },
+    { id: 5, name: 'Business Insurance', category: 'Business', description: 'Solutions for companies and independent professionals', icon: '🏢', offersCount: 3 },
   ];
 
-  newOffer = { name: '', type: 'auto', price: 0, duration: '12 mois', coverage: '', description: '' };
+  newOffer = { name: '', type: 'auto', price: 0, duration: '12 months', coverage: '', description: '' };
   newEvent = { title: '', type: 'sinistre', client: '', date: '', description: '' };
   newCatalog = { name: '', category: '', description: '' };
 
@@ -116,11 +116,11 @@ export class InsurerLayout implements OnInit, OnDestroy {
       const raw = localStorage.getItem('currentUser');
       if (raw) {
         const user = JSON.parse(raw);
-        this.userName = user.name || 'Assureur';
+        this.userName = user.name || 'Insurer';
         this.userEmail = user.email || '';
       }
     } catch { }
-    if (!this.userName) this.userName = 'Assureur';
+    if (!this.userName) this.userName = 'Insurer';
     const parts = this.userName.split(' ');
     this.userInitials = parts.map((p: string) => p[0]).join('').toUpperCase().slice(0, 2);
   }
@@ -169,10 +169,10 @@ export class InsurerLayout implements OnInit, OnDestroy {
     };
   }
 
-  formatPrice(p: number): string { return p.toLocaleString('fr-FR') + ' TND'; }
+  formatPrice(p: number): string { return p.toLocaleString('en-US') + ' TND'; }
 
   getTypeLabel(type: string): string {
-    const labels: Record<string, string> = { auto: 'Auto', habitation: 'Habitation', sante: 'Santé', vie: 'Vie' };
+    const labels: Record<string, string> = { auto: 'Auto', habitation: 'Home', sante: 'Health', vie: 'Life' };
     return labels[type] || type;
   }
 
@@ -182,12 +182,12 @@ export class InsurerLayout implements OnInit, OnDestroy {
   }
 
   getEventTypeLabel(type: string): string {
-    const labels: Record<string, string> = { sinistre: 'Sinistre', renouvellement: 'Renouvellement', resiliation: 'Résiliation', nouveau: 'Nouveau contrat' };
+    const labels: Record<string, string> = { sinistre: 'Claim', renouvellement: 'Renewal', resiliation: 'Cancellation', nouveau: 'New contract' };
     return labels[type] || type;
   }
 
   getStatusLabel(status: string): string {
-    const labels: Record<string, string> = { active: 'Active', draft: 'Brouillon', expired: 'Expirée', en_cours: 'En cours', traite: 'Traité', urgent: 'Urgent' };
+    const labels: Record<string, string> = { active: 'Active', draft: 'Draft', expired: 'Expired', en_cours: 'In progress', traite: 'Completed', urgent: 'Urgent' };
     return labels[status] || status;
   }
 
@@ -200,7 +200,7 @@ export class InsurerLayout implements OnInit, OnDestroy {
 
   openAddOfferModal(): void {
     this.showAddOfferModal = true;
-    this.newOffer = { name: '', type: 'auto', price: 0, duration: '12 mois', coverage: '', description: '' };
+    this.newOffer = { name: '', type: 'auto', price: 0, duration: '12 months', coverage: '', description: '' };
   }
   closeAddOfferModal(): void { this.showAddOfferModal = false; }
 

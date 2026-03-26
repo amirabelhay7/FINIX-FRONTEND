@@ -22,4 +22,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Translated Admin Users page tabs, tables, and actions to English.
 - Translated Admin modals (decision + add/edit/view user) to English to remove remaining French from admin flows.
 - Translated Agent layout shell UI and navigation labels to English to remove French from agent experience.
+- Translated Insurer layout shell (dashboard/offers/events/catalogs + modals) from French to English for a consistent insurer experience.
 
