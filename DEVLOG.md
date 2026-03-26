@@ -32,4 +32,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Translated Client Wallet, Score, and Documents pages to English to remove remaining French from client feature pages.
 - Cleaned up remaining French comments in Agent layout template to keep frontend fully English.
 - Translated remaining French strings in shared services and admin shell templates (auth errors, interceptor comments, admin tables/settings, and backoffice CSS comments) to keep the whole frontend English.
+- Finished cleaning a few leftover French labels/comments (repayments table headers, admin settings comments, backoffice CSS headings) to make the UI fully English.
 

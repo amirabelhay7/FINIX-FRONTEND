@@ -596,12 +596,12 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
 .ta-rank.r3 { background: rgba(251,146,60,.1); color: #EA580C; }
 
 /* ================================================================
-   IMPAYÉS
+   UNPAID
    ================================================================ */
 .panel.s5 .ptdot { background: var(--danger); box-shadow: 0 0 0 3px rgba(239,68,68,.12); }
 
 /* ================================================================
-   CREDIT PIPELINE — CORRECTION COMPLÈTE
+   CREDIT PIPELINE — COMPLETE FIX
    ================================================================ */
 .credit-pipeline {
   display: flex;
