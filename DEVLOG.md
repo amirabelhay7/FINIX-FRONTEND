@@ -35,4 +35,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Finished cleaning a few leftover French labels/comments (repayments table headers, admin settings comments, backoffice CSS headings) to make the UI fully English.
 - Replaced one leftover French word in Agent CSS comments ("Dossiers") to avoid French anywhere in the codebase UI layer.
 - Removed Google Fonts `<link>` tags to make `ng build` work offline (avoids build-time font inlining fetch failures).
+- Translated last French admin repayments section labels ("Remboursements", "Statut") to English to finish the UI text migration.
 
