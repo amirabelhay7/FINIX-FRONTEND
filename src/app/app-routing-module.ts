@@ -7,6 +7,7 @@ import { SellerLayout } from './layout/seller/seller';
 import { InsurerLayout } from './layout/insurer/insurer';
 import { AdminShellComponent } from './layout/admin-shell/admin-shell.component';
 import { AdminClients } from './features/admin/clients/admin-clients';
+import { AdminSettings } from './features/admin/settings/admin-settings';
 import { roleGuard } from './core/guards/auth-guard';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 
@@ -68,7 +69,7 @@ const routes: Routes = [
         path: 'rapports',
         loadChildren: () => import('./features/admin/steering-admin/steering-admin-module').then((m) => m.SteeringAdminModule),
       },
-      { path: 'settings', component: BackofficeComponent },
+      { path: 'settings', component: AdminSettings },
       {
         path: 'users',
         loadChildren: () => import('./features/admin/users/users-module').then((m) => m.UsersModule),
