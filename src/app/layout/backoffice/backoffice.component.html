@@ -563,15 +563,15 @@
     <div class="page" [class.active]="selectedPage === 'credits'" id="page-credits">
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Gestion des crédits</div>
-          <div class="ph-title">Dossiers & Pipeline</div>
+          <div class="ph-eyebrow">Credit management</div>
+          <div class="ph-title">Files & Pipeline</div>
           <div class="ph-desc">
-            47 dossiers actifs · 3 décisions urgentes · Taux d'approbation 78.3%
+            47 active files · 3 urgent decisions · Approval rate 78.3%
           </div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-outline">Statistiques</button>
-          <button class="btn btn-primary">+ Nouveau dossier</button>
+          <button class="btn btn-outline">Analytics</button>
+          <button class="btn btn-primary">+ New file</button>
         </div>
       </div>
 
@@ -601,7 +601,7 @@
         </div>
       </div>
 
-      <!-- Table analyse -->
+      <!-- Analysis table -->
       <div class="panel s3">
         <div class="panel-head">
           <div class="panel-title">
@@ -609,24 +609,24 @@
               class="ptdot"
               style="background: var(--warning); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12)"
             ></span>
-            Dossiers en analyse — Décision requise
+            Files under analysis — Decision required
           </div>
-          <span class="badge b-review">12 dossiers</span>
+          <span class="badge b-review">12 files</span>
         </div>
         <div class="tbl-wrap">
           <table>
             <thead>
               <tr>
-                <th>Référence</th>
+                <th>Reference</th>
                 <th>Client</th>
                 <th>Type</th>
-                <th>Montant</th>
-                <th>Durée</th>
+                <th>Amount</th>
+                <th>Duration</th>
                 <th>Score</th>
-                <th>Taux endett.</th>
-                <th>Ancienneté</th>
-                <th>Recommandation</th>
-                <th>Décision</th>
+                <th>Debt ratio</th>
+                <th>Seniority</th>
+                <th>Recommendation</th>
+                <th>Decision</th>
               </tr>
             </thead>
             <tbody>
@@ -662,9 +662,9 @@
                 <td>
                   <div style="display: flex; gap: 0.375rem">
                     <button class="btn btn-success btn-xs" (click)="openModal(file)">
-                      ✓ Approuver
+                      ✓ Approve
                     </button>
-                    <button class="btn btn-danger btn-xs">✗ Rejeter</button>
+                    <button class="btn btn-danger btn-xs">✗ Reject</button>
                   </div>
                 </td>
               </tr>
