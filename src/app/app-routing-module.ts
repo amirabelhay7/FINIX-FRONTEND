@@ -38,7 +38,10 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: BackofficeComponent },
-      { path: 'notifications', component: BackofficeComponent },
+      {
+        path: 'notifications',
+        loadChildren: () => import('./features/admin/marketing-admin/marketing-admin-module').then((m) => m.MarketingAdminModule),
+      },
       { path: 'clients', component: BackofficeComponent },
       {
         path: 'credits',
