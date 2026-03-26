@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   selector: 'app-forgot-password',
   standalone: false,
   templateUrl: './forgot-password.html',
-  styleUrl: './forgot-password.css',
+  styleUrls: ['./forgot-password.css', '../login/login.component.css'],
 })
 export class ForgotPassword implements OnDestroy {
   emailSent = false;

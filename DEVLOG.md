@@ -54,4 +54,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Cleanup: removed legacy seller URL aliases and dropped unused `AgentLayout` declarations/imports now that `/agent` uses the nested shell + feature module structure.
 - Cleanup: made legacy `AgentLayout` standalone with proper `NgClass`/`NgFor`/`NgIf` imports so it no longer breaks builds even though it’s no longer used by routing.
 - Hardened agent nested routing by adding a wildcard fallback in `AgentRoutingModule` so unknown `/agent/*` paths redirect to `/agent/dashboard`.
+- Rebuilt `/forgot-password` using the same `finix-login` shell + `login.component.css` as the login page (SVG icons, no Material Symbols) so the screen matches auth styling and no longer looks broken offline.
 
