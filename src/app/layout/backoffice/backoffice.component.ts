@@ -67,9 +67,9 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentTheme = this.themeService.initTheme(this.currentTheme);
 
-    // Drive UI from URL: /admin/:page
-    this.route.paramMap.subscribe((pm) => {
-      const page = pm.get('page') || 'dashboard';
+    // Drive UI from URL: /admin/<child>
+    this.route.url.subscribe((segments) => {
+      const page = segments[0]?.path || 'dashboard';
       this.selectedPage = page;
       if (page === 'users') {
         this.usersTab = 'users';

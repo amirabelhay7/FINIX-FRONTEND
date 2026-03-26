@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 
 @Component({
@@ -11,7 +11,7 @@ export class SidebarComponent implements OnInit {
 
   @Output() pageChanged = new EventEmitter<string>();
 
-  currentPage = 'dashboard';
+  @Input() currentPage = 'dashboard';
   adminName = 'Admin';
   adminInitials = 'A';
 
@@ -32,7 +32,6 @@ export class SidebarComponent implements OnInit {
   }
 
   switchPage(page: string) {
-    this.currentPage = page;
     this.pageChanged.emit(page);
   }
 }

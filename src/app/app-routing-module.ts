@@ -5,6 +5,7 @@ import { Frontoffice } from './layout/frontoffice/frontoffice';
 import { AgentLayout } from './layout/agent/agent';
 import { SellerLayout } from './layout/seller/seller';
 import { InsurerLayout } from './layout/insurer/insurer';
+import { AdminShellComponent } from './layout/admin-shell/admin-shell.component';
 import { roleGuard } from './core/guards/auth-guard';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 
@@ -32,13 +33,23 @@ const routes: Routes = [
   },
   {
     path: 'admin',
-    redirectTo: 'admin/dashboard',
-    pathMatch: 'full',
-  },
-  {
-    path: 'admin/:page',
-    component: BackofficeComponent,
+    component: AdminShellComponent,
     canActivate: [roleGuard('admin')],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: BackofficeComponent },
+      { path: 'notifications', component: BackofficeComponent },
+      { path: 'clients', component: BackofficeComponent },
+      { path: 'credits', component: BackofficeComponent },
+      { path: 'repayments', component: BackofficeComponent },
+      { path: 'vehicles', component: BackofficeComponent },
+      { path: 'insurance', component: BackofficeComponent },
+      { path: 'risk', component: BackofficeComponent },
+      { path: 'rapports', component: BackofficeComponent },
+      { path: 'settings', component: BackofficeComponent },
+      { path: 'users', component: BackofficeComponent },
+      { path: '**', redirectTo: 'dashboard' },
+    ],
   },
   {
     path: 'agent',

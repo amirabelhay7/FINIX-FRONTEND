@@ -1,0 +1,15 @@
+<app-sidebar [currentPage]="currentPage" (pageChanged)="onPageChange($event)"></app-sidebar>
+
+<div class="layout-wrapper">
+  <app-topbar
+    [currentPage]="currentPage"
+    [currentTheme]="currentTheme"
+    (themeToggled)="toggleTheme()"
+    (loggedOut)="logout()"
+  ></app-topbar>
+
+  <main class="main">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+
