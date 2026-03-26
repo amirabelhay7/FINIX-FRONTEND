@@ -1,6 +1,8 @@
 import { Component, OnDestroy } from '@angular/core';
 import { AuthService } from '../../../services/auth/auth.service';
 import { Router } from '@angular/router';
+import { TimeoutError } from 'rxjs';
+import { finalize, timeout } from 'rxjs/operators';
 
 /**
  * ViewModel: forgot password (MVVM).
@@ -97,20 +99,31 @@ export class ForgotPassword implements OnDestroy {
       return;
     }
 
-    this.authService.forgotPassword(this.email).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.pendingEmail = this.email;
-        this.emailSent = true;
-        this.resetSuccess = false;
-        this.otpDigits = ['', '', '', '', '', ''];
-        this.startOtpTimer();
-      },
-      error: (err: Error) => {
-        this.isLoading = false;
-        this.resetError = err.message;
-      },
-    });
+    this.authService
+      .forgotPassword(this.email)
+      .pipe(
+        timeout(60_000),
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.pendingEmail = this.email;
+          this.emailSent = true;
+          this.resetSuccess = false;
+          this.otpDigits = ['', '', '', '', '', ''];
+          this.startOtpTimer();
+        },
+        error: (err: unknown) => {
+          this.resetError =
+            err instanceof TimeoutError
+              ? 'Request timed out. Check that the backend is running on port 8081 and that Brevo credentials are set in application-local.properties.'
+              : err instanceof Error
+                ? err.message
+                : 'Request failed.';
+        },
+      });
   }
 
   resend(): void {
@@ -119,17 +132,28 @@ export class ForgotPassword implements OnDestroy {
     this.resetError = '';
     this.isLoading = true;
 
-    this.authService.forgotPassword(this.pendingEmail).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.otpDigits = ['', '', '', '', '', ''];
-        this.startOtpTimer();
-      },
-      error: (err: Error) => {
-        this.isLoading = false;
-        this.resetError = err.message;
-      },
-    });
+    this.authService
+      .forgotPassword(this.pendingEmail)
+      .pipe(
+        timeout(60_000),
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.otpDigits = ['', '', '', '', '', ''];
+          this.startOtpTimer();
+        },
+        error: (err: unknown) => {
+          this.resetError =
+            err instanceof TimeoutError
+              ? 'Request timed out. Check the backend and Brevo configuration.'
+              : err instanceof Error
+                ? err.message
+                : 'Request failed.';
+        },
+      });
   }
 
   handleResetPassword(): void {
@@ -151,16 +175,27 @@ export class ForgotPassword implements OnDestroy {
     const code = this.otpDigits.join('');
     this.isLoading = true;
 
-    this.authService.resetPassword(this.pendingEmail, code, this.newPassword).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.resetSuccess = true;
-        this.emailSent = false;
-      },
-      error: (err: Error) => {
-        this.isLoading = false;
-        this.resetError = err.message;
-      },
-    });
+    this.authService
+      .resetPassword(this.pendingEmail, code, this.newPassword)
+      .pipe(
+        timeout(60_000),
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.resetSuccess = true;
+          this.emailSent = false;
+        },
+        error: (err: unknown) => {
+          this.resetError =
+            err instanceof TimeoutError
+              ? 'Request timed out. Check the backend is running.'
+              : err instanceof Error
+                ? err.message
+                : 'Request failed.';
+        },
+      });
   }
 }

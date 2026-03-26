@@ -182,11 +182,21 @@ export class AuthService {
   }
 
   private handleError(err: HttpErrorResponse): Observable<never> {
-    let message = 'Unknown error';
-    if (err.status === 401) message = 'Invalid credentials.';
-    else if (err.status === 400) message = err.error?.message || 'Invalid request.';
-    else if (err.status === 403) message = 'Access denied.';
-    else if (err.status === 0) message = 'Server unreachable.';
+    const bodyMsg =
+      err.error && typeof err.error === 'object' && err.error !== null && 'message' in err.error
+        ? String((err.error as { message?: string }).message)
+        : undefined;
+
+    let message = bodyMsg;
+
+    if (!message) {
+      if (err.status === 401) message = 'Invalid credentials.';
+      else if (err.status === 400) message = 'Invalid request.';
+      else if (err.status === 403) message = 'Access denied.';
+      else if (err.status === 0) message = 'Server unreachable.';
+      else message = 'Unknown error';
+    }
+
     return throwError(() => new Error(message));
   }
 }

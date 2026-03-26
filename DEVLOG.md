@@ -59,3 +59,6 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 ## Backend (finix_Backend)
 - Externalized Brevo API key and sender settings to env vars / optional `application-local.properties`; JWT uses env `JWT_SECRET` with a dev-only default; added example template and test overrides so secrets are not committed to GitHub.
 
+## 2026-03-27
+- Fixed forgot-password “Send reset link” spinning forever: backend RestTemplate now has connect/read timeouts and fails fast if Brevo is unconfigured; frontend uses RxJS `timeout`/`finalize` and surfaces API `message` on 500 errors.
+
