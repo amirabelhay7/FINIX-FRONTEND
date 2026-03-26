@@ -558,7 +558,7 @@
     <!-- /page-clients -->
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : CRÉDITS & DOSSIERS
+         PAGE: CREDITS & FILES
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'credits'" id="page-credits">
       <div class="ph s1">
@@ -862,9 +862,9 @@
                   <span
                     class="badge"
                     [ngClass]="{
-                      'b-blue': p.mode === 'Transfer' || p.mode === 'Virement',
-                      'b-purple': p.mode === 'Direct Debit' || p.mode === 'Prelevement',
-                      'b-teal': p.mode === 'Cash' || p.mode === 'Especes',
+                      'b-blue': p.mode === 'Transfer',
+                      'b-purple': p.mode === 'Direct Debit',
+                      'b-teal': p.mode === 'Cash',
                     }"
                   >
                     {{
@@ -879,22 +879,17 @@
                   </span>
                 </td>
                 <td>
-                  <span *ngIf="p.status === 'Paid' || p.status === 'Paye'" class="badge b-actif">
+                  <span *ngIf="p.status === 'Paid'" class="badge b-actif">
                     ✓ Paid
                   </span>
                   <span
-                    *ngIf="p.status === 'Pending' || p.status === 'En attente'"
+                    *ngIf="p.status === 'Pending'"
                     class="badge b-review"
                   >
                     Pending
                   </span>
                   <span
-                    *ngIf="
-                      p.status !== 'Paid' &&
-                      p.status !== 'Paye' &&
-                      p.status !== 'Pending' &&
-                      p.status !== 'En attente'
-                    "
+                    *ngIf="p.status !== 'Paid' && p.status !== 'Pending'"
                     class="badge b-danger"
                   >
                     ✕ Unpaid
@@ -904,13 +899,13 @@
                 <td>
                   <div
                     style="display: flex; gap: 0.375rem"
-                    *ngIf="p.status === 'Pending' || p.status === 'En attente'"
+                    *ngIf="p.status === 'Pending'"
                   >
                     <button class="btn btn-primary btn-xs">Record</button>
                     <button class="btn btn-outline btn-xs">Follow up</button>
                   </div>
                   <button
-                    *ngIf="p.status === 'Paid' || p.status === 'Paye'"
+                    *ngIf="p.status === 'Paid'"
                     class="btn btn-ghost btn-xs"
                   >
                     Receipt
@@ -925,7 +920,7 @@
     <!-- /page-remboursements -->
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : VÉHICULES
+         PAGE: VEHICLES
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'vehicles'" id="page-vehicles">
       <div class="ph s1">
@@ -955,10 +950,10 @@
                 <th>Plate</th>
                 <th>Vehicle</th>
                 <th>Owner</th>
-                <th>Crédit</th>
+                <th>Credit</th>
                 <th>Value</th>
                 <th>Mileage</th>
-                <th>Assurance</th>
+                <th>Insurance</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -1385,7 +1380,7 @@
     <!-- /page-rapports -->
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : PARAMÈTRES
+         PAGE: SETTINGS
          ═══════════════════════════════════════════════════════ -->
     <!-- ═══════════════════════════════════════════════════════
          USERS PAGE
@@ -1393,7 +1388,7 @@
     <div class="page" [class.active]="selectedPage === 'users'" id="page-users">
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Système</div>
+          <div class="ph-eyebrow">System</div>
           <div class="ph-title">Users — Agents IMF & Assureurs</div>
           <div class="ph-desc">Manage accounts and review login history</div>
         </div>
@@ -1539,7 +1534,7 @@
           </div>
         </div>
 
-        <!-- Formulaires de configuration -->
+        <!-- Configuration forms -->
         <div style="display: flex; flex-direction: column; gap: 1.25rem">
           <!-- General settings -->
           <div class="panel">
@@ -1550,7 +1545,7 @@
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label">Institution name</label>
-                  <input class="form-input" type="text" value="FIN'IX — Crédit & Assurance" />
+                  <input class="form-input" type="text" value="FIN'IX — Credit & Insurance" />
                 </div>
                 <div class="form-group">
                   <label class="form-label">Tax ID</label>

@@ -21,6 +21,6 @@ export class AgentTopUp {
 
   readonly agents: AgentLocation[] = [
     { name: 'Agence FINIX Tunis Centre', address: 'Av. Habib Bourguiba, Tunis · Open until 6 PM', distance: '0.8 km', distanceClass: 'text-green-600' },
-    { name: 'Point FINIX La Marsa', address: 'Rue de la République, La Marsa · Open until 8 PM', distance: '2.1 km', distanceClass: 'text-gray-500' },
+    { name: 'Point FINIX La Marsa', address: 'Republic Street, La Marsa · Open until 8 PM', distance: '2.1 km', distanceClass: 'text-gray-500' },
   ];
 }

@@ -26,7 +26,7 @@ export class UserDetail {
       { label: 'Phone', value: '+216 12 345 678' },
       { label: 'CIN', value: '12345678' },
       { label: 'Date of birth', value: '1990-05-15' },
-      { label: 'Address', value: '12 Rue de la République' },
+      { label: 'Address', value: '12 Republic Street' },
       { label: 'City', value: 'Tunis' },
       { label: 'Role', value: 'CLIENT', valueClass: 'px-2 py-0.5 rounded text-xs bg-blue-50 text-[#135bec]' },
     ],

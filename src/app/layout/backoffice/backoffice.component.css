@@ -1,5 +1,5 @@
 /* ================================================================
-   FINIX BACK-OFFICE — GLOBAL CSS (CORRIGÉ)
+   FINIX BACK-OFFICE — GLOBAL CSS (FIXED)
    ================================================================ */
 
 /* ================================================================
@@ -174,10 +174,10 @@ main.main {
   gap: 1rem;
 }
 
-/* Tableau dossiers : col gauche seulement */
+/* Files table: left column only */
 .panel.s3 { grid-column: 1; grid-row: 4; }
 
-/* Ligne 3 panels (charts/donut/agents) : col gauche, 3 colonnes internes */
+/* Row: 3 panels (charts/donut/agents): left column, 3 inner columns */
 .g33 {
   grid-column: 1;
   grid-row: 5;
@@ -186,10 +186,10 @@ main.main {
   gap: 1.25rem;
 }
 
-/* Impayés : pleine largeur */
+/* Unpaid: full width */
 .panel.s5 { grid-column: 1 / -1; grid-row: 6; }
 
-/* Panneau droit activité : col 2, sticky */
+/* Right activity panel: col 2, sticky */
 .g13 {
   grid-column: 2;
   grid-row: 4 / 7;
@@ -205,8 +205,8 @@ main.main {
 }
 .g13::-webkit-scrollbar { display: none; }
 
-/* ── PAGES AUTRES ONGLETS ──────────────────────────────────────── */
-/* CORRECTION PRINCIPALE : les pages sont cachées par défaut */
+/* ── OTHER TABS PAGES ──────────────────────────────────────────── */
+/* MAIN FIX: pages are hidden by default */
 .page {
   display: none;
   grid-column: 1 / -1;

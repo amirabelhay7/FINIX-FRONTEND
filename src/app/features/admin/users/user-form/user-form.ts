@@ -41,6 +41,6 @@ export class UserForm {
   readonly phone = '+216 12 345 678';
   readonly cin = '12345678';
   readonly role = 'CLIENT';
-  readonly address = '12 Rue de la République';
+  readonly address = '12 Republic Street';
   readonly city = 'Tunis';
 }

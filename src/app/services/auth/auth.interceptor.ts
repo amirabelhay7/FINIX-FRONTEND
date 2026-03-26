@@ -7,7 +7,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth  = inject(AuthService);
   const token = auth.getToken();
 
-  // Ne pas ajouter le token sur les endpoints d'authentification
+  // Do not attach token to auth endpoints
   const isAuthEndpoint = req.url.includes('/api/auth/');
 
   const authReq = (token && !isAuthEndpoint)
@@ -16,7 +16,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((err: HttpErrorResponse) => {
-      // Déconnexion auto seulement si 401 ET ce n'est pas un login/register
+      // Auto logout only on 401, and not for login/register calls
       if (err.status === 401 && !isAuthEndpoint) {
         auth.logout();
       }
