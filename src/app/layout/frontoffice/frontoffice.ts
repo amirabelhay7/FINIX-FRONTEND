@@ -17,12 +17,12 @@ export class Frontoffice implements OnInit, OnDestroy {
 
   navTabs = [
     { label: 'Dashboard', icon: '🏠', route: '/client/dashboard' },
-    { label: 'Mes Crédits', icon: '💳', route: '/client/credits', badge: '3' },
-    { label: 'Remboursements', icon: '💸', route: '/client/repayments', badge: '1', badgeClass: 'warn' },
-    { label: 'Véhicules', icon: '🚗', route: '/client/vehicles' },
-    { label: 'Assurance', icon: '🛡️', route: '/client/insurance' },
+    { label: 'My credits', icon: '💳', route: '/client/credits', badge: '3' },
+    { label: 'Repayments', icon: '💸', route: '/client/repayments', badge: '1', badgeClass: 'warn' },
+    { label: 'Vehicles', icon: '🚗', route: '/client/vehicles' },
+    { label: 'Insurance', icon: '🛡️', route: '/client/insurance' },
     { label: 'Wallet', icon: '👛', route: '/client/wallet' },
-    { label: 'Mon Score', icon: '📊', route: '/client/score' },
+    { label: 'My score', icon: '📊', route: '/client/score' },
     { label: 'Documents', icon: '📄', route: '/client/documents' }
   ];
 
@@ -49,7 +49,7 @@ export class Frontoffice implements OnInit, OnDestroy {
       const raw = localStorage.getItem('currentUser');
       if (raw) {
         const user = JSON.parse(raw);
-        this.userName = user.name || 'Utilisateur';
+        this.userName = user.name || 'User';
         this.userRole = (user.role || 'CLIENT');
         this.userEmail = user.email || '';
       }
