@@ -499,9 +499,9 @@
     <div class="page" [class.active]="selectedPage === 'clients'" id="page-clients">
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Gestion des clients</div>
-          <div class="ph-title">Base clients</div>
-          <div class="ph-desc">{{ clients.length }} client(s) enregistré(s)</div>
+          <div class="ph-eyebrow">Client management</div>
+          <div class="ph-title">Client database</div>
+          <div class="ph-desc">{{ clients.length }} client(s) registered</div>
         </div>
       </div>
 
@@ -517,21 +517,21 @@
 
       <div class="panel s4">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Liste des clients</div>
-          <span style="font-size: 0.75rem; color: var(--g400)">{{ clients.length }} résultats</span>
+          <div class="panel-title"><span class="ptdot"></span>Client list</div>
+          <span style="font-size: 0.75rem; color: var(--g400)">{{ clients.length }} results</span>
         </div>
         <div class="tbl-wrap">
-          <div *ngIf="clientsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
-          <div *ngIf="!clientsLoading && clients.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucun client trouvé.</div>
+          <div *ngIf="clientsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</div>
+          <div *ngIf="!clientsLoading && clients.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">No clients found.</div>
           <table *ngIf="!clientsLoading && clients.length > 0">
             <thead>
               <tr>
                 <th>Client</th>
                 <th>Email</th>
                 <th>CIN</th>
-                <th>Téléphone</th>
-                <th>Ville</th>
-                <th>Statut</th>
+                <th>Phone</th>
+                <th>City</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>

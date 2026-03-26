@@ -12,4 +12,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Translated Admin topbar search + theme tooltips to English for consistency.
 - Translated admin user-management validation/error messages to English to avoid French toasts in admin flows.
 - Translated Admin overview (dashboard) labels and demo data to English so the main admin landing page is fully English.
+- Translated Admin Clients page labels, loading/empty states, and table headers to English.
 
