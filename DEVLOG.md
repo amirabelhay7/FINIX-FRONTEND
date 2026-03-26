@@ -27,4 +27,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Translated Client Dashboard UI strings to English (header, KPIs, tables, activity, alerts) to remove remaining French on the main client page.
 - Translated Client Credits page labels, filters, cards, and actions to English to remove remaining French from credits UI.
 - Translated Client Repayments page labels, calendar, and payment history table to English to remove French from repayments UI.
+- Translated Client Vehicles page labels, vehicle cards, and catalog preview actions to English to remove French from vehicles UI.
 
