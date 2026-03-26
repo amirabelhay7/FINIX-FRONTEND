@@ -930,36 +930,36 @@
     <div class="page" [class.active]="selectedPage === 'vehicles'" id="page-vehicles">
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Gestion du parc</div>
-          <div class="ph-title">Véhicules</div>
-          <div class="ph-desc">2 148 véhicules enregistrés · 1 890 assurés · 48 à renouveler</div>
+          <div class="ph-eyebrow">Fleet management</div>
+          <div class="ph-title">Vehicles</div>
+          <div class="ph-desc">2,148 vehicles registered · 1,890 insured · 48 to renew</div>
         </div>
         <div class="ph-actions">
           <button class="btn btn-outline">Import</button>
-          <button class="btn btn-primary">+ Ajouter véhicule</button>
+          <button class="btn btn-primary">+ Add vehicle</button>
         </div>
       </div>
 
       <div class="panel s2">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Registre des véhicules</div>
+          <div class="panel-title"><span class="ptdot"></span>Vehicle registry</div>
           <div class="tb-search" style="width: 200px">
             <span>🔍</span>
-            <input type="text" placeholder="Plaque, client, modèle…" />
+            <input type="text" placeholder="Plate, client, model…" />
           </div>
         </div>
         <div class="tbl-wrap">
           <table>
             <thead>
               <tr>
-                <th>Plaque</th>
-                <th>Véhicule</th>
-                <th>Propriétaire</th>
+                <th>Plate</th>
+                <th>Vehicle</th>
+                <th>Owner</th>
                 <th>Crédit</th>
-                <th>Valeur</th>
-                <th>Kilométrage</th>
+                <th>Value</th>
+                <th>Mileage</th>
                 <th>Assurance</th>
-                <th>Statut</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -988,7 +988,7 @@
                 <td>
                   <span class="badge" [ngClass]="vehicle.statusClass">{{ vehicle.status }}</span>
                 </td>
-                <td><button class="btn btn-ghost btn-xs">Voir</button></td>
+                <td><button class="btn btn-ghost btn-xs">View</button></td>
               </tr>
             </tbody>
           </table>
