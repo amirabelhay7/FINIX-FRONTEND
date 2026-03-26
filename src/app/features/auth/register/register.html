@@ -55,7 +55,7 @@
                 <h2 class="text-3xl font-black text-gray-900 tracking-tight">{{ joinTitle }}<br />{{ joinTitleBreak }}</h2>
                 <p class="text-gray-400 text-sm font-medium mt-3">
                     {{ alreadyHaveAccount }}
-                    <a routerLink="/auth/login" class="text-[#135bec] font-bold hover:underline">{{ signInLabel }}</a>
+                  <a routerLink="/login" class="text-[#135bec] font-bold hover:underline">{{ signInLabel }}</a>
                 </p>
             </div>
 
@@ -67,7 +67,7 @@
                     [class.bg-gray-200]="currentStep < 2"></div>
                 <div class="flex-1 h-2 rounded-full" [class.bg-[#135bec]]="currentStep >= 3"
                     [class.bg-gray-200]="currentStep < 3"></div>
-                <span class="text-xs font-black text-gray-400 ml-2">{{ currentStep }}/3</span>
+                <span class="text-xs font-black text-gray-400 ml-2">{{ currentStep > 3 ? 3 : currentStep }}/3</span>
             </div>
 
             <!-- ===================== STEP 1: Personal Info ===================== -->
@@ -81,12 +81,12 @@
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">First
                             Name</label>
-                        <input type="text" placeholder="Amadou"
+                        <input type="text" placeholder="Amadou" [(ngModel)]="firstName" name="firstName"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Last Name</label>
-                        <input type="text" placeholder="Kone"
+                        <input type="text" placeholder="Kone" [(ngModel)]="lastName" name="lastName"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                     <div class="relative">
                         <span
                             class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">mail</span>
-                        <input type="email" placeholder="you@example.com"
+                        <input type="email" placeholder="you@example.com" [(ngModel)]="email" name="email"
                             class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
@@ -106,13 +106,13 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Phone No.</label>
-                        <input type="tel" placeholder="+216 00 000 000"
+                        <input type="tel" placeholder="+216 00 000 000" [(ngModel)]="phone" name="phone"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Date of
                             Birth</label>
-                        <input type="date"
+                        <input type="date" [(ngModel)]="dateOfBirth" name="dateOfBirth"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
@@ -124,7 +124,7 @@
                     <div class="relative">
                         <span
                             class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">badge</span>
-                        <input type="text" placeholder="00000000"
+                        <input type="text" placeholder="00000000" [(ngModel)]="cin" name="cin"
                             class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
@@ -133,13 +133,13 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Address</label>
-                        <input type="text" placeholder="12 Rue de la Finance"
-                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                            <input type="text" placeholder="12 Rue de la Finance" [(ngModel)]="address" name="address"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">City</label>
-                        <input type="text" placeholder="Tunis"
-                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                            <input type="text" placeholder="Tunis" [(ngModel)]="city" name="city"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
 
@@ -149,7 +149,7 @@
                     <div class="relative">
                         <span
                             class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">lock</span>
-                        <input type="password" placeholder="Min. 8 characters"
+                        <input type="password" placeholder="Min. 8 characters" [(ngModel)]="password" name="password"
                             class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
@@ -312,6 +312,57 @@
                         <span>{{ isLoading ? 'Creating...' : 'Create Account' }}</span>
                     </button>
                 </div>
+                <div *ngIf="registerError" class="mt-3 p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm text-center">
+                    {{ registerError }}
+                </div>
+            </div>
+
+            <!-- ===================== STEP 4: OTP Verification ===================== -->
+            <div *ngIf="currentStep === 4" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-5">
+                <p class="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-4">
+                    OTP Verification
+                </p>
+
+                <div class="text-sm text-gray-600">
+                    Enter the 6-digit code sent to <span class="font-bold text-gray-900">{{ pendingEmail }}</span>.
+                </div>
+
+                <app-otp-input [(digits)]="otpDigits"></app-otp-input>
+
+                <div class="text-center text-sm text-gray-500">
+                    Expires in <span class="font-bold text-gray-700">{{ otpCountdown }}</span>
+                    <span class="mx-2">·</span>
+                    <button
+                        type="button"
+                        (click)="resendOtp()"
+                        [disabled]="otpResendDisabled"
+                        class="font-bold text-[#135bec] hover:underline"
+                        [class.opacity-50]="otpResendDisabled"
+                    >
+                        Resend code
+                    </button>
+                </div>
+
+                <div class="flex space-x-4 pt-2">
+                    <button
+                        type="button"
+                        (click)="backToRegisterFromOtp()"
+                        class="flex-1 py-4 bg-gray-100 text-gray-600 font-black rounded-xl hover:bg-gray-200 active:scale-[0.98] transition-all flex items-center justify-center space-x-2"
+                    >
+                        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                        <span>Back</span>
+                    </button>
+                    <button
+                        type="button"
+                        (click)="verifyOtp()"
+                        [disabled]="!otpComplete || isLoading"
+                        class="flex-1 py-4 bg-[#135bec] text-white font-black rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-200 flex items-center justify-center space-x-2 disabled:opacity-60"
+                    >
+                        <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                        <span>{{ isLoading ? 'Verifying...' : 'Verify' }}</span>
+                    </button>
+                </div>
+
                 <div *ngIf="registerError" class="mt-3 p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm text-center">
                     {{ registerError }}
                 </div>

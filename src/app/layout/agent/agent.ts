@@ -1,5 +1,7 @@
 import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ThemeService } from '../../core/services/theme/theme.service';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-agent',
@@ -16,12 +18,19 @@ export class AgentLayout implements OnInit, OnDestroy {
   constructor(
     private renderer: Renderer2,
     private router: Router,
+    private route: ActivatedRoute,
+    private themeService: ThemeService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
-    const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
-    this.currentTheme = saved || 'dark';
-    this.applyTheme();
+    this.currentTheme = this.themeService.initTheme(this.currentTheme);
+
+    // Drive UI from URL: /agent/:page
+    this.route.paramMap.subscribe((pm) => {
+      const page = pm.get('page');
+      this.selectedPage = page || 'dashboard';
+    });
   }
 
   ngOnDestroy(): void {
@@ -29,23 +38,16 @@ export class AgentLayout implements OnInit, OnDestroy {
   }
 
   toggleTheme(): void {
-    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
-    localStorage.setItem('finix_theme', this.currentTheme);
-    this.applyTheme();
+    this.currentTheme = this.themeService.toggleTheme(this.currentTheme);
   }
 
   switchPage(page: string): void {
     this.selectedPage = page;
+    void this.router.navigate(['/agent', page]);
   }
 
   logout(): void {
-    localStorage.removeItem('finix_access_token');
-    localStorage.removeItem('currentUser');
-    this.router.navigate(['/login']);
-  }
-
-  private applyTheme(): void {
-    this.renderer.setAttribute(document.documentElement, 'data-theme', this.currentTheme);
+    this.authService.logout();
   }
 
   get currentTime(): string {

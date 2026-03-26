@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgFor, NgIf } from '@angular/common';
+import { ThemeService } from '../../core/services/theme/theme.service';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-frontoffice',
@@ -30,12 +32,15 @@ export class Frontoffice implements OnInit, OnDestroy {
   userEmail = '';
   userRole = '';
 
-  constructor(private router: Router, private renderer: Renderer2) {}
+  constructor(
+    private router: Router,
+    private renderer: Renderer2,
+    private themeService: ThemeService,
+    private authService: AuthService,
+  ) {}
 
   ngOnInit(): void {
-    const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
-    this.currentTheme = saved || 'dark';
-    this.applyTheme();
+    this.currentTheme = this.themeService.initTheme(this.currentTheme);
     this.loadUser();
   }
 
@@ -58,13 +63,7 @@ export class Frontoffice implements OnInit, OnDestroy {
   }
 
   toggleTheme(): void {
-    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
-    localStorage.setItem('finix_theme', this.currentTheme);
-    this.applyTheme();
-  }
-
-  private applyTheme(): void {
-    this.renderer.setAttribute(document.documentElement, 'data-theme', this.currentTheme);
+    this.currentTheme = this.themeService.toggleTheme(this.currentTheme);
   }
 
   toggleUserDropdown() {
@@ -72,9 +71,7 @@ export class Frontoffice implements OnInit, OnDestroy {
   }
 
   logout() {
-    localStorage.removeItem('finix_access_token');
-    localStorage.removeItem('currentUser');
     this.showUserDropdown = false;
-    this.router.navigate(['/login-client']);
+    this.authService.logout();
   }
 }

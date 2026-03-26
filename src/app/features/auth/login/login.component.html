@@ -84,11 +84,11 @@
             <rect x="3" y="11" width="18" height="11" rx="2" />
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
-          Accès sécurisé
+          Secure access
         </div>
-        <div class="fl-rs-title">Choisissez<br />votre profil</div>
+        <div class="fl-rs-title">Choose<br />your profile</div>
         <div class="fl-rs-sub">
-          Sélectionnez votre rôle pour accéder à votre espace de travail FIN'IX Pro.
+          Select your role to access your FIN'IX Pro workspace.
         </div>
 
         <div class="fl-note">
@@ -108,8 +108,8 @@
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
           <span
-            >Les comptes sont créés exclusivement par l'administrateur IMF. Contactez votre
-            responsable si vous n'avez pas encore reçu vos identifiants.</span
+            >Accounts are created exclusively by the IMF administrator. Contact your manager
+            if you haven't received your credentials yet.</span
           >
         </div>
 
@@ -151,11 +151,11 @@
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
             </div>
-            <div class="fl-rc-name">Agent IMF</div>
-            <div class="fl-rc-desc">Dossiers & clients</div>
+            <div class="fl-rc-name">IMF Agent</div>
+            <div class="fl-rc-desc">Files & clients</div>
             <div class="fl-rc-tags">
-              <span class="fl-rc-tag">Crédits</span><span class="fl-rc-tag">Clients</span
-              ><span class="fl-rc-tag">Suivi</span>
+              <span class="fl-rc-tag">Credits</span><span class="fl-rc-tag">Clients</span
+              ><span class="fl-rc-tag">Tracking</span>
             </div>
           </div>
 
@@ -193,10 +193,10 @@
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               </svg>
             </div>
-            <div class="fl-rc-name">Assureur</div>
-            <div class="fl-rc-desc">Contrats & polices</div>
+            <div class="fl-rc-name">Insurer</div>
+            <div class="fl-rc-desc">Contracts & policies</div>
             <div class="fl-rc-tags">
-              <span class="fl-rc-tag">Polices</span><span class="fl-rc-tag">Sinistres</span>
+              <span class="fl-rc-tag">Policies</span><span class="fl-rc-tag">Claims</span>
             </div>
           </div>
 
@@ -237,10 +237,10 @@
                 />
               </svg>
             </div>
-            <div class="fl-rc-name">Admin IMF</div>
-            <div class="fl-rc-desc">Config. & supervision</div>
+            <div class="fl-rc-name">IMF Admin</div>
+            <div class="fl-rc-desc">Configuration & supervision</div>
             <div class="fl-rc-tags">
-              <span class="fl-rc-tag">Users</span><span class="fl-rc-tag">Système</span>
+              <span class="fl-rc-tag">Users</span><span class="fl-rc-tag">System</span>
             </div>
           </div>
         </div>
@@ -292,9 +292,9 @@
           </div>
         </div>
 
-        <div class="fl-login-title">Connexion sécurisée</div>
+        <div class="fl-login-title">Secure login</div>
         <div class="fl-login-sub">
-          Entrez vos identifiants professionnels pour accéder à votre espace de travail.
+          Enter your professional credentials to access your workspace.
         </div>
 
         <div class="fl-session-pill">
@@ -311,7 +311,7 @@
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
-          Session fermée automatiquement après 30 min d'inactivité
+          Session ends automatically after 30 minutes of inactivity
         </div>
 
         <div
@@ -341,7 +341,7 @@
         <form (ngSubmit)="handleLogin()">
           <div class="fl-field">
             <label class="fl-field-label"
-              >E-mail professionnel <a (click)="showForgot()">Mot de passe oublié ?</a></label
+              >Professional email <a (click)="showForgot()">Forgot password?</a></label
             >
             <div class="fl-inp-wrap">
               <span class="fl-inp-ico"
@@ -366,16 +366,16 @@
                 type="text"
                 [(ngModel)]="email"
                 name="email"
-                placeholder="prenom.nom&#64;finix.tn ou admin"
+                placeholder="first.last&#64;finix.tn or admin"
                 autocomplete="email"
                 (input)="clearErrors()"
               />
             </div>
-            <div class="fl-field-err" [class.show]="emailError">Adresse e-mail invalide.</div>
+            <div class="fl-field-err" [class.show]="emailError">Invalid email address.</div>
           </div>
 
           <div class="fl-field">
-            <label class="fl-field-label">Mot de passe</label>
+            <label class="fl-field-label">Password</label>
             <div class="fl-inp-wrap">
               <span class="fl-inp-ico"
                 ><svg
@@ -426,7 +426,7 @@
               </button>
             </div>
             <div class="fl-field-err" [class.show]="pwError">
-              Mot de passe incorrect (min 4 caractères).
+              Incorrect password (min 4 characters).
             </div>
           </div>
 
@@ -436,7 +436,7 @@
               id="fl-remember"
               [(ngModel)]="rememberMe"
               name="rememberMe"
-            /><label for="fl-remember">Rester connecté (usage privé uniquement)</label>
+            /><label for="fl-remember">Stay signed in (private use only)</label>
           </div>
 
           <button
@@ -447,7 +447,7 @@
             [style.box-shadow]="subBtnShadow"
           >
             <div class="fl-spinner" [style.display]="loginLoading ? 'block' : 'none'"></div>
-            <span>{{ loginLoading ? 'Vérification…' : 'Accéder à mon espace' }}</span>
+            <span>{{ loginLoading ? 'Verifying…' : 'Access my workspace' }}</span>
             <svg
               *ngIf="!loginLoading"
               width="15"
@@ -463,6 +463,28 @@
               <polyline points="12 5 19 12 12 19" />
             </svg>
           </button>
+
+          <div class="fl-demo">
+            <div class="fl-demo-title">Demo — quick login by role</div>
+            <div class="fl-demo-note">Use these buttons to login with seeded demo users in the backend.</div>
+            <div class="fl-demo-buttons">
+              <button type="button" class="fl-demo-btn" (click)="demoLogin('client')" [disabled]="loginLoading">
+                Client
+              </button>
+              <button type="button" class="fl-demo-btn" (click)="demoLogin('agent')" [disabled]="loginLoading">
+                Agent
+              </button>
+              <button type="button" class="fl-demo-btn" (click)="demoLogin('seller')" [disabled]="loginLoading">
+                Seller
+              </button>
+              <button type="button" class="fl-demo-btn" (click)="demoLogin('insurer')" [disabled]="loginLoading">
+                Insurer
+              </button>
+              <button type="button" class="fl-demo-btn" (click)="demoLogin('admin')" [disabled]="loginLoading">
+                Admin
+              </button>
+            </div>
+          </div>
         </form>
 
         <div class="fl-trust">
@@ -513,9 +535,9 @@
             Audit log
           </div>
         </div>
-        <div style="text-align: center; margin-top: 1rem; font-size: 0.875rem; color: #8fa3bc">
-          Problème d'accès ?
-          <a style="color: #1f6fea; font-weight: 600; cursor: pointer">Contacter l'admin IMF</a>
+          <div style="text-align: center; margin-top: 1rem; font-size: 0.875rem; color: #8fa3bc">
+          Access issue?
+          <a style="color: #1f6fea; font-weight: 600; cursor: pointer">Contact the IMF admin</a>
         </div>
       </div>
 
@@ -537,9 +559,9 @@
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
           </div>
-          <div class="fl-otp-title">Vérification 2FA</div>
+          <div class="fl-otp-title">2FA Verification</div>
           <div class="fl-otp-sub">
-            Code envoyé au numéro professionnel enregistré<br /><span class="fl-otp-tel"
+            Code sent to your registered business phone number<br /><span class="fl-otp-tel"
               >+216 •• ••• •••</span
             >
           </div>
@@ -558,9 +580,9 @@
           />
         </div>
         <div class="fl-otp-meta">
-          Expire dans <span>{{ otpCountdown }}</span> &nbsp;·&nbsp;
+          Expires in <span>{{ otpCountdown }}</span> &nbsp;·&nbsp;
           <button class="fl-otp-resend" [disabled]="otpResendDisabled" (click)="resendOtp()">
-            Renvoyer
+            Resend
           </button>
         </div>
         <button
@@ -573,7 +595,7 @@
           [style.pointer-events]="otpComplete ? 'all' : 'none'"
         >
           <div class="fl-spinner" [style.display]="otpLoading ? 'block' : 'none'"></div>
-          <span>{{ otpLoading ? 'Vérification…' : 'Vérifier le code' }}</span>
+          <span>{{ otpLoading ? 'Verifying…' : 'Verify code' }}</span>
           <svg
             *ngIf="!otpLoading"
             width="15"
@@ -593,7 +615,7 @@
           <a
             (click)="currentView = 'login'"
             style="color: #1f6fea; font-weight: 600; cursor: pointer"
-            >← Retour à la connexion</a
+            >← Back to login</a
           >
         </div>
       </div>

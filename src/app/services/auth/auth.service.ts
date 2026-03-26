@@ -116,7 +116,7 @@ export class AuthService {
     localStorage.removeItem(this.ROLE_KEY);
     localStorage.removeItem(this.USER_KEY);
     this._isAuth$.next(false);
-    this.router.navigate(['/login-client']);
+    this.router.navigate(['/login']);
   }
 
   /* ── GETTERS ── */

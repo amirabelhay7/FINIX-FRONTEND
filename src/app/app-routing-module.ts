@@ -31,17 +31,32 @@ const routes: Routes = [
     loadChildren: () => import('./features/auth/auth-module').then((m) => m.AuthModule),
   },
   {
-    path: 'backoffice',
+    path: 'admin',
+    redirectTo: 'admin/dashboard',
+    pathMatch: 'full',
+  },
+  {
+    path: 'admin/:page',
     component: BackofficeComponent,
     canActivate: [roleGuard('admin')],
   },
   {
     path: 'agent',
+    redirectTo: 'agent/dashboard',
+    pathMatch: 'full',
+  },
+  {
+    path: 'agent/:page',
     component: AgentLayout,
     canActivate: [roleGuard('agent')],
   },
   {
     path: 'insurer',
+    redirectTo: 'insurer/dashboard',
+    pathMatch: 'full',
+  },
+  {
+    path: 'insurer/:section',
     component: InsurerLayout,
     canActivate: [roleGuard('insurer')],
   },

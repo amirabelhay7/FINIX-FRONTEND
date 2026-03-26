@@ -10,17 +10,17 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  router.navigate(['/login-client']);
+  router.navigate(['/login']);
   return false;
 };
 
 const roleToRoute: Record<string, string> = {
-  admin: '/backoffice',
+  admin: '/admin',
   agent: '/agent',
   insurer: '/insurer',
   client: '/client',
   seller: '/seller',
-  ADMIN: '/backoffice',
+  ADMIN: '/admin',
   AGENT: '/agent',
   INSURER: '/insurer',
   CLIENT: '/client',
@@ -33,7 +33,7 @@ export function roleGuard(...allowedRoles: string[]): CanActivateFn {
     const authService = inject(AuthService);
 
     if (!authService.hasValidToken()) {
-      router.navigate(['/login-client']);
+      router.navigate(['/login']);
       return false;
     }
 

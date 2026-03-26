@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { ThemeService } from '../../core/services/theme/theme.service';
+import { AuthService } from '../../services/auth/auth.service';
 
 interface PipelineCard {
   name: string;
@@ -48,33 +50,46 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   logsLoading = false;
   usersTab: 'users' | 'logs' = 'users';
 
-  constructor(private renderer: Renderer2, private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
-
   logout(): void {
-    localStorage.removeItem('finix_access_token');
-    localStorage.removeItem('currentUser');
-    this.router.navigate(['/login']);
+    this.authService.logout();
   }
 
+  constructor(
+    private renderer: Renderer2,
+    private router: Router,
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute,
+    private themeService: ThemeService,
+    private authService: AuthService,
+  ) {}
+
   ngOnInit(): void {
-    const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
-    this.currentTheme = saved || 'light';
-    this.applyTheme();
+    this.currentTheme = this.themeService.initTheme(this.currentTheme);
+
+    // Drive UI from URL: /admin/:page
+    this.route.paramMap.subscribe((pm) => {
+      const page = pm.get('page') || 'dashboard';
+      this.selectedPage = page;
+      if (page === 'users') {
+        this.usersTab = 'users';
+        this.loadUsers();
+        this.loadLogs();
+      } else if (page === 'clients') {
+        this.loadClients();
+      }
+    });
   }
 
   toggleTheme(): void {
-    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
-    localStorage.setItem('finix_theme', this.currentTheme);
-    this.applyTheme();
+    this.currentTheme = this.themeService.toggleTheme(this.currentTheme);
   }
 
   ngOnDestroy(): void {
     this.renderer.removeAttribute(document.documentElement, 'data-theme');
   }
 
-  private applyTheme(): void {
-    this.renderer.setAttribute(document.documentElement, 'data-theme', this.currentTheme);
-  }
+  // Theme is applied by ThemeService.
 
   onPageChange(page: string) {
     this.selectedPage = page;
@@ -86,6 +101,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     if (page === 'clients') {
       this.loadClients();
     }
+    void this.router.navigate(['/admin', page]);
   }
 
   switchUsersTab(tab: 'users' | 'logs'): void {

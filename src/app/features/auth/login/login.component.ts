@@ -24,6 +24,12 @@ interface RoleConfig {
   cta: string;
 }
 
+interface DemoAccount {
+  role: string; // lower-case (client/admin/agent/...)
+  email: string;
+  password: string;
+}
+
 @Component({
   selector: 'app-login',
   standalone: false,
@@ -32,7 +38,7 @@ interface RoleConfig {
   encapsulation: ViewEncapsulation.None,
 })
 export class LoginComponent {
-  currentView: 'role-select' | 'login' | 'otp' | 'success' = 'role-select';
+  currentView: 'role-select' | 'login' | 'otp' | 'success' = 'login';
   currentRole: string | null = null;
   email = '';
   password = '';
@@ -53,78 +59,115 @@ export class LoginComponent {
   otpResendDisabled = true;
   private otpTimer: any = null;
 
+  // Demo buttons use seeded DB users (created by backend on startup).
+  private readonly DEMO_PASSWORD = 'Demo123!';
+  private readonly demoAccounts: DemoAccount[] = [
+    { role: 'client', email: 'client@demo.finix.tn', password: this.DEMO_PASSWORD },
+    { role: 'agent', email: 'agent@demo.finix.tn', password: this.DEMO_PASSWORD },
+    { role: 'seller', email: 'seller@demo.finix.tn', password: this.DEMO_PASSWORD },
+    { role: 'insurer', email: 'insurer@demo.finix.tn', password: this.DEMO_PASSWORD },
+    { role: 'admin', email: 'admin@demo.finix.tn', password: this.DEMO_PASSWORD },
+  ];
+
+  private getDemoAccount(role: string): DemoAccount | undefined {
+    return this.demoAccounts.find((a) => a.role === role.toLowerCase());
+  }
+
+
+  private readonly DEFAULT_CFG: RoleConfig = {
+    label: "FIN'IX Pro",
+    color: '#1F6FEA',
+    colorRgb: '31,111,234',
+    gradStart: '#EAF2FF',
+    gradEnd: '#5B8DEF',
+    tagTxt: 'FINX Pro Workspace',
+    iconBg: 'rgba(31,111,234,.18)',
+    iconShadow: 'rgba(31,111,234,.28)',
+    icon: `<svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#EAF2FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M7 6V4h10v2"/><path d="M12 11v4"/><path d="M12 15h.01"/></svg>`,
+    h1: "Your credits,\nyour insurance,\nall in one.",
+    desc: 'Access your workspace and manage credits, repayments, insurance, and financial tracking.',
+    features: ['Secure login', 'Credit & repayment management', 'Insurance & vehicle', 'Score & tracking'],
+    ctaTxt: 'Continue',
+    sucTitle: 'Login successful!',
+    sucSub: 'Your professional workspace is ready.',
+    f1: 'Dashboard',
+    f2: 'Assigned files',
+    f3: 'Real-time notifications',
+    cta: 'Access my workspace',
+  };
+
   ROLES: Record<string, RoleConfig> = {
     agent: {
-      label: 'Agent IMF',
+      label: 'IMF Agent',
       color: '#1F6FEA',
       colorRgb: '31,111,234',
       gradStart: '#EAF2FF',
       gradEnd: '#5B8DEF',
-      tagTxt: 'Espace Agent IMF',
+      tagTxt: 'IMF Agent Workspace',
       iconBg: 'rgba(31,111,234,.18)',
       iconShadow: 'rgba(31,111,234,.28)',
       icon: `<svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#EAF2FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
-      h1: 'Gérez vos\ndossiers\nclients.',
-      desc: 'Traitez les demandes de crédit, suivez les remboursements et accompagnez vos clients à chaque étape.',
-      features: ['Dossiers clients', 'Demandes crédit', 'Suivi remboursements', 'Relances auto'],
-      ctaTxt: "Continuer en tant qu'Agent ",
-      sucTitle: 'Bienvenue, Agent IMF !',
-      sucSub: 'Votre espace est prêt. Consultez vos dossiers assignés.',
-      f1: 'Tableau de bord agents',
-      f2: 'Gestion des dossiers clients',
-      f3: 'Suivi des crédits en cours',
-      cta: "Accéder à l'espace Agent",
+      h1: 'Manage your\nfiles\n& clients.',
+      desc: 'Handle credit requests, track repayments, and support your clients at every step.',
+      features: ['Client files', 'Credit requests', 'Repayment tracking', 'Automated follow-ups'],
+      ctaTxt: "Continue as IMF Agent",
+      sucTitle: 'Welcome, IMF Agent!',
+      sucSub: 'Your workspace is ready. Review your assigned files.',
+      f1: 'Agent dashboard',
+      f2: 'Client file management',
+      f3: 'Ongoing credit tracking',
+      cta: 'Access the Agent workspace',
     },
     insurer: {
-      label: 'Assureur',
+      label: 'Insurer',
       color: '#2ECC71',
       colorRgb: '46,204,113',
       gradStart: '#F0FDF4',
       gradEnd: '#2ECC71',
-      tagTxt: 'Espace Assureur',
+      tagTxt: 'Insurer Workspace',
       iconBg: 'rgba(46,204,113,.18)',
       iconShadow: 'rgba(46,204,113,.25)',
       icon: `<svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#F0FDF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-      h1: "Gérez vos\ncontrats\nd'assurance.",
-      desc: "Créez et suivez les polices d'assurance, traitez les sinistres et gérez les renouvellements de vos clients.",
-      features: ['Polices actives', 'Sinistres', 'Renouvellements', 'Rapports'],
-      ctaTxt: "Continuer en tant qu'Assureur ",
-      sucTitle: 'Bienvenue, Assureur !',
-      sucSub: 'Votre espace est prêt. Consultez vos contrats et polices.',
-      f1: 'Tableau de bord assureur',
-      f2: 'Gestion des contrats actifs',
-      f3: 'Traitement des sinistres',
-      cta: "Accéder à l'espace Assureur",
+      h1: "Manage your\ncontracts\nand insurance.",
+      desc: 'Create and track insurance policies, handle claims, and manage your clients renewals.',
+      features: ['Active policies', 'Claims', 'Renewals', 'Reports'],
+      ctaTxt: 'Continue as Insurer',
+      sucTitle: 'Welcome, Insurer!',
+      sucSub: 'Your workspace is ready. Review your contracts and policies.',
+      f1: 'Insurer dashboard',
+      f2: 'Active contract management',
+      f3: 'Claims handling',
+      cta: 'Access the Insurer workspace',
     },
     admin: {
-      label: 'Admin IMF',
+      label: 'IMF Admin',
       color: '#F5A623',
       colorRgb: '245,166,35',
       gradStart: '#FFFBEB',
       gradEnd: '#F5A623',
-      tagTxt: 'Console Admin IMF',
+      tagTxt: 'IMF Admin Console',
       iconBg: 'rgba(245,166,35,.18)',
       iconShadow: 'rgba(245,166,35,.25)',
       icon: `<svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#FFFBEB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
-      h1: "Administrez\nl'ensemble\nde FIN'IX.",
-      desc: "Créez des comptes, attribuez des rôles, paramétrez le système et consultez les rapports d'activité.",
-      features: ['Gestion users', 'Rôles & accès', 'Paramètres', 'Rapports'],
-      ctaTxt: "Continuer en tant qu'Admin ",
-      sucTitle: 'Bienvenue, Administrateur !',
-      sucSub: "Console d'administration prête. Gérez les utilisateurs et paramètres.",
-      f1: "Console d'administration",
-      f2: 'Gestion des utilisateurs & rôles',
-      f3: 'Rapports & paramétrage',
-      cta: 'Accéder à la console Admin',
+      h1: "Administer\nFIN'IX.",
+      desc: 'Create accounts, assign roles, configure the system, and review activity reports.',
+      features: ['User management', 'Roles & access', 'Settings', 'Reports'],
+      ctaTxt: 'Continue as Admin',
+      sucTitle: 'Welcome, Admin!',
+      sucSub: 'Admin console is ready. Manage users and settings.',
+      f1: 'Admin console',
+      f2: 'User management & roles',
+      f3: 'Reports & configuration',
+      cta: 'Access the Admin console',
     },
     
   };
 
   get cfg(): RoleConfig | null {
-    return this.currentRole ? this.ROLES[this.currentRole] : null;
+    return this.currentRole ? this.ROLES[this.currentRole] : this.DEFAULT_CFG;
   }
   get leftTagTxt(): string {
-    return this.cfg?.tagTxt ?? 'Espace Professionnel';
+    return this.cfg?.tagTxt ?? 'FINX Pro Workspace';
   }
   get leftTagDotColor(): string {
     return this.cfg?.color ?? 'rgba(91,141,239,.5)';
@@ -151,7 +194,7 @@ export class LoginComponent {
     );
   }
   get h1Lines(): string[] {
-    return (this.cfg?.h1 ?? "Votre espace\nde travail\nFIN'IX Pro.").split('\n');
+    return (this.cfg?.h1 ?? "Your workspace\nFIN'IX Pro.").split('\n');
   }
   get h1Top(): string {
     const l = [...this.h1Lines];
@@ -169,7 +212,7 @@ export class LoginComponent {
   get leftDesc(): string {
     return (
       this.cfg?.desc ??
-      'Plateforme de gestion interne réservée aux collaborateurs autorisés. Chaque accès est tracé et sécurisé.'
+      'An internal management platform for authorized collaborators. Every access is logged and secured.'
     );
   }
   get leftFeatures(): string[] {
@@ -197,7 +240,7 @@ export class LoginComponent {
     return this.currentRole !== null;
   }
   get ctaTxt(): string {
-    return this.cfg?.ctaTxt ?? 'Choisissez un profil';
+    return this.cfg?.ctaTxt ?? 'Choose a profile';
   }
   get ctaBg(): string {
     return this.cfg?.color ?? '#0B1C2D';
@@ -212,7 +255,7 @@ export class LoginComponent {
     return this.cfg?.color ?? '#1F6FEA';
   }
   get chipLabel(): string {
-    return this.cfg?.label ?? 'Rôle';
+    return this.cfg?.label ?? 'Role';
   }
   get subBtnBg(): string {
     return this.cfg?.color ?? '#1F6FEA';
@@ -223,22 +266,22 @@ export class LoginComponent {
       : '0 4px 18px rgba(31,111,234,.35)';
   }
   get sucTitle(): string {
-    return this.cfg?.sucTitle ?? 'Connexion réussie !';
+    return this.cfg?.sucTitle ?? 'Login successful!';
   }
   get sucSub(): string {
-    return this.cfg?.sucSub ?? 'Votre espace professionnel est prêt.';
+    return this.cfg?.sucSub ?? 'Your professional workspace is ready.';
   }
   get sucF1(): string {
-    return this.cfg?.f1 ?? 'Tableau de bord';
+    return this.cfg?.f1 ?? 'Dashboard';
   }
   get sucF2(): string {
-    return this.cfg?.f2 ?? 'Dossiers assignés';
+    return this.cfg?.f2 ?? 'Assigned files';
   }
   get sucF3(): string {
-    return this.cfg?.f3 ?? 'Notifications temps réel';
+    return this.cfg?.f3 ?? 'Real-time notifications';
   }
   get sucCta(): string {
-    return this.cfg?.cta ?? 'Accéder à mon espace';
+    return this.cfg?.cta ?? 'Access my workspace';
   }
   get sucDotColor(): string {
     return this.cfg?.color ?? '#1F6FEA';
@@ -261,7 +304,8 @@ export class LoginComponent {
     this.currentView = 'login';
   }
   goBack(): void {
-    this.currentView = 'role-select';
+    // In unified auth flow we don't show role selection again.
+    this.currentView = 'login';
     this.clearErrors();
   }
   togglePw(): void {
@@ -272,10 +316,36 @@ export class LoginComponent {
     this.pwError = false;
     this.alertVisible = false;
   }
+
+  private navigateByRole(role?: string | null): void {
+    const r = role?.toLowerCase();
+    const dest =
+      r === 'admin'
+        ? '/admin'
+        : r === 'agent'
+          ? '/agent'
+          : r === 'insurer'
+            ? '/insurer'
+            : r === 'seller'
+              ? '/seller'
+              : r === 'client'
+                ? '/client'
+                : r
+                  ? '/' + r
+                  : '/';
+    this.router.navigate([dest]);
+  }
+
+  demoLogin(role: string): void {
+    const account = this.getDemoAccount(role);
+    if (!account) return;
+    this.email = account.email;
+    this.password = account.password;
+    this.handleLogin();
+  }
   showForgot(): void {
-    this.alertType = 'ok';
-    this.alertText = 'Un lien de réinitialisation sera envoyé à votre e-mail professionnel.';
-    this.alertVisible = true;
+    // Real flow is handled by the dedicated reset page.
+    this.router.navigate(['/forgot-password']);
   }
 
   onOtpInput(index: number, event: any): void {
@@ -333,7 +403,7 @@ export class LoginComponent {
           ? '/seller'
           : this.currentRole === 'insurer'
             ? '/insurer'
-            : '/backoffice';
+            : '/admin';
     this.router.navigate([dest]);
   }
   ngOnDestroy(): void {
@@ -357,29 +427,7 @@ export class LoginComponent {
     this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: (res) => {
         this.loginLoading = false;
-        const actualRole = res.role?.toLowerCase();
-        const selectedRole = this.currentRole?.toLowerCase();
-        if (actualRole !== selectedRole) {
-          // Clear session without redirecting
-          localStorage.removeItem('finix_access_token');
-          localStorage.removeItem('finix_role');
-          localStorage.removeItem('currentUser');
-          const roleLabels: Record<string, string> = {
-            admin: 'Administrateur', agent: 'Agent IMF', insurer: 'Assureur', client: 'Client', seller: 'Vendeur'
-          };
-          const actualLabel = roleLabels[actualRole || ''] || actualRole;
-          const selectedLabel = roleLabels[selectedRole || ''] || selectedRole;
-          this.alertType = 'err';
-          this.alertText = `Connexion non autorisée. Vous avez un compte "${actualLabel}" mais vous essayez de vous connecter en tant que "${selectedLabel}". Veuillez choisir le profil correspondant à votre compte.`;
-          this.alertVisible = true;
-          this.cdr.detectChanges();
-          return;
-        }
-        if (this.currentRole === 'admin') {
-          this.router.navigate(['/backoffice']);
-        } else {
-          this.router.navigate(['/' + this.currentRole]);
-        }
+        this.navigateByRole(res.role);
       },
       error: (err: Error) => {
         this.loginLoading = false;

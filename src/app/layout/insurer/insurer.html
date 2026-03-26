@@ -42,16 +42,16 @@
 
 <!-- ═══════════ NAVBAR ═══════════ -->
 <nav class="in-nav">
-  <button class="in-nav-tab" [class.active]="activeSection === 'dashboard'" (click)="activeSection = 'dashboard'">
+  <button class="in-nav-tab" [class.active]="activeSection === 'dashboard'" (click)="switchSection('dashboard')">
     📊 Tableau de bord
   </button>
-  <button class="in-nav-tab" [class.active]="activeSection === 'offers'" (click)="activeSection = 'offers'">
+  <button class="in-nav-tab" [class.active]="activeSection === 'offers'" (click)="switchSection('offers')">
     📋 Offres <span class="in-nav-badge">{{ offerCounts.total }}</span>
   </button>
-  <button class="in-nav-tab" [class.active]="activeSection === 'events'" (click)="activeSection = 'events'">
+  <button class="in-nav-tab" [class.active]="activeSection === 'events'" (click)="switchSection('events')">
     ⚡ Événements <span class="in-nav-badge" [class.in-warn]="eventCounts.urgent > 0">{{ eventCounts.total }}</span>
   </button>
-  <button class="in-nav-tab" [class.active]="activeSection === 'catalogs'" (click)="activeSection = 'catalogs'">
+  <button class="in-nav-tab" [class.active]="activeSection === 'catalogs'" (click)="switchSection('catalogs')">
     📚 Catalogues <span class="in-nav-badge">{{ catalogs.length }}</span>
   </button>
   <div class="in-nav-actions">
@@ -87,17 +87,17 @@
       </div>
     </div>
     <div class="in-quick-actions">
-      <button class="in-qa-card" (click)="activeSection = 'events'; openAddEventModal()">
+      <button class="in-qa-card" (click)="switchSection('events'); openAddEventModal()">
         <div class="in-qa-icon">⚡</div>
         <div class="in-qa-label">Ajouter un événement</div>
         <div class="in-qa-sub">Déclarer un sinistre, renouvellement...</div>
       </button>
-      <button class="in-qa-card" (click)="activeSection = 'offers'; openAddOfferModal()">
+      <button class="in-qa-card" (click)="switchSection('offers'); openAddOfferModal()">
         <div class="in-qa-icon">📋</div>
         <div class="in-qa-label">Créer une offre</div>
         <div class="in-qa-sub">Nouvelle offre d'assurance</div>
       </button>
-      <button class="in-qa-card" (click)="activeSection = 'catalogs'; openAddCatalogModal()">
+      <button class="in-qa-card" (click)="switchSection('catalogs'); openAddCatalogModal()">
         <div class="in-qa-icon">📚</div>
         <div class="in-qa-label">Nouveau catalogue</div>
         <div class="in-qa-sub">Organiser vos produits</div>
@@ -110,7 +110,7 @@
         <div class="in-section-title">Événements récents</div>
         <div class="in-section-sub">{{ eventCounts.urgent }} urgent(s) · {{ eventCounts.en_cours }} en cours</div>
       </div>
-      <button class="in-btn-link" (click)="activeSection = 'events'">Voir tout →</button>
+      <button class="in-btn-link" (click)="switchSection('events')">Voir tout →</button>
     </div>
     <div class="in-events-list">
       <div class="in-event-row" *ngFor="let e of events | slice:0:4">

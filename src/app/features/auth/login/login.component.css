@@ -144,6 +144,15 @@
 .finix-login .fl-trust{display:flex;align-items:center;justify-content:center;gap:2rem;padding-top:.85rem;border-top:1px solid #EEF2F8;}
 .finix-login .fl-trust-item{display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:#8FA3BC;font-weight:500;}
 
+/* ── DEMO LOGIN ── */
+.finix-login .fl-demo{margin-top:1rem;padding:.9rem 1rem;border:1px solid rgba(31,111,234,.18);background:rgba(234,242,255,.55);border-radius:12px;}
+.finix-login .fl-demo-title{font-size:.88rem;font-weight:800;color:#2E3A4A;margin-bottom:.35rem;}
+.finix-login .fl-demo-note{font-size:.78rem;color:#5E7A96;line-height:1.35;margin-bottom:.65rem;}
+.finix-login .fl-demo-buttons{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;}
+.finix-login .fl-demo-btn{padding:.55rem .9rem;border-radius:999px;border:1px solid rgba(31,111,234,.25);background:#fff;color:#1F6FEA;font-weight:800;font-size:.85rem;cursor:pointer;transition:all .18s cubic-bezier(.4,0,.2,1);}
+.finix-login .fl-demo-btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(31,111,234,.12);background:#F3F7FF;}
+.finix-login .fl-demo-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none;}
+
 /* ── OTP ── */
 .finix-login .fl-otp-top{text-align:center;margin-bottom:2.5rem;}
 .finix-login .fl-otp-icon{width:84px;height:84px;background:#EAF2FF;border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.75rem;animation:flPopIn .4s cubic-bezier(.34,1.56,.64,1) both;}

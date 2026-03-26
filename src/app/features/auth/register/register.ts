@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth.service';
 
@@ -20,8 +20,8 @@ interface RegisterRoleOption {
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
-export class Register {
-  currentStep = 1;
+export class Register implements OnDestroy {
+  currentStep = 1; // 1..3: form steps, 4: OTP verification
   selectedRole = '';
 
   // Step 1: Personal info (static placeholders – form state can stay for future wiring)
@@ -125,7 +125,37 @@ export class Register {
   isLoading = false;
   registerError = '';
 
+  // OTP verification state (used for CLIENT and SELLER only)
+  pendingEmail = '';
+  otpDigits: string[] = ['', '', '', '', '', ''];
+  otpCountdown = '05:00';
+  otpResendDisabled = true;
+  private otpTimer: any = null;
+
   constructor(private router: Router, private authService: AuthService) {}
+
+  ngOnDestroy(): void {
+    if (this.otpTimer) clearInterval(this.otpTimer);
+  }
+
+  private redirectByRole(role?: string | null): void {
+    const r = role?.toLowerCase();
+    const dest =
+      r === 'admin'
+        ? '/admin'
+        : r === 'agent'
+          ? '/agent'
+          : r === 'insurer'
+            ? '/insurer'
+            : r === 'seller'
+              ? '/seller'
+              : r === 'client'
+                ? '/client'
+                : r
+                  ? '/' + r
+                  : '/client';
+    this.router.navigate([dest]);
+  }
 
   nextStep(): void {
     if (this.currentStep < 3) this.currentStep++;
@@ -162,20 +192,92 @@ export class Register {
       insurerName: this.insurerName || undefined,
       insurerEmail: this.insurerEmail || undefined,
     }).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.isLoading = false;
-        const role = res.role;
-        const dest = role === 'agent' ? '/agent'
-          : role === 'seller' ? '/seller'
-          : role === 'insurer' ? '/insurer'
-          : role === 'admin' ? '/backoffice'
-          : '/client';
-        this.router.navigate([dest]);
+
+        // Backend returns OTP only for CLIENT and SELLER roles.
+        if (res?.otpRequired) {
+          this.pendingEmail = res.email || this.email;
+          this.otpDigits = ['', '', '', '', '', ''];
+          this.currentStep = 4;
+          this.registerError = '';
+          this.startOtpTimer();
+          return;
+        }
+
+        // Full registration (no OTP) returns AuthResponse with role.
+        this.redirectByRole(res?.role);
       },
       error: (err: Error) => {
         this.isLoading = false;
         this.registerError = err.message;
       },
     });
+  }
+
+  private startOtpTimer(): void {
+    const totalSeconds = 5 * 60;
+    let s = totalSeconds;
+    this.otpResendDisabled = true;
+
+    if (this.otpTimer) clearInterval(this.otpTimer);
+    this.otpTimer = setInterval(() => {
+      s--;
+      const mm = String(Math.floor(s / 60)).padStart(2, '0');
+      const ss = String(s % 60).padStart(2, '0');
+      this.otpCountdown = `${mm}:${ss}`;
+      if (s <= 0) {
+        clearInterval(this.otpTimer);
+        this.otpTimer = null;
+        this.otpCountdown = '00:00';
+        this.otpResendDisabled = false;
+      }
+    }, 1000);
+  }
+
+  get otpComplete(): boolean {
+    return this.otpDigits.every((d) => d.length === 1);
+  }
+
+  verifyOtp(): void {
+    if (!this.otpComplete || this.isLoading) return;
+    this.isLoading = true;
+    this.registerError = '';
+
+    const code = this.otpDigits.join('');
+    this.authService.verifyEmail(this.pendingEmail, code).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        if (this.otpTimer) clearInterval(this.otpTimer);
+        this.redirectByRole((res as any)?.role);
+      },
+      error: (err: Error) => {
+        this.isLoading = false;
+        this.registerError = err.message;
+      },
+    });
+  }
+
+  resendOtp(): void {
+    if (this.otpResendDisabled || !this.pendingEmail || this.isLoading) return;
+    this.isLoading = true;
+    this.registerError = '';
+
+    this.authService.resendCode(this.pendingEmail).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.otpDigits = ['', '', '', '', '', ''];
+        this.startOtpTimer();
+      },
+      error: (err: Error) => {
+        this.isLoading = false;
+        this.registerError = err.message;
+      },
+    });
+  }
+
+  backToRegisterFromOtp(): void {
+    this.currentStep = 3;
+    this.registerError = '';
   }
 }

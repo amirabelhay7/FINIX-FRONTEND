@@ -13,15 +13,15 @@ export class UnauthorizedComponent {
   roleLabel = '';
 
   private roleLabels: Record<string, string> = {
-    admin: 'Administrateur',
-    agent: 'Agent IMF',
-    insurer: 'Assureur',
+    admin: 'Admin',
+    agent: 'IMF Agent',
+    insurer: 'Insurer',
     client: 'Client',
-    seller: 'Vendeur',
+    seller: 'Seller',
   };
 
   private roleRoutes: Record<string, string> = {
-    admin: '/backoffice',
+    admin: '/admin',
     agent: '/agent',
     insurer: '/insurer',
     client: '/client',

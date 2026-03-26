@@ -1,5 +1,7 @@
 import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
+import { ThemeService } from '../../core/services/theme/theme.service';
+import { AuthService } from '../../services/auth/auth.service';
 
 interface Vehicle {
   id: number;
@@ -54,12 +56,15 @@ export class SellerLayout implements OnInit, OnDestroy {
 
   newVehicle = { brand: '', model: '', year: 2024, price: 0, km: 0, fuel: 'Essence', transmission: 'Manuelle', color: '', description: '' };
 
-  constructor(private router: Router, private renderer: Renderer2) {}
+  constructor(
+    private router: Router,
+    private renderer: Renderer2,
+    private themeService: ThemeService,
+    private authService: AuthService,
+  ) {}
 
   ngOnInit(): void {
-    const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
-    this.currentTheme = saved || 'dark';
-    this.applyTheme();
+    this.currentTheme = this.themeService.initTheme(this.currentTheme);
     this.loadUser();
   }
 
@@ -82,13 +87,7 @@ export class SellerLayout implements OnInit, OnDestroy {
   }
 
   toggleTheme(): void {
-    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
-    localStorage.setItem('finix_theme', this.currentTheme);
-    this.applyTheme();
-  }
-
-  private applyTheme(): void {
-    this.renderer.setAttribute(document.documentElement, 'data-theme', this.currentTheme);
+    this.currentTheme = this.themeService.toggleTheme(this.currentTheme);
   }
 
   get filteredVehicles(): Vehicle[] {
@@ -123,9 +122,7 @@ export class SellerLayout implements OnInit, OnDestroy {
   closeAddModal(): void { this.showAddModal = false; }
 
   logout(): void {
-    localStorage.removeItem('finix_access_token');
-    localStorage.removeItem('currentUser');
     this.showUserDropdown = false;
-    this.router.navigate(['/login-client']);
+    this.authService.logout();
   }
 }
