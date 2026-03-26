@@ -12,7 +12,8 @@ const routes: Routes = [
   { path: 'clients', component: Clients },
   { path: 'clients/:id', component: ClientDetail },
   { path: 'top-up', component: TopUp },
-  { path: 'loan-verification', component: LoanVerification }
+  { path: 'loan-verification', component: LoanVerification },
+  { path: '**', redirectTo: 'dashboard' }
 ];
 
 @NgModule({

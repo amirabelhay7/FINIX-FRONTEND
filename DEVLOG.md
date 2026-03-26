@@ -53,4 +53,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Refactored `/insurer` routing to use nested child routes under an `InsurerShell`, replacing the old `:section` param route with canonical URLs like `/insurer/dashboard` for scalability.
 - Cleanup: removed legacy seller URL aliases and dropped unused `AgentLayout` declarations/imports now that `/agent` uses the nested shell + feature module structure.
 - Cleanup: made legacy `AgentLayout` standalone with proper `NgClass`/`NgFor`/`NgIf` imports so it no longer breaks builds even though it’s no longer used by routing.
+- Hardened agent nested routing by adding a wildcard fallback in `AgentRoutingModule` so unknown `/agent/*` paths redirect to `/agent/dashboard`.
 
