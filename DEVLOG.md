@@ -45,4 +45,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Routed `/admin/credits` to the dedicated `CreditCenterModule` to extract credit center workflows into a nested admin feature module.
 - Routed `/admin/rapports` to the dedicated `SteeringAdminModule` to extract reporting/steering views into a nested admin feature module.
 - Routed `/admin/notifications` to the dedicated `MarketingAdminModule` to start modularizing alerts/notifications into a nested admin feature module.
+- Extracted the admin clients page into a dedicated `AdminClients` component and routed `/admin/clients` to it, reducing reliance on the `BackofficeComponent` mega-template.
 

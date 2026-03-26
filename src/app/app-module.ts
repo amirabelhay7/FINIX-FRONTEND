@@ -13,6 +13,7 @@ import { SidebarComponent } from './layout/backoffice/components/sidebar/sidebar
 import { TopbarComponent } from './layout/backoffice/components/topbar/topbar.component';
 import { BackofficeComponent } from './layout/backoffice/backoffice.component';
 import { AdminShellComponent } from './layout/admin-shell/admin-shell.component';
+import { AdminClients } from './features/admin/clients/admin-clients';
 import { authInterceptor } from './services/auth/auth.interceptor';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 
@@ -23,6 +24,7 @@ import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized
     SellerLayout,
     InsurerLayout,
     AdminShellComponent,
+    AdminClients,
     SidebarComponent,
     BackofficeComponent,
     TopbarComponent,

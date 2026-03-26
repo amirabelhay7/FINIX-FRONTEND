@@ -1,0 +1,58 @@
+<div class="ph s1">
+  <div>
+    <div class="ph-eyebrow">Client management</div>
+    <div class="ph-title">Client database</div>
+    <div class="ph-desc">{{ clients.length }} client(s) registered</div>
+  </div>
+</div>
+
+<div class="kpi-row s2">
+  <div class="kpi" style="--kc: var(--blue)">
+    <div class="kpi-top">
+      <div class="kpi-ico" style="background: rgba(59, 130, 246, 0.12)">👥</div>
+    </div>
+    <div class="kpi-val">{{ clients.length }}</div>
+    <div class="kpi-lbl">Total clients</div>
+  </div>
+</div>
+
+<div class="panel s4">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot"></span>Client list</div>
+    <span style="font-size: 0.75rem; color: var(--g400)">{{ clients.length }} results</span>
+  </div>
+  <div class="tbl-wrap">
+    <div *ngIf="clientsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</div>
+    <div *ngIf="!clientsLoading && clients.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">No clients found.</div>
+    <table *ngIf="!clientsLoading && clients.length > 0">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Email</th>
+          <th>CIN</th>
+          <th>Phone</th>
+          <th>City</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of clients">
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.625rem">
+              <div class="sb-avatar" style="width:30px;height:30px;font-size:.65rem">{{ c.initials }}</div>
+              <div class="td-primary">{{ c.name }}</div>
+            </div>
+          </td>
+          <td style="font-size:.775rem">{{ c.email }}</td>
+          <td style="font-size:.775rem">{{ c.cin }}</td>
+          <td style="font-size:.775rem">{{ c.phone }}</td>
+          <td style="font-size:.775rem">{{ c.city }}</td>
+          <td>
+            <span class="badge" [ngClass]="c.statusClass">{{ c.status }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+

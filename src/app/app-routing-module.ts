@@ -6,6 +6,7 @@ import { AgentLayout } from './layout/agent/agent';
 import { SellerLayout } from './layout/seller/seller';
 import { InsurerLayout } from './layout/insurer/insurer';
 import { AdminShellComponent } from './layout/admin-shell/admin-shell.component';
+import { AdminClients } from './features/admin/clients/admin-clients';
 import { roleGuard } from './core/guards/auth-guard';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 
@@ -42,7 +43,7 @@ const routes: Routes = [
         path: 'notifications',
         loadChildren: () => import('./features/admin/marketing-admin/marketing-admin-module').then((m) => m.MarketingAdminModule),
       },
-      { path: 'clients', component: BackofficeComponent },
+      { path: 'clients', component: AdminClients },
       {
         path: 'credits',
         loadChildren: () => import('./features/admin/credit-center/credit-center-module').then((m) => m.CreditCenterModule),
