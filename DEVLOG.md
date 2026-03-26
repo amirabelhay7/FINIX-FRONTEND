@@ -5,4 +5,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 ## 2026-03-26
 - Enabled Tailwind processing (added `postcss.config.js` + Tailwind directives in `src/styles.css`) so seller module utility-class templates render correctly instead of appearing unstyled.
 - Fixed `client` routing to properly lazy-load under the `Frontoffice` shell (avoid invalid `component` + `loadChildren` on the same route).
+- Added `I18N_PLAN.md` to translate French → English systematically in small build+commit batches.
 
