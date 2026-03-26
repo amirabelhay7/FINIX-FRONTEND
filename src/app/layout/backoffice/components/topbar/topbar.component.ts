@@ -35,12 +35,12 @@ export class TopbarComponent {
   pageMap: any = {
     dashboard:      { title: "Dashboard", breadcrumb: "Dashboard" },
     clients:        { title: "Clients", breadcrumb: "Clients" },
-    credits:        { title: "Credits & Dossiers", breadcrumb: "Credits" },
+    credits:        { title: "Credits & Files", breadcrumb: "Credits" },
     repayments:     { title: "Repayments", breadcrumb: "Repayments" },
     vehicles:       { title: "Vehicles", breadcrumb: "Vehicles" },
     insurance:      { title: "Insurance", breadcrumb: "Insurance" },
     risk:           { title: "Risk & Scoring", breadcrumb: "Risk" },
-    rapports:       { title: "Rapports", breadcrumb: "Rapports" },
+    rapports:       { title: "Reports", breadcrumb: "Reports" },
     notifications:  { title: "Alerts & Notifications", breadcrumb: "Notifications" },
     settings:       { title: "Settings", breadcrumb: "Settings" }
   };
