@@ -7,6 +7,7 @@ import { SellerLayout } from './layout/seller/seller';
 import { InsurerLayout } from './layout/insurer/insurer';
 import { AdminShellComponent } from './layout/admin-shell/admin-shell.component';
 import { AgentShell } from './layout/agent-shell/agent-shell';
+import { InsurerShell } from './layout/insurer-shell/insurer-shell';
 import { AdminClients } from './features/admin/clients/admin-clients';
 import { AdminSettings } from './features/admin/settings/admin-settings';
 import { roleGuard } from './core/guards/auth-guard';
@@ -91,13 +92,16 @@ const routes: Routes = [
   },
   {
     path: 'insurer',
-    redirectTo: 'insurer/dashboard',
-    pathMatch: 'full',
-  },
-  {
-    path: 'insurer/:section',
-    component: InsurerLayout,
+    component: InsurerShell,
     canActivate: [roleGuard('insurer')],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: InsurerLayout },
+      { path: 'offers', component: InsurerLayout },
+      { path: 'events', component: InsurerLayout },
+      { path: 'catalogs', component: InsurerLayout },
+      { path: '**', redirectTo: 'dashboard' },
+    ],
   },
   {
     path: 'client',

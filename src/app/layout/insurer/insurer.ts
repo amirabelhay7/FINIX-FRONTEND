@@ -103,12 +103,9 @@ export class InsurerLayout implements OnInit, OnDestroy {
     this.currentTheme = this.themeService.initTheme(this.currentTheme);
     this.loadUser();
 
-    // Drive UI from URL: /insurer/:section
-    this.route.paramMap.subscribe((pm) => {
-      const section = pm.get('section') as InsurerLayout['activeSection'] | null;
-      if (section) this.activeSection = section;
-      else this.activeSection = 'dashboard';
-    });
+    // Drive UI from URL: /insurer/<child>
+    const path = this.route.snapshot.routeConfig?.path as InsurerLayout['activeSection'] | undefined;
+    this.activeSection = path && path.length > 0 ? path : 'dashboard';
   }
 
   private loadUser(): void {

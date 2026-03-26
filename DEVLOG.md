@@ -50,4 +50,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Updated `BackofficeComponent` to behave as a routed admin dashboard page (no duplicated sidebar/topbar, no theme ownership) now that layout is handled by `AdminShellComponent`.
 - Converted the admin sidebar navigation to router-native links (`routerLink`/`routerLinkActive`) so navigation state is URL-driven and deep-link friendly.
 - Refactored `/agent` routing to use an `AgentShell` + nested child routes (router-outlet) loading `AgentModule`, aligning agent with the same scalable shell pattern used for client/seller/admin.
+- Refactored `/insurer` routing to use nested child routes under an `InsurerShell`, replacing the old `:section` param route with canonical URLs like `/insurer/dashboard` for scalability.
 
