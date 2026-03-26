@@ -1003,13 +1003,13 @@
     <div class="page" [class.active]="selectedPage === 'insurance'" id="page-assurance">
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Gestion des assurances</div>
-          <div class="ph-title">Contrats d'assurance</div>
-          <div class="ph-desc">1 890 contrats actifs · 48 à renouveler · 2 sinistres en cours</div>
+          <div class="ph-eyebrow">Insurance management</div>
+          <div class="ph-title">Insurance contracts</div>
+          <div class="ph-desc">1,890 active contracts · 48 to renew · 2 claims in progress</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-outline btn-sm">Alertes renouvellement</button>
-          <button class="btn btn-primary btn-sm">+ Nouveau contrat</button>
+          <button class="btn btn-outline btn-sm">Renewal alerts</button>
+          <button class="btn btn-primary btn-sm">+ New contract</button>
         </div>
       </div>
 
@@ -1031,11 +1031,11 @@
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
-            <div class="kpi-trend success">Actifs</div>
+            <div class="kpi-trend success">Active</div>
           </div>
           <div class="kpi-val">1 890</div>
-          <div class="kpi-lbl">Contrats actifs</div>
-          <div class="kpi-foot">Taux couverture : <b>88%</b></div>
+          <div class="kpi-lbl">Active contracts</div>
+          <div class="kpi-foot">Coverage rate: <b>88%</b></div>
         </div>
         <div class="kpi" style="--kc: var(--warning)">
           <div class="kpi-top">
@@ -1057,8 +1057,8 @@
             <div class="kpi-trend warning">Urgent</div>
           </div>
           <div class="kpi-val">48</div>
-          <div class="kpi-lbl">À renouveler (30j)</div>
-          <div class="kpi-foot">Dont expirés : <b>3</b></div>
+          <div class="kpi-lbl">To renew (30d)</div>
+          <div class="kpi-foot">Expired: <b>3</b></div>
         </div>
         <div class="kpi" style="--kc: var(--danger)">
           <div class="kpi-top">
@@ -1080,11 +1080,11 @@
                 <line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
             </div>
-            <div class="kpi-trend danger">En cours</div>
+            <div class="kpi-trend danger">In progress</div>
           </div>
           <div class="kpi-val">2</div>
-          <div class="kpi-lbl">Sinistres en cours</div>
-          <div class="kpi-foot">Montant estimé : <b>12 400 TND</b></div>
+          <div class="kpi-lbl">Claims in progress</div>
+          <div class="kpi-foot">Estimated amount: <b>12,400 TND</b></div>
         </div>
         <div class="kpi" style="--kc: var(--blue)">
           <div class="kpi-top">
@@ -1108,8 +1108,8 @@
           <div class="kpi-val" style="font-size: 1.5rem">
             TND <span style="font-size: 2rem">2.1M</span>
           </div>
-          <div class="kpi-lbl">Primes totales</div>
-          <div class="kpi-foot">Ce mois : <b>198 400 TND</b></div>
+          <div class="kpi-lbl">Total premiums</div>
+          <div class="kpi-foot">This month: <b>198,400 TND</b></div>
         </div>
       </div>
 
@@ -1120,22 +1120,22 @@
               class="ptdot"
               style="background: var(--warning); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12)"
             ></span>
-            Renouvellements urgents — 30 prochains jours
+            Urgent renewals — next 30 days
           </div>
-          <span class="badge b-review">48 contrats</span>
+          <span class="badge b-review">48 contracts</span>
         </div>
         <div class="tbl-wrap">
           <table>
             <thead>
               <tr>
-                <th>N° Contrat</th>
+                <th>Contract #</th>
                 <th>Client</th>
-                <th>Véhicule</th>
-                <th>Assureur</th>
+                <th>Vehicle</th>
+                <th>Insurer</th>
                 <th>Type</th>
                 <th>Prime</th>
                 <th>Expiration</th>
-                <th>Délai</th>
+                <th>Time left</th>
                 <th>Action</th>
               </tr>
             </thead>
