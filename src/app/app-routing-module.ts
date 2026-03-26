@@ -41,7 +41,10 @@ const routes: Routes = [
       { path: 'notifications', component: BackofficeComponent },
       { path: 'clients', component: BackofficeComponent },
       { path: 'credits', component: BackofficeComponent },
-      { path: 'repayments', component: BackofficeComponent },
+      {
+        path: 'repayments',
+        loadChildren: () => import('./features/admin/repayments-admin/repayments-admin-module').then((m) => m.RepaymentsAdminModule),
+      },
       { path: 'vehicles', component: BackofficeComponent },
       { path: 'insurance', component: BackofficeComponent },
       { path: 'risk', component: BackofficeComponent },

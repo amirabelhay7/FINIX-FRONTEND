@@ -38,4 +38,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Translated last French admin repayments section labels ("Remboursements", "Statut") to English to finish the UI text migration.
 - Refactored `/admin` routing to use an `AdminShellComponent` + nested child routes (router-outlet) while keeping existing admin pages working, improving scalability for future features.
 - Routed `/admin/users` to the dedicated `UsersModule` (nested lazy route) to start extracting admin pages into feature modules for better long-term maintainability.
+- Routed `/admin/repayments` to the dedicated `RepaymentsAdminModule` to continue splitting admin sections into proper nested feature routes.
 
