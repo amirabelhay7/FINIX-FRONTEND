@@ -30,4 +30,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Translated Client Vehicles page labels, vehicle cards, and catalog preview actions to English to remove French from vehicles UI.
 - Translated Client Insurance page contracts + claims table labels to English to remove remaining French from insurance UI.
 - Translated Client Wallet, Score, and Documents pages to English to remove remaining French from client feature pages.
+- Cleaned up remaining French comments in Agent layout template to keep frontend fully English.
 
