@@ -14,4 +14,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Translated Admin overview (dashboard) labels and demo data to English so the main admin landing page is fully English.
 - Translated Admin Clients page labels, loading/empty states, and table headers to English.
 - Translated Admin Credits/Files page labels and analysis table headers/actions to English.
+- Translated Admin Repayments page labels, filters, payment mode/status labels, and actions to English.
 
