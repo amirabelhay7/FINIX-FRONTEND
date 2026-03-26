@@ -49,4 +49,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Extracted the admin settings page into a dedicated `AdminSettings` component and routed `/admin/settings` to it, continuing the breakup of `BackofficeComponent`.
 - Updated `BackofficeComponent` to behave as a routed admin dashboard page (no duplicated sidebar/topbar, no theme ownership) now that layout is handled by `AdminShellComponent`.
 - Converted the admin sidebar navigation to router-native links (`routerLink`/`routerLinkActive`) so navigation state is URL-driven and deep-link friendly.
+- Refactored `/agent` routing to use an `AgentShell` + nested child routes (router-outlet) loading `AgentModule`, aligning agent with the same scalable shell pattern used for client/seller/admin.
 

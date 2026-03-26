@@ -6,6 +6,7 @@ import { AgentLayout } from './layout/agent/agent';
 import { SellerLayout } from './layout/seller/seller';
 import { InsurerLayout } from './layout/insurer/insurer';
 import { AdminShellComponent } from './layout/admin-shell/admin-shell.component';
+import { AgentShell } from './layout/agent-shell/agent-shell';
 import { AdminClients } from './features/admin/clients/admin-clients';
 import { AdminSettings } from './features/admin/settings/admin-settings';
 import { roleGuard } from './core/guards/auth-guard';
@@ -79,13 +80,14 @@ const routes: Routes = [
   },
   {
     path: 'agent',
-    redirectTo: 'agent/dashboard',
-    pathMatch: 'full',
-  },
-  {
-    path: 'agent/:page',
-    component: AgentLayout,
+    component: AgentShell,
     canActivate: [roleGuard('agent')],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('./features/agent/agent-module').then((m) => m.AgentModule),
+      },
+    ],
   },
   {
     path: 'insurer',

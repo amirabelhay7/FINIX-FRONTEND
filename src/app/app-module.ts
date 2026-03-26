@@ -9,6 +9,7 @@ import { SharedModule } from './shared/shared-module';
 import { AgentLayout } from './layout/agent/agent';
 import { SellerLayout } from './layout/seller/seller';
 import { InsurerLayout } from './layout/insurer/insurer';
+import { AgentShell } from './layout/agent-shell/agent-shell';
 import { SidebarComponent } from './layout/backoffice/components/sidebar/sidebar';
 import { TopbarComponent } from './layout/backoffice/components/topbar/topbar.component';
 import { BackofficeComponent } from './layout/backoffice/backoffice.component';
@@ -22,6 +23,7 @@ import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized
   declarations: [
     App,
     AgentLayout,
+    AgentShell,
     SellerLayout,
     InsurerLayout,
     AdminShellComponent,

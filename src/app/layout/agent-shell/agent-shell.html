@@ -1,0 +1,35 @@
+<div class="min-h-screen bg-gray-50">
+  <header class="bg-[#0D1B3E] text-white">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="/assets/logo.png" alt="FIN'IX Logo" class="w-7 h-7" />
+        <div class="font-extrabold tracking-tight">FIN<span class="opacity-80">'IX</span></div>
+        <div class="text-xs font-semibold opacity-80">Agent</div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/15 text-sm font-bold" (click)="toggleTheme()">
+          {{ currentTheme === 'dark' ? 'Light' : 'Dark' }}
+        </button>
+        <button class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/15 text-sm font-bold" (click)="logout()">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
+    <aside class="bg-white rounded-2xl border border-gray-100 shadow-sm p-3 h-fit">
+      <nav class="space-y-1">
+        <a routerLink="/agent/dashboard" routerLinkActive="bg-blue-50 text-[#135bec]" class="block px-3 py-2 rounded-xl font-bold text-sm text-gray-800 hover:bg-gray-50">Dashboard</a>
+        <a routerLink="/agent/clients" routerLinkActive="bg-blue-50 text-[#135bec]" class="block px-3 py-2 rounded-xl font-bold text-sm text-gray-800 hover:bg-gray-50">Clients</a>
+        <a routerLink="/agent/top-up" routerLinkActive="bg-blue-50 text-[#135bec]" class="block px-3 py-2 rounded-xl font-bold text-sm text-gray-800 hover:bg-gray-50">Top up</a>
+        <a routerLink="/agent/loan-verification" routerLinkActive="bg-blue-50 text-[#135bec]" class="block px-3 py-2 rounded-xl font-bold text-sm text-gray-800 hover:bg-gray-50">Loan verification</a>
+      </nav>
+    </aside>
+
+    <main>
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+
