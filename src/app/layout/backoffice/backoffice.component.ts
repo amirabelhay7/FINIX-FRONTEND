@@ -1,7 +1,6 @@
-import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { ThemeService } from '../../core/services/theme/theme.service';
 import { AuthService } from '../../services/auth/auth.service';
 
 interface PipelineCard {
@@ -26,12 +25,12 @@ interface PipelineColumn {
   styleUrl: './backoffice.component.css',
   encapsulation: ViewEncapsulation.None,
 })
-export class BackofficeComponent implements OnInit, OnDestroy {
+export class BackofficeComponent implements OnInit {
   selectedPage = 'dashboard';
   hover = false;
   showModal = false;
   decisionNote = '';
-  currentTheme: 'light' | 'dark' = 'light';
+  // Theme is handled by AdminShellComponent.
 
   /* ── Users management ── */
   private readonly API = 'http://localhost:8081/api';
@@ -55,18 +54,14 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private renderer: Renderer2,
     private router: Router,
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
-    private themeService: ThemeService,
     private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
-    this.currentTheme = this.themeService.initTheme(this.currentTheme);
-
     // Drive UI from URL: /admin/<child>
     this.route.url.subscribe((segments) => {
       const page = segments[0]?.path || 'dashboard';
@@ -79,14 +74,6 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         this.loadClients();
       }
     });
-  }
-
-  toggleTheme(): void {
-    this.currentTheme = this.themeService.toggleTheme(this.currentTheme);
-  }
-
-  ngOnDestroy(): void {
-    this.renderer.removeAttribute(document.documentElement, 'data-theme');
   }
 
   // Theme is applied by ThemeService.

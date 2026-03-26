@@ -1,14 +1,4 @@
-<app-sidebar (pageChanged)="onPageChange($event)"></app-sidebar>
-
-<div class="layout-wrapper">
-  <app-topbar
-    [currentPage]="selectedPage"
-    [currentTheme]="currentTheme"
-    (themeToggled)="toggleTheme()"
-    (loggedOut)="logout()"
-  ></app-topbar>
-
-  <main class="main">
+<!-- Note: layout (sidebar/topbar/main) is rendered by AdminShellComponent. -->
     <!-- ═══════════════════════════════════════════════════════
          OVERVIEW PAGE — only visible when selectedPage === 'dashboard'
          ═══════════════════════════════════════════════════════ -->
@@ -485,8 +475,9 @@
             </tbody>
           </table>
         </div>
-      </div> </ng-container
-    ><!-- /overview -->
+      </div>
+    </ng-container>
+    <!-- /overview -->
 
     <!-- ═══════════════════════════════════════════════════════
          PAGE : CLIENTS
@@ -1704,9 +1695,6 @@
       </div>
     </div>
     <!-- /modal -->
-
-  </main>
-</div>
 
 <!-- ═══════════════════════════════════════════════════════
      MODAL — ADD / EDIT USER (outside layout-wrapper to avoid grid/z-index issues)
