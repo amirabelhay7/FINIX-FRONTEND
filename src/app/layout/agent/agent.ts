@@ -52,7 +52,7 @@ export class AgentLayout implements OnInit, OnDestroy {
 
   get currentTime(): string {
     const now = new Date();
-    return now.toLocaleTimeString('fr-FR', {
+    return now.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
@@ -60,30 +60,30 @@ export class AgentLayout implements OnInit, OnDestroy {
   }
 
   navItems = [
-    { page: 'dashboard', label: "Vue d'ensemble", section: 'PRINCIPAL', icon: 'grid' },
-    { page: 'flux', label: 'Flux Capital', section: 'OPÉRATIONS', icon: 'trending-up', badge: '5' },
+    { page: 'dashboard', label: 'Overview', section: 'MAIN', icon: 'grid' },
+    { page: 'flux', label: 'Capital flow', section: 'OPERATIONS', icon: 'trending-up', badge: '5' },
     {
       page: 'dossiers',
-      label: 'Dossiers Crédit',
-      section: 'OPÉRATIONS',
+      label: 'Credit files',
+      section: 'OPERATIONS',
       icon: 'folder',
       badge: '12',
     },
-    { page: 'remboursements', label: 'Remboursements', section: 'OPÉRATIONS', icon: 'dollar' },
-    { page: 'clients', label: 'Clients', section: 'OPÉRATIONS', icon: 'users' },
-    { page: 'vehicules', label: 'Véhicules', section: 'OPÉRATIONS', icon: 'truck' },
-    { page: 'risque', label: 'Risque & Scoring', section: 'ANALYSE', icon: 'alert-triangle' },
-    { page: 'rapports', label: 'Rapports', section: 'ANALYSE', icon: 'file-text' },
-    { page: 'assurances', label: 'Assurances', section: 'ANALYSE', icon: 'shield' },
+    { page: 'remboursements', label: 'Repayments', section: 'OPERATIONS', icon: 'dollar' },
+    { page: 'clients', label: 'Clients', section: 'OPERATIONS', icon: 'users' },
+    { page: 'vehicules', label: 'Vehicles', section: 'OPERATIONS', icon: 'truck' },
+    { page: 'risque', label: 'Risk & Scoring', section: 'ANALYTICS', icon: 'alert-triangle' },
+    { page: 'rapports', label: 'Reports', section: 'ANALYTICS', icon: 'file-text' },
+    { page: 'assurances', label: 'Insurance', section: 'ANALYTICS', icon: 'shield' },
     {
       page: 'alertes',
-      label: 'Alertes',
-      section: 'SYSTÈME',
+      label: 'Alerts',
+      section: 'SYSTEM',
       icon: 'bell',
       badge: '3',
       badgeType: 'danger',
     },
-    { page: 'parametres', label: 'Paramètres', section: 'SYSTÈME', icon: 'settings' },
+    { page: 'parametres', label: 'Settings', section: 'SYSTEM', icon: 'settings' },
   ];
 
   get navSections(): string[] {
@@ -106,28 +106,28 @@ export class AgentLayout implements OnInit, OnDestroy {
       ref: '#CR-2025-844',
       client: 'S. Bouaziz',
       amount: '-32 000 TND',
-      type: 'CRÉDIT',
+      type: 'CREDIT',
       typeClass: 'credit',
     },
     {
       ref: '#VIR-0392',
       client: 'R. Khelifi',
       amount: '+750 TND',
-      type: 'REMB.',
+      type: 'REPAY',
       typeClass: 'remb',
     },
     {
       ref: '#CR-2025-841',
       client: 'K. Mansour',
       amount: '+4 800 TND',
-      type: 'REMB.',
+      type: 'REPAY',
       typeClass: 'remb',
     },
     {
       ref: '#CR-2025-842',
       client: 'L. Chaari',
       amount: '-85 000 TND',
-      type: 'CRÉDIT',
+      type: 'CREDIT',
       typeClass: 'credit',
     },
   ];
@@ -135,17 +135,17 @@ export class AgentLayout implements OnInit, OnDestroy {
   chartBars = [35, 42, 55, 48, 38, 52, 60, 45, 58, 72, 65, 85];
   chartMonths = [
     'Mar',
-    'Avr',
-    'Mai',
+    'Apr',
+    'May',
     'Jun',
     'Jul',
-    'Aoû',
+    'Aug',
     'Sep',
     'Oct',
     'Nov',
-    'Déc',
+    'Dec',
     'Jan',
-    'Fév',
+    'Feb',
   ];
 
   riskClients = [
