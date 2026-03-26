@@ -1179,9 +1179,9 @@
     <div class="page" [class.active]="selectedPage === 'risk'" id="page-risk">
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Analyse des risques</div>
-          <div class="ph-title">Risque & Score</div>
-          <div class="ph-desc">3 alertes critiques · Taux de défaut global 1.8%</div>
+          <div class="ph-eyebrow">Risk analysis</div>
+          <div class="ph-title">Risk & Score</div>
+          <div class="ph-desc">3 critical alerts · Overall default rate 1.8%</div>
         </div>
       </div>
 
@@ -1192,9 +1192,9 @@
               class="ptdot"
               style="background: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12)"
             ></span>
-            Alertes risque élevé
+            High-risk alerts
           </div>
-          <span class="badge b-danger">3 critiques</span>
+          <span class="badge b-danger">3 critical</span>
         </div>
         <div class="tbl-wrap">
           <table>
@@ -1202,8 +1202,8 @@
               <tr>
                 <th>Client</th>
                 <th>Score</th>
-                <th>Motif</th>
-                <th>Encours</th>
+                <th>Reason</th>
+                <th>Outstanding</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -1239,10 +1239,10 @@
         </div>
       </div>
 
-      <!-- Distribution des scores -->
+      <!-- Score distribution -->
       <div class="panel s3">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Distribution des scores</div>
+          <div class="panel-title"><span class="ptdot"></span>Score distribution</div>
         </div>
         <div class="panel-body">
           <div *ngFor="let s of scoreDistribution" class="score-bar-item">
@@ -1263,12 +1263,12 @@
     <div class="page" [class.active]="selectedPage === 'notifications'" id="page-alertes">
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Centre de notifications</div>
-          <div class="ph-title">Alertes & Notifs</div>
-          <div class="ph-desc">7 non lues · 3 critiques</div>
+          <div class="ph-eyebrow">Notification center</div>
+          <div class="ph-title">Alerts & Notifications</div>
+          <div class="ph-desc">7 unread · 3 critical</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-outline">Tout marquer lu</button>
+          <button class="btn btn-outline">Mark all as read</button>
         </div>
       </div>
 
@@ -1279,9 +1279,9 @@
               class="ptdot"
               style="background: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12)"
             ></span>
-            Alertes critiques
+            Critical alerts
           </div>
-          <span class="badge b-danger">3 non lues</span>
+          <span class="badge b-danger">3 unread</span>
         </div>
         <div class="notif-list">
           <div class="notif-item unread" *ngFor="let n of notificationsCritical">
@@ -1307,7 +1307,7 @@
 
       <div class="panel s3">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Activité récente</div>
+          <div class="panel-title"><span class="ptdot"></span>Recent activity</div>
         </div>
         <div class="notif-list">
           <div class="notif-item" *ngFor="let n of notificationsRecent">
@@ -1341,18 +1341,18 @@
     <div class="page" [class.active]="selectedPage === 'rapports'" id="page-rapports">
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Analyse & rapports</div>
-          <div class="ph-title">Rapports</div>
-          <div class="ph-desc">Générez et exportez vos rapports périodiques</div>
+          <div class="ph-eyebrow">Analytics & reports</div>
+          <div class="ph-title">Reports</div>
+          <div class="ph-desc">Generate and export your periodic reports</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-primary">+ Générer rapport</button>
+          <button class="btn btn-primary">+ Generate report</button>
         </div>
       </div>
 
       <div class="panel s2">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Rapports disponibles</div>
+          <div class="panel-title"><span class="ptdot"></span>Available reports</div>
         </div>
         <div style="display: flex; flex-direction: column; gap: 0">
           <div

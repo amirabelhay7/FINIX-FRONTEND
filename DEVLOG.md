@@ -17,4 +17,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Translated Admin Repayments page labels, filters, payment mode/status labels, and actions to English.
 - Translated Admin Vehicles page labels, search placeholder, and table headers/actions to English.
 - Translated Admin Insurance page labels, KPI captions, and renewal table headers to English.
+- Translated Admin Risk/Notifications/Reports page headings and key labels to English.
 
