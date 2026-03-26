@@ -1395,10 +1395,10 @@
         <div>
           <div class="ph-eyebrow">Système</div>
           <div class="ph-title">Users — Agents IMF & Assureurs</div>
-          <div class="ph-desc">Gérer les comptes et consulter l'historique des connexions</div>
+          <div class="ph-desc">Manage accounts and review login history</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-primary" *ngIf="usersTab === 'users'" (click)="openAddUser()">+ Ajouter un utilisateur</button>
+          <button class="btn btn-primary" *ngIf="usersTab === 'users'" (click)="openAddUser()">+ Add user</button>
         </div>
       </div>
 
@@ -1408,33 +1408,33 @@
           style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
           [style.color]="usersTab === 'users' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
           [style.border-bottom]="usersTab === 'users' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
-          Utilisateurs
+          Users
         </button>
         <button (click)="switchUsersTab('logs')"
           style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
           [style.color]="usersTab === 'logs' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
           [style.border-bottom]="usersTab === 'logs' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
-          Historique connexions
+          Login history
         </button>
       </div>
 
       <!-- Users table -->
       <div class="panel s2" *ngIf="usersTab === 'users'">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Liste des utilisateurs</div>
-          <div style="font-size:.75rem;color:var(--muted)">{{ usersList.length }} utilisateur(s)</div>
+          <div class="panel-title"><span class="ptdot"></span>User list</div>
+          <div style="font-size:.75rem;color:var(--muted)">{{ usersList.length }} user(s)</div>
         </div>
         <div class="tbl-wrap">
-          <div *ngIf="usersLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
-          <div *ngIf="!usersLoading && usersList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucun agent ou assureur trouvé.</div>
+          <div *ngIf="usersLoading" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</div>
+          <div *ngIf="!usersLoading && usersList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">No agents or insurers found.</div>
           <table *ngIf="!usersLoading && usersList.length > 0">
             <thead>
               <tr>
-                <th>Utilisateur</th>
+                <th>User</th>
                 <th>Email</th>
-                <th>Rôle</th>
-                <th>Téléphone</th>
-                <th>Ville</th>
+                <th>Role</th>
+                <th>Phone</th>
+                <th>City</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -1454,9 +1454,9 @@
                 <td style="font-size:.775rem">{{ user.city || '—' }}</td>
                 <td>
                   <div style="display:flex;gap:.35rem">
-                    <button class="btn btn-ghost btn-xs" (click)="openViewUser(user)">Voir</button>
-                    <button class="btn btn-ghost btn-xs" style="color:var(--blue)" (click)="openEditUser(user)">Modifier</button>
-                    <button class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteUser(user.id)">Supprimer</button>
+                    <button class="btn btn-ghost btn-xs" (click)="openViewUser(user)">View</button>
+                    <button class="btn btn-ghost btn-xs" style="color:var(--blue)" (click)="openEditUser(user)">Edit</button>
+                    <button class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteUser(user.id)">Delete</button>
                   </div>
                 </td>
               </tr>
@@ -1468,20 +1468,20 @@
       <!-- Logs table -->
       <div class="panel s2" *ngIf="usersTab === 'logs'">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Historique des connexions</div>
-          <div style="font-size:.75rem;color:var(--muted)">{{ logsList.length }} connexion(s)</div>
+          <div class="panel-title"><span class="ptdot"></span>Login history</div>
+          <div style="font-size:.75rem;color:var(--muted)">{{ logsList.length }} login(s)</div>
         </div>
         <div class="tbl-wrap">
-          <div *ngIf="logsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
-          <div *ngIf="!logsLoading && logsList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucune connexion enregistrée.</div>
+          <div *ngIf="logsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</div>
+          <div *ngIf="!logsLoading && logsList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">No logins recorded.</div>
           <table *ngIf="!logsLoading && logsList.length > 0">
             <thead>
               <tr>
-                <th>Utilisateur</th>
+                <th>User</th>
                 <th>Email</th>
-                <th>Rôle</th>
-                <th>Date & Heure</th>
-                <th>Adresse IP</th>
+                <th>Role</th>
+                <th>Date & Time</th>
+                <th>IP address</th>
                 <th>Action</th>
               </tr>
             </thead>
