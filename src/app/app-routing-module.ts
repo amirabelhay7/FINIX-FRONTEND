@@ -60,7 +60,10 @@ const routes: Routes = [
         path: 'risk',
         loadChildren: () => import('./features/admin/scoring-admin/scoring-admin-module').then((m) => m.ScoringAdminModule),
       },
-      { path: 'rapports', component: BackofficeComponent },
+      {
+        path: 'rapports',
+        loadChildren: () => import('./features/admin/steering-admin/steering-admin-module').then((m) => m.SteeringAdminModule),
+      },
       { path: 'settings', component: BackofficeComponent },
       {
         path: 'users',

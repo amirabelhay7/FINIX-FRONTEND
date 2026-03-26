@@ -43,4 +43,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Routed `/admin/insurance` to the dedicated `InsuranceDeskModule` to extract insurance management into a proper nested admin feature module.
 - Routed `/admin/risk` to the dedicated `ScoringAdminModule` to move risk/scoring into a dedicated nested admin feature module.
 - Routed `/admin/credits` to the dedicated `CreditCenterModule` to extract credit center workflows into a nested admin feature module.
+- Routed `/admin/rapports` to the dedicated `SteeringAdminModule` to extract reporting/steering views into a nested admin feature module.
 
