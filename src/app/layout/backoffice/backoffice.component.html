@@ -15,16 +15,16 @@
 
   <main class="main">
     <!-- ═══════════════════════════════════════════════════════
-         OVERVIEW PAGE — visible seulement si selectedPage === 'dashboard'
+         OVERVIEW PAGE — only visible when selectedPage === 'dashboard'
          ═══════════════════════════════════════════════════════ -->
     <ng-container *ngIf="selectedPage === 'dashboard'">
       <!-- ── HEADER ── -->
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">28 Février 2026 · Samedi</div>
-          <div class="ph-title">Vue d'ensemble</div>
+          <div class="ph-eyebrow">Feb 28, 2026 · Saturday</div>
+          <div class="ph-title">Overview</div>
           <div class="ph-desc">
-            1 248 clients actifs · 3 décisions en attente · Système opérationnel
+            1,248 active clients · 3 decisions pending · System operational
           </div>
         </div>
         <div class="ph-actions">
@@ -42,25 +42,25 @@
               <rect x="14" y="14" width="7" height="7" />
               <rect x="3" y="14" width="7" height="7" />
             </svg>
-            Export rapport
+            Export report
           </button>
-          <button class="btn btn-primary btn-sm">+ Nouveau dossier</button>
+          <button class="btn btn-primary btn-sm">+ New file</button>
         </div>
       </div>
 
-      <!-- ── ALERTE ACTION ── -->
+      <!-- ── ACTION NEEDED ── -->
       <div class="action-needed s1">
         <div>
-          <div class="an-title">3 dossiers nécessitent une décision immédiate</div>
+          <div class="an-title">3 files require an immediate decision</div>
           <div class="an-sub">
-            Dossiers #CR-2025-043, #CR-2025-051, #CR-2025-059 — En attente depuis plus de 48h
+            Files #CR-2025-043, #CR-2025-051, #CR-2025-059 — pending for more than 48h
           </div>
         </div>
         <div class="an-actions">
           <button class="btn btn-outline btn-sm" (click)="onPageChange('credits')">
-            Voir les dossiers
+            View files
           </button>
-          <button class="btn btn-primary btn-sm">Traiter maintenant</button>
+          <button class="btn btn-primary btn-sm">Process now</button>
         </div>
       </div>
 
@@ -85,11 +85,11 @@
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
             </div>
-            <div class="kpi-trend success">↑ +23 ce mois</div>
+            <div class="kpi-trend success">↑ +23 this month</div>
           </div>
           <div class="kpi-val">1 248</div>
-          <div class="kpi-lbl">Clients actifs</div>
-          <div class="kpi-foot">Taux de rétention : <b>96.4%</b></div>
+          <div class="kpi-lbl">Active clients</div>
+          <div class="kpi-foot">Retention rate: <b>96.4%</b></div>
         </div>
 
         <div class="kpi" style="--kc: var(--success)">
@@ -114,8 +114,8 @@
           <div class="kpi-val" style="font-size: 1.5rem">
             TND <span style="font-size: 2rem">14.2M</span>
           </div>
-          <div class="kpi-lbl">Encours total</div>
-          <div class="kpi-foot">Collecté ce mois : <b>487 200 TND</b></div>
+          <div class="kpi-lbl">Total outstanding</div>
+          <div class="kpi-foot">Collected this month: <b>487,200 TND</b></div>
         </div>
 
         <div class="kpi" style="--kc: var(--warning)">
@@ -136,11 +136,11 @@
                 <line x1="16" y1="13" x2="8" y2="13" />
               </svg>
             </div>
-            <div class="kpi-trend warning">⚠ Urgents : 3</div>
+            <div class="kpi-trend warning">⚠ Urgent: 3</div>
           </div>
           <div class="kpi-val">47</div>
-          <div class="kpi-lbl">Dossiers en cours</div>
-          <div class="kpi-foot">Taux d'approbation : <b>78.3%</b></div>
+          <div class="kpi-lbl">Files in progress</div>
+          <div class="kpi-foot">Approval rate: <b>78.3%</b></div>
         </div>
 
         <div class="kpi" style="--kc: var(--danger)">
@@ -163,34 +163,34 @@
                 <line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
             </div>
-            <div class="kpi-trend danger">↑ +2 vs hier</div>
+            <div class="kpi-trend danger">↑ +2 vs yesterday</div>
           </div>
           <div class="kpi-val">12</div>
-          <div class="kpi-lbl">Impayés actifs</div>
-          <div class="kpi-foot">Taux de défaut : <b>1.8%</b></div>
+          <div class="kpi-lbl">Active delinquencies</div>
+          <div class="kpi-foot">Default rate: <b>1.8%</b></div>
         </div>
       </div>
       <!-- /kpi-row -->
 
-      <!-- ── TABLE DOSSIERS RÉCENTS ── -->
+      <!-- ── RECENT FILES TABLE ── -->
       <div class="panel s3">
         <div class="panel-head">
           <div class="panel-title">
             <span class="ptdot"></span>
-            Dossiers récents — Action requise
+            Recent files — Action required
           </div>
-          <button class="btn btn-ghost btn-sm">Voir tout →</button>
+          <button class="btn btn-ghost btn-sm">View all →</button>
         </div>
         <div class="tbl-wrap">
           <table>
             <thead>
               <tr>
-                <th>Référence</th>
+                <th>Reference</th>
                 <th>Client</th>
                 <th>Type</th>
-                <th>Montant</th>
+                <th>Amount</th>
                 <th>Score</th>
-                <th>Statut</th>
+                <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -220,7 +220,7 @@
                 </td>
                 <td>
                   <button class="btn btn-primary btn-xs" (click)="openModal(dossier)">
-                    {{ dossier.statusClass === 'b-pending' ? 'Analyser' : 'Décider' }}
+                    {{ dossier.statusClass === 'b-pending' ? 'Analyze' : 'Decide' }}
                   </button>
                 </td>
               </tr>
@@ -229,13 +229,13 @@
         </div>
       </div>
 
-      <!-- ── PANNEAU ACTIVITÉ TEMPS RÉEL (colonne droite) ── -->
+      <!-- ── REAL-TIME ACTIVITY (right column) ── -->
       <div class="g13">
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title">
               <span class="ptdot"></span>
-              Activité en temps réel
+              Real-time activity
             </div>
             <span class="badge b-actif">Live</span>
           </div>
@@ -255,22 +255,22 @@
         </div>
       </div>
 
-      <!-- ── LIGNE 3 PANELS ── -->
+      <!-- ── ROW: 3 PANELS ── -->
       <div class="g33 s4">
-        <!-- Chart Dossiers / mois -->
+        <!-- Chart: Files / month -->
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title">
               <span class="ptdot"></span>
-              Dossiers / mois
+              Files / month
             </div>
             <span class="badge b-blue">2026</span>
           </div>
           <div class="panel-body">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem">
-              <span style="font-size: 0.8rem; color: var(--g400)">Dossiers soumis</span>
+              <span style="font-size: 0.8rem; color: var(--g400)">Submitted files</span>
               <span class="font-sora fw7" style="font-size: 1rem"
-                >47 <small style="font-size: 0.75rem; color: var(--g400)">ce mois</small></span
+                >47 <small style="font-size: 0.75rem; color: var(--g400)">this month</small></span
               >
             </div>
             <div class="chart-bars">
@@ -288,14 +288,14 @@
           </div>
         </div>
 
-        <!-- Répartition crédits -->
+        <!-- Credit distribution -->
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title">
               <span class="ptdot"></span>
-              Répartition des crédits
+              Credit distribution
             </div>
-            <button class="btn btn-ghost btn-sm">Détails →</button>
+            <button class="btn btn-ghost btn-sm">Details →</button>
           </div>
           <div class="panel-body">
             <div style="display: flex; align-items: center; gap: 1.5rem">
@@ -370,14 +370,14 @@
           </div>
         </div>
 
-        <!-- Top conseillers -->
+        <!-- Top advisors -->
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title">
               <span class="ptdot"></span>
-              Top conseillers
+              Top advisors
             </div>
-            <span class="badge b-review">Fév 2026</span>
+            <span class="badge b-review">Feb 2026</span>
           </div>
           <div style="padding: 0.25rem 0">
             <div *ngFor="let agent of topAgents; let i = index" class="top-agent-item">
@@ -401,7 +401,7 @@
       </div>
       <!-- /g33 -->
 
-      <!-- ── IMPAYÉS & RETARDS ── -->
+      <!-- ── DELINQUENCIES & DELAYS ── -->
       <div class="panel s5">
         <div class="panel-head">
           <div class="panel-title">
@@ -409,11 +409,11 @@
               class="ptdot"
               style="background: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12)"
             ></span>
-            Impayés & retards
+            Delinquencies & delays
           </div>
           <div style="display: flex; gap: 0.5rem; margin-left: auto">
-            <span class="badge b-danger">12 cas actifs</span>
-            <button class="btn btn-ghost btn-sm">Voir tout →</button>
+            <span class="badge b-danger">12 active cases</span>
+            <button class="btn btn-ghost btn-sm">View all →</button>
           </div>
         </div>
         <div class="tbl-wrap">
@@ -421,11 +421,11 @@
             <thead>
               <tr>
                 <th>Client</th>
-                <th>Dossier</th>
-                <th>Montant dû</th>
-                <th>Retard</th>
-                <th>Tentatives</th>
-                <th>Risque</th>
+                <th>File</th>
+                <th>Amount due</th>
+                <th>Delay</th>
+                <th>Attempts</th>
+                <th>Risk</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -467,7 +467,7 @@
                   <span
                     class="badge"
                     [ngClass]="
-                      d.risk === 'Élevé' ? 'b-danger' : d.risk === 'Modéré' ? 'b-review' : 'b-actif'
+                      d.risk === 'High' ? 'b-danger' : d.risk === 'Medium' ? 'b-review' : 'b-actif'
                     "
                   >
                     {{ d.risk }}
@@ -477,13 +477,13 @@
                   <div style="display: flex; gap: 0.375rem">
                     <button
                       class="btn btn-xs"
-                      [ngClass]="d.risk === 'Élevé' ? 'btn-danger' : 'btn-success'"
+                      [ngClass]="d.risk === 'High' ? 'btn-danger' : 'btn-success'"
                       style="display: flex; align-items: center; gap: 0.25rem"
                     >
-                      <span>{{ d.risk === 'Élevé' ? '⚖️' : '📞' }}</span>
-                      {{ d.risk === 'Élevé' ? 'Contentieux' : 'Relancer' }}
+                      <span>{{ d.risk === 'High' ? '⚖️' : '📞' }}</span>
+                      {{ d.risk === 'High' ? 'Legal' : 'Follow up' }}
                     </button>
-                    <button class="btn btn-outline btn-xs">Dossier</button>
+                    <button class="btn btn-outline btn-xs">File</button>
                   </div>
                 </td>
               </tr>

@@ -114,65 +114,65 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       ref: '#CR-2025-043',
       initials: 'BM',
       client: 'Bilel Mrabet',
-      clientSince: 'Client depuis 2021',
-      type: 'Immobilier',
+      clientSince: 'Client since 2021',
+      type: 'Real estate',
       amount: '85 000 TND',
       score: '742',
       scoreColor: '#2ECC71',
-      status: 'En analyse',
+      status: 'In analysis',
       statusClass: 'b-review'
     },
     {
       ref: '#CR-2025-051',
       initials: 'LB',
       client: 'Leila Bourguiba',
-      clientSince: 'Client depuis 2023',
-      type: 'Automobile',
+      clientSince: 'Client since 2023',
+      type: 'Car loan',
       amount: '32 500 TND',
       score: '610',
       scoreColor: '#F39C12',
-      status: 'En analyse',
+      status: 'In analysis',
       statusClass: 'b-review'
     },
     {
       ref: '#CR-2025-059',
       initials: 'KH',
       client: 'Karim Hadj',
-      clientSince: 'Nouveau client',
-      type: 'Consommation',
+      clientSince: 'New client',
+      type: 'Consumption',
       amount: '8 000 TND',
       score: '520',
       scoreColor: '#E74C3C',
-      status: 'En attente',
+      status: 'Pending',
       statusClass: 'b-pending'
     }
   ];
 
   activities = [
     {
-      title: "Remboursement reçu — <b>Bilel Mrabet</b>",
-      meta: "Il y a 4 min · Virement · #PAY-2026-028",
+      title: "Payment received — <b>Bilel Mrabet</b>",
+      meta: "4 min ago · Transfer · #PAY-2026-028",
       value: "850 TND",
       color: "text-success",
       dotColor: "var(--success)"
     },
     {
-      title: "Nouveau dossier soumis — <b>Karim Hadj</b>",
-      meta: "Il y a 18 min · Consommation",
+      title: "New file submitted — <b>Karim Hadj</b>",
+      meta: "18 min ago · Consumption",
       value: "8 000 TND",
       color: "",
       dotColor: "var(--blue)"
     },
     {
-      title: "Impayé détecté — <b>Farouk Ben Ali</b>",
-      meta: "Il y a 1h · #CR-2024-018 · J+3",
+      title: "Delinquency detected — <b>Farouk Ben Ali</b>",
+      meta: "1h ago · #CR-2024-018 · Day +3",
       value: "310 TND",
       color: "text-danger",
       dotColor: "var(--danger)"
     },
     {
-      title: "Assurance renouvelée — <b>Amira Selmi</b>",
-      meta: "Il y a 2h · STAR · Toyota Corolla",
+      title: "Insurance renewed — <b>Amira Selmi</b>",
+      meta: "2h ago · STAR · Toyota Corolla",
       value: "1 200 TND",
       color: "text-success",
       dotColor: "var(--success)"
@@ -184,7 +184,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       rank: 1,
       initials: "SA",
       name: "Sami Allani",
-      desc: "18 dossiers approuvés",
+      desc: "18 files approved",
       score: "98%",
       scoreClass: "text-success"
     },
@@ -192,7 +192,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       rank: 2,
       initials: "RK",
       name: "Rania Khelifi",
-      desc: "14 dossiers approuvés",
+      desc: "14 files approved",
       score: "91%",
       scoreClass: "text-warning"
     },
@@ -200,7 +200,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       rank: 3,
       initials: "MN",
       name: "Mohamed Naifar",
-      desc: "11 dossiers approuvés",
+      desc: "11 files approved",
       score: "87%",
       scoreClass: "text-blue"
     }
@@ -222,11 +222,11 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       city: "Tunis",
       phone: "+216 20 111 222",   // ← ajouter
       dossier: "#CR-2024-018",
-      product: "Consommation · 24 mois",
+      product: "Consumption · 24 months",
       amount: "310 TND",
       delay: "J+3",
-      risk: "Modéré",
-      sms: "1 SMS · 0 appel"
+      risk: "Medium",
+      sms: "1 SMS · 0 calls"
     },
     {
       initials: "HG",
@@ -234,11 +234,11 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       city: "Sfax",
       phone: "+216 24 333 444",   // ← ajouter
       dossier: "#CR-2023-092",
-      product: "Automobile · 60 mois",
+      product: "Car loan · 60 months",
       amount: "890 TND",
       delay: "J+14",
-      risk: "Élevé",
-      sms: "3 SMS · 2 appels"
+      risk: "High",
+      sms: "3 SMS · 2 calls"
     }
   ];
 
