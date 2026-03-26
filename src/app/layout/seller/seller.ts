@@ -37,21 +37,21 @@ export class SellerLayout implements OnInit, OnDestroy {
   searchQuery = '';
 
   stats = [
-    { label: 'Annonces actives', value: '12', icon: '🚗', trend: '+3 ce mois', trendClass: 'up' },
-    { label: 'Vues totales', value: '1 847', icon: '👁️', trend: '+12%', trendClass: 'up' },
-    { label: 'Véhicules vendus', value: '34', icon: '✅', trend: '+5 ce mois', trendClass: 'up' },
-    { label: 'Revenu estimé', value: '487K', suffix: 'TND', icon: '💰', trend: '+8.2%', trendClass: 'up' },
+    { label: 'Active listings', value: '12', icon: '🚗', trend: '+3 this month', trendClass: 'up' },
+    { label: 'Total views', value: '1,847', icon: '👁️', trend: '+12%', trendClass: 'up' },
+    { label: 'Vehicles sold', value: '34', icon: '✅', trend: '+5 this month', trendClass: 'up' },
+    { label: 'Estimated revenue', value: '487K', suffix: 'TND', icon: '💰', trend: '+8.2%', trendClass: 'up' },
   ];
 
   vehicles: Vehicle[] = [
-    { id: 1, brand: 'Renault', model: 'Clio 5', year: 2024, price: 52000, km: 12000, fuel: 'Essence', transmission: 'Manuelle', color: 'Blanc', status: 'active', image: '🚗', date: '15 Mars 2026', views: 234 },
-    { id: 2, brand: 'Peugeot', model: '208 GT', year: 2023, price: 68000, km: 8500, fuel: 'Diesel', transmission: 'Automatique', color: 'Noir', status: 'active', image: '🚙', date: '12 Mars 2026', views: 187 },
-    { id: 3, brand: 'Volkswagen', model: 'Golf 8', year: 2024, price: 95000, km: 5200, fuel: 'Essence', transmission: 'Automatique', color: 'Gris', status: 'active', image: '🚘', date: '10 Mars 2026', views: 312 },
-    { id: 4, brand: 'Toyota', model: 'Yaris Cross', year: 2023, price: 78000, km: 15000, fuel: 'Hybride', transmission: 'Automatique', color: 'Bleu', status: 'pending', image: '🚗', date: '8 Mars 2026', views: 89 },
-    { id: 5, brand: 'Hyundai', model: 'Tucson', year: 2024, price: 115000, km: 3000, fuel: 'Diesel', transmission: 'Automatique', color: 'Rouge', status: 'active', image: '🚙', date: '5 Mars 2026', views: 456 },
-    { id: 6, brand: 'Dacia', model: 'Duster', year: 2022, price: 62000, km: 28000, fuel: 'Diesel', transmission: 'Manuelle', color: 'Vert', status: 'sold', image: '🚘', date: '1 Mars 2026', views: 523 },
-    { id: 7, brand: 'Kia', model: 'Sportage', year: 2024, price: 105000, km: 7800, fuel: 'Essence', transmission: 'Automatique', color: 'Blanc', status: 'active', image: '🚗', date: '28 Fév 2026', views: 198 },
-    { id: 8, brand: 'Fiat', model: '500', year: 2023, price: 42000, km: 19000, fuel: 'Essence', transmission: 'Manuelle', color: 'Rose', status: 'sold', image: '🚙', date: '25 Fév 2026', views: 345 },
+    { id: 1, brand: 'Renault', model: 'Clio 5', year: 2024, price: 52000, km: 12000, fuel: 'Gasoline', transmission: 'Manual', color: 'White', status: 'active', image: '🚗', date: 'Mar 15, 2026', views: 234 },
+    { id: 2, brand: 'Peugeot', model: '208 GT', year: 2023, price: 68000, km: 8500, fuel: 'Diesel', transmission: 'Automatic', color: 'Black', status: 'active', image: '🚙', date: 'Mar 12, 2026', views: 187 },
+    { id: 3, brand: 'Volkswagen', model: 'Golf 8', year: 2024, price: 95000, km: 5200, fuel: 'Gasoline', transmission: 'Automatic', color: 'Gray', status: 'active', image: '🚘', date: 'Mar 10, 2026', views: 312 },
+    { id: 4, brand: 'Toyota', model: 'Yaris Cross', year: 2023, price: 78000, km: 15000, fuel: 'Hybrid', transmission: 'Automatic', color: 'Blue', status: 'pending', image: '🚗', date: 'Mar 8, 2026', views: 89 },
+    { id: 5, brand: 'Hyundai', model: 'Tucson', year: 2024, price: 115000, km: 3000, fuel: 'Diesel', transmission: 'Automatic', color: 'Red', status: 'active', image: '🚙', date: 'Mar 5, 2026', views: 456 },
+    { id: 6, brand: 'Dacia', model: 'Duster', year: 2022, price: 62000, km: 28000, fuel: 'Diesel', transmission: 'Manual', color: 'Green', status: 'sold', image: '🚘', date: 'Mar 1, 2026', views: 523 },
+    { id: 7, brand: 'Kia', model: 'Sportage', year: 2024, price: 105000, km: 7800, fuel: 'Gasoline', transmission: 'Automatic', color: 'White', status: 'active', image: '🚗', date: 'Feb 28, 2026', views: 198 },
+    { id: 8, brand: 'Fiat', model: '500', year: 2023, price: 42000, km: 19000, fuel: 'Gasoline', transmission: 'Manual', color: 'Pink', status: 'sold', image: '🚙', date: 'Feb 25, 2026', views: 345 },
   ];
 
   newVehicle = { brand: '', model: '', year: 2024, price: 0, km: 0, fuel: 'Essence', transmission: 'Manuelle', color: '', description: '' };
@@ -73,11 +73,11 @@ export class SellerLayout implements OnInit, OnDestroy {
       const raw = localStorage.getItem('currentUser');
       if (raw) {
         const user = JSON.parse(raw);
-        this.userName = user.name || 'Vendeur';
+        this.userName = user.name || 'Seller';
         this.userEmail = user.email || '';
       }
     } catch { }
-    if (!this.userName) this.userName = 'Vendeur';
+    if (!this.userName) this.userName = 'Seller';
     const parts = this.userName.split(' ');
     this.userInitials = parts.map((p: string) => p[0]).join('').toUpperCase().slice(0, 2);
   }
@@ -109,8 +109,8 @@ export class SellerLayout implements OnInit, OnDestroy {
     };
   }
 
-  formatPrice(p: number): string { return p.toLocaleString('fr-FR') + ' TND'; }
-  formatKm(k: number): string { return k.toLocaleString('fr-FR') + ' km'; }
+  formatPrice(p: number): string { return p.toLocaleString('en-US') + ' TND'; }
+  formatKm(k: number): string { return k.toLocaleString('en-US') + ' km'; }
 
   toggleUserDropdown(): void { this.showUserDropdown = !this.showUserDropdown; }
 
