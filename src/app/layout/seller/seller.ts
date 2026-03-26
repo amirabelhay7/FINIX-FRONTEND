@@ -54,7 +54,7 @@ export class SellerLayout implements OnInit, OnDestroy {
     { id: 8, brand: 'Fiat', model: '500', year: 2023, price: 42000, km: 19000, fuel: 'Gasoline', transmission: 'Manual', color: 'Pink', status: 'sold', image: '🚙', date: 'Feb 25, 2026', views: 345 },
   ];
 
-  newVehicle = { brand: '', model: '', year: 2024, price: 0, km: 0, fuel: 'Essence', transmission: 'Manuelle', color: '', description: '' };
+  newVehicle = { brand: '', model: '', year: 2024, price: 0, km: 0, fuel: 'Gasoline', transmission: 'Manual', color: '', description: '' };
 
   constructor(
     private router: Router,
@@ -116,7 +116,7 @@ export class SellerLayout implements OnInit, OnDestroy {
 
   openAddModal(): void {
     this.showAddModal = true;
-    this.newVehicle = { brand: '', model: '', year: 2024, price: 0, km: 0, fuel: 'Essence', transmission: 'Manuelle', color: '', description: '' };
+    this.newVehicle = { brand: '', model: '', year: 2024, price: 0, km: 0, fuel: 'Gasoline', transmission: 'Manual', color: '', description: '' };
   }
 
   closeAddModal(): void { this.showAddModal = false; }
