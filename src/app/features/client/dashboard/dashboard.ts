@@ -7,14 +7,14 @@ import { Component, OnInit } from '@angular/core';
   styleUrl: './dashboard.css',
 })
 export class ClientDashboard implements OnInit {
-  firstName = 'Utilisateur';
+  firstName = 'User';
 
   ngOnInit(): void {
     try {
       const raw = localStorage.getItem('currentUser');
       if (raw) {
         const user = JSON.parse(raw);
-        this.firstName = (user.name || 'Utilisateur').split(' ')[0];
+        this.firstName = (user.name || 'User').split(' ')[0];
       }
     } catch { }
   }

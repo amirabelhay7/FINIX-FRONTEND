@@ -24,4 +24,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Translated Agent layout shell UI and navigation labels to English to remove French from agent experience.
 - Translated Insurer layout shell (dashboard/offers/events/catalogs + modals) from French to English for a consistent insurer experience.
 - Translated Frontoffice (client shell) topbar/nav/footer and dropdown labels to English to remove remaining French from client shell UI.
+- Translated Client Dashboard UI strings to English (header, KPIs, tables, activity, alerts) to remove remaining French on the main client page.
 
