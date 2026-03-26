@@ -20,4 +20,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Translated Admin Risk/Notifications/Reports page headings and key labels to English.
 - Translated Admin Settings page sections, forms, and toggles to English.
 - Translated Admin Users page tabs, tables, and actions to English.
+- Translated Admin modals (decision + add/edit/view user) to English to remove remaining French from admin flows.
 

@@ -1661,8 +1661,8 @@
       <div class="modal" (click)="$event.stopPropagation()">
         <div class="bk-modal-header">
           <div>
-            <div class="bk-modal-title">{{ dossier.reference }} — Décision requise</div>
-            <div class="bk-modal-sub">Soumis le {{ dossier.submittedDate }} · En analyse</div>
+            <div class="bk-modal-title">{{ dossier.reference }} — Decision required</div>
+            <div class="bk-modal-sub">Submitted on {{ dossier.submittedDate }} · In analysis</div>
           </div>
           <span class="badge b-review">{{ dossier.status }}</span>
           <button class="bk-modal-close" (click)="closeModal($event)">✕</button>
@@ -1670,7 +1670,7 @@
 
         <div class="bk-modal-body">
           <div class="detail-section">
-            <div class="detail-section-title">Informations client</div>
+            <div class="detail-section-title">Client information</div>
             <div class="detail-grid">
               <div class="detail-item">
                 <div class="di-lbl">Client</div>
@@ -1681,7 +1681,7 @@
                 <div class="di-val">{{ dossier.client.cin }}</div>
               </div>
               <div class="detail-item">
-                <div class="di-lbl">Téléphone</div>
+                <div class="di-lbl">Phone</div>
                 <div class="di-val">{{ dossier.client.phone }}</div>
               </div>
               <div class="detail-item">
@@ -1692,24 +1692,24 @@
           </div>
 
           <div class="detail-section">
-            <div class="detail-section-title">Note de décision</div>
+            <div class="detail-section-title">Decision note</div>
             <textarea
               class="form-input"
               rows="3"
               [(ngModel)]="decisionNote"
-              placeholder="Saisir la note de justification…"
+              placeholder="Enter the justification note…"
             ></textarea>
           </div>
         </div>
 
         <div class="decision-bar">
           <button class="btn btn-success btn-lg flex-1" (click)="approveCase()">
-            ✓ Approuver le dossier
+            ✓ Approve file
           </button>
           <button class="btn btn-outline btn-lg" (click)="requestMoreInfo()">
-            Informations complémentaires
+            Request more information
           </button>
-          <button class="btn btn-danger btn-lg" (click)="rejectCase()">✗ Rejeter</button>
+          <button class="btn btn-danger btn-lg" (click)="rejectCase()">✗ Reject</button>
         </div>
       </div>
     </div>
@@ -1725,8 +1725,8 @@
   <div class="modal" (click)="$event.stopPropagation()" style="max-width:520px">
     <div class="bk-modal-header">
       <div>
-        <div class="bk-modal-title">{{ editingUserId ? 'Modifier l\'utilisateur' : 'Ajouter un utilisateur' }}</div>
-        <div class="bk-modal-sub">{{ editingUserId ? 'Mettre à jour les informations' : 'Créer un compte Agent IMF ou Assureur' }}</div>
+        <div class="bk-modal-title">{{ editingUserId ? 'Edit user' : 'Add user' }}</div>
+        <div class="bk-modal-sub">{{ editingUserId ? 'Update user information' : 'Create an Agent or Insurer account' }}</div>
       </div>
       <button class="bk-modal-close" (click)="closeUserModal()">✕</button>
     </div>
@@ -1736,12 +1736,12 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Prénom *</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.firstName" placeholder="Prénom">
+          <label class="form-label">First name *</label>
+          <input class="form-input" type="text" [(ngModel)]="newUser.firstName" placeholder="First name">
         </div>
         <div class="form-group">
-          <label class="form-label">Nom *</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.lastName" placeholder="Nom">
+          <label class="form-label">Last name *</label>
+          <input class="form-input" type="text" [(ngModel)]="newUser.lastName" placeholder="Last name">
         </div>
       </div>
       <div class="form-row">
@@ -1750,58 +1750,58 @@
           <input class="form-input" type="email" [(ngModel)]="newUser.email" placeholder="email@finix.tn">
         </div>
         <div class="form-group">
-          <label class="form-label">{{ editingUserId ? 'Nouveau mot de passe' : 'Mot de passe *' }}</label>
-          <input class="form-input" type="password" [(ngModel)]="newUser.password" [placeholder]="editingUserId ? 'Laisser vide pour garder l\'ancien' : 'Mot de passe'">
+          <label class="form-label">{{ editingUserId ? 'New password' : 'Password *' }}</label>
+          <input class="form-input" type="password" [(ngModel)]="newUser.password" [placeholder]="editingUserId ? 'Leave empty to keep the current one' : 'Password'">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Rôle *</label>
+          <label class="form-label">Role *</label>
           <select class="form-input" [(ngModel)]="newUser.role">
             <option value="AGENT">Agent IMF</option>
-            <option value="INSURER">Assureur</option>
+            <option value="INSURER">Insurer</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Téléphone</label>
+          <label class="form-label">Phone</label>
           <input class="form-input" type="text" [(ngModel)]="newUser.phoneNumber" placeholder="+216 XX XXX XXX">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Adresse</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.address" placeholder="Adresse">
+          <label class="form-label">Address</label>
+          <input class="form-input" type="text" [(ngModel)]="newUser.address" placeholder="Address">
         </div>
         <div class="form-group">
-          <label class="form-label">Ville</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.city" placeholder="Ville">
+          <label class="form-label">City</label>
+          <input class="form-input" type="text" [(ngModel)]="newUser.city" placeholder="City">
         </div>
       </div>
       <div *ngIf="newUser.role === 'AGENT'" class="form-row">
         <div class="form-group">
-          <label class="form-label">Code Agence</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.agenceCode" placeholder="Code agence">
+          <label class="form-label">Agency code</label>
+          <input class="form-input" type="text" [(ngModel)]="newUser.agenceCode" placeholder="Agency code">
         </div>
         <div class="form-group">
-          <label class="form-label">Région</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.region" placeholder="Numéro région">
+          <label class="form-label">Region</label>
+          <input class="form-input" type="text" [(ngModel)]="newUser.region" placeholder="Region number">
         </div>
       </div>
       <div *ngIf="newUser.role === 'INSURER'" class="form-row">
         <div class="form-group">
-          <label class="form-label">Nom Assureur</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.insurerName" placeholder="Nom société">
+          <label class="form-label">Insurer name</label>
+          <input class="form-input" type="text" [(ngModel)]="newUser.insurerName" placeholder="Company name">
         </div>
         <div class="form-group">
-          <label class="form-label">Email Assureur</label>
+          <label class="form-label">Insurer email</label>
           <input class="form-input" type="email" [(ngModel)]="newUser.insurerEmail" placeholder="contact@assureur.tn">
         </div>
       </div>
     </div>
     <div class="decision-bar" style="justify-content:flex-end">
-      <button class="btn btn-outline" (click)="closeUserModal()">Annuler</button>
+      <button class="btn btn-outline" (click)="closeUserModal()">Cancel</button>
       <button class="btn btn-primary" (click)="submitUser()" [disabled]="addUserLoading">
-        {{ addUserLoading ? (editingUserId ? 'Mise à jour...' : 'Création...') : (editingUserId ? 'Enregistrer' : 'Créer le compte') }}
+        {{ addUserLoading ? (editingUserId ? 'Updating...' : 'Creating...') : (editingUserId ? 'Save' : 'Create account') }}
       </button>
     </div>
   </div>
@@ -1814,7 +1814,7 @@
   <div class="modal" (click)="$event.stopPropagation()" style="max-width:480px">
     <div class="bk-modal-header">
       <div>
-        <div class="bk-modal-title">Détail utilisateur</div>
+        <div class="bk-modal-title">User details</div>
         <div class="bk-modal-sub">ID #{{ viewUser?.id }}</div>
       </div>
       <span class="badge" [ngClass]="viewUser?.role === 'AGENT' ? 'b-blue' : 'b-purple'">{{ viewUser?.role }}</span>
@@ -1822,14 +1822,14 @@
     </div>
     <div class="bk-modal-body" *ngIf="viewUser">
       <div class="detail-section">
-        <div class="detail-section-title">Identité</div>
+        <div class="detail-section-title">Identity</div>
         <div class="detail-grid">
           <div class="detail-item">
-            <div class="di-lbl">Prénom</div>
+            <div class="di-lbl">First name</div>
             <div class="di-val">{{ viewUser.firstName }}</div>
           </div>
           <div class="detail-item">
-            <div class="di-lbl">Nom</div>
+            <div class="di-lbl">Last name</div>
             <div class="di-val">{{ viewUser.lastName }}</div>
           </div>
           <div class="detail-item">
@@ -1837,49 +1837,49 @@
             <div class="di-val">{{ viewUser.email }}</div>
           </div>
           <div class="detail-item">
-            <div class="di-lbl">Téléphone</div>
+            <div class="di-lbl">Phone</div>
             <div class="di-val">{{ viewUser.phoneNumber || '—' }}</div>
           </div>
           <div class="detail-item">
-            <div class="di-lbl">Adresse</div>
+            <div class="di-lbl">Address</div>
             <div class="di-val">{{ viewUser.address || '—' }}</div>
           </div>
           <div class="detail-item">
-            <div class="di-lbl">Ville</div>
+            <div class="di-lbl">City</div>
             <div class="di-val">{{ viewUser.city || '—' }}</div>
           </div>
         </div>
       </div>
       <div class="detail-section" *ngIf="viewUser.role === 'AGENT'">
-        <div class="detail-section-title">Informations Agent IMF</div>
+        <div class="detail-section-title">Agent information</div>
         <div class="detail-grid">
           <div class="detail-item">
-            <div class="di-lbl">Code Agence</div>
+            <div class="di-lbl">Agency code</div>
             <div class="di-val">{{ viewUser.agenceCode || '—' }}</div>
           </div>
           <div class="detail-item">
-            <div class="di-lbl">Région</div>
+            <div class="di-lbl">Region</div>
             <div class="di-val">{{ viewUser.region || '—' }}</div>
           </div>
         </div>
       </div>
       <div class="detail-section" *ngIf="viewUser.role === 'INSURER'">
-        <div class="detail-section-title">Informations Assureur</div>
+        <div class="detail-section-title">Insurer information</div>
         <div class="detail-grid">
           <div class="detail-item">
-            <div class="di-lbl">Nom Assureur</div>
+            <div class="di-lbl">Insurer name</div>
             <div class="di-val">{{ viewUser.insurerName || '—' }}</div>
           </div>
           <div class="detail-item">
-            <div class="di-lbl">Email Assureur</div>
+            <div class="di-lbl">Insurer email</div>
             <div class="di-val">{{ viewUser.insurerEmail || '—' }}</div>
           </div>
         </div>
       </div>
     </div>
     <div class="decision-bar" style="justify-content:flex-end">
-      <button class="btn btn-outline" (click)="closeViewUser()">Fermer</button>
-      <button class="btn btn-primary" (click)="closeViewUser(); openEditUser(viewUser)">Modifier</button>
+      <button class="btn btn-outline" (click)="closeViewUser()">Close</button>
+      <button class="btn btn-primary" (click)="closeViewUser(); openEditUser(viewUser)">Edit</button>
     </div>
   </div>
 </div>
