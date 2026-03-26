@@ -6,7 +6,6 @@ import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
 import { SharedModule } from './shared/shared-module';
-import { AgentLayout } from './layout/agent/agent';
 import { SellerLayout } from './layout/seller/seller';
 import { InsurerLayout } from './layout/insurer/insurer';
 import { AgentShell } from './layout/agent-shell/agent-shell';
@@ -23,7 +22,6 @@ import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized
 @NgModule({
   declarations: [
     App,
-    AgentLayout,
     AgentShell,
     SellerLayout,
     InsurerLayout,

@@ -51,4 +51,6 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Converted the admin sidebar navigation to router-native links (`routerLink`/`routerLinkActive`) so navigation state is URL-driven and deep-link friendly.
 - Refactored `/agent` routing to use an `AgentShell` + nested child routes (router-outlet) loading `AgentModule`, aligning agent with the same scalable shell pattern used for client/seller/admin.
 - Refactored `/insurer` routing to use nested child routes under an `InsurerShell`, replacing the old `:section` param route with canonical URLs like `/insurer/dashboard` for scalability.
+- Cleanup: removed legacy seller URL aliases and dropped unused `AgentLayout` declarations/imports now that `/agent` uses the nested shell + feature module structure.
+- Cleanup: made legacy `AgentLayout` standalone with proper `NgClass`/`NgFor`/`NgIf` imports so it no longer breaks builds even though it’s no longer used by routing.
 

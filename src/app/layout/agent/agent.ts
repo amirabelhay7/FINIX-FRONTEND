@@ -1,13 +1,15 @@
 import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { ThemeService } from '../../core/services/theme/theme.service';
 import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-agent',
-  standalone: false,
+  standalone: true,
   templateUrl: './agent.html',
   styleUrl: './agent.css',
+  imports: [NgIf, NgFor, NgClass],
   encapsulation: ViewEncapsulation.None,
 })
 export class AgentLayout implements OnInit, OnDestroy {

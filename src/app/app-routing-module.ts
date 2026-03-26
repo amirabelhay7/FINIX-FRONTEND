@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { BackofficeComponent } from './layout/backoffice/backoffice.component';
 import { Frontoffice } from './layout/frontoffice/frontoffice';
-import { AgentLayout } from './layout/agent/agent';
 import { SellerLayout } from './layout/seller/seller';
 import { InsurerLayout } from './layout/insurer/insurer';
 import { AdminShellComponent } from './layout/admin-shell/admin-shell.component';
@@ -29,8 +28,6 @@ const routes: Routes = [
       },
     ],
   },
-  { path: 'vendeur', redirectTo: 'seller', pathMatch: 'full' },
-  { path: 'vendeur/vendeur', redirectTo: 'seller', pathMatch: 'full' },
   {
     path: '',
     loadChildren: () => import('./features/auth/auth-module').then((m) => m.AuthModule),
