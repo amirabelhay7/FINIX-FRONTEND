@@ -64,7 +64,12 @@ const routes: Routes = [
     path: 'client',
     component: Frontoffice,
     canActivate: [roleGuard('client')],
-    loadChildren: () => import('./features/client/client-module').then((m) => m.ClientModule),
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('./features/client/client-module').then((m) => m.ClientModule),
+      },
+    ],
   },
   { path: '**', redirectTo: '' },
 ];
