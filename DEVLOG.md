@@ -10,4 +10,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Standardized Seller layout modal defaults to English values (Gasoline/Manual) to avoid reintroducing French in new listing flow.
 - Translated Admin sidebar navigation labels to English to remove French from the admin shell.
 - Translated Admin topbar search + theme tooltips to English for consistency.
+- Translated admin user-management validation/error messages to English to avoid French toasts in admin flows.
 

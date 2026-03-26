@@ -734,12 +734,12 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     console.log('[ADMIN] newUser:', JSON.stringify(this.newUser));
     this.addUserError = '';
     if (!this.newUser.firstName || !this.newUser.lastName || !this.newUser.email) {
-      this.addUserError = 'Veuillez remplir tous les champs obligatoires.';
+      this.addUserError = 'Please fill in all required fields.';
       console.log('[ADMIN] Validation failed: champs obligatoires manquants');
       return;
     }
     if (!this.editingUserId && !this.newUser.password) {
-      this.addUserError = 'Le mot de passe est obligatoire pour un nouveau compte.';
+      this.addUserError = 'Password is required for a new account.';
       console.log('[ADMIN] Validation failed: password manquant');
       return;
     }
@@ -776,7 +776,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         },
         error: (err: any) => {
           this.addUserLoading = false;
-          this.addUserError = err.error?.message || 'Erreur lors de la mise à jour.';
+          this.addUserError = err.error?.message || 'Error while updating.';
           this.cdr.detectChanges();
         }
       });
@@ -809,7 +809,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         error: (err: any) => {
           console.error('[ADMIN] Create user error:', err);
           this.addUserLoading = false;
-          this.addUserError = err.error?.message || err.message || 'Erreur lors de la création.';
+          this.addUserError = err.error?.message || err.message || 'Error while creating the user.';
           this.cdr.detectChanges();
         }
       });
