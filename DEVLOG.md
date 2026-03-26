@@ -56,3 +56,6 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Hardened agent nested routing by adding a wildcard fallback in `AgentRoutingModule` so unknown `/agent/*` paths redirect to `/agent/dashboard`.
 - Rebuilt `/forgot-password` using the same `finix-login` shell + `login.component.css` as the login page (SVG icons, no Material Symbols) so the screen matches auth styling and no longer looks broken offline.
 
+## Backend (finix_Backend)
+- Externalized Brevo API key and sender settings to env vars / optional `application-local.properties`; JWT uses env `JWT_SECRET` with a dev-only default; added example template and test overrides so secrets are not committed to GitHub.
+
