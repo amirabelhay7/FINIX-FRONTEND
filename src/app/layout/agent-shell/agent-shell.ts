@@ -1,6 +1,8 @@
 import { Component, OnDestroy, OnInit, Renderer2, ViewEncapsulation } from '@angular/core';
 import { ThemeService } from '../../core/services/theme/theme.service';
 import { AuthService } from '../../services/auth/auth.service';
+import { Router } from '@angular/router';
+import { NotificationService } from '../../services/notifications/notification.service';
 
 export interface AgentNavItem {
   page: string;
@@ -21,15 +23,36 @@ export interface AgentNavItem {
 export class AgentShell implements OnInit, OnDestroy {
   currentTheme: 'light' | 'dark' = 'dark';
   showUserMenu = false;
+  hasNotifications = false;
 
   constructor(
     private renderer: Renderer2,
     private themeService: ThemeService,
     private authService: AuthService,
+    private router: Router,
+    private notificationService: NotificationService,
   ) {}
 
   ngOnInit(): void {
     this.currentTheme = this.themeService.initTheme(this.currentTheme);
+    this.refreshUnread();
+  }
+
+
+
+  goToNotifications(): void {
+    void this.router.navigate(['/notifications']).then(() => this.refreshUnread());
+  }
+
+  private refreshUnread(): void {
+    this.notificationService.unreadCount().subscribe({
+      next: (r) => {
+        this.hasNotifications = (r?.count ?? 0) > 0;
+      },
+      error: () => {
+        this.hasNotifications = false;
+      },
+    });
   }
 
   ngOnDestroy(): void {
@@ -48,6 +71,7 @@ export class AgentShell implements OnInit, OnDestroy {
   navLinkFor(item: AgentNavItem): string | string[] {
     if (item.page === 'dashboard') return '/agent/dashboard';
     if (item.page === 'clients') return '/agent/clients';
+    if (item.page === 'alertes') return '/notifications';
     return ['/agent/stub', item.page];
   }
 

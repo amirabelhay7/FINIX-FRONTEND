@@ -14,6 +14,12 @@ import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized
 
 const routes: Routes = [
   {
+    path: 'notifications',
+    canActivate: [roleGuard('admin', 'client', 'agent', 'seller', 'insurer')],
+    loadChildren: () =>
+      import('./features/notifications/notifications-module').then((m) => m.NotificationsModule),
+  },
+  {
     path: 'unauthorized',
     component: UnauthorizedComponent,
   },
@@ -45,7 +51,8 @@ const routes: Routes = [
       },
       {
         path: 'inbox',
-        loadChildren: () => import('./features/admin/inbox/inbox-module').then((m) => m.InboxModule),
+        redirectTo: '/notifications',
+        pathMatch: 'full',
       },
       { path: 'clients', component: AdminClients },
       {

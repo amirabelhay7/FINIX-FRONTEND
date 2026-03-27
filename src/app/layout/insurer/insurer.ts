@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation } from '@ang
 import { ActivatedRoute, Router } from '@angular/router';
 import { ThemeService } from '../../core/services/theme/theme.service';
 import { AuthService } from '../../services/auth/auth.service';
+import { NotificationService } from '../../services/notifications/notification.service';
 
 interface InsuranceOffer {
   id: number;
@@ -47,6 +48,7 @@ export class InsurerLayout implements OnInit, OnDestroy {
   userName = '';
   userInitials = '';
   userEmail = '';
+  hasNotifications = false;
   activeSection: 'dashboard' | 'offers' | 'events' | 'catalogs' = 'dashboard';
   searchQuery = '';
 
@@ -97,15 +99,34 @@ export class InsurerLayout implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private themeService: ThemeService,
     private authService: AuthService,
+    private notificationService: NotificationService,
   ) {}
 
   ngOnInit(): void {
     this.currentTheme = this.themeService.initTheme(this.currentTheme);
     this.loadUser();
+    this.refreshUnread();
 
     // Drive UI from URL: /insurer/<child>
     const path = this.route.snapshot.routeConfig?.path as InsurerLayout['activeSection'] | undefined;
     this.activeSection = path && path.length > 0 ? path : 'dashboard';
+  }
+
+
+
+  goToNotifications(): void {
+    void this.router.navigate(['/notifications']).then(() => this.refreshUnread());
+  }
+
+  private refreshUnread(): void {
+    this.notificationService.unreadCount().subscribe({
+      next: (r) => {
+        this.hasNotifications = (r?.count ?? 0) > 0;
+      },
+      error: () => {
+        this.hasNotifications = false;
+      },
+    });
   }
 
   private loadUser(): void {

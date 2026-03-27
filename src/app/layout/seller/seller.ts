@@ -4,6 +4,7 @@ import { filter, Subscription } from 'rxjs';
 import { ThemeService } from '../../core/services/theme/theme.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { SellerShellService } from './seller-shell.service';
+import { NotificationService } from '../../services/notifications/notification.service';
 
 @Component({
   selector: 'app-seller',
@@ -21,6 +22,7 @@ export class SellerLayout implements OnInit, OnDestroy {
   userName = '';
   userInitials = '';
   userEmail = '';
+  hasNotifications = false;
   showAddModal = false;
 
   newVehicle = {
@@ -44,6 +46,7 @@ export class SellerLayout implements OnInit, OnDestroy {
     private themeService: ThemeService,
     private authService: AuthService,
     private sellerShell: SellerShellService,
+    private notificationService: NotificationService,
   ) {}
 
   ngOnInit(): void {
@@ -54,6 +57,24 @@ export class SellerLayout implements OnInit, OnDestroy {
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe(() => this.syncSellerSubnav());
     this.addModalSub = this.sellerShell.openAddVehicle$.subscribe(() => this.openAddModal());
+    this.refreshUnread();
+  }
+
+
+
+  goToNotifications(): void {
+    void this.router.navigate(['/notifications']).then(() => this.refreshUnread());
+  }
+
+  private refreshUnread(): void {
+    this.notificationService.unreadCount().subscribe({
+      next: (r) => {
+        this.hasNotifications = (r?.count ?? 0) > 0;
+      },
+      error: () => {
+        this.hasNotifications = false;
+      },
+    });
   }
 
   private syncSellerSubnav(): void {

@@ -1,13 +1,29 @@
-.inbox-page {
-  padding: 0 0 2rem;
+.notif-page {
+  padding: 1.25rem 1.5rem 2.5rem;
   max-width: 720px;
+  margin: 0 auto;
 }
 
-.inbox-head {
+.notif-toolbar {
+  margin-bottom: 1rem;
+}
+
+.notif-back {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1f6fea;
+  text-decoration: none;
+}
+
+.notif-back:hover {
+  text-decoration: underline;
+}
+
+.notif-head {
   margin-bottom: 1.25rem;
 }
 
-.inbox-title {
+.notif-title {
   font-family: 'Sora', sans-serif;
   font-size: 1.5rem;
   font-weight: 800;
@@ -15,26 +31,26 @@
   margin: 0 0 0.35rem;
 }
 
-.inbox-sub {
+.notif-sub {
   margin: 0;
   font-size: 0.9rem;
   color: #64748b;
 }
 
-.inbox-panel,
-.inbox-err {
+.notif-panel,
+.notif-err {
   padding: 1rem;
   border-radius: 12px;
   font-size: 0.9rem;
 }
 
-.inbox-err {
+.notif-err {
   background: #fef2f2;
   border: 1px solid #fecaca;
   color: #991b1b;
 }
 
-.inbox-list {
+.notif-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -43,7 +59,7 @@
   gap: 0.75rem;
 }
 
-.inbox-item {
+.notif-item {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -54,30 +70,30 @@
   background: #fff;
 }
 
-.inbox-item-unread {
+.notif-item-unread {
   border-color: rgba(31, 111, 234, 0.35);
   background: rgba(234, 242, 255, 0.45);
 }
 
-.inbox-item-title {
+.notif-item-title {
   font-weight: 700;
   color: #0f172a;
   margin-bottom: 0.35rem;
 }
 
-.inbox-item-body {
+.notif-item-body {
   font-size: 0.88rem;
   color: #475569;
   line-height: 1.45;
   margin-bottom: 0.5rem;
 }
 
-.inbox-item-meta {
+.notif-item-meta {
   font-size: 0.75rem;
   color: #94a3b8;
 }
 
-.inbox-mark {
+.notif-mark {
   flex-shrink: 0;
   font-size: 0.78rem;
   font-weight: 700;
@@ -89,11 +105,11 @@
   cursor: pointer;
 }
 
-.inbox-mark:hover {
+.notif-mark:hover {
   background: #eaf2ff;
 }
 
-.inbox-empty {
+.notif-empty {
   font-size: 0.9rem;
   color: #64748b;
 }

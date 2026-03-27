@@ -1,27 +1,31 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { catchError, finalize, of } from 'rxjs';
-import { AppNotificationDto, NotificationService } from '../../../../services/notifications/notification.service';
+import { AppNotificationDto, NotificationService } from '../../../services/notifications/notification.service';
+import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
-  selector: 'app-inbox-list',
+  selector: 'app-notifications-page',
   standalone: false,
-  templateUrl: './inbox-list.html',
-  styleUrl: './inbox-list.css',
+  templateUrl: './notifications-page.html',
+  styleUrl: './notifications-page.css',
 })
-export class InboxList implements OnInit {
+export class NotificationsPageComponent implements OnInit {
   readonly pageTitle = 'Notifications';
-  readonly pageSubtitle = 'Platform updates for your account (read-only feed).';
+  readonly pageSubtitle = 'System updates for your account. One-way alerts only — not messaging.';
 
+  homeRoute = '/client';
   loading = true;
   errorMessage = '';
   items: AppNotificationDto[] = [];
 
   constructor(
     private notifications: NotificationService,
+    private auth: AuthService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
+    this.homeRoute = this.auth.getHomeRoute();
     this.load();
   }
 

@@ -8,7 +8,7 @@
   <div class="tb-sub">Microfinance institution · Central Bank licensed</div>
   <div class="tb-right">
     
-    <button class="tb-btn">🔔<span class="notif-dot"></span></button>
+    <button type="button" class="tb-btn" (click)="goToNotifications()" title="Notifications">🔔<span class="notif-dot" *ngIf="hasNotifications"></span></button>
     <button class="tb-btn">⚙️</button>
     <button class="tb-theme-toggle" (click)="toggleTheme()" title="Toggle theme">
       {{ currentTheme === 'dark' ? '☀️' : '🌙' }}
@@ -32,7 +32,7 @@
         <div style="padding:.25rem 0;">
           <button class="dp-item">👤 My profile</button>
           <button class="dp-item">🔐 Security</button>
-          <button class="dp-item">🔔 Notifications</button>
+          <button type="button" class="dp-item" (click)="goToNotifications(); showUserDropdown = false">🔔 Notifications</button>
           <div class="dp-sep"></div>
           <button class="dp-item">📞 Contact an agent</button>
           <button class="dp-item">❓ Help & Support</button>

@@ -3,6 +3,7 @@ import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/rou
 import { NgFor, NgIf } from '@angular/common';
 import { ThemeService } from '../../core/services/theme/theme.service';
 import { AuthService } from '../../services/auth/auth.service';
+import { NotificationService } from '../../services/notifications/notification.service';
 
 @Component({
   selector: 'app-frontoffice',
@@ -31,17 +32,37 @@ export class Frontoffice implements OnInit, OnDestroy {
   userInitials = '';
   userEmail = '';
   userRole = '';
+  hasNotifications = false;
 
   constructor(
     private router: Router,
     private renderer: Renderer2,
     private themeService: ThemeService,
     private authService: AuthService,
+    private notificationService: NotificationService,
   ) {}
 
   ngOnInit(): void {
     this.currentTheme = this.themeService.initTheme(this.currentTheme);
     this.loadUser();
+    this.refreshUnread();
+  }
+
+
+
+  goToNotifications(): void {
+    void this.router.navigate(['/notifications']).then(() => this.refreshUnread());
+  }
+
+  private refreshUnread(): void {
+    this.notificationService.unreadCount().subscribe({
+      next: (r) => {
+        this.hasNotifications = (r?.count ?? 0) > 0;
+      },
+      error: () => {
+        this.hasNotifications = false;
+      },
+    });
   }
 
   private loadUser(): void {

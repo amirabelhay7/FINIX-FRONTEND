@@ -35,7 +35,7 @@ export class TopbarComponent implements OnInit {
   }
 
   goToNotifications(): void {
-    void this.router.navigate(['/admin/inbox']).then(() => this.refreshUnread());
+    void this.router.navigate(['/notifications']).then(() => this.refreshUnread());
   }
 
   openHelp(): void {
@@ -52,7 +52,7 @@ export class TopbarComponent implements OnInit {
     risk: { title: 'Risk & Scoring', breadcrumb: 'Risk' },
     rapports: { title: 'Reports', breadcrumb: 'Reports' },
     marketing: { title: 'Marketing', breadcrumb: 'Marketing' },
-    inbox: { title: 'Notifications', breadcrumb: 'Notifications' },
+    notifications: { title: 'Notifications', breadcrumb: 'Notifications' },
     users: { title: 'Users & Identity', breadcrumb: 'Users' },
     settings: { title: 'Settings', breadcrumb: 'Settings' },
   };

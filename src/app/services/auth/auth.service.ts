@@ -160,6 +160,20 @@ export class AuthService {
     return localStorage.getItem(this.ROLE_KEY);
   }
 
+  /** Default home route after login / back link from shared screens (e.g. notifications). */
+  getHomeRoute(): string {
+    const role = this.getRole();
+    if (!role) return '/client';
+    const map: Record<string, string> = {
+      admin: '/admin',
+      agent: '/agent',
+      insurer: '/insurer',
+      client: '/client',
+      seller: '/seller',
+    };
+    return map[role.toLowerCase()] ?? '/client';
+  }
+
   isAdmin(): boolean {
     return this.getRole() === 'admin';
   }
