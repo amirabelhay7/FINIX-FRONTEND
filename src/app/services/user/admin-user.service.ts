@@ -25,6 +25,12 @@ export interface AdminUserApi {
   inviteAcceptedAt?: string | null;
 }
 
+export interface AdminLoginHistoryEntry {
+  loginDate?: string | null;
+  ipAddress?: string | null;
+  action?: string | null;
+}
+
 export interface AdminUserCreateResponse {
   user?: AdminUserApi;
   inviteSent?: boolean;
@@ -61,6 +67,10 @@ export class AdminUserService {
 
   getById(id: number): Observable<AdminUserApi> {
     return this.http.get<AdminUserApi>(`${this.api}/${id}`);
+  }
+
+  getLoginHistory(id: number): Observable<AdminLoginHistoryEntry[]> {
+    return this.http.get<AdminLoginHistoryEntry[]>(`${this.api}/${id}/login-history`);
   }
 
   create(payload: AdminUserUpsertPayload): Observable<AdminUserCreateResponse | AdminUserApi> {

@@ -167,3 +167,11 @@ In `emna`, there is **no** `AdminShellComponent`; `/backoffice` just renders `Ba
 ```
 
 This is why the UX feels “real”: filtering works off actual loaded data, and the same component supports more features over time (include-deleted, lifecycle badges, onboarding state) without rewriting templates.
+
+### Foundation MVP (routing, user 360, activity, notifications) — 2026-03-27
+- **Admin routes:** renamed `path: 'notifications'` → **`marketing`** so the URL is **`/admin/marketing`** (matches `MarketingAdminModule`). Sidebar label updated to **Marketing**. Platform **notification** inbox lives at **`/admin/inbox`** (does not replace marketing).
+- **User 360:** `/admin/users/:id` loads real data via **`GET /api/users/:id`** (loading/error states, dynamic Edit link). Added dashed **Documents & verification** placeholder card for future modules.
+- **Login activity:** **`GET /api/users/{id}/login-history`** backed by `HistoryLogin`; user detail shows real login rows (or empty state).
+- **Platform notifications:** backend **`UserNotification`** + **`/api/notifications`** (list, **`/unread-count`**, **`PATCH /{id}/read`**); seeded sample rows for `admin@finix.com` and `admin@demo.finix.tn`. Frontend: lazy **`InboxModule`**, **`NotificationService`**, topbar bell navigates to **`/admin/inbox`** and shows unread indicator from the API.
+
+**Backend commit:** `finix_Backend` — `UserNotification`, `NotificationController`, login-history query, `AdminSeeder` notification seed (same feature batch).

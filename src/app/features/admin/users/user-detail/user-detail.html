@@ -1,37 +1,59 @@
 <div class="space-y-8 pb-10">
+  <div *ngIf="loading" class="text-sm text-gray-500 px-1">Loading user…</div>
+  <div *ngIf="!loading && errorMessage" class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+    {{ errorMessage }}
+  </div>
+
+  <ng-container *ngIf="!loading && vm && !errorMessage">
     <div class="flex items-center gap-4">
-        <a [routerLink]="vm.backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <div class="flex-1">
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ vm.pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ vm.pageSubtitle }}</p>
-        </div>
-        <a [routerLink]="vm.editRoute" class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">{{ vm.editLabel }}</a>
+      <a [routerLink]="vm.backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </a>
+      <div class="flex-1">
+        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ vm.pageTitle }}</h1>
+        <p class="text-gray-500 text-sm font-medium">{{ vm.pageSubtitle }}</p>
+      </div>
+      <a [routerLink]="vm.editRoute" class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">{{ vm.editLabel }}</a>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <h4 class="font-bold text-gray-800 mb-4 flex items-center">
-                <span class="material-symbols-outlined mr-2 text-[#135bec]">person</span>{{ vm.identityTitle }}
-            </h4>
-            <dl class="space-y-3 text-sm">
-                <div *ngFor="let field of vm.identityFields" class="flex justify-between">
-                    <dt class="text-gray-500">{{ field.label }}</dt>
-                    <dd class="font-bold text-gray-800"><span *ngIf="field.valueClass" [ngClass]="field.valueClass">{{ field.value }}</span><span *ngIf="!field.valueClass">{{ field.value }}</span></dd>
-                </div>
-            </dl>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <h4 class="font-bold text-gray-800 mb-4 flex items-center">
-                <span class="material-symbols-outlined mr-2 text-amber-500">history</span>{{ vm.loginHistoryTitle }}
-            </h4>
-            <div class="space-y-2">
-                <div *ngFor="let item of vm.loginHistoryItems" class="flex items-center justify-between py-2 border-b border-gray-50 text-sm">
-                    <span class="text-gray-600">{{ item.date }}</span>
-                    <span class="text-gray-400 text-xs">{{ item.ip }}</span>
-                </div>
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+          <span class="material-symbols-outlined mr-2 text-[#135bec]">person</span>{{ vm.identityTitle }}
+        </h4>
+        <dl class="space-y-3 text-sm">
+          <div *ngFor="let field of vm.identityFields" class="flex justify-between gap-4">
+            <dt class="text-gray-500 shrink-0">{{ field.label }}</dt>
+            <dd class="font-bold text-gray-800 text-right">
+              <span *ngIf="field.valueClass" [ngClass]="field.valueClass">{{ field.value }}</span>
+              <span *ngIf="!field.valueClass">{{ field.value }}</span>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+          <span class="material-symbols-outlined mr-2 text-amber-500">history</span>{{ vm.loginHistoryTitle }}
+        </h4>
+        <p *ngIf="vm.loginHistoryItems.length === 0" class="text-sm text-gray-500">No login events recorded yet.</p>
+        <div class="space-y-2">
+          <div *ngFor="let item of vm.loginHistoryItems" class="flex flex-col gap-0.5 py-2 border-b border-gray-50 text-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">{{ item.date }}</span>
+              <span class="text-gray-400 text-xs">{{ item.ip }}</span>
             </div>
+            <span *ngIf="item.action" class="text-xs text-gray-500">{{ item.action }}</span>
+          </div>
         </div>
+      </div>
     </div>
+
+    <div class="bg-white rounded-2xl border border-dashed border-gray-200 shadow-sm p-6">
+      <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+        <span class="material-symbols-outlined mr-2 text-gray-400">folder_open</span>Documents &amp; verification
+      </h4>
+      <p class="text-sm text-gray-500">KYC and document uploads will connect here when the document module is integrated.</p>
+    </div>
+  </ng-container>
 </div>

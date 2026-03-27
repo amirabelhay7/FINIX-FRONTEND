@@ -1,0 +1,99 @@
+.inbox-page {
+  padding: 0 0 2rem;
+  max-width: 720px;
+}
+
+.inbox-head {
+  margin-bottom: 1.25rem;
+}
+
+.inbox-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0b1c2d;
+  margin: 0 0 0.35rem;
+}
+
+.inbox-sub {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.inbox-panel,
+.inbox-err {
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+}
+
+.inbox-err {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.inbox-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inbox-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.inbox-item-unread {
+  border-color: rgba(31, 111, 234, 0.35);
+  background: rgba(234, 242, 255, 0.45);
+}
+
+.inbox-item-title {
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.35rem;
+}
+
+.inbox-item-body {
+  font-size: 0.88rem;
+  color: #475569;
+  line-height: 1.45;
+  margin-bottom: 0.5rem;
+}
+
+.inbox-item-meta {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.inbox-mark {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(31, 111, 234, 0.35);
+  background: #fff;
+  color: #1f6fea;
+  cursor: pointer;
+}
+
+.inbox-mark:hover {
+  background: #eaf2ff;
+}
+
+.inbox-empty {
+  font-size: 0.9rem;
+  color: #64748b;
+}

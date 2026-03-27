@@ -40,8 +40,12 @@ const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: BackofficeComponent },
       {
-        path: 'notifications',
+        path: 'marketing',
         loadChildren: () => import('./features/admin/marketing-admin/marketing-admin-module').then((m) => m.MarketingAdminModule),
+      },
+      {
+        path: 'inbox',
+        loadChildren: () => import('./features/admin/inbox/inbox-module').then((m) => m.InboxModule),
       },
       { path: 'clients', component: AdminClients },
       {

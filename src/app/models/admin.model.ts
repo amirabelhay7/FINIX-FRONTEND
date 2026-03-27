@@ -296,7 +296,7 @@ export interface AdminUserDetailData {
   identityTitle: string;
   identityFields: { label: string; value: string; valueClass?: string }[];
   loginHistoryTitle: string;
-  loginHistoryItems: { date: string; ip: string }[];
+  loginHistoryItems: { date: string; ip: string; action?: string }[];
 }
 
 /** User admin – user form labels and options. */

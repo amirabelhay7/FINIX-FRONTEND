@@ -1,0 +1,22 @@
+<div class="inbox-page">
+  <div class="inbox-head">
+    <h1 class="inbox-title">{{ pageTitle }}</h1>
+    <p class="inbox-sub">{{ pageSubtitle }}</p>
+  </div>
+
+  <div class="inbox-panel" *ngIf="loading">Loading…</div>
+  <div class="inbox-err" *ngIf="!loading && errorMessage">{{ errorMessage }}</div>
+
+  <ul class="inbox-list" *ngIf="!loading && !errorMessage">
+    <li *ngFor="let n of items" class="inbox-item" [class.inbox-item-unread]="isUnread(n)">
+      <div class="inbox-item-main">
+        <div class="inbox-item-title">{{ n.title || 'Notification' }}</div>
+        <div class="inbox-item-body" *ngIf="n.body">{{ n.body }}</div>
+        <div class="inbox-item-meta">{{ formatWhen(n.createdAt) }}</div>
+      </div>
+      <button type="button" class="inbox-mark" *ngIf="isUnread(n)" (click)="markRead(n)">Mark read</button>
+    </li>
+  </ul>
+
+  <p class="inbox-empty" *ngIf="!loading && !errorMessage && items.length === 0">No notifications yet.</p>
+</div>
