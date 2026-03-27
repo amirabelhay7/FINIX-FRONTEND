@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-topbar',
@@ -9,11 +9,16 @@ import { Component, Input } from '@angular/core';
 export class TopbarComponent {
 
   @Input() currentPage: string = 'dashboard';
-
+  @Input() currentTheme: 'light' | 'dark' = 'light';
+  @Output() themeToggled = new EventEmitter<void>();
+  @Output() loggedOut = new EventEmitter<void>();
 
   searchValue: string = '';
   hasNotifications: boolean = true;
 
+  onToggleTheme(): void {
+    this.themeToggled.emit();
+  }
 
   onImport(): void {
     console.log('Import clicked');

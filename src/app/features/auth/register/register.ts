@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../services/auth/auth.service';
 
 /** Role option for step 2 (MVVM: copy in VM). */
 interface RegisterRoleOption {
@@ -121,7 +122,10 @@ export class Register {
   /** Quick onboarding label. */
   readonly onboardingLabel = 'Quick 3-step onboarding';
 
-  constructor(private router: Router) {}
+  isLoading = false;
+  registerError = '';
+
+  constructor(private router: Router, private authService: AuthService) {}
 
   nextStep(): void {
     if (this.currentStep < 3) this.currentStep++;
@@ -136,6 +140,42 @@ export class Register {
   }
 
   onSubmit(): void {
-    console.log('Register submitted', { firstName: this.firstName, role: this.selectedRole });
+    if (!this.firstName || !this.lastName || !this.email || !this.password || !this.selectedRole) return;
+
+    this.isLoading = true;
+    this.registerError = '';
+
+    this.authService.register({
+      firstName: this.firstName,
+      lastName: this.lastName,
+      email: this.email,
+      password: this.password,
+      phoneNumber: this.phone ? parseFloat(this.phone) : undefined,
+      cin: this.cin || undefined,
+      address: this.address || undefined,
+      city: this.city || undefined,
+      role: this.selectedRole,
+      localisation: this.localisation || undefined,
+      agenceCode: this.agenceCode ? parseFloat(this.agenceCode) : undefined,
+      region: this.region ? parseFloat(this.region) : undefined,
+      commercialRegister: this.commercialRegister || undefined,
+      insurerName: this.insurerName || undefined,
+      insurerEmail: this.insurerEmail || undefined,
+    }).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        const role = res.role;
+        const dest = role === 'agent' ? '/agent'
+          : role === 'seller' ? '/seller'
+          : role === 'insurer' ? '/insurer'
+          : role === 'admin' ? '/backoffice'
+          : '/client';
+        this.router.navigate([dest]);
+      },
+      error: (err: Error) => {
+        this.isLoading = false;
+        this.registerError = err.message;
+      },
+    });
   }
 }
