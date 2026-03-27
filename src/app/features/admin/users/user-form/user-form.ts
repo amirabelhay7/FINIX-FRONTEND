@@ -86,6 +86,12 @@ export class UserForm implements OnInit {
       return;
     }
 
+    const cin = this.form.cin.trim();
+    if (cin && !/^\d+(\.\d+)?$/.test(cin)) {
+      this.errorMessage = 'CIN must be numeric.';
+      return;
+    }
+
     const payload = this.toPayload(this.form);
     this.saving = true;
 
@@ -96,7 +102,10 @@ export class UserForm implements OnInit {
     request$
       .pipe(
         catchError((err) => {
-          this.errorMessage = err?.error?.message || 'Unable to save user right now.';
+          this.errorMessage =
+            err?.error?.message ||
+            err?.message ||
+            `Unable to save user right now (HTTP ${err?.status ?? 'error'}).`;
           return of(null);
         }),
         finalize(() => {
@@ -171,13 +180,15 @@ export class UserForm implements OnInit {
       lastName: form.lastName.trim(),
       email: form.email.trim(),
       role: form.role,
-      cin: form.cin.trim() || undefined,
       address: form.address.trim() || undefined,
       city: form.city.trim() || undefined,
     };
 
+    const cin = form.cin.trim();
+    if (cin) payload.cin = Number(cin);
+
     const phone = form.phoneNumber.trim();
-    if (phone) payload.phoneNumber = Number(phone);
+    if (phone && !Number.isNaN(Number(phone))) payload.phoneNumber = Number(phone);
 
     const password = form.password.trim();
     if (password) payload.password = password;

@@ -121,7 +121,11 @@ export class AuthService {
 
   /* ── GETTERS ── */
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return (
+      localStorage.getItem(this.TOKEN_KEY) ||
+      localStorage.getItem('access_token') ||
+      localStorage.getItem('token')
+    );
   }
 
   getRole(): string | null {
@@ -157,7 +161,7 @@ export class AuthService {
   }
 
   hasValidToken(): boolean {
-    const token = localStorage.getItem(this.TOKEN_KEY);
+    const token = this.getToken();
     if (!token) return false;
     try {
       const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');

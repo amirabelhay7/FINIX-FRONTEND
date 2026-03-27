@@ -21,7 +21,7 @@ export interface AdminUserUpsertPayload {
   role: string;
   phoneNumber?: number | null;
   password?: string;
-  cin?: string;
+  cin?: number;
   address?: string;
   city?: string;
   agenceCode?: number | null;
@@ -33,7 +33,6 @@ export interface AdminUserUpsertPayload {
 @Injectable({ providedIn: 'root' })
 export class AdminUserService {
   private readonly api = 'http://localhost:8081/api/users';
-  private readonly authApi = 'http://localhost:8081/api/auth';
 
   constructor(private http: HttpClient) {}
 
@@ -46,7 +45,7 @@ export class AdminUserService {
   }
 
   create(payload: AdminUserUpsertPayload): Observable<unknown> {
-    return this.http.post(`${this.authApi}/register`, payload);
+    return this.http.post(`${this.api}/register`, payload);
   }
 
   update(id: number, payload: AdminUserUpsertPayload): Observable<unknown> {
