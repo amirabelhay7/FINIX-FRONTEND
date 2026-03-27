@@ -1,0 +1,61 @@
+<div class="finix-login">
+  <aside class="fl-left" aria-hidden="true">
+    <div class="fl-grid"></div>
+    <div class="fl-orb fl-orb-1" style="background: radial-gradient(circle, rgba(91, 141, 239, 0.45) 0%, transparent 70%)"></div>
+    <div class="fl-orb fl-orb-2" style="background: radial-gradient(circle, rgba(91, 141, 239, 0.28) 0%, transparent 70%)"></div>
+    <div class="fl-scan"></div>
+    <div class="fl-logo">
+      <img src="/assets/logo.png" alt="FIN'IX" style="height: 40px; width: auto" />
+      <div class="fl-logo-name">FIN<em>'</em>IX</div>
+      <div class="fl-logo-div"></div>
+      <div class="fl-logo-sub">Account setup</div>
+    </div>
+    <div class="fl-body">
+      <div class="fl-tag" style="background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.65)">
+        <div class="fl-tag-dot" style="background: #5b8def"></div>
+        <span>Admin invitation</span>
+      </div>
+      <h1 class="fl-h1">
+        <span>Set your<br /></span>
+        <span class="fl-grad" style="background-image: linear-gradient(135deg, #fff 0%, #5b8def 100%)">password</span>
+      </h1>
+      <p class="fl-desc">Your administrator created your account. Choose a secure password to finish activation.</p>
+    </div>
+  </aside>
+
+  <main class="fl-right">
+    <div class="fl-card">
+      <div class="fl-card-inner">
+        <div *ngIf="loading" class="invite-status">Checking invitation…</div>
+
+        <div *ngIf="!loading && errorMessage && !valid" class="invite-error">{{ errorMessage }}</div>
+        <a *ngIf="!loading && !valid" [routerLink]="signInRoute" class="btn btn-outline btn-sm">Back to sign in</a>
+
+        <div *ngIf="!loading && valid && !successMessage">
+          <p class="invite-intro">
+            Hi <strong>{{ firstName || 'there' }}</strong>, set a password for
+            <strong>{{ email }}</strong>
+            <span *ngIf="role"> (role: {{ role }})</span>.
+          </p>
+          <p class="invite-expiry" *ngIf="expiresAt">Link expires: {{ expiresAt }}</p>
+
+          <label class="invite-field">
+            <span>New password (min 8 characters)</span>
+            <input type="password" name="password" [(ngModel)]="password" autocomplete="new-password" />
+          </label>
+          <label class="invite-field">
+            <span>Confirm password</span>
+            <input type="password" name="password2" [(ngModel)]="password2" autocomplete="new-password" />
+          </label>
+
+          <button type="button" class="btn btn-primary btn-sm invite-submit" [disabled]="!canSubmit" (click)="submit()">
+            {{ submitting ? 'Saving…' : 'Activate account' }}
+          </button>
+        </div>
+
+        <div *ngIf="successMessage" class="invite-success">{{ successMessage }}</div>
+        <a *ngIf="successMessage" [routerLink]="signInRoute" class="btn btn-primary btn-sm">Go to sign in</a>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,48 @@
+.invite-status,
+.invite-error,
+.invite-success {
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.invite-error {
+  color: #b91c1c;
+}
+
+.invite-success {
+  color: #047857;
+}
+
+.invite-intro,
+.invite-expiry {
+  font-size: 0.9rem;
+  color: var(--g600, #475569);
+  margin-bottom: 0.75rem;
+}
+
+.invite-expiry {
+  font-size: 0.8rem;
+  color: var(--g500, #64748b);
+}
+
+.invite-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--g700, #334155);
+}
+
+.invite-field input {
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  font-size: 0.95rem;
+}
+
+.invite-submit {
+  width: 100%;
+  margin-top: 0.5rem;
+}

@@ -1,7 +1,12 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, finalize, of } from 'rxjs';
-import { AdminUserApi, AdminUserService, AdminUserUpsertPayload } from '../../../../services/user/admin-user.service';
+import {
+  AdminUserApi,
+  AdminUserCreateResponse,
+  AdminUserService,
+  AdminUserUpsertPayload,
+} from '../../../../services/user/admin-user.service';
 
 type Role = 'CLIENT' | 'AGENT' | 'SELLER' | 'INSURER' | 'ADMIN';
 
@@ -58,7 +63,7 @@ export class UserForm implements OnInit {
   get pageSubtitle(): string {
     return this.editingUserId
       ? 'Update user identity and access details.'
-      : 'Add a new account and assign a role.';
+      : 'Add a new account and assign a role. Leave password empty to email an invitation (Brevo) so the user sets their own password.';
   }
 
   get submitLabel(): string {
@@ -71,8 +76,7 @@ export class UserForm implements OnInit {
       !!this.form.lastName.trim() &&
       !!this.form.email.trim() &&
       !!this.form.role;
-    const hasPasswordWhenCreating = this.editingUserId ? true : !!this.form.password.trim();
-    return hasRequired && hasPasswordWhenCreating;
+    return hasRequired;
   }
 
   submit(): void {
@@ -80,9 +84,7 @@ export class UserForm implements OnInit {
     this.successMessage = '';
 
     if (!this.isValid) {
-      this.errorMessage = this.editingUserId
-        ? 'Please fill all required fields.'
-        : 'Please fill all required fields, including password.';
+      this.errorMessage = 'Please fill all required fields.';
       return;
     }
 
@@ -115,10 +117,16 @@ export class UserForm implements OnInit {
       )
       .subscribe((res) => {
         if (!res) return;
-        this.successMessage = this.editingUserId
-          ? 'User updated successfully.'
-          : 'User created successfully.';
-        setTimeout(() => this.router.navigate(['/admin/users']), 600);
+        if (this.editingUserId) {
+          this.successMessage = 'User updated successfully.';
+        } else {
+          const r = res as AdminUserCreateResponse & Record<string, unknown>;
+          this.successMessage =
+            typeof r.message === 'string'
+              ? r.message
+              : 'User created successfully.';
+        }
+        setTimeout(() => this.router.navigate(['/admin/users']), 1200);
       });
   }
 

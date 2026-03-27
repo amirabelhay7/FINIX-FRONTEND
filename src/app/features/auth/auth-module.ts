@@ -6,6 +6,7 @@ import { AuthRoutingModule } from './auth-routing-module';
 import { LoginComponent } from './login/login.component';
 import { Register } from './register/register';
 import { ForgotPassword } from './forgot-password/forgot-password';
+import { InviteAccept } from './invite-accept/invite-accept';
 import { OtpInputComponent } from '../../shared/components/otp-input/otp-input.component';
 
 @NgModule({
@@ -13,6 +14,7 @@ import { OtpInputComponent } from '../../shared/components/otp-input/otp-input.c
     LoginComponent,
     Register,
     ForgotPassword,
+    InviteAccept,
   ],
   imports: [
     CommonModule,

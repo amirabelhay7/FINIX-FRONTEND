@@ -52,9 +52,18 @@
         </select>
       </label>
 
-      <label class="users-field">
-        <span>{{ editingUserId ? 'New password (optional)' : 'Password *' }}</span>
-        <input type="password" name="password" [(ngModel)]="form.password" />
+      <label class="users-field users-field-full">
+        <span>{{ editingUserId ? 'New password (optional)' : 'Password (optional)' }}</span>
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="form.password"
+          [attr.placeholder]="editingUserId ? '' : 'Leave blank to send invitation email (recommended)'"
+        />
+        <small *ngIf="!editingUserId" class="users-field-hint">
+          If empty, the user receives a Brevo email with a secure link to set their password. If you enter a password, the
+          account is created immediately without an invite email.
+        </small>
       </label>
 
       <label class="users-field users-field-full">

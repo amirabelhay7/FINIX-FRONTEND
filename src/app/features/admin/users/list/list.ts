@@ -9,10 +9,13 @@ interface UserRow {
   email: string;
   role: string;
   roleClass: string;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'INACTIVE' | 'DELETED';
   statusClass: string;
+  onboarding: 'PENDING_INVITE' | 'ACTIVE';
+  onboardingClass: string;
   cin: string;
   city: string;
+  deletedAt?: string;
   viewRoute: string;
   editRoute: string;
 }
@@ -30,6 +33,7 @@ export class List implements OnInit {
 
   searchTerm = '';
   selectedRole = '';
+  showDeleted = false;
 
   loading = false;
   errorMessage = '';
@@ -51,7 +55,7 @@ export class List implements OnInit {
     this.errorMessage = '';
 
     this.adminUser
-      .getAll()
+      .getAll(this.showDeleted)
       .pipe(
         catchError(() => {
           this.errorMessage = 'Unable to load users right now. Please try again.';
@@ -103,8 +107,17 @@ export class List implements OnInit {
     this.selectedRole = '';
   }
 
+  toggleShowDeleted(): void {
+    this.showDeleted = !this.showDeleted;
+    this.loadUsers();
+  }
+
+  onIncludeDeletedChange(): void {
+    this.loadUsers();
+  }
+
   deactivateUser(user: UserRow): void {
-    if (!user.id || user.status === 'INACTIVE') return;
+    if (!user.id || user.status !== 'ACTIVE') return;
     const ok = confirm(`Deactivate ${user.name}? They will no longer be active.`);
     if (!ok) return;
 
@@ -117,15 +130,67 @@ export class List implements OnInit {
           return of(null);
         }),
       )
-      .subscribe((res) => {
-        if (!res) {
-          this.cdr.detectChanges();
-          return;
-        }
+      .subscribe(() => {
         this.users = this.users.map((u) =>
-          u.id === user.id ? { ...u, status: 'INACTIVE', statusClass: 'b-pending' } : u,
+          u.id === user.id ? { ...u, status: 'INACTIVE', statusClass: this.statusClass('INACTIVE') } : u,
         );
         this.actionMessage = `${user.name} deactivated.`;
+        this.cdr.detectChanges();
+      });
+  }
+
+  softDeleteUser(user: UserRow): void {
+    if (!user.id || user.status === 'DELETED') return;
+    const ok = confirm(`Soft delete ${user.name}? The account will be blocked but kept for audit.`);
+    if (!ok) return;
+
+    this.actionMessage = '';
+    const deletedBy = this.auth.getPayload()?.sub || this.auth.getUserName();
+    this.adminUser
+      .softDelete(user.id, deletedBy, 'Soft deleted by admin')
+      .pipe(
+        catchError((err) => {
+          this.actionMessage = err?.error?.message || 'Unable to soft delete user right now.';
+          return of(null);
+        }),
+      )
+      .subscribe(() => {
+        this.showDeleted = true;
+        this.users = this.users
+          .map((u) =>
+            u.id === user.id
+              ? {
+                  ...u,
+                  status: 'DELETED' as 'DELETED',
+                  statusClass: this.statusClass('DELETED'),
+                }
+              : u,
+          )
+          .filter((u) => this.showDeleted || u.status !== 'DELETED');
+        this.actionMessage = `${user.name} soft deleted and moved to DELETED status.`;
+        this.cdr.detectChanges();
+      });
+  }
+
+  restoreUser(user: UserRow): void {
+    if (!user.id || user.status !== 'INACTIVE') return;
+    const ok = confirm(`Restore ${user.name} and reactivate login?`);
+    if (!ok) return;
+
+    this.actionMessage = '';
+    this.adminUser
+      .restore(user.id)
+      .pipe(
+        catchError((err) => {
+          this.actionMessage = err?.error?.message || 'Unable to restore user right now.';
+          return of(null);
+        }),
+      )
+      .subscribe(() => {
+        this.users = this.users.map((u) =>
+          u.id === user.id ? { ...u, status: 'ACTIVE', statusClass: this.statusClass('ACTIVE') } : u,
+        );
+        this.actionMessage = `${user.name} restored.`;
         this.cdr.detectChanges();
       });
   }
@@ -136,8 +201,12 @@ export class List implements OnInit {
     const name = `${first} ${last}`.trim() || '—';
 
     const role = this.asText(u.role).toUpperCase() || 'CLIENT';
-    const status = this.normalizeStatus(u.active);
+    const status = this.normalizeStatus(u.status, u.active);
     const id = u.id;
+
+    const pendingInvite =
+      this.asText(u.onboardingStatus).toUpperCase() === 'PENDING_INVITE' || u.mustSetPassword === true;
+    const onboarding: 'PENDING_INVITE' | 'ACTIVE' = pendingInvite ? 'PENDING_INVITE' : 'ACTIVE';
 
     return {
       id,
@@ -146,17 +215,60 @@ export class List implements OnInit {
       role,
       roleClass: this.roleClass(role),
       status,
-      statusClass: status === 'INACTIVE' ? 'b-pending' : 'b-green',
+      statusClass: this.statusClass(status),
+      onboarding,
+      onboardingClass: this.onboardingClass(onboarding),
       cin: this.asText(u.cin) || '—',
       city: this.asText(u.city) || '—',
+      deletedAt: this.asText(u.deletedAt) || undefined,
       viewRoute: `/admin/users/${id ?? ''}`,
       editRoute: `/admin/users/edit/${id ?? ''}`,
     };
   }
 
-  private normalizeStatus(value: unknown): 'ACTIVE' | 'INACTIVE' {
-    const v = this.asText(value).toUpperCase();
-    return v === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE';
+  private onboardingClass(onboarding: 'PENDING_INVITE' | 'ACTIVE'): string {
+    return onboarding === 'PENDING_INVITE' ? 'b-warning' : 'b-green';
+  }
+
+  resendInvite(user: UserRow): void {
+    if (!user.id || user.onboarding !== 'PENDING_INVITE') return;
+    const ok = confirm(`Resend invitation email to ${user.email}?`);
+    if (!ok) return;
+    this.actionMessage = '';
+    this.adminUser
+      .resendInvite(user.id)
+      .pipe(
+        catchError((err) => {
+          this.actionMessage = err?.error?.message || err?.message || 'Unable to resend invite.';
+          return of(null);
+        }),
+      )
+      .subscribe((res) => {
+        if (!res) return;
+        this.actionMessage = res.message || 'Invitation email resent.';
+        this.cdr.detectChanges();
+      });
+  }
+
+  private normalizeStatus(statusValue: unknown, activeValue: unknown): 'ACTIVE' | 'INACTIVE' | 'DELETED' {
+    const status = this.asText(statusValue).toUpperCase();
+    if (status === 'ACTIVE' || status === 'INACTIVE' || status === 'DELETED') return status;
+    const active = this.asText(activeValue).toUpperCase();
+    if (active === 'INACTIVE') return 'INACTIVE';
+    if (active === 'DELETED') return 'DELETED';
+    return 'ACTIVE';
+  }
+
+  private statusClass(status: 'ACTIVE' | 'INACTIVE' | 'DELETED'): string {
+    switch (status) {
+      case 'INACTIVE':
+        return 'b-pending';
+      case 'DELETED':
+        return 'b-purple';
+      case 'ACTIVE':
+      default:
+        return 'b-green';
+    }
   }
 
   private asText(value: unknown): string {

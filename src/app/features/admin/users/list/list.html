@@ -29,6 +29,15 @@
       </div>
 
       <div class="users-toolbar-right">
+        <label class="users-include-deleted">
+          <input
+            type="checkbox"
+            [(ngModel)]="showDeleted"
+            (ngModelChange)="onIncludeDeletedChange()"
+          />
+          <span>Include deleted users</span>
+        </label>
+
         <select
           class="users-role-filter"
           aria-label="Role filter"
@@ -72,6 +81,7 @@
             <th>Email</th>
             <th>Role</th>
             <th>Status</th>
+            <th>Onboarding</th>
             <th>CIN</th>
             <th>City</th>
             <th style="text-align: right">Actions</th>
@@ -93,6 +103,11 @@
               <span class="badge" [ngClass]="user.statusClass">{{ user.status }}</span>
             </td>
             <td>
+              <span class="badge" [ngClass]="user.onboardingClass">{{
+                user.onboarding === 'PENDING_INVITE' ? 'PENDING INVITE' : 'ACTIVE'
+              }}</span>
+            </td>
+            <td>
               <span class="users-id">{{ user.cin }}</span>
             </td>
             <td>
@@ -104,10 +119,34 @@
               <button
                 type="button"
                 class="btn btn-outline btn-xs users-deactivate-btn"
-                [disabled]="user.status === 'INACTIVE'"
+                *ngIf="user.status === 'ACTIVE'"
                 (click)="deactivateUser(user)"
               >
-                {{ user.status === 'INACTIVE' ? 'Inactive' : 'Deactivate' }}
+                Deactivate
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline btn-xs users-restore-btn"
+                *ngIf="user.status === 'INACTIVE'"
+                (click)="restoreUser(user)"
+              >
+                Restore
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline btn-xs users-delete-btn"
+                *ngIf="user.status !== 'DELETED'"
+                (click)="softDeleteUser(user)"
+              >
+                Soft delete
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline btn-xs users-resend-invite-btn"
+                *ngIf="user.onboarding === 'PENDING_INVITE' && user.status === 'ACTIVE'"
+                (click)="resendInvite(user)"
+              >
+                Resend invite
               </button>
             </td>
           </tr>

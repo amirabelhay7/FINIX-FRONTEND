@@ -110,6 +110,34 @@ export class AuthService {
     );
   }
 
+  /* ── ADMIN INVITE (first password) ── */
+  validateInviteToken(token: string): Observable<{
+    valid: boolean;
+    message?: string;
+    email?: string;
+    firstName?: string;
+    role?: string;
+    expiresAt?: string;
+  }> {
+    const q = encodeURIComponent(token);
+    return this.http
+      .get<{
+        valid: boolean;
+        message?: string;
+        email?: string;
+        firstName?: string;
+        role?: string;
+        expiresAt?: string;
+      }>(`${this.API_URL}/invite/validate?token=${q}`)
+      .pipe(catchError((err) => this.handleError(err)));
+  }
+
+  acceptInvite(token: string, newPassword: string): Observable<{ message?: string }> {
+    return this.http
+      .post<{ message?: string }>(`${this.API_URL}/invite/accept`, { token, newPassword })
+      .pipe(catchError((err) => this.handleError(err)));
+  }
+
   /* ── LOGOUT ── */
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
@@ -192,6 +220,13 @@ export class AuthService {
         : undefined;
 
     let message = bodyMsg;
+
+    if (message) {
+      const lowered = message.toLowerCase();
+      if (lowered.includes('inactive') || lowered.includes('deleted')) {
+        message = 'This account is inactive or deleted. Please contact support.';
+      }
+    }
 
     if (!message) {
       if (err.status === 401) message = 'Invalid credentials.';

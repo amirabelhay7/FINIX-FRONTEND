@@ -66,4 +66,104 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Rebuilt `/admin/users/new` and `/admin/users/edit/:id` as a real admin form (create/update API wiring, load user by id, validation, loading/error/success states) to replace static mock fields and make the page production-usable.
 - Fixed admin user creation edge cases: use admin endpoint (`/api/users/register`), accept legacy token keys for auth header compatibility, and validate numeric CIN in UI to avoid opaque backend parse failures.
 - Implemented MVP soft delete for admin users: deleting now deactivates account status (`INACTIVE`) instead of removing DB rows, and `/admin/users` now shows status badges with a Deactivate action.
+- **Admin invite onboarding (Brevo):** creating a user without a password sends a transactional email with a one-time link (`/auth/invite?token=…`); new users set their password on that page. Admin form explains invite vs optional password; users list shows onboarding badge + **Resend invite**. Backend: `UserInvite` entity (hashed token), `GET/POST /api/auth/invite/*`, login blocked until `mustSetPassword` is cleared.
 
+### Comparison vs `emna` branch (why these refactors are better)
+- **Routing architecture (layout shells + nested child routes)**:
+  - **`emna`**: admin was a single top-level route (`/backoffice`) rendering `BackofficeComponent` directly (no nested router-outlet), and `agent`/`insurer` were also single components at the top level. The `client` route mixed `component` + `loadChildren` in the same route (Angular anti-pattern that breaks predictability).
+  - **Now**: we use dedicated shells with `<router-outlet>` and canonical URLs:
+    - Admin: `/admin/*` under `AdminShellComponent` (sidebar/topbar/theme live once, pages are children).
+    - Agent: `/agent/*` under `AgentShell` and lazy-loaded `AgentModule`.
+    - Insurer: `/insurer/dashboard|offers|events|catalogs` under `InsurerShell` (no ambiguous `:section` style).
+    - Client: `Frontoffice` shell with lazy-loaded children (correct `children: [{ path: '', loadChildren: ... }]`).
+  - **Why better**: URLs drive state (deep-linking works), layout is not duplicated per page, modules can be split/loaded independently, and adding new admin pages becomes “add a child route” instead of growing a mega-template.
+
+- **Concrete example (routing diff you can “see”)**:
+
+```ts
+// emna: src/app/app-routing-module.ts
+{ path: 'backoffice', component: BackofficeComponent, canActivate: [roleGuard('admin')] }
+{ path: 'agent', component: AgentLayout, canActivate: [roleGuard('agent')] }
+{ path: 'client', component: Frontoffice, canActivate: [roleGuard('client')], loadChildren: () => import('./features/client/client-module').then(m => m.ClientModule) } // (component + loadChildren)
+```
+
+```ts
+// GhassenDhaoui: src/app/app-routing-module.ts
+{
+  path: 'admin',
+  component: AdminShellComponent,
+  canActivate: [roleGuard('admin')],
+  children: [
+    { path: 'dashboard', component: BackofficeComponent },
+    { path: 'users', loadChildren: () => import('./features/admin/users/users-module').then(m => m.UsersModule) },
+    // ...more admin sections...
+  ],
+}
+{
+  path: 'client',
+  component: Frontoffice,
+  canActivate: [roleGuard('client')],
+  children: [{ path: '', loadChildren: () => import('./features/client/client-module').then(m => m.ClientModule) }],
+}
+```
+
+- **What this unlocks**:
+  - `/admin/users` is now a real page (deep-linkable) inside the admin layout.
+  - Layout components (`<app-sidebar>`, `<app-topbar>`) are rendered once in the shell, not copy/pasted into every admin page/template.
+
+- **Templating consistency (reusable UI shells instead of one-off pages)**:
+  - **`emna`**: auth pages (e.g. forgot-password) used Tailwind/Material icons and a different layout system than login.
+  - **Now**: auth pages reuse the same `finix-login` shell and shared styling (`login.component.css`), using inline SVG icons (no brittle external icon/font dependencies).
+  - **Why better**: consistent UX, fewer duplicated styles, and more reliable builds/offline dev (no build-time font/icon fetch issues).
+
+- **Concrete example (layout shell vs page-specific UI)**:
+
+```html
+<!-- GhassenDhaoui: src/app/layout/admin-shell/admin-shell.component.html -->
+<app-sidebar></app-sidebar>
+<div class="layout-wrapper">
+  <app-topbar ...></app-topbar>
+  <main class="main">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+```
+
+In `emna`, there is **no** `AdminShellComponent`; `/backoffice` just renders `BackofficeComponent` directly, which pushes layout concerns (sidebar/topbar, theme state, page switching) into page templates and makes every new admin page harder to isolate.\n+
+- **Auth routing + guard correctness**:
+  - **`emna`**: default auth redirect went to a separate `login-client` page, and auth routes were not protected by a guest guard (logged-in users could still navigate to `/login`).
+  - **Now**: single clear entrypoint (`/login`) and `guestGuard` is applied to auth routes to keep navigation coherent.
+  - **Why better**: fewer “parallel login flows”, fewer edge cases, and routing behavior matches user expectations.
+
+- **Concrete example (auth routing cleanup)**:
+
+```ts
+// emna: src/app/features/auth/auth-routing-module.ts
+{ path: 'login-client', component: LoginClient }
+{ path: '', redirectTo: 'login-client', pathMatch: 'full' }
+```
+
+```ts
+// GhassenDhaoui: src/app/features/auth/auth-routing-module.ts
+{ path: 'login', component: LoginComponent, canActivate: [guestGuard] }
+{ path: '', redirectTo: 'login', pathMatch: 'full' }
+```
+
+- **Admin UX is more maintainable and production-like**:
+  - **`emna`**: `/admin/users` and `/admin/users/new` were mostly static/visual templates (hardcoded search, no real filtering, limited feedback).
+  - **Now**: users list + form are wired to real data/services, support filtering, status/onboarding visibility, and action feedback (plus the new invite onboarding flow).
+  - **Why better**: less “demo UI”, more real admin tooling, and changes are localized to feature modules/components instead of global templates.
+
+- **Concrete example (static mock vs real bound UI)**:
+  - In `emna`, the users search input wasn’t bound (no `[(ngModel)]`), and the role filter options were hardcoded.\n+  - In `GhassenDhaoui`, the list is actually driven by component state:
+
+```html
+<!-- GhassenDhaoui: src/app/features/admin/users/list/list.html -->
+<input class="users-search-input" [(ngModel)]="searchTerm" placeholder="Search by name, email, role, CIN, city..." />
+<select class="users-role-filter" [(ngModel)]="selectedRole">
+  <option value="">All roles</option>
+  <option *ngFor="let role of roleOptions" [value]="role">{{ role }}</option>
+</select>
+```
+
+This is why the UX feels “real”: filtering works off actual loaded data, and the same component supports more features over time (include-deleted, lifecycle badges, onboarding state) without rewriting templates.

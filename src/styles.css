@@ -393,6 +393,7 @@ td { padding:.75rem 1rem; font-size:.8375rem; color:var(--g700); vertical-align:
 .badge::before { content:''; width:5px; height:5px; border-radius:50%; background:currentColor; }
 .b-actif    { color:#16a34a; background:rgba(22,163,74,.1); }
 .b-pending  { color:#d97706; background:rgba(217,119,6,.1); }
+.b-warning  { color:#b45309; background:rgba(217,119,6,.14); }
 .b-rejected { color:#dc2626; background:rgba(220,38,38,.1); }
 .b-closed   { color:var(--g500); background:var(--g100); }
 .b-review   { color:var(--blue); background:var(--soft); }
