@@ -2,29 +2,30 @@
   <!-- Left — branding -->
   <aside class="fl-left" aria-hidden="true">
     <div class="fl-grid"></div>
-    <div class="fl-orb fl-orb-1" style="background: radial-gradient(circle, rgba(91, 141, 239, 0.45) 0%, transparent 70%)"></div>
-    <div class="fl-orb fl-orb-2" style="background: radial-gradient(circle, rgba(91, 141, 239, 0.28) 0%, transparent 70%)"></div>
+    <div class="fl-orb fl-orb-1"
+      style="background: radial-gradient(circle, rgba(91, 141, 239, 0.45) 0%, transparent 70%)"></div>
+    <div class="fl-orb fl-orb-2"
+      style="background: radial-gradient(circle, rgba(91, 141, 239, 0.28) 0%, transparent 70%)"></div>
     <div class="fl-scan"></div>
 
     <div class="fl-logo">
-      <img
-        src="/assets/logo.png"
-        alt="FIN'IX"
-        style="height: 40px; width: auto; filter: drop-shadow(0 0 8px rgba(200, 170, 80, 0.4))"
-      />
+      <img src="/assets/logo.png" alt="FIN'IX"
+        style="height: 40px; width: auto; filter: drop-shadow(0 0 8px rgba(200, 170, 80, 0.4))" />
       <div class="fl-logo-name">FIN<em>'</em>IX</div>
       <div class="fl-logo-div"></div>
       <div class="fl-logo-sub">Create account</div>
     </div>
 
     <div class="fl-body">
-      <div class="fl-tag" style="background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.65)">
+      <div class="fl-tag"
+        style="background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.65)">
         <div class="fl-tag-dot" style="background: #5b8def"></div>
         <span>{{ onboardingLabel }}</span>
       </div>
 
       <div class="fl-icon-wrap" style="background: rgba(91, 141, 239, 0.15); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2)">
-        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#5B8DEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#5B8DEF" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
           <circle cx="9" cy="7" r="4" />
           <line x1="19" y1="8" x2="19" y2="14" />
@@ -34,17 +35,15 @@
 
       <h1 class="fl-h1">
         <span>Start in<br /></span>
-        <span class="fl-grad" style="background-image: linear-gradient(135deg, #fff 0%, #5b8def 100%)">three steps</span>
+        <span class="fl-grad" style="background-image: linear-gradient(135deg, #fff 0%, #5b8def 100%)">three
+          steps</span>
       </h1>
       <p class="fl-desc">Register as a Client or Seller. Staff roles are provisioned by your admin team.</p>
 
       <div class="reg-left-steps">
-        <div
-          *ngFor="let step of stepsCopy; let i = index"
-          class="reg-left-step"
+        <div *ngFor="let step of stepsCopy; let i = index" class="reg-left-step"
           [class.reg-left-step-active]="currentStep >= i + 1 && currentStep <= 3"
-          [class.reg-left-step-done]="currentStep > i + 1 || currentStep === 4"
-        >
+          [class.reg-left-step-done]="currentStep > i + 1 || currentStep === 4">
           <span class="reg-left-dot">{{ i + 1 }}</span>
           <div>
             <div class="reg-left-title">{{ step.title }}</div>
@@ -77,7 +76,8 @@
       <ng-container *ngIf="currentStep <= 3">
         <div class="fl-login-top">
           <a class="fl-back-btn" [routerLink]="signInRoute" title="Back to sign in">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </a>
@@ -103,7 +103,8 @@
         </div>
 
         <div class="fl-alert err" [class.show]="!!stepError || (!!registerError && currentStep !== 3)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -117,11 +118,13 @@
         <div class="reg-grid-2">
           <div class="fl-field" style="margin-bottom: 0.85rem">
             <label class="fl-field-label">First name</label>
-            <input class="fl-field-inp" style="padding-left: 1rem" type="text" [(ngModel)]="firstName" name="firstName" placeholder="Amadou" autocomplete="given-name" />
+            <input class="fl-field-inp" style="padding-left: 1rem" type="text" [(ngModel)]="firstName" name="firstName"
+              placeholder="Amadou" autocomplete="given-name" />
           </div>
           <div class="fl-field" style="margin-bottom: 0.85rem">
             <label class="fl-field-label">Last name</label>
-            <input class="fl-field-inp" style="padding-left: 1rem" type="text" [(ngModel)]="lastName" name="lastName" placeholder="Kone" autocomplete="family-name" />
+            <input class="fl-field-inp" style="padding-left: 1rem" type="text" [(ngModel)]="lastName" name="lastName"
+              placeholder="Kone" autocomplete="family-name" />
           </div>
         </div>
 
@@ -129,23 +132,27 @@
           <label class="fl-field-label">Email</label>
           <div class="fl-inp-wrap">
             <span class="fl-inp-ico">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                 <polyline points="22,6 12,13 2,6" />
               </svg>
             </span>
-            <input class="fl-field-inp" type="email" [(ngModel)]="email" name="email" placeholder="you@example.com" autocomplete="email" />
+            <input class="fl-field-inp" type="email" [(ngModel)]="email" name="email" placeholder="you@example.com"
+              autocomplete="email" />
           </div>
         </div>
 
         <div class="reg-grid-2">
           <div class="fl-field" style="margin-bottom: 0.85rem">
             <label class="fl-field-label">Phone</label>
-            <input class="fl-field-inp" style="padding-left: 1rem" type="tel" [(ngModel)]="phone" name="phone" placeholder="+216 …" autocomplete="tel" />
+            <input class="fl-field-inp" style="padding-left: 1rem" type="tel" [(ngModel)]="phone" name="phone"
+              placeholder="+216 …" autocomplete="tel" />
           </div>
           <div class="fl-field" style="margin-bottom: 0.85rem">
             <label class="fl-field-label">Date of birth</label>
-            <input class="fl-field-inp" style="padding-left: 1rem" type="date" [(ngModel)]="dateOfBirth" name="dateOfBirth" />
+            <input class="fl-field-inp" style="padding-left: 1rem" type="date" [(ngModel)]="dateOfBirth"
+              name="dateOfBirth" />
           </div>
         </div>
 
@@ -153,7 +160,8 @@
           <label class="fl-field-label">National ID (CIN)</label>
           <div class="fl-inp-wrap">
             <span class="fl-inp-ico">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <rect x="5" y="2" width="14" height="20" rx="2" />
                 <line x1="12" y1="18" x2="12.01" y2="18" />
               </svg>
@@ -165,11 +173,13 @@
         <div class="reg-grid-2">
           <div class="fl-field" style="margin-bottom: 0.85rem">
             <label class="fl-field-label">Address</label>
-            <input class="fl-field-inp" style="padding-left: 1rem" type="text" [(ngModel)]="address" name="address" placeholder="Street" autocomplete="street-address" />
+            <input class="fl-field-inp" style="padding-left: 1rem" type="text" [(ngModel)]="address" name="address"
+              placeholder="Street" autocomplete="street-address" />
           </div>
           <div class="fl-field" style="margin-bottom: 0.85rem">
             <label class="fl-field-label">City</label>
-            <input class="fl-field-inp" style="padding-left: 1rem" type="text" [(ngModel)]="city" name="city" placeholder="Tunis" autocomplete="address-level2" />
+            <input class="fl-field-inp" style="padding-left: 1rem" type="text" [(ngModel)]="city" name="city"
+              placeholder="Tunis" autocomplete="address-level2" />
           </div>
         </div>
 
@@ -177,18 +187,21 @@
           <label class="fl-field-label">Password</label>
           <div class="fl-inp-wrap">
             <span class="fl-inp-ico">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
             </span>
-            <input class="fl-field-inp" type="password" [(ngModel)]="password" name="password" placeholder="At least 8 characters" autocomplete="new-password" />
+            <input class="fl-field-inp" type="password" [(ngModel)]="password" name="password"
+              placeholder="At least 8 characters" autocomplete="new-password" />
           </div>
         </div>
 
         <button type="button" class="fl-sub-btn" style="background: #0b1c2d" (click)="nextStep()">
           <span>{{ continueLabel }}</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <line x1="5" y1="12" x2="19" y2="12" />
             <polyline points="12 5 19 12 12 19" />
           </svg>
@@ -200,7 +213,8 @@
         <p class="reg-step-heading">{{ step2Heading }}</p>
 
         <div class="fl-note" style="margin-bottom: 1rem">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -209,20 +223,17 @@
         </div>
 
         <div class="reg-rc-grid">
-          <button
-            type="button"
-            class="fl-rc reg-rc-card"
-            [class.sel]="selectedRole === 'CLIENT'"
-            (click)="selectRole('CLIENT')"
-            style="--rc-col: #1f6fea"
-          >
+          <button type="button" class="fl-rc reg-rc-card" [class.sel]="selectedRole === 'CLIENT'"
+            (click)="selectRole('CLIENT')" style="--rc-col: #1f6fea">
             <div class="fl-rc-check">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
             <div class="fl-rc-ico" style="background: rgba(31, 111, 234, 0.12)">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1F6FEA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1F6FEA" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
@@ -231,20 +242,17 @@
             <p class="fl-rc-desc">{{ roleOptions[0].description }}</p>
           </button>
 
-          <button
-            type="button"
-            class="fl-rc reg-rc-card"
-            [class.sel]="selectedRole === 'SELLER'"
-            (click)="selectRole('SELLER')"
-            style="--rc-col: #7c3aed"
-          >
+          <button type="button" class="fl-rc reg-rc-card" [class.sel]="selectedRole === 'SELLER'"
+            (click)="selectRole('SELLER')" style="--rc-col: #7c3aed">
             <div class="fl-rc-check">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
             <div class="fl-rc-ico" style="background: rgba(124, 58, 237, 0.12)">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                 <polyline points="9 22 9 12 15 12 15 22" />
               </svg>
@@ -256,14 +264,17 @@
 
         <div class="reg-nav-row">
           <button type="button" class="reg-btn-secondary" (click)="prevStep()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
             {{ backLabel }}
           </button>
-          <button type="button" class="fl-sub-btn reg-btn-primary" style="background: #0b1c2d; flex: 1; margin-bottom: 0" [disabled]="!selectedRole" (click)="nextStep()">
+          <button type="button" class="fl-sub-btn reg-btn-primary"
+            style="background: #0b1c2d; flex: 1; margin-bottom: 0" [disabled]="!selectedRole" (click)="nextStep()">
             {{ continueLabel }}
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12" />
               <polyline points="12 5 19 12 12 19" />
             </svg>
@@ -280,14 +291,8 @@
         <div *ngIf="selectedRole === 'CLIENT'" class="reg-role-block">
           <div class="fl-field">
             <label class="fl-field-label">{{ clientLocalisationLabel }}</label>
-            <input
-              class="fl-field-inp"
-              style="padding-left: 1rem"
-              type="text"
-              [(ngModel)]="localisation"
-              name="localisation"
-              [placeholder]="clientLocalisationPlaceholder"
-            />
+            <input class="fl-field-inp" style="padding-left: 1rem" type="text" [(ngModel)]="localisation"
+              name="localisation" [placeholder]="clientLocalisationPlaceholder" />
           </div>
           <div class="reg-hint reg-hint-info">{{ clientKycNotice }}</div>
         </div>
@@ -297,18 +302,14 @@
             <label class="fl-field-label">{{ sellerRegisterLabel }}</label>
             <div class="fl-inp-wrap">
               <span class="fl-inp-ico">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                 </svg>
               </span>
-              <input
-                class="fl-field-inp"
-                type="text"
-                [(ngModel)]="commercialRegister"
-                name="commercialRegister"
-                [placeholder]="sellerRegisterPlaceholder"
-              />
+              <input class="fl-field-inp" type="text" [(ngModel)]="commercialRegister" name="commercialRegister"
+                [placeholder]="sellerRegisterPlaceholder" />
             </div>
           </div>
           <div class="reg-hint reg-hint-warn">{{ sellerNotice }}</div>
@@ -326,13 +327,16 @@
 
         <div class="reg-nav-row">
           <button type="button" class="reg-btn-secondary" (click)="prevStep()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
             {{ backLabel }}
           </button>
-          <button type="button" class="fl-sub-btn reg-btn-primary" style="background: #0b1c2d; flex: 1; margin-bottom: 0" [disabled]="isLoading" (click)="onSubmit()">
-            <svg *ngIf="!isLoading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button type="button" class="fl-sub-btn reg-btn-primary"
+            style="background: #0b1c2d; flex: 1; margin-bottom: 0" [disabled]="isLoading" (click)="onSubmit()">
+            <svg *ngIf="!isLoading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
@@ -341,7 +345,8 @@
         </div>
 
         <div class="fl-alert err reg-step3-err" [class.show]="!!registerError">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -353,7 +358,8 @@
       <!-- Step 4 — OTP -->
       <ng-container *ngIf="currentStep === 4">
         <div class="fl-alert ok" [class.show]="!!otpSentMessage" style="margin-bottom: 1rem">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px">
             <polyline points="20 6 9 17 4 12" />
           </svg>
           <span>{{ otpSentMessage }}</span>
@@ -361,7 +367,8 @@
 
         <div class="fl-login-top">
           <button type="button" class="fl-back-btn" (click)="backToRegisterFromOtp()" title="Back">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
@@ -373,13 +380,15 @@
 
         <div class="fl-otp-top" style="margin-bottom: 1.25rem">
           <div class="fl-otp-icon">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1F6FEA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1F6FEA" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
               <polyline points="22,6 12,13 2,6" />
             </svg>
           </div>
           <div class="fl-otp-title" style="font-size: 1.5rem">Check your inbox</div>
-          <p class="fl-otp-sub">Enter the 6-digit code we sent to <span class="fl-otp-tel">{{ pendingEmail }}</span>.</p>
+          <p class="fl-otp-sub">Enter the 6-digit code we sent to <span class="fl-otp-tel">{{ pendingEmail }}</span>.
+          </p>
         </div>
 
         <div class="fp-step-card">
@@ -389,11 +398,13 @@
           <div class="fp-otp-meta">
             Expires in <span>{{ otpCountdown }}</span>
             <span class="fp-dot">·</span>
-            <button type="button" class="fl-otp-resend" [disabled]="otpResendDisabled || isLoading" (click)="resendOtp()">Resend code</button>
+            <button type="button" class="fl-otp-resend" [disabled]="otpResendDisabled || isLoading"
+              (click)="resendOtp()">Resend code</button>
           </div>
 
           <div class="fl-alert err" [class.show]="!!registerError" style="margin-top: 1rem; margin-bottom: 0">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px">
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -401,7 +412,8 @@
             <span>{{ registerError }}</span>
           </div>
 
-          <button type="button" class="fl-sub-btn" style="background: #0b1c2d; margin-top: 1rem; width: 100%" [disabled]="!otpComplete || isLoading" (click)="verifyOtp()">
+          <button type="button" class="fl-sub-btn" style="background: #0b1c2d; margin-top: 1rem; width: 100%"
+            [disabled]="!otpComplete || isLoading" (click)="verifyOtp()">
             <span>{{ isLoading ? 'Verifying…' : 'Verify & continue' }}</span>
           </button>
         </div>
