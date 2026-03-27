@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../../../services/notifications/notification.service';
+import { AuthService } from '../../../../services/auth/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-topbar',
@@ -8,7 +10,7 @@ import { NotificationService } from '../../../../services/notifications/notifica
   styleUrls: ['./topbar.component.css'],
   standalone: false,
 })
-export class TopbarComponent implements OnInit {
+export class TopbarComponent implements OnInit, OnDestroy {
   @Input() currentPage: string = 'dashboard';
   @Input() currentTheme: 'light' | 'dark' = 'light';
   @Output() themeToggled = new EventEmitter<void>();
@@ -16,14 +18,31 @@ export class TopbarComponent implements OnInit {
 
   searchValue: string = '';
   hasNotifications = false;
+  private wsSubscription: Subscription | null = null;
 
   constructor(
     private router: Router,
     private notificationService: NotificationService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
     this.refreshUnread();
+
+    const payload = this.authService.getPayload();
+    const token = this.authService.getToken();
+    if (payload?.userId) {
+      this.notificationService.connectWebSocket(payload.userId, token || undefined);
+      this.wsSubscription = this.notificationService.realTimeNotification$.subscribe(() => {
+        this.hasNotifications = true;
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
   }
 
   onToggleTheme(): void {
