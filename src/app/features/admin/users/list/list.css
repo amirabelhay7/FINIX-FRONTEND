@@ -115,6 +115,12 @@
   border-top: 1px solid rgba(239, 68, 68, 0.12);
 }
 
+.users-success {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.08);
+  border-top: 1px solid rgba(16, 185, 129, 0.2);
+}
+
 .users-table-wrap {
   border-top: 1px solid var(--g100);
 }
@@ -152,6 +158,11 @@
 
 .users-actions-cell .btn {
   margin-left: 0.35rem;
+}
+
+.users-deactivate-btn[disabled] {
+  opacity: 0.7;
+  cursor: default;
 }
 
 @media (max-width: 900px) {

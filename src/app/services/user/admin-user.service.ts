@@ -12,6 +12,7 @@ export interface AdminUserApi {
   cin?: string | number | null;
   address?: string | null;
   city?: string | null;
+  active?: string | null;
 }
 
 export interface AdminUserUpsertPayload {
@@ -50,6 +51,10 @@ export class AdminUserService {
 
   update(id: number, payload: AdminUserUpsertPayload): Observable<unknown> {
     return this.http.put(`${this.api}/${id}`, payload);
+  }
+
+  deactivate(id: number): Observable<unknown> {
+    return this.http.delete(`${this.api}/${id}`);
   }
 }
 

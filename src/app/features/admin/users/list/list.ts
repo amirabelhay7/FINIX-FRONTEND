@@ -9,6 +9,8 @@ interface UserRow {
   email: string;
   role: string;
   roleClass: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  statusClass: string;
   cin: string;
   city: string;
   viewRoute: string;
@@ -31,6 +33,7 @@ export class List implements OnInit {
 
   loading = false;
   errorMessage = '';
+  actionMessage = '';
   users: UserRow[] = [];
 
   constructor(
@@ -100,12 +103,40 @@ export class List implements OnInit {
     this.selectedRole = '';
   }
 
+  deactivateUser(user: UserRow): void {
+    if (!user.id || user.status === 'INACTIVE') return;
+    const ok = confirm(`Deactivate ${user.name}? They will no longer be active.`);
+    if (!ok) return;
+
+    this.actionMessage = '';
+    this.adminUser
+      .deactivate(user.id)
+      .pipe(
+        catchError((err) => {
+          this.actionMessage = err?.error?.message || 'Unable to deactivate user right now.';
+          return of(null);
+        }),
+      )
+      .subscribe((res) => {
+        if (!res) {
+          this.cdr.detectChanges();
+          return;
+        }
+        this.users = this.users.map((u) =>
+          u.id === user.id ? { ...u, status: 'INACTIVE', statusClass: 'b-pending' } : u,
+        );
+        this.actionMessage = `${user.name} deactivated.`;
+        this.cdr.detectChanges();
+      });
+  }
+
   private mapUser(u: AdminUserApi): UserRow {
     const first = this.asText(u.firstName);
     const last = this.asText(u.lastName);
     const name = `${first} ${last}`.trim() || '—';
 
     const role = this.asText(u.role).toUpperCase() || 'CLIENT';
+    const status = this.normalizeStatus(u.active);
     const id = u.id;
 
     return {
@@ -114,11 +145,18 @@ export class List implements OnInit {
       email: this.asText(u.email) || '—',
       role,
       roleClass: this.roleClass(role),
+      status,
+      statusClass: status === 'INACTIVE' ? 'b-pending' : 'b-green',
       cin: this.asText(u.cin) || '—',
       city: this.asText(u.city) || '—',
       viewRoute: `/admin/users/${id ?? ''}`,
       editRoute: `/admin/users/edit/${id ?? ''}`,
     };
+  }
+
+  private normalizeStatus(value: unknown): 'ACTIVE' | 'INACTIVE' {
+    const v = this.asText(value).toUpperCase();
+    return v === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE';
   }
 
   private asText(value: unknown): string {

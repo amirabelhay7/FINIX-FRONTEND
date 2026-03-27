@@ -53,6 +53,9 @@
       <span>{{ filteredUsers.length }} result{{ filteredUsers.length === 1 ? '' : 's' }}</span>
       <span *ngIf="hasActiveFilters">filtered from {{ users.length }}</span>
     </div>
+    <div class="users-feedback users-success" *ngIf="!loading && actionMessage && !errorMessage">
+      {{ actionMessage }}
+    </div>
 
     <div class="users-feedback" *ngIf="loading">Loading users...</div>
 
@@ -68,6 +71,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Role</th>
+            <th>Status</th>
             <th>CIN</th>
             <th>City</th>
             <th style="text-align: right">Actions</th>
@@ -86,6 +90,9 @@
               <span class="badge" [ngClass]="user.roleClass">{{ user.role }}</span>
             </td>
             <td>
+              <span class="badge" [ngClass]="user.statusClass">{{ user.status }}</span>
+            </td>
+            <td>
               <span class="users-id">{{ user.cin }}</span>
             </td>
             <td>
@@ -94,6 +101,14 @@
             <td class="users-actions-cell">
               <a [routerLink]="user.viewRoute" class="btn btn-ghost btn-xs">View</a>
               <a [routerLink]="user.editRoute" class="btn btn-outline btn-xs">Edit</a>
+              <button
+                type="button"
+                class="btn btn-outline btn-xs users-deactivate-btn"
+                [disabled]="user.status === 'INACTIVE'"
+                (click)="deactivateUser(user)"
+              >
+                {{ user.status === 'INACTIVE' ? 'Inactive' : 'Deactivate' }}
+              </button>
             </td>
           </tr>
         </tbody>

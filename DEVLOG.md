@@ -65,4 +65,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 - Polished `/admin/users` search/filter toolbar (clean input, dynamic role options, clear button, result counter) so filtering is easier to use and visually consistent with the admin shell.
 - Rebuilt `/admin/users/new` and `/admin/users/edit/:id` as a real admin form (create/update API wiring, load user by id, validation, loading/error/success states) to replace static mock fields and make the page production-usable.
 - Fixed admin user creation edge cases: use admin endpoint (`/api/users/register`), accept legacy token keys for auth header compatibility, and validate numeric CIN in UI to avoid opaque backend parse failures.
+- Implemented MVP soft delete for admin users: deleting now deactivates account status (`INACTIVE`) instead of removing DB rows, and `/admin/users` now shows status badges with a Deactivate action.
 
