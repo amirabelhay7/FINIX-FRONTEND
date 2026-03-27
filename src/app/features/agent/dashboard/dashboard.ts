@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { AgentKpis, AgentQuickAction, AgentActivityItem } from '../../../models';
 
 /**
- * ViewModel: agent dashboard (MVVM).
+ * Capital Flow Monitor — dashboard body (same markup as `origin/emna` layout/agent).
  */
 @Component({
   selector: 'app-dashboard',
@@ -11,25 +10,43 @@ import { AgentKpis, AgentQuickAction, AgentActivityItem } from '../../../models'
   styleUrl: './dashboard.css',
 })
 export class Dashboard {
-  readonly pageTitle = 'Agent Dashboard';
-  readonly pageSubtitle = "Your activity and today's tasks.";
-  readonly quickActionsTitle = 'Quick actions';
-  readonly recentActivityTitle = 'Recent activity';
-
-  readonly kpis: AgentKpis = {
-    topUpsToday: '12',
-    verificationsPending: '3',
-    commissionMonth: '420 TND',
-  };
-
-  readonly quickActions: AgentQuickAction[] = [
-    { title: 'Load client wallet', route: '/agent/top-up', icon: 'account_balance_wallet' },
-    { title: 'Verify loan applicant', route: '/agent/loan-verification', icon: 'verified_user' },
+  readonly chartBars = [35, 42, 55, 48, 38, 52, 60, 45, 58, 72, 65, 85];
+  readonly chartMonths = [
+    'Mar',
+    'Avr',
+    'Mai',
+    'Jun',
+    'Jul',
+    'Aoû',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Déc',
+    'Jan',
+    'Fév',
   ];
 
-  readonly recentActivity: AgentActivityItem[] = [
-    { title: 'Top-up · Amadou Kone', subtitle: '+2,000 TND · 25 mins ago', icon: 'south_east', iconBgClass: 'bg-green-50', iconColorClass: 'text-green-600' },
-    { title: 'Verification · Youssef Hammami', subtitle: 'Loan 7,500 TND · 1 hour ago', icon: 'verified_user', iconBgClass: 'bg-blue-50', iconColorClass: 'text-[#135bec]' },
-    { title: 'Top-up · Fatma Trabelsi', subtitle: '+500 TND · 2 hours ago', icon: 'south_east', iconBgClass: 'bg-green-50', iconColorClass: 'text-green-600' },
+  readonly riskClients = [
+    {
+      initials: 'C',
+      name: 'S. Hammami',
+      detail: 'Auto · 24 000 TND',
+      pct: 72,
+      color: '#EF4444',
+    },
+    {
+      initials: 'B',
+      name: 'W. Ferchichi',
+      detail: 'Immo. · 120 000 TND',
+      pct: 48,
+      color: '#F59E0B',
+    },
+    {
+      initials: 'D',
+      name: 'I. Oueslati',
+      detail: 'Conso. · 8 500 TND',
+      pct: 35,
+      color: '#EF4444',
+    },
   ];
 }

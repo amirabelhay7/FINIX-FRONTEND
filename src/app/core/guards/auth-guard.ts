@@ -27,6 +27,25 @@ const roleToRoute: Record<string, string> = {
   SELLER: '/seller',
 };
 
+function homeRouteForRole(role: string | null): string {
+  if (!role) return '/client';
+  const key = role.toLowerCase();
+  return roleToRoute[key] ?? '/client';
+}
+
+/** Blocks login/register/forgot-password when already signed in. */
+export const guestGuard: CanActivateFn = () => {
+  const router = inject(Router);
+  const authService = inject(AuthService);
+
+  if (!authService.hasValidToken()) {
+    return true;
+  }
+
+  router.navigate([homeRouteForRole(authService.getRole())]);
+  return false;
+};
+
 export function roleGuard(...allowedRoles: string[]): CanActivateFn {
   return (route, state) => {
     const router = inject(Router);

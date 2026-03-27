@@ -103,6 +103,10 @@
   display: flex; flex-direction: column;
   font-family: 'Figtree', -apple-system, sans-serif;
 }
+/* Subnav (sl-nav) is only rendered on /seller/dashboard */
+.sl-main.sl-main--compact {
+  padding-top: 56px;
+}
 
 /* ─── STATS ROW ─── */
 .sl-stats-row {

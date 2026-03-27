@@ -1,0 +1,256 @@
+/* Register — extends FINIX login shell (see styleUrls) */
+
+.finix-login.reg-page .fl-login-sub a {
+  color: #1f6fea;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.finix-login.reg-page .fl-login-sub a:hover {
+  text-decoration: underline;
+}
+
+/* Left column step list */
+.reg-left-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.reg-left-step {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
+}
+
+.reg-left-step-active,
+.reg-left-step-done {
+  opacity: 1;
+}
+
+.reg-left-dot {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reg-left-step-done .reg-left-dot {
+  background: rgba(91, 141, 239, 0.35);
+  border-color: rgba(91, 141, 239, 0.5);
+  color: #fff;
+}
+
+.reg-left-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.15rem;
+}
+
+.reg-left-sub {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.38);
+  line-height: 1.35;
+}
+
+/* Progress */
+.reg-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.reg-seg-wrap {
+  flex: 1;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.reg-seg {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: #e8edf4;
+  transition: background 0.25s ease;
+}
+
+.reg-seg.on {
+  background: linear-gradient(90deg, #1f6fea, #5b8def);
+}
+
+.reg-progress-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #8fa3bc;
+  text-transform: uppercase;
+}
+
+.reg-step-heading {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8fa3bc;
+  margin: 0 0 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eef2f8;
+}
+
+/* Two role cards */
+.reg-rc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 520px) {
+  .reg-rc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.reg-rc-card {
+  text-align: left;
+}
+
+.reg-rc-card .fl-rc-name,
+.reg-rc-card .fl-rc-desc {
+  text-align: left;
+}
+
+.reg-rc-card .fl-rc-ico {
+  margin: 0 0 0.75rem;
+}
+
+/* Nav row */
+.reg-nav-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+  margin-top: 0.25rem;
+}
+
+.reg-btn-secondary {
+  flex: 0 0 auto;
+  min-width: 110px;
+  padding: 0.8rem 1rem;
+  background: #f5f7fa;
+  color: #5e7a96;
+  border-radius: 12px;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.reg-btn-secondary:hover {
+  background: #eaf2ff;
+  color: #1f6fea;
+}
+
+.reg-btn-primary {
+  margin-bottom: 0 !important;
+}
+
+/* Step 3: error below buttons (visible if user scrolled past header alert) */
+.reg-step3-err {
+  margin-top: 0.75rem;
+}
+
+/* Hints */
+.reg-hint {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-top: 0.5rem;
+}
+
+.reg-hint-info {
+  background: #f0f7ff;
+  border: 1px solid rgba(31, 111, 234, 0.15);
+  color: #1e3a5f;
+}
+
+.reg-hint-warn {
+  background: #faf5ff;
+  border: 1px solid rgba(124, 58, 237, 0.15);
+  color: #5b21b6;
+}
+
+.reg-role-block {
+  margin-bottom: 0.5rem;
+}
+
+/* OTP card (match forgot-password) */
+.finix-login .fp-step-card {
+  margin-top: 0.5rem;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid #eef2f8;
+  border-radius: 14px;
+  background: #fafbfd;
+}
+
+.finix-login .fp-code-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #8fa3bc;
+  margin-bottom: 0.75rem;
+}
+
+.finix-login .fp-otp-meta {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #5e7a96;
+  margin-top: 1rem;
+}
+
+.finix-login .fp-otp-meta span {
+  font-weight: 700;
+  color: #0b1c2d;
+}
+
+.finix-login .fp-dot {
+  margin: 0 0.35rem;
+  opacity: 0.5;
+}
+
+.finix-login .fp-footer-link {
+  text-align: center;
+  font-size: 0.92rem;
+  color: #5e7a96;
+  margin-top: 1rem;
+}
+
+.finix-login .fp-footer-link a {
+  color: #1f6fea;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.finix-login .fp-footer-link a:hover {
+  text-decoration: underline;
+}

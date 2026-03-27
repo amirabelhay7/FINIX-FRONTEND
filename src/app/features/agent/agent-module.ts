@@ -8,6 +8,7 @@ import { Clients } from './clients/clients';
 import { TopUp } from './top-up/top-up';
 import { LoanVerification } from './loan-verification/loan-verification';
 import { ClientDetail } from './client-detail/client-detail';
+import { AgentStubComponent } from './agent-stub/agent-stub';
 
 
 @NgModule({
@@ -16,7 +17,8 @@ import { ClientDetail } from './client-detail/client-detail';
     Clients,
     TopUp,
     LoanVerification,
-    ClientDetail
+    ClientDetail,
+    AgentStubComponent,
   ],
   imports: [
     CommonModule,

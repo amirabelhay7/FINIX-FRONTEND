@@ -5,10 +5,12 @@ import { Clients } from './clients/clients';
 import { TopUp } from './top-up/top-up';
 import { LoanVerification } from './loan-verification/loan-verification';
 import { ClientDetail } from './client-detail/client-detail';
+import { AgentStubComponent } from './agent-stub/agent-stub';
 
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: Dashboard },
+  { path: 'stub/:page', component: AgentStubComponent },
   { path: 'clients', component: Clients },
   { path: 'clients/:id', component: ClientDetail },
   { path: 'top-up', component: TopUp },

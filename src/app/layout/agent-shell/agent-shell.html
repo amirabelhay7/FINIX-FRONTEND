@@ -1,35 +1,469 @@
-<div class="min-h-screen bg-gray-50">
-  <header class="bg-[#0D1B3E] text-white">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <img src="/assets/logo.png" alt="FIN'IX Logo" class="w-7 h-7" />
-        <div class="font-extrabold tracking-tight">FIN<span class="opacity-80">'IX</span></div>
-        <div class="text-xs font-semibold opacity-80">Agent</div>
+<link
+  href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+  rel="stylesheet"
+/>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<nav class="cfm-rail">
+  <!-- Brand -->
+  <div class="cfm-brand">
+    <div class="cfm-logo">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#fff"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+      </svg>
+    </div>
+    <div>
+      <div class="cfm-brand-name">FIN<span>'IX</span></div>
+      <div class="cfm-brand-sub"></div>
+    </div>
+  </div>
+
+  <!-- Admin badge -->
+  <div class="cfm-admin-chip">
+    <div class="cfm-chip-dot"></div>
+    <span>Agent</span>
+  </div>
+
+  <!-- Navigation -->
+  <div class="cfm-nav">
+    <ng-container *ngFor="let section of navSections">
+      <div class="cfm-section">{{ section }}</div>
+      <a
+        *ngFor="let item of navBySection(section)"
+        class="cfm-nav-item"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="routerLinkActiveOptions(item)"
+        [routerLink]="navLinkFor(item)"
+      >
+        <span class="cfm-nav-ico">
+          <svg
+            *ngIf="item.icon === 'grid'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'trending-up'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+            <polyline points="17 6 23 6 23 12" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'folder'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'dollar'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'users'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'truck'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="1" y="3" width="15" height="13" rx="2" />
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+            <circle cx="5.5" cy="18.5" r="2.5" />
+            <circle cx="18.5" cy="18.5" r="2.5" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'alert-triangle'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+            />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'file-text'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'shield'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'bell'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'settings'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+            />
+          </svg>
+        </span>
+        {{ item.label }}
+        <span
+          *ngIf="item.badge"
+          class="cfm-nav-badge"
+          [class.danger]="item.badgeType === 'danger'"
+          >{{ item.badge }}</span
+        >
+      </a>
+    </ng-container>
+  </div>
+
+  <!-- User footer -->
+  <div class="cfm-rail-footer">
+    <div class="cfm-user" (click)="showUserMenu = !showUserMenu">
+      <div class="cfm-user-avatar">SA</div>
+      <div class="cfm-user-info">
+        <div class="cfm-user-name">Sami Allani</div>
+        <div class="cfm-user-role">Super Admin · Tunis</div>
       </div>
-      <div class="flex items-center gap-2">
-        <button class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/15 text-sm font-bold" (click)="toggleTheme()">
-          {{ currentTheme === 'dark' ? 'Light' : 'Dark' }}
-        </button>
-        <button class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/15 text-sm font-bold" (click)="logout()">
-          Sign out
-        </button>
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        style="opacity: 0.3; margin-left: auto"
+      >
+        <circle cx="12" cy="5" r="1" />
+        <circle cx="12" cy="12" r="1" />
+        <circle cx="12" cy="19" r="1" />
+      </svg>
+    </div>
+    <div class="cfm-user-dropdown" *ngIf="showUserMenu">
+      <button (click)="logout()">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        Déconnexion
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════ MAIN WRAP ═══════════ -->
+<div class="cfm-main-wrap">
+  <!-- ── TOPBAR ── -->
+  <header class="cfm-topbar">
+    <div class="cfm-tb-left">
+      <span class="cfm-tb-brand"></span>
+      <span class="cfm-tb-label"></span>
+    </div>
+    <div class="cfm-tb-center">
+      <div class="cfm-tb-search">
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input type="text" placeholder="Dossier, client, référence…" />
       </div>
+      <div class="cfm-tb-status">
+        <div class="cfm-status-dot"></div>
+        Système opérationnel
+      </div>
+      <div class="cfm-tb-time">{{ currentTime }}</div>
+    </div>
+    <div class="cfm-tb-right">
+      <div class="cfm-tb-agency">
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        Agence Tunis Central
+      </div>
+      <!-- Theme toggle -->
+      <button
+        class="cfm-tb-icon"
+        (click)="toggleTheme()"
+        [title]="currentTheme === 'dark' ? 'Mode clair' : 'Mode sombre'"
+      >
+        <svg
+          *ngIf="currentTheme === 'dark'"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="5" />
+          <line x1="12" y1="1" x2="12" y2="3" />
+          <line x1="12" y1="21" x2="12" y2="23" />
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+          <line x1="1" y1="12" x2="3" y2="12" />
+          <line x1="21" y1="12" x2="23" y2="12" />
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+        </svg>
+        <svg
+          *ngIf="currentTheme === 'light'"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      </button>
+      <button class="cfm-tb-icon">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+        <span class="cfm-tb-notif-dot"></span>
+      </button>
+      <button class="cfm-tb-icon">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      </button>
     </div>
   </header>
 
-  <div class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
-    <aside class="bg-white rounded-2xl border border-gray-100 shadow-sm p-3 h-fit">
-      <nav class="space-y-1">
-        <a routerLink="/agent/dashboard" routerLinkActive="bg-blue-50 text-[#135bec]" class="block px-3 py-2 rounded-xl font-bold text-sm text-gray-800 hover:bg-gray-50">Dashboard</a>
-        <a routerLink="/agent/clients" routerLinkActive="bg-blue-50 text-[#135bec]" class="block px-3 py-2 rounded-xl font-bold text-sm text-gray-800 hover:bg-gray-50">Clients</a>
-        <a routerLink="/agent/top-up" routerLinkActive="bg-blue-50 text-[#135bec]" class="block px-3 py-2 rounded-xl font-bold text-sm text-gray-800 hover:bg-gray-50">Top up</a>
-        <a routerLink="/agent/loan-verification" routerLinkActive="bg-blue-50 text-[#135bec]" class="block px-3 py-2 rounded-xl font-bold text-sm text-gray-800 hover:bg-gray-50">Loan verification</a>
-      </nav>
-    </aside>
-
-    <main>
-      <router-outlet></router-outlet>
-    </main>
+  <!-- ── TICKER BAND ── -->
+  <div class="cfm-ticker">
+    <span class="cfm-ticker-label">FLUX DIRECT</span>
+    <div class="cfm-ticker-track">
+      <div class="cfm-ticker-scroll">
+        <span class="cfm-ticker-item" *ngFor="let t of tickerItems">
+          <span class="cfm-ticker-ref">{{ t.ref }}</span>
+          {{ t.client }}
+          <span class="cfm-ticker-amount" [class.positive]="t.amount.startsWith('+')">{{
+            t.amount
+          }}</span>
+          <span class="cfm-ticker-type" [ngClass]="'cfm-tt-' + t.typeClass">{{ t.type }}</span>
+        </span>
+        <!-- Duplicate for seamless scroll -->
+        <span class="cfm-ticker-item" *ngFor="let t of tickerItems">
+          <span class="cfm-ticker-ref">{{ t.ref }}</span>
+          {{ t.client }}
+          <span class="cfm-ticker-amount" [class.positive]="t.amount.startsWith('+')">{{
+            t.amount
+          }}</span>
+          <span class="cfm-ticker-type" [ngClass]="'cfm-tt-' + t.typeClass">{{ t.type }}</span>
+        </span>
+      </div>
+    </div>
   </div>
-</div>
 
+  <!-- ── CMD BAR ── -->
+  <div class="cfm-cmd-bar">
+    <button class="cfm-cmd-btn cfm-cmd-primary">+ Nouveau dossier</button>
+    <button class="cfm-cmd-btn">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+      Exporter
+    </button>
+    <button class="cfm-cmd-btn">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="8.5" cy="7" r="4" />
+        <line x1="20" y1="8" x2="20" y2="14" />
+        <line x1="23" y1="11" x2="17" y2="11" />
+      </svg>
+      Ajouter client
+    </button>
+    <button class="cfm-cmd-btn">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+      </svg>
+      Filtrer
+    </button>
+    <button class="cfm-cmd-btn">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+      </svg>
+      Rapport rapide
+    </button>
+    <button class="cfm-cmd-btn cfm-cmd-alert">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+        />
+      </svg>
+      Alertes risque
+      <span class="cfm-cmd-badge">3</span>
+    </button>
+  </div>
+  <div class="cfm-content">
+    <router-outlet></router-outlet>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer class="cfm-footer">
+    <span>FIN'IX Capital Monitor</span>
+    <span>Back-Office · Agence Tunis Central</span>
+    <span>v2.4.1 · build 2026.03</span>
+  </footer>
+</div>

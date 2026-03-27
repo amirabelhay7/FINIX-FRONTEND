@@ -1,49 +1,282 @@
-<div class="space-y-8 pb-10">
-    <div>
-        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-        <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Top-ups today</p>
-            <p class="text-2xl font-black text-gray-900 mt-1">{{ kpis.topUpsToday }}</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Verifications pending</p>
-            <p class="text-2xl font-black text-[#135bec] mt-1">{{ kpis.verificationsPending }}</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Commission (month)</p>
-            <p class="text-2xl font-black text-green-600 mt-1">{{ kpis.commissionMonth }}</p>
-        </div>
-    </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-gray-50">
-            <h4 class="font-bold text-gray-800">{{ quickActionsTitle }}</h4>
-        </div>
-        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <a *ngFor="let action of quickActions" [routerLink]="action.route" class="flex items-center p-4 rounded-xl border border-gray-100 hover:border-[#135bec]/20 hover:bg-blue-50/50 transition-all">
-                <span class="material-symbols-outlined text-[#135bec] text-[28px] mr-4">{{ action.icon }}</span>
-                <span class="font-bold text-gray-800">{{ action.title }}</span>
-            </a>
-        </div>
-    </div>
+      <!-- Alert bar -->
+      <div class="cfm-alert-bar">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#F59E0B"
+          stroke-width="2"
+        >
+          <path
+            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+          />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        <span
+          >3 dossiers en attente de décision depuis plus de 72h —
+          <strong>action requise</strong></span
+        >
+        <button class="cfm-alert-action">Traiter maintenant</button>
+      </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-gray-50 flex items-center justify-between">
-            <h4 class="font-bold text-gray-800">{{ recentActivityTitle }}</h4>
-            <a routerLink="/agent/clients" class="text-xs font-bold text-[#135bec] hover:underline">View all</a>
+      <!-- Page header -->
+      <div class="cfm-page-head">
+        <div>
+          <div class="cfm-ph-eyebrow">CAPITAL FLOW MONITOR</div>
+          <div class="cfm-ph-title">
+            Vue d'ensemble <span class="cfm-ph-grad">opérationnelle</span>
+          </div>
+          <div class="cfm-ph-desc">Actualisé il y a 2 min · Période : Mars 2026</div>
         </div>
-        <div class="divide-y divide-gray-50">
-            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors" *ngFor="let item of recentActivity">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center mr-4 shrink-0" [ngClass]="item.iconBgClass">
-                    <span class="material-symbols-outlined text-[18px]" [ngClass]="item.iconColorClass">{{ item.icon }}</span>
-                </div>
-                <div class="flex-1">
-                    <p class="text-sm font-bold text-gray-800">{{ item.title }}</p>
-                    <p class="text-xs text-gray-400 font-medium">{{ item.subtitle }}</p>
-                </div>
+        <div class="cfm-ph-actions">
+          <button class="cfm-btn cfm-btn-outline">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            Mars 2026
+          </button>
+          <button class="cfm-btn cfm-btn-primary">+ Nouveau dossier</button>
+        </div>
+      </div>
+
+      <!-- ═══ BENTO GRID — 4 KPI CARDS ═══ -->
+      <div class="cfm-bento">
+        <!-- Card 1: Capital Décaissé -->
+        <div class="cfm-card cfm-card-lg">
+          <div class="cfm-card-label">
+            <span class="cfm-card-dot" style="background: #3b82f6"></span> CAPITAL DÉCAISSÉ
+          </div>
+          <div class="cfm-card-val">
+            <span class="cfm-card-prefix">TND</span> 2.47<span class="cfm-card-unit">M</span>
+          </div>
+          <div class="cfm-card-trend cfm-trend-up">▲ +14.2% ce mois</div>
+          <div class="cfm-mini-chart">
+            <div
+              class="cfm-bar"
+              *ngFor="let b of chartBars; let last = last"
+              [style.height.%]="b"
+              [class.cfm-bar-accent]="last"
+            ></div>
+          </div>
+          <div class="cfm-card-foot">
+            Objectif mensuel : <strong>2.8M TND</strong> · Atteinte : <strong>88%</strong>
+          </div>
+        </div>
+
+        <!-- Card 2: Remboursements Reçus -->
+        <div class="cfm-card cfm-card-lg">
+          <div class="cfm-card-label">
+            <span class="cfm-card-dot" style="background: #10b981"></span> REMBOURSEMENTS REÇUS
+          </div>
+          <div class="cfm-card-val">
+            <span class="cfm-card-prefix" style="color: #10b981">TND</span> 892<span
+              class="cfm-card-unit"
+              >K</span
+            >
+          </div>
+          <div
+            class="cfm-card-trend cfm-trend-up"
+            style="background: rgba(16, 185, 129, 0.1); color: #059669"
+          >
+            ▲ +8.5% vs dernier mois
+          </div>
+          <div class="cfm-progress-bar">
+            <div class="cfm-progress-fill" style="width: 71%; background: #10b981"></div>
+          </div>
+          <div class="cfm-progress-labels"><span>0</span><span>71%</span><span>1.25M</span></div>
+          <div class="cfm-card-foot">
+            Taux recouvrement : <strong>97.2%</strong> · Retards : <strong>12</strong>
+          </div>
+        </div>
+
+        <!-- Card 3: Score Risque -->
+        <div class="cfm-card cfm-card-lg">
+          <div class="cfm-card-label">
+            <span class="cfm-card-dot" style="background: #f59e0b"></span> SCORE RISQUE PORTEFEUILLE
+          </div>
+          <div class="cfm-score-ring">
+            <svg viewBox="0 0 80 80" width="80" height="80">
+              <circle
+                cx="40"
+                cy="40"
+                r="34"
+                fill="none"
+                stroke="var(--fx-border)"
+                stroke-width="6"
+              />
+              <circle
+                cx="40"
+                cy="40"
+                r="34"
+                fill="none"
+                stroke="#10B981"
+                stroke-width="6"
+                stroke-dasharray="214"
+                stroke-dashoffset="20"
+                stroke-linecap="round"
+                transform="rotate(-90 40 40)"
+              />
+            </svg>
+            <div class="cfm-score-center">
+              <div class="cfm-score-grade">A+</div>
+              <div class="cfm-score-pts">742 pts</div>
             </div>
+          </div>
+          <div class="cfm-score-label">Risque Global</div>
+          <div
+            class="cfm-card-trend cfm-trend-up"
+            style="background: rgba(16, 185, 129, 0.1); color: #059669"
+          >
+            ▲ Stable · Classe I
+          </div>
+          <div class="cfm-card-foot">
+            Portefeuille : <strong>1 248 dossiers</strong> · Défauts : <strong>0.8%</strong>
+          </div>
         </div>
-    </div>
-</div>
+
+        <!-- Card 4: Dossiers Actifs -->
+        <div class="cfm-card cfm-card-lg">
+          <div class="cfm-card-label">
+            <span class="cfm-card-dot" style="background: #8b5cf6"></span> DOSSIERS ACTIFS
+          </div>
+          <div class="cfm-card-val cfm-card-val-xl">247</div>
+          <div class="cfm-card-trend cfm-trend-neutral">→ +18 cette semaine</div>
+          <div class="cfm-dossier-grid">
+            <div class="cfm-dg-item">
+              <div class="cfm-dg-label">EN ANALYSE</div>
+              <div class="cfm-dg-val" style="color: #f59e0b">34</div>
+            </div>
+            <div class="cfm-dg-item">
+              <div class="cfm-dg-label">ACCORDÉS</div>
+              <div class="cfm-dg-val" style="color: #10b981">189</div>
+            </div>
+            <div class="cfm-dg-item">
+              <div class="cfm-dg-label">REFUSÉS</div>
+              <div class="cfm-dg-val" style="color: #ef4444">24</div>
+            </div>
+            <div class="cfm-dg-item">
+              <div class="cfm-dg-label">EN ATTENTE</div>
+              <div class="cfm-dg-val" style="color: #3b82f6">12</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ BOTTOM ROW: Chart + Radar ═══ -->
+      <div class="cfm-bottom-row">
+        <!-- Chart panel -->
+        <div class="cfm-card cfm-chart-panel">
+          <div class="cfm-card-head-row">
+            <div>
+              <div class="cfm-card-head-icon">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--fx-blue)"
+                  stroke-width="2"
+                >
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                </svg>
+              </div>
+              <span class="cfm-card-head-title">Évolution volume crédits</span>
+              <span class="cfm-card-head-sub">12 derniers mois · N-1</span>
+            </div>
+            <div class="cfm-period-pills">
+              <button class="cfm-pill">3M</button>
+              <button class="cfm-pill">6M</button>
+              <button class="cfm-pill active">1A</button>
+            </div>
+          </div>
+          <div class="cfm-chart-legends">
+            <span
+              ><span class="cfm-legend-dot" style="background: var(--fx-blue)"></span> 2026</span
+            >
+            <span
+              ><span class="cfm-legend-dot" style="background: var(--fx-txt-4)"></span> 2025</span
+            >
+            <span style="margin-left: auto"
+              >Pic : <strong>387K</strong> · Moy : <strong>241K</strong></span
+            >
+          </div>
+          <div class="cfm-chart-area">
+            <div class="cfm-chart-bars">
+              <div
+                class="cfm-chart-bar"
+                *ngFor="let b of chartBars; let i = index; let last = last"
+              >
+                <div
+                  class="cfm-chart-bar-bg"
+                  [style.height.%]="b * 0.5"
+                  style="background: var(--fx-txt-4); opacity: 0.2"
+                ></div>
+                <div class="cfm-chart-bar-fg" [style.height.%]="b" [class.accent]="last"></div>
+                <div class="cfm-chart-month">{{ chartMonths[i] }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Radar Risque -->
+        <div class="cfm-card cfm-radar-panel">
+          <div class="cfm-card-head-row">
+            <div>
+              <div class="cfm-card-head-icon" style="background: rgba(239, 68, 68, 0.1)">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#EF4444"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  />
+                </svg>
+              </div>
+              <span class="cfm-card-head-title">Radar Risque</span>
+              <span class="cfm-card-head-sub">Dossiers à surveiller</span>
+            </div>
+            <button class="cfm-btn cfm-btn-ghost">Tout voir →</button>
+          </div>
+          <div class="cfm-risk-list">
+            <div class="cfm-risk-item" *ngFor="let r of riskClients">
+              <div
+                class="cfm-risk-avatar"
+                [style.background]="r.color + '18'"
+                [style.color]="r.color"
+              >
+                {{ r.initials }}
+              </div>
+              <div class="cfm-risk-info">
+                <div class="cfm-risk-name">{{ r.name }}</div>
+                <div class="cfm-risk-detail">{{ r.detail }}</div>
+              </div>
+              <div class="cfm-risk-bar-wrap">
+                <div class="cfm-risk-bar">
+                  <div
+                    class="cfm-risk-bar-fill"
+                    [style.width.%]="r.pct"
+                    [style.background]="r.color"
+                  ></div>
+                </div>
+              </div>
+              <div class="cfm-risk-pct">{{ r.pct }}%</div>
+            </div>
+          </div>
+        </div>
+      </div>

@@ -1,2 +1,147 @@
-/* Admin shell intentionally reuses backoffice styles. */
+/* Admin shell: backoffice theme tokens scoped to this subtree (not global :root).
+   Prevents leaking --navy, --sidebar-w, etc. onto agent / client / auth routes. */
 
+app-admin-shell {
+  --sidebar-w: 210px;
+  --topbar-h: 66px;
+
+  --navy: #0d1b3e;
+  --blue: #1f6fea;
+  --steel: #60a5fa;
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --purple: #8b5cf6;
+
+  --white: #ffffff;
+  --soft: #eff6ff;
+  --g50: #f8fafc;
+  --g100: #f1f5f9;
+  --g200: #e2e8f0;
+  --g300: #cbd5e1;
+  --g400: #94a3b8;
+  --g500: #64748b;
+  --g600: #475569;
+  --g700: #334155;
+  --g800: #1e293b;
+  --g900: #0f172a;
+
+  --r4: 4px;
+  --r6: 6px;
+  --r8: 8px;
+  --r10: 10px;
+  --r12: 12px;
+  --r16: 16px;
+
+  --sh-xs: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --sh-sm: 0 2px 8px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --sh-md: 0 4px 16px rgba(0, 0, 0, 0.09), 0 2px 6px rgba(0, 0, 0, 0.05);
+  --sh-blue: 0 4px 14px rgba(31, 111, 234, 0.3);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --sidebar-bg: #0d1b3e;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-txt: rgba(255, 255, 255, 0.5);
+  --sidebar-txt-h: rgba(255, 255, 255, 0.9);
+  --sidebar-txt-a: #fff;
+  --sidebar-hover: rgba(255, 255, 255, 0.07);
+  --sidebar-active: linear-gradient(90deg, rgba(31, 111, 234, 0.28), rgba(31, 111, 234, 0.09));
+  --sidebar-section: rgba(255, 255, 255, 0.25);
+
+  --topbar-bg: #ffffff;
+  --topbar-border: #e2e8f0;
+
+  --body-bg: #f1f5f9;
+  --body-color: #334155;
+
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+
+  --alert-bg: #fffbeb;
+  --alert-border: #fde68a;
+  --alert-title: #92400e;
+  --alert-sub: #b45309;
+}
+
+[data-theme='dark'] app-admin-shell {
+  --sidebar-w: 210px;
+  --topbar-h: 66px;
+
+  --navy: #060e1a;
+  --blue: #3b82f6;
+  --steel: #60a5fa;
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --purple: #8b5cf6;
+
+  --white: #0b1625;
+  --soft: rgba(59, 130, 246, 0.08);
+  --g50: #0f1d2f;
+  --g100: #132337;
+  --g200: #1c3049;
+  --g300: #2a4060;
+  --g400: #5a7a9b;
+  --g500: #8ba4bd;
+  --g600: #a8bfd4;
+  --g700: #c8d8e8;
+  --g800: #e0eaf2;
+  --g900: #f0f4fa;
+
+  --r4: 4px;
+  --r6: 6px;
+  --r8: 8px;
+  --r10: 10px;
+  --r12: 12px;
+  --r16: 16px;
+
+  --sh-xs: 0 1px 3px rgba(0, 0, 0, 0.25);
+  --sh-sm: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+  --sh-md: 0 4px 16px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.25);
+  --sh-blue: 0 4px 14px rgba(59, 130, 246, 0.35);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --sidebar-bg: #060e1a;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-txt: rgba(255, 255, 255, 0.5);
+  --sidebar-txt-h: rgba(255, 255, 255, 0.9);
+  --sidebar-txt-a: #fff;
+  --sidebar-hover: rgba(255, 255, 255, 0.07);
+  --sidebar-active: linear-gradient(90deg, rgba(59, 130, 246, 0.28), rgba(59, 130, 246, 0.09));
+  --sidebar-section: rgba(255, 255, 255, 0.25);
+
+  --topbar-bg: #0b1625;
+  --topbar-border: #1c3049;
+
+  --body-bg: #060e1a;
+  --body-color: #c8d8e8;
+
+  --card-bg: #0b1625;
+  --card-border: #1c3049;
+
+  --alert-bg: rgba(245, 158, 11, 0.08);
+  --alert-border: rgba(245, 158, 11, 0.2);
+  --alert-title: #f59e0b;
+  --alert-sub: #fbbf24;
+}
+
+/* Shell layout — must live here (not in backoffice) so it applies before dashboard is ever opened */
+app-admin-shell .layout-wrapper {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--body-bg);
+  color: var(--body-color);
+}
+
+app-admin-shell main.main {
+  margin-top: var(--topbar-h);
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  app-admin-shell main.main {
+    padding: 1rem;
+  }
+}

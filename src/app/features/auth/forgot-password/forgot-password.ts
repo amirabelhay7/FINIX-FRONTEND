@@ -1,6 +1,5 @@
-import { Component, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { AuthService } from '../../../services/auth/auth.service';
-import { Router } from '@angular/router';
 import { TimeoutError } from 'rxjs';
 import { finalize, timeout } from 'rxjs/operators';
 
@@ -35,10 +34,10 @@ export class ForgotPassword implements OnDestroy {
   readonly securityPromiseLabel = 'Security Promise';
   readonly securityNote1 = 'Reset links expire after 15 minutes and are single-use.';
   readonly securityNote2 = 'We never store your password in plain text.';
-  readonly checkInboxTitle = 'Check your inbox';
-  readonly checkInboxText = 'We sent a secure reset link to';
-  readonly checkInboxEmail = 'your@email.com';
-  readonly checkInboxExpiry = 'It expires in 15 minutes.';
+  readonly checkInboxTitle = 'Enter your code';
+  /** Shown after forgot-password API succeeds; server message is neutral (same for known/unknown email). */
+  forgotInfoMessage = '';
+  readonly checkInboxExpiry = 'Codes expire in 15 minutes.';
   readonly didntReceiveLabel = "Didn't receive it?";
   readonly checkSpamLabel = 'Check your spam / junk folder';
   readonly waitResendLabel = 'Wait a minute and try resending';
@@ -58,7 +57,10 @@ export class ForgotPassword implements OnDestroy {
   newPassword = '';
   newPassword2 = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnDestroy(): void {
     if (this.otpTimer) clearInterval(this.otpTimer);
@@ -86,7 +88,10 @@ export class ForgotPassword implements OnDestroy {
   }
 
   private get otpComplete(): boolean {
-    return this.otpDigits.every((d) => d.length === 1);
+    return (
+      this.otpDigits.length === 6 &&
+      this.otpDigits.every((d) => /^[0-9]$/.test(String(d)))
+    );
   }
 
   sendReset(): void {
@@ -105,15 +110,21 @@ export class ForgotPassword implements OnDestroy {
         timeout(60_000),
         finalize(() => {
           this.isLoading = false;
+          this.cdr.detectChanges();
         }),
       )
       .subscribe({
-        next: () => {
+        next: (res: { message?: string } | null) => {
+          const msg = res?.message?.trim();
+          this.forgotInfoMessage =
+            msg ||
+            'If this email is registered, a reset code was sent. Check your inbox (and spam).';
           this.pendingEmail = this.email;
           this.emailSent = true;
           this.resetSuccess = false;
           this.otpDigits = ['', '', '', '', '', ''];
           this.startOtpTimer();
+          this.cdr.detectChanges();
         },
         error: (err: unknown) => {
           this.resetError =
@@ -122,6 +133,7 @@ export class ForgotPassword implements OnDestroy {
               : err instanceof Error
                 ? err.message
                 : 'Request failed.';
+          this.cdr.detectChanges();
         },
       });
   }
@@ -138,12 +150,16 @@ export class ForgotPassword implements OnDestroy {
         timeout(60_000),
         finalize(() => {
           this.isLoading = false;
+          this.cdr.detectChanges();
         }),
       )
       .subscribe({
-        next: () => {
+        next: (res: { message?: string } | null) => {
+          const msg = res?.message?.trim();
+          if (msg) this.forgotInfoMessage = msg;
           this.otpDigits = ['', '', '', '', '', ''];
           this.startOtpTimer();
+          this.cdr.detectChanges();
         },
         error: (err: unknown) => {
           this.resetError =
@@ -152,6 +168,7 @@ export class ForgotPassword implements OnDestroy {
               : err instanceof Error
                 ? err.message
                 : 'Request failed.';
+          this.cdr.detectChanges();
         },
       });
   }
@@ -181,12 +198,14 @@ export class ForgotPassword implements OnDestroy {
         timeout(60_000),
         finalize(() => {
           this.isLoading = false;
+          this.cdr.detectChanges();
         }),
       )
       .subscribe({
         next: () => {
           this.resetSuccess = true;
           this.emailSent = false;
+          this.cdr.detectChanges();
         },
         error: (err: unknown) => {
           this.resetError =
@@ -195,6 +214,7 @@ export class ForgotPassword implements OnDestroy {
               : err instanceof Error
                 ? err.message
                 : 'Request failed.';
+          this.cdr.detectChanges();
         },
       });
   }

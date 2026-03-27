@@ -2,156 +2,21 @@
    FINIX BACK-OFFICE — GLOBAL CSS (FIXED)
    ================================================================ */
 
-/* ================================================================
-   CSS VARIABLES — LIGHT THEME (default)
-   ================================================================ */
-:root,
-[data-theme="light"] {
-  --sidebar-w  : 210px;
-  --topbar-h   : 66px;
+/* Theme tokens live on app-admin-shell (admin-shell.component.css). */
 
-  --navy       : #0D1B3E;
-  --blue       : #1F6FEA;
-  --steel      : #60A5FA;
-
-  --success    : #10B981;
-  --warning    : #F59E0B;
-  --danger     : #EF4444;
-  --purple     : #8B5CF6;
-
-  --white      : #FFFFFF;
-  --soft       : #EFF6FF;
-  --g50        : #F8FAFC;
-  --g100       : #F1F5F9;
-  --g200       : #E2E8F0;
-  --g300       : #CBD5E1;
-  --g400       : #94A3B8;
-  --g500       : #64748B;
-  --g600       : #475569;
-  --g700       : #334155;
-  --g800       : #1E293B;
-  --g900       : #0F172A;
-
-  --r4  : 4px;  --r6  : 6px;   --r8  : 8px;
-  --r10 : 10px; --r12 : 12px;  --r16 : 16px;
-
-  --sh-xs   : 0 1px 3px rgba(0,0,0,.05);
-  --sh-sm   : 0 2px 8px rgba(0,0,0,.07), 0 1px 3px rgba(0,0,0,.04);
-  --sh-md   : 0 4px 16px rgba(0,0,0,.09), 0 2px 6px rgba(0,0,0,.05);
-  --sh-blue : 0 4px 14px rgba(31,111,234,.3);
-  --ease    : cubic-bezier(.4,0,.2,1);
-
-  --sidebar-bg     : #0D1B3E;
-  --sidebar-border : rgba(255,255,255,.06);
-  --sidebar-txt    : rgba(255,255,255,.5);
-  --sidebar-txt-h  : rgba(255,255,255,.9);
-  --sidebar-txt-a  : #fff;
-  --sidebar-hover  : rgba(255,255,255,.07);
-  --sidebar-active : linear-gradient(90deg, rgba(31,111,234,.28), rgba(31,111,234,.09));
-  --sidebar-section: rgba(255,255,255,.25);
-
-  --topbar-bg      : #FFFFFF;
-  --topbar-border  : #E2E8F0;
-
-  --body-bg        : #F1F5F9;
-  --body-color     : #334155;
-
-  --card-bg        : #FFFFFF;
-  --card-border    : #E2E8F0;
-
-  --alert-bg       : #FFFBEB;
-  --alert-border   : #FDE68A;
-  --alert-title    : #92400E;
-  --alert-sub      : #B45309;
+/* Scoped reset: ViewEncapsulation.None styles persist globally — do not use bare * or body. */
+app-backoffice *,
+app-backoffice *::before,
+app-backoffice *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* ================================================================
-   CSS VARIABLES — DARK THEME
-   ================================================================ */
-[data-theme="dark"] {
-  --sidebar-w  : 210px;
-  --topbar-h   : 66px;
+/* Shell layout (sidebar offset, main padding) lives in admin-shell.component.css so it applies on every /admin route. */
 
-  --navy       : #060E1A;
-  --blue       : #3B82F6;
-  --steel      : #60A5FA;
-
-  --success    : #10B981;
-  --warning    : #F59E0B;
-  --danger     : #EF4444;
-  --purple     : #8B5CF6;
-
-  --white      : #0B1625;
-  --soft       : rgba(59,130,246,.08);
-  --g50        : #0F1D2F;
-  --g100       : #132337;
-  --g200       : #1C3049;
-  --g300       : #2A4060;
-  --g400       : #5A7A9B;
-  --g500       : #8BA4BD;
-  --g600       : #A8BFD4;
-  --g700       : #C8D8E8;
-  --g800       : #E0EAF2;
-  --g900       : #F0F4FA;
-
-  --r4  : 4px;  --r6  : 6px;   --r8  : 8px;
-  --r10 : 10px; --r12 : 12px;  --r16 : 16px;
-
-  --sh-xs   : 0 1px 3px rgba(0,0,0,.25);
-  --sh-sm   : 0 2px 8px rgba(0,0,0,.3), 0 1px 3px rgba(0,0,0,.2);
-  --sh-md   : 0 4px 16px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.25);
-  --sh-blue : 0 4px 14px rgba(59,130,246,.35);
-  --ease    : cubic-bezier(.4,0,.2,1);
-
-  --sidebar-bg     : #060E1A;
-  --sidebar-border : rgba(255,255,255,.06);
-  --sidebar-txt    : rgba(255,255,255,.5);
-  --sidebar-txt-h  : rgba(255,255,255,.9);
-  --sidebar-txt-a  : #fff;
-  --sidebar-hover  : rgba(255,255,255,.07);
-  --sidebar-active : linear-gradient(90deg, rgba(59,130,246,.28), rgba(59,130,246,.09));
-  --sidebar-section: rgba(255,255,255,.25);
-
-  --topbar-bg      : #0B1625;
-  --topbar-border  : #1C3049;
-
-  --body-bg        : #060E1A;
-  --body-color     : #C8D8E8;
-
-  --card-bg        : #0B1625;
-  --card-border    : #1C3049;
-
-  --alert-bg       : rgba(245,158,11,.08);
-  --alert-border   : rgba(245,158,11,.2);
-  --alert-title    : #F59E0B;
-  --alert-sub      : #FBBF24;
-}
-
-/* ================================================================
-   RESET
-   ================================================================ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--body-bg);
-  color: var(--body-color);
-  font-size: 15px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  transition: background .3s ease, color .3s ease;
-}
-
-/* ================================================================
-   LAYOUT SHELL
-   ================================================================ */
-.layout-wrapper {
-  margin-left: var(--sidebar-w);
-  min-height: 100vh;
-}
-
-main.main {
-  margin-top: var(--topbar-h);
-  padding: 2rem;
+/* Overview grid: must live on app-backoffice — dashboard sections are not direct children of main.main */
+app-backoffice {
   display: grid;
   grid-template-columns: 1fr 360px;
   grid-template-rows: auto auto auto auto auto auto;
@@ -795,18 +660,22 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
 /* ================================================================
    RESPONSIVE
    ================================================================ */
-@media (max-width: 1280px) { main.main { grid-template-columns: 1fr 320px; } }
+@media (max-width: 1280px) {
+  app-backoffice {
+    grid-template-columns: 1fr 320px;
+  }
+}
 
 @media (max-width: 1100px) {
-  main.main { grid-template-columns: 1fr; }
+  app-backoffice {
+    grid-template-columns: 1fr;
+  }
   .g13 { grid-column: 1; grid-row: auto; position: static; max-height: none; overflow-y: visible; }
   .kpi-row { grid-template-columns: repeat(2,1fr); }
   .g33 { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 768px) {
-  /* sidebar-w defini en haut: 280px */
-  main.main { padding: 1rem; }
   .kpi-row { grid-template-columns: 1fr 1fr; }
   .g33 { grid-template-columns: 1fr; }
   .form-row, .detail-grid { grid-template-columns: 1fr; }
