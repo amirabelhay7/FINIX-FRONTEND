@@ -12,30 +12,46 @@
 
   <section class="panel users-panel s3">
     <div class="panel-head users-toolbar">
-      <div class="tb-search users-search">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
+      <div class="users-search-wrap">
+        <div class="users-search-icon" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
         <input
+          class="users-search-input"
           type="text"
-          placeholder="Search by name, email, CIN, city..."
+          placeholder="Search by name, email, role, CIN, city..."
+          aria-label="Search users"
           [(ngModel)]="searchTerm"
         />
       </div>
 
-      <select
-        class="users-role-filter"
-        aria-label="Role filter"
-        [(ngModel)]="selectedRole"
-      >
-        <option value="">All roles</option>
-        <option value="CLIENT">CLIENT</option>
-        <option value="AGENT">AGENT</option>
-        <option value="SELLER">SELLER</option>
-        <option value="INSURER">INSURER</option>
-        <option value="ADMIN">ADMIN</option>
-      </select>
+      <div class="users-toolbar-right">
+        <select
+          class="users-role-filter"
+          aria-label="Role filter"
+          [(ngModel)]="selectedRole"
+        >
+          <option value="">All roles</option>
+          <option *ngFor="let role of roleOptions" [value]="role">{{ role }}</option>
+        </select>
+
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs"
+          *ngIf="hasActiveFilters"
+          (click)="clearFilters()"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="users-meta" *ngIf="!loading && !errorMessage">
+      <span>{{ filteredUsers.length }} result{{ filteredUsers.length === 1 ? '' : 's' }}</span>
+      <span *ngIf="hasActiveFilters">filtered from {{ users.length }}</span>
     </div>
 
     <div class="users-feedback" *ngIf="loading">Loading users...</div>

@@ -1,51 +1,78 @@
-<div class="space-y-8 pb-10 max-w-2xl">
-    <div class="flex items-center gap-4">
-        <a [routerLink]="labels.backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ labels.pageTitle }}</h1>
+<div class="users-form-page s2">
+  <div class="ph users-form-header">
+    <div>
+      <div class="ph-eyebrow">Identity & Access</div>
+      <div class="ph-title">{{ pageTitle }}</div>
+      <div class="ph-desc">{{ pageSubtitle }}</div>
+    </div>
+    <div class="ph-actions">
+      <a [routerLink]="backRoute" class="btn btn-ghost btn-sm">Back to users</a>
+    </div>
+  </div>
+
+  <section class="panel users-form-panel s3">
+    <div class="panel-head users-form-intro">
+      Required fields are marked with <span>*</span>.
     </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div class="space-y-2">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ labels.labelFirstName }}</label>
-                <input type="text" [value]="firstName" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-            </div>
-            <div class="space-y-2">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ labels.labelLastName }}</label>
-                <input type="text" [value]="lastName" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-            </div>
-        </div>
-        <div class="space-y-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ labels.labelEmail }}</label>
-            <input type="email" [value]="email" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-        </div>
-        <div class="space-y-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ labels.labelPhone }}</label>
-            <input type="text" [value]="phone" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-        </div>
-        <div class="space-y-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ labels.labelCin }}</label>
-            <input type="text" [value]="cin" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-        </div>
-        <div class="space-y-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ labels.labelRole }}</label>
-            <select class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
-                <option *ngFor="let opt of labels.roleOptions" [value]="opt.value" [selected]="opt.value === role">{{ opt.label }}</option>
-            </select>
-        </div>
-        <div class="space-y-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ labels.labelAddress }}</label>
-            <input type="text" [value]="address" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-        </div>
-        <div class="space-y-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ labels.labelCity }}</label>
-            <input type="text" [value]="city" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-        </div>
-        <div class="flex gap-3 pt-4">
-            <button type="button" class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">{{ labels.saveLabel }}</button>
-            <a [routerLink]="labels.cancelRoute" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-200 transition-all">{{ labels.cancelLabel }}</a>
-        </div>
-    </div>
+    <div class="users-feedback" *ngIf="loading">Loading user...</div>
+    <div class="users-feedback users-error" *ngIf="!loading && errorMessage">{{ errorMessage }}</div>
+    <div class="users-feedback users-success" *ngIf="!loading && successMessage">{{ successMessage }}</div>
+
+    <form *ngIf="!loading" class="users-form-grid" (ngSubmit)="submit()">
+      <label class="users-field">
+        <span>First name *</span>
+        <input type="text" name="firstName" [(ngModel)]="form.firstName" />
+      </label>
+
+      <label class="users-field">
+        <span>Last name *</span>
+        <input type="text" name="lastName" [(ngModel)]="form.lastName" />
+      </label>
+
+      <label class="users-field users-field-full">
+        <span>Email *</span>
+        <input type="email" name="email" [(ngModel)]="form.email" />
+      </label>
+
+      <label class="users-field">
+        <span>Phone</span>
+        <input type="text" name="phoneNumber" [(ngModel)]="form.phoneNumber" />
+      </label>
+
+      <label class="users-field">
+        <span>CIN</span>
+        <input type="text" name="cin" [(ngModel)]="form.cin" />
+      </label>
+
+      <label class="users-field">
+        <span>Role *</span>
+        <select name="role" [(ngModel)]="form.role">
+          <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+        </select>
+      </label>
+
+      <label class="users-field">
+        <span>{{ editingUserId ? 'New password (optional)' : 'Password *' }}</span>
+        <input type="password" name="password" [(ngModel)]="form.password" />
+      </label>
+
+      <label class="users-field users-field-full">
+        <span>Address</span>
+        <input type="text" name="address" [(ngModel)]="form.address" />
+      </label>
+
+      <label class="users-field">
+        <span>City</span>
+        <input type="text" name="city" [(ngModel)]="form.city" />
+      </label>
+
+      <div class="users-form-actions users-field-full">
+        <a [routerLink]="backRoute" class="btn btn-outline btn-sm">Cancel</a>
+        <button type="submit" class="btn btn-primary btn-sm" [disabled]="saving || !isValid">
+          {{ submitLabel }}
+        </button>
+      </div>
+    </form>
+  </section>
 </div>

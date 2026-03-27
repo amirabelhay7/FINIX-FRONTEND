@@ -62,4 +62,6 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 ## 2026-03-27
 - Fixed forgot-password “Send reset link” spinning forever: backend RestTemplate now has connect/read timeouts and fails fast if Brevo is unconfigured; frontend uses RxJS `timeout`/`finalize` and surfaces API `message` on 500 errors.
 - Highlighted the logged-in admin row in `/admin/users` (JWT `userId` match + subtle blue row accent) so admins can quickly spot their own account while managing users.
+- Polished `/admin/users` search/filter toolbar (clean input, dynamic role options, clear button, result counter) so filtering is easier to use and visually consistent with the admin shell.
+- Rebuilt `/admin/users/new` and `/admin/users/edit/:id` as a real admin form (create/update API wiring, load user by id, validation, loading/error/success states) to replace static mock fields and make the page production-usable.
 

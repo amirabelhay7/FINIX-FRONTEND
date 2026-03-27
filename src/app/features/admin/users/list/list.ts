@@ -80,10 +80,24 @@ export class List implements OnInit {
         !q ||
         u.name.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q) ||
+        u.role.toLowerCase().includes(q) ||
         u.cin.toLowerCase().includes(q) ||
         u.city.toLowerCase().includes(q);
       return roleMatch && searchMatch;
     });
+  }
+
+  get roleOptions(): string[] {
+    return [...new Set(this.users.map((u) => u.role).filter(Boolean))].sort();
+  }
+
+  get hasActiveFilters(): boolean {
+    return this.searchTerm.trim().length > 0 || !!this.selectedRole;
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedRole = '';
   }
 
   private mapUser(u: AdminUserApi): UserRow {
