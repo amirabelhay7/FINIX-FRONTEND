@@ -61,4 +61,5 @@ Rule: **each small change** → **`ng build`** → **git commit** → add a shor
 
 ## 2026-03-27
 - Fixed forgot-password “Send reset link” spinning forever: backend RestTemplate now has connect/read timeouts and fails fast if Brevo is unconfigured; frontend uses RxJS `timeout`/`finalize` and surfaces API `message` on 500 errors.
+- Highlighted the logged-in admin row in `/admin/users` (JWT `userId` match + subtle blue row accent) so admins can quickly spot their own account while managing users.
 
