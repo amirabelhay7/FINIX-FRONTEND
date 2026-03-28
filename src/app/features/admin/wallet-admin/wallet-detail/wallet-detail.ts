@@ -218,9 +218,25 @@ export class WalletDetail implements OnInit, OnChanges {
   saveTransactionLimits(): void {
     if (!this.currentUserId) return;
     
+    console.log('=== SAVE TRANSACTION LIMITS START ===');
+    console.log('Current User ID:', this.currentUserId);
+    console.log('Limit Form:', this.limitForm);
+    console.log('Form values:', JSON.stringify(this.limitForm));
+    
+    // Check if form has any values
+    const hasAnyValue = this.limitForm.dailyLimit !== undefined || 
+                      this.limitForm.monthlyLimit !== undefined || 
+                      this.limitForm.transactionLimit !== undefined;
+    
+    console.log('Has any values:', hasAnyValue);
+    
+    if (!hasAnyValue) {
+      alert('Please enter at least one limit value');
+      return;
+    }
+    
     this.limitsLoading = true;
-    console.log('Saving transaction limits for USER ID:', this.currentUserId);
-    console.log('Limits:', this.limitForm);
+    console.log('Calling API...');
     
     this.walletService.adminSetTransactionLimits(this.currentUserId, this.limitForm).pipe(
       finalize(() => {
@@ -229,13 +245,14 @@ export class WalletDetail implements OnInit, OnChanges {
       })
     ).subscribe({
       next: (w) => {
+        console.log('✅ SUCCESS - Transaction limits saved:', w);
         this.wallet = w;
-        console.log('Transaction limits saved successfully:', w);
         alert('Transaction limits have been updated successfully.');
       },
       error: (err) => {
-        console.error('Save limits failed:', err);
-        alert(err?.error?.message || 'Failed to save transaction limits');
+        console.error('❌ ERROR - Save limits failed:', err);
+        console.error('Error details:', err?.error?.message || err?.message || 'Unknown error');
+        alert('Failed to save transaction limits: ' + (err?.error?.message || err?.message || 'Unknown error'));
       }
     });
   }
