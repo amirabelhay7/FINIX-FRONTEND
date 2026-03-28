@@ -120,18 +120,20 @@
         </div>
         
         <form (ngSubmit)="applyCredit()" class="space-y-4">
-          <div>
-            <label class="form-label">Amount (TND)</label>
-            <input type="number" class="form-input" [(ngModel)]="creditAmount" name="creditAmount" required min="0.01" step="0.01" placeholder="0.00">
+          <div class="flex items-center gap-4">
+            <label class="form-label !mb-0 w-32">Amount (TND)</label>
+            <input type="number" class="form-input flex-1" [(ngModel)]="creditAmount" name="creditAmount" required min="0.01" step="0.01" placeholder="0.00">
           </div>
-          <div>
-            <label class="form-label">Description</label>
-            <input type="text" class="form-input" [(ngModel)]="creditDescription" name="creditDescription" placeholder="Admin adjustment">
+          <div class="flex items-center gap-4">
+            <label class="form-label !mb-0 w-32">Description</label>
+            <input type="text" class="form-input flex-1" [(ngModel)]="creditDescription" name="creditDescription" placeholder="Admin adjustment">
           </div>
-          <button type="submit" class="btn btn-primary" [disabled]="creditLoading || !creditAmount || creditAmount <= 0">
-            <span *ngIf="!creditLoading">Credit Account</span>
-            <span *ngIf="creditLoading">Processing...</span>
-          </button>
+          <div class="flex justify-end pt-2">
+            <button type="submit" class="btn btn-primary" [disabled]="creditLoading || !creditAmount || creditAmount <= 0">
+              <span *ngIf="!creditLoading">Credit Account</span>
+              <span *ngIf="creditLoading">Processing...</span>
+            </button>
+          </div>
         </form>
         
         <div class="pt-4 border-t border-gray-50 flex items-start gap-2">
@@ -183,17 +185,17 @@
           <div class="space-y-4">
             <p class="td-sub uppercase text-[9px] font-black !mt-0">Configure Limits</p>
             <form (ngSubmit)="saveTransactionLimits()" class="space-y-4">
-              <div>
-                <label class="form-label">Daily Limit (TND)</label>
-                <input type="number" class="form-input" [(ngModel)]="limitForm.dailyLimit" name="dailyLimit" min="0" step="0.01" placeholder="No limit">
+              <div class="flex items-center gap-4">
+                <label class="form-label !mb-0 w-32">Daily Limit (TND)</label>
+                <input type="number" class="form-input flex-1" [(ngModel)]="limitForm.dailyLimit" name="dailyLimit" min="0" step="0.01" placeholder="No limit">
               </div>
-              <div>
-                <label class="form-label">Monthly Limit (TND)</label>
-                <input type="number" class="form-input" [(ngModel)]="limitForm.monthlyLimit" name="monthlyLimit" min="0" step="0.01" placeholder="No limit">
+              <div class="flex items-center gap-4">
+                <label class="form-label !mb-0 w-32">Monthly Limit (TND)</label>
+                <input type="number" class="form-input flex-1" [(ngModel)]="limitForm.monthlyLimit" name="monthlyLimit" min="0" step="0.01" placeholder="No limit">
               </div>
-              <div>
-                <label class="form-label">Transaction Limit (TND)</label>
-                <input type="number" class="form-input" [(ngModel)]="limitForm.transactionLimit" name="transactionLimit" min="0" step="0.01" placeholder="No limit">
+              <div class="flex items-center gap-4">
+                <label class="form-label !mb-0 w-32">Transaction Limit (TND)</label>
+                <input type="number" class="form-input flex-1" [(ngModel)]="limitForm.transactionLimit" name="transactionLimit" min="0" step="0.01" placeholder="No limit">
               </div>
               <div class="flex gap-3 pt-2">
                 <button type="submit" class="btn btn-primary" [disabled]="limitsLoading">
