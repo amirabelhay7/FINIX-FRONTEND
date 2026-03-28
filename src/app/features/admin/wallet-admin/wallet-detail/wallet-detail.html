@@ -183,19 +183,17 @@
           <div class="space-y-4">
             <p class="td-sub uppercase text-[9px] font-black !mt-0">Configure Limits</p>
             <form (ngSubmit)="saveTransactionLimits()" class="space-y-4">
-              <div class="grid g3 gap-4">
-                <div>
-                  <label class="form-label">Daily Limit (TND)</label>
-                  <input type="number" class="form-input" [(ngModel)]="limitForm.dailyLimit" name="dailyLimit" min="0" step="0.01" placeholder="No limit">
-                </div>
-                <div>
-                  <label class="form-label">Monthly Limit (TND)</label>
-                  <input type="number" class="form-input" [(ngModel)]="limitForm.monthlyLimit" name="monthlyLimit" min="0" step="0.01" placeholder="No limit">
-                </div>
-                <div>
-                  <label class="form-label">Transaction Limit (TND)</label>
-                  <input type="number" class="form-input" [(ngModel)]="limitForm.transactionLimit" name="transactionLimit" min="0" step="0.01" placeholder="No limit">
-                </div>
+              <div>
+                <label class="form-label">Daily Limit (TND)</label>
+                <input type="number" class="form-input" [(ngModel)]="limitForm.dailyLimit" name="dailyLimit" min="0" step="0.01" placeholder="No limit">
+              </div>
+              <div>
+                <label class="form-label">Monthly Limit (TND)</label>
+                <input type="number" class="form-input" [(ngModel)]="limitForm.monthlyLimit" name="monthlyLimit" min="0" step="0.01" placeholder="No limit">
+              </div>
+              <div>
+                <label class="form-label">Transaction Limit (TND)</label>
+                <input type="number" class="form-input" [(ngModel)]="limitForm.transactionLimit" name="transactionLimit" min="0" step="0.01" placeholder="No limit">
               </div>
               <div class="flex gap-3 pt-2">
                 <button type="submit" class="btn btn-primary" [disabled]="limitsLoading">
