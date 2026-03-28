@@ -1,14 +1,105 @@
-<div class="space-y-8 pb-10">
-    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-    <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <a *ngFor="let card of cards" [routerLink]="card.route" class="flex items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#135bec]/20 transition-all">
-            <span class="material-symbols-outlined text-[32px] mr-4" [ngClass]="card.iconColorClass || 'text-[#135bec]'">{{ card.icon }}</span>
-            <div>
-                <p class="font-bold text-gray-800">{{ card.title }}</p>
-                <p class="text-sm text-gray-500">{{ card.subtitle }}</p>
-            </div>
-            <span class="material-symbols-outlined text-gray-300 ml-auto">chevron_right</span>
-        </a>
+<div class="page-body s1">
+  
+  <!-- Page Header -->
+  <div class="ph s2">
+    <div>
+      <div class="ph-eyebrow">Financial Governance</div>
+      <div class="ph-title">{{ pageTitle }}</div>
+      <div class="ph-desc">{{ pageSubtitle }}</div>
     </div>
+    <div class="ph-actions">
+      <button routerLink="/admin/wallet/wallets" class="btn btn-primary btn-sm font-black">Manage Wallets</button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="panel s3 py-20 flex flex-col items-center justify-center">
+    <span class="material-symbols-outlined text-4xl text-blue-100 animate-spin">progress_activity</span>
+    <p class="mt-4 text-sm font-medium text-gray-400">Loading treasury statistics...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!loading && error" class="panel s3 p-6 bg-red-50/30 border-red-100 flex items-center gap-3">
+    <span class="material-symbols-outlined text-red-500">error</span>
+    <p class="text-sm text-red-700 font-medium">{{ error }}</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error">
+
+  <!-- Stats Grid -->
+  <div class="kpi-row s3">
+    <div class="kpi" style="--kc: var(--blue)">
+      <div class="kpi-top">
+        <div class="kpi-ico">
+          <span class="material-symbols-outlined">account_balance</span>
+        </div>
+        <div class="kpi-badge kb-up">
+          <span class="material-symbols-outlined text-[12px]">trending_up</span> Treasury
+        </div>
+      </div>
+      <div class="kpi-val">{{ stats.totalBalance | number:'1.2-2' }} <small>TND</small></div>
+      <div class="kpi-lbl">Global Liquidity</div>
+      <div class="kpi-foot">Seeded from <b>Primary Treasury</b></div>
+    </div>
+
+    <div class="kpi" style="--kc: var(--purple)">
+      <div class="kpi-top">
+        <div class="kpi-ico">
+          <span class="material-symbols-outlined">wallet</span>
+        </div>
+      </div>
+      <div class="kpi-val">{{ stats.totalWallets }}</div>
+      <div class="kpi-lbl">Active Wallets</div>
+      <div class="kpi-foot">Cross-user <b>Platform Registry</b></div>
+    </div>
+
+    <div class="kpi" style="--kc: var(--success)">
+      <div class="kpi-top">
+        <div class="kpi-ico">
+          <span class="material-symbols-outlined">history</span>
+        </div>
+      </div>
+      <div class="kpi-val">{{ stats.totalTransactions }}</div>
+      <div class="kpi-lbl">Ledger Entries</div>
+      <div class="kpi-foot">Immutable <b>Audit Trail</b></div>
+    </div>
+  </div>
+
+  <!-- Hub Cards -->
+  <div class="grid g3 s4">
+    <a *ngFor="let card of cards" [routerLink]="card.route" class="panel group transition-all cursor-pointer">
+      <div class="panel-body space-y-4">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110" [ngClass]="card.bgClass">
+          <span class="material-symbols-outlined text-xl" [ngClass]="card.iconClass">{{ card.icon }}</span>
+        </div>
+        <div>
+          <h4 class="panel-title">{{ card.title }}</h4>
+          <p class="td-sub mt-1">{{ card.subtitle }}</p>
+        </div>
+        <div class="pt-3 border-t border-gray-50 flex items-center justify-between">
+          <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Access Access Management</span>
+          <span class="material-symbols-outlined text-gray-300 group-hover:text-blue-600 transition-colors">arrow_right_alt</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Admin Note Panel -->
+  <div class="panel s5 mt-8 border-t-4 border-t-blue-600">
+    <div class="panel-body flex items-start gap-6 bg-blue-50/30">
+      <div class="w-14 h-14 bg-white rounded-2xl shadow-sm border border-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
+        <span class="material-symbols-outlined text-3xl">gavel</span>
+      </div>
+      <div class="space-y-2">
+        <h3 class="panel-title !text-lg">Governance Policy</h3>
+        <p class="text-sm text-gray-500 leading-relaxed max-w-2xl">
+          You are accessing the central Treasury control hub. All actions here are logged and strictly audited. Use the "Client Wallets" section to perform manual credits or freeze accounts in case of suspicious activity. Internal transfers from treasury are subject to compliance verification.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
 </div>
