@@ -9,6 +9,7 @@ import { AgentShell } from './layout/agent-shell/agent-shell';
 import { InsurerShell } from './layout/insurer-shell/insurer-shell';
 import { AdminClients } from './features/admin/clients/admin-clients';
 import { AdminSettings } from './features/admin/settings/admin-settings';
+import { AnalyticsDashboardComponent } from './features/admin/analytics/analytics-dashboard/analytics-dashboard.component';
 import { roleGuard } from './core/guards/auth-guard';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 
@@ -88,6 +89,7 @@ const routes: Routes = [
         path: 'wallet',
         loadChildren: () => import('./features/admin/wallet-admin/wallet-admin-module').then((m) => m.WalletAdminModule),
       },
+      { path: 'analytics', component: AnalyticsDashboardComponent },
       { path: '**', redirectTo: 'dashboard' },
     ],
   },

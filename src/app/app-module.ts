@@ -16,7 +16,6 @@ import { AdminShellComponent } from './layout/admin-shell/admin-shell.component'
 import { InsurerShell } from './layout/insurer-shell/insurer-shell';
 import { AdminClients } from './features/admin/clients/admin-clients';
 import { AdminSettings } from './features/admin/settings/admin-settings';
-import { AnalyticsDashboardComponent } from './features/admin/analytics/analytics-dashboard/analytics-dashboard.component';
 import { authInterceptor } from './services/auth/auth.interceptor';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 
@@ -37,7 +36,6 @@ import { NgApexchartsModule } from 'ng-apexcharts';
     BackofficeComponent,
     TopbarComponent,
     UnauthorizedComponent,
-    AnalyticsDashboardComponent,
   ],
   imports: [
     BrowserModule,

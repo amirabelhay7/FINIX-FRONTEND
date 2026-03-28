@@ -1,10 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AnalyticsService } from '../../../../services/analytics/analytics.service';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 @Component({
   selector: 'app-analytics-dashboard',
   templateUrl: './analytics-dashboard.component.html',
-  styleUrls: ['./analytics-dashboard.component.css']
+  styleUrls: ['./analytics-dashboard.component.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, NgApexchartsModule]
 })
 export class AnalyticsDashboardComponent implements OnInit {
   loading = true;
