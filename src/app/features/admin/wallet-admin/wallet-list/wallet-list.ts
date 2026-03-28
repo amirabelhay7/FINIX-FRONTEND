@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { finalize } from 'rxjs';
 import { WalletService, WalletApi } from '../../../../services/wallet/wallet.service';
 
@@ -16,14 +16,12 @@ export class WalletList implements OnInit {
 
   constructor(
     private walletService: WalletService,
-    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     this.walletService.adminGetAllWallets()
       .pipe(finalize(() => {
         this.loading = false;
-        setTimeout(() => this.cdr.detectChanges(), 0);
       }))
       .subscribe({
         next: (data: WalletApi[]) => {
