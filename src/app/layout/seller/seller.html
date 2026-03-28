@@ -7,7 +7,7 @@
   <div class="sl-tb-divider"></div>
   <div class="sl-tb-sub">Espace Vendeur · Gestion des offres véhicules</div>
   <div class="sl-tb-right">
-    <button type="button" class="sl-tb-btn" (click)="goToNotifications()" title="Notifications">🔔<span class="sl-notif-dot" *ngIf="hasNotifications"></span></button>
+    <button type="button" class="sl-tb-btn" (click)="goToNotifications()" title="Notifications">🔔<span class="sl-notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span></button>
     <button type="button" class="sl-tb-btn">⚙️</button>
     <button type="button" class="sl-theme-toggle" (click)="toggleTheme()" title="Changer le thème">
       {{ currentTheme === 'dark' ? '☀️' : '🌙' }}

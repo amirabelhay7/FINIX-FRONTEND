@@ -22,7 +22,7 @@ export class SellerLayout implements OnInit, OnDestroy {
   userName = '';
   userInitials = '';
   userEmail = '';
-  hasNotifications = false;
+  unreadCount = 0;
   showAddModal = false;
 
   newVehicle = {
@@ -39,6 +39,7 @@ export class SellerLayout implements OnInit, OnDestroy {
 
   private addModalSub?: Subscription;
   private navSub?: Subscription;
+  private wsSubscription?: Subscription;
 
   constructor(
     private router: Router,
@@ -58,6 +59,15 @@ export class SellerLayout implements OnInit, OnDestroy {
       .subscribe(() => this.syncSellerSubnav());
     this.addModalSub = this.sellerShell.openAddVehicle$.subscribe(() => this.openAddModal());
     this.refreshUnread();
+
+    const payload = this.authService.getPayload();
+    const token = this.authService.getToken();
+    if (payload?.userId) {
+      this.notificationService.connectWebSocket(payload.userId, token || undefined);
+      this.wsSubscription = this.notificationService.realTimeNotification$.subscribe(() => {
+        this.unreadCount += 1;
+      });
+    }
   }
 
 
@@ -69,10 +79,10 @@ export class SellerLayout implements OnInit, OnDestroy {
   private refreshUnread(): void {
     this.notificationService.unreadCount().subscribe({
       next: (r) => {
-        this.hasNotifications = (r?.count ?? 0) > 0;
+        this.unreadCount = r?.count ?? 0;
       },
       error: () => {
-        this.hasNotifications = false;
+        this.unreadCount = 0;
       },
     });
   }
@@ -101,6 +111,7 @@ export class SellerLayout implements OnInit, OnDestroy {
     this.renderer.removeAttribute(document.documentElement, 'data-theme');
     this.addModalSub?.unsubscribe();
     this.navSub?.unsubscribe();
+    this.wsSubscription?.unsubscribe();
   }
 
   toggleTheme(): void {

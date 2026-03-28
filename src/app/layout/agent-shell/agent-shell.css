@@ -240,10 +240,15 @@ a.cfm-nav-item {
   cursor: pointer; transition: all .18s; position: relative;
 }
 .cfm-tb-icon:hover { background: var(--fx-soft); border-color: var(--fx-blue); color: var(--fx-blue); }
-.cfm-tb-notif-dot {
-  position: absolute; top: 3px; right: 3px;
-  width: 6px; height: 6px; background: var(--fx-danger);
-  border-radius: 50%; border: 1.5px solid var(--fx-topbar-bg);
+.cfm-tb-notif-badge {
+  position: absolute; top: -4px; right: -4px;
+  background: var(--fx-danger); color: #fff;
+  font-size: 0.65rem; font-weight: 700;
+  padding: 0 4px; min-width: 16px; height: 16px;
+  border-radius: 8px; border: 1.5px solid var(--fx-topbar-bg);
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1; z-index: 2;
+  animation: cfmPulse 2s infinite;
 }
 
 /* ================================================================

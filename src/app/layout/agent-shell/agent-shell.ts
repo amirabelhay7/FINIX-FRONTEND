@@ -3,6 +3,7 @@ import { ThemeService } from '../../core/services/theme/theme.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../services/notifications/notification.service';
+import { Subscription } from 'rxjs';
 
 export interface AgentNavItem {
   page: string;
@@ -23,7 +24,8 @@ export interface AgentNavItem {
 export class AgentShell implements OnInit, OnDestroy {
   currentTheme: 'light' | 'dark' = 'dark';
   showUserMenu = false;
-  hasNotifications = false;
+  unreadCount = 0;
+  private wsSubscription: Subscription | null = null;
 
   constructor(
     private renderer: Renderer2,
@@ -36,6 +38,16 @@ export class AgentShell implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentTheme = this.themeService.initTheme(this.currentTheme);
     this.refreshUnread();
+
+    const payload = this.authService.getPayload();
+    const token = this.authService.getToken();
+    if (payload?.userId) {
+      this.notificationService.connectWebSocket(payload.userId, token || undefined);
+      this.wsSubscription = this.notificationService.realTimeNotification$.subscribe(() => {
+        this.unreadCount += 1;
+        this.updateNavBadge();
+      });
+    }
   }
 
 
@@ -47,16 +59,28 @@ export class AgentShell implements OnInit, OnDestroy {
   private refreshUnread(): void {
     this.notificationService.unreadCount().subscribe({
       next: (r) => {
-        this.hasNotifications = (r?.count ?? 0) > 0;
+        this.unreadCount = r?.count ?? 0;
+        this.updateNavBadge();
       },
       error: () => {
-        this.hasNotifications = false;
+        this.unreadCount = 0;
+        this.updateNavBadge();
       },
     });
   }
 
+  private updateNavBadge(): void {
+    const alertsItem = this.navItems.find(i => i.page === 'alertes');
+    if (alertsItem) {
+      alertsItem.badge = this.unreadCount > 0 ? (this.unreadCount > 99 ? '99+' : this.unreadCount.toString()) : undefined;
+    }
+  }
+
   ngOnDestroy(): void {
     this.renderer.removeAttribute(document.documentElement, 'data-theme');
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
   }
 
   toggleTheme(): void {
@@ -100,7 +124,6 @@ export class AgentShell implements OnInit, OnDestroy {
       label: 'Alertes',
       section: 'SYSTÈME',
       icon: 'bell',
-      badge: '3',
       badgeType: 'danger',
     },
     { page: 'parametres', label: 'Paramètres', section: 'SYSTÈME', icon: 'settings' },

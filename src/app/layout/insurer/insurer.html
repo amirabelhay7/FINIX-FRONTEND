@@ -7,7 +7,7 @@
   <div class="in-tb-divider"></div>
   <div class="in-tb-sub">Insurer Space · Policy & claims management</div>
   <div class="in-tb-right">
-    <button type="button" class="in-tb-btn" (click)="goToNotifications()" title="Notifications">🔔<span class="in-notif-dot" *ngIf="hasNotifications"></span></button>
+    <button type="button" class="in-tb-btn" (click)="goToNotifications()" title="Notifications">🔔<span class="in-notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span></button>
     <button class="in-tb-btn">⚙️</button>
     <button class="in-theme-toggle" (click)="toggleTheme()" title="Toggle theme">
       {{ currentTheme === 'dark' ? '☀️' : '🌙' }}

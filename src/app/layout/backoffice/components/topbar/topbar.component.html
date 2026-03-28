@@ -65,7 +65,7 @@
       </svg>
 
       <!-- Notification indicator -->
-      <div *ngIf="hasNotifications" class="notif-dot"></div>
+      <div *ngIf="unreadCount > 0" class="notif-badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</div>
     </button>
 
   

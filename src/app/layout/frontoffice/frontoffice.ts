@@ -4,6 +4,7 @@ import { NgFor, NgIf } from '@angular/common';
 import { ThemeService } from '../../core/services/theme/theme.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { NotificationService } from '../../services/notifications/notification.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-frontoffice',
@@ -32,7 +33,8 @@ export class Frontoffice implements OnInit, OnDestroy {
   userInitials = '';
   userEmail = '';
   userRole = '';
-  hasNotifications = false;
+  unreadCount = 0;
+  private wsSubscription: Subscription | null = null;
 
   constructor(
     private router: Router,
@@ -46,6 +48,15 @@ export class Frontoffice implements OnInit, OnDestroy {
     this.currentTheme = this.themeService.initTheme(this.currentTheme);
     this.loadUser();
     this.refreshUnread();
+
+    const payload = this.authService.getPayload();
+    const token = this.authService.getToken();
+    if (payload?.userId) {
+      this.notificationService.connectWebSocket(payload.userId, token || undefined);
+      this.wsSubscription = this.notificationService.realTimeNotification$.subscribe(() => {
+        this.unreadCount += 1;
+      });
+    }
   }
 
 
@@ -57,10 +68,10 @@ export class Frontoffice implements OnInit, OnDestroy {
   private refreshUnread(): void {
     this.notificationService.unreadCount().subscribe({
       next: (r) => {
-        this.hasNotifications = (r?.count ?? 0) > 0;
+        this.unreadCount = r?.count ?? 0;
       },
       error: () => {
-        this.hasNotifications = false;
+        this.unreadCount = 0;
       },
     });
   }
@@ -81,6 +92,9 @@ export class Frontoffice implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.renderer.removeAttribute(document.documentElement, 'data-theme');
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
   }
 
   toggleTheme(): void {

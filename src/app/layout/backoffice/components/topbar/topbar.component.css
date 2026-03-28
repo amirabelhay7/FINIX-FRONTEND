@@ -70,11 +70,13 @@
 }
 .tb-btn:hover { background: var(--soft); border-color: var(--blue); color: var(--blue); }
 
-.notif-dot {
-  position: absolute; top: 5px; right: 5px;
-  width: 7px; height: 7px;
-  background: var(--warning);
-  border-radius: 50%;
-  border: 1.5px solid var(--white);
+.notif-badge {
+  position: absolute; top: -4px; right: -4px;
+  background: var(--warning, #ef4444); color: white;
+  font-size: 0.65rem; font-weight: 700;
+  padding: 0 4px; min-width: 16px; height: 16px;
+  border-radius: 8px; border: 1.5px solid var(--topbar-bg, #fff);
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1; z-index: 2;
   animation: pulse 2s infinite;
 }

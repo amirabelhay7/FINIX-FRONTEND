@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ThemeService } from '../../core/services/theme/theme.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { NotificationService } from '../../services/notifications/notification.service';
+import { Subscription } from 'rxjs';
 
 interface InsuranceOffer {
   id: number;
@@ -48,7 +49,8 @@ export class InsurerLayout implements OnInit, OnDestroy {
   userName = '';
   userInitials = '';
   userEmail = '';
-  hasNotifications = false;
+  unreadCount = 0;
+  private wsSubscription: Subscription | null = null;
   activeSection: 'dashboard' | 'offers' | 'events' | 'catalogs' = 'dashboard';
   searchQuery = '';
 
@@ -110,6 +112,15 @@ export class InsurerLayout implements OnInit, OnDestroy {
     // Drive UI from URL: /insurer/<child>
     const path = this.route.snapshot.routeConfig?.path as InsurerLayout['activeSection'] | undefined;
     this.activeSection = path && path.length > 0 ? path : 'dashboard';
+
+    const payload = this.authService.getPayload();
+    const token = this.authService.getToken();
+    if (payload?.userId) {
+      this.notificationService.connectWebSocket(payload.userId, token || undefined);
+      this.wsSubscription = this.notificationService.realTimeNotification$.subscribe(() => {
+        this.unreadCount += 1;
+      });
+    }
   }
 
 
@@ -121,10 +132,10 @@ export class InsurerLayout implements OnInit, OnDestroy {
   private refreshUnread(): void {
     this.notificationService.unreadCount().subscribe({
       next: (r) => {
-        this.hasNotifications = (r?.count ?? 0) > 0;
+        this.unreadCount = r?.count ?? 0;
       },
       error: () => {
-        this.hasNotifications = false;
+        this.unreadCount = 0;
       },
     });
   }
@@ -145,6 +156,9 @@ export class InsurerLayout implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.renderer.removeAttribute(document.documentElement, 'data-theme');
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
   }
 
   toggleTheme(): void {

@@ -17,7 +17,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
   @Output() loggedOut = new EventEmitter<void>();
 
   searchValue: string = '';
-  hasNotifications = false;
+  unreadCount = 0;
   private wsSubscription: Subscription | null = null;
 
   constructor(
@@ -34,7 +34,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
     if (payload?.userId) {
       this.notificationService.connectWebSocket(payload.userId, token || undefined);
       this.wsSubscription = this.notificationService.realTimeNotification$.subscribe(() => {
-        this.hasNotifications = true;
+        this.unreadCount += 1;
       });
     }
   }
@@ -79,10 +79,10 @@ export class TopbarComponent implements OnInit, OnDestroy {
   private refreshUnread(): void {
     this.notificationService.unreadCount().subscribe({
       next: (r) => {
-        this.hasNotifications = (r?.count ?? 0) > 0;
+        this.unreadCount = r?.count ?? 0;
       },
       error: () => {
-        this.hasNotifications = false;
+        this.unreadCount = 0;
       },
     });
   }

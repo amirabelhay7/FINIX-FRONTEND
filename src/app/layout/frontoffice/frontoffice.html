@@ -8,7 +8,7 @@
   <div class="tb-sub">Microfinance institution · Central Bank licensed</div>
   <div class="tb-right">
     
-    <button type="button" class="tb-btn" (click)="goToNotifications()" title="Notifications">🔔<span class="notif-dot" *ngIf="hasNotifications"></span></button>
+    <button type="button" class="tb-btn" (click)="goToNotifications()" title="Notifications">🔔<span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span></button>
     <button class="tb-btn">⚙️</button>
     <button class="tb-theme-toggle" (click)="toggleTheme()" title="Toggle theme">
       {{ currentTheme === 'dark' ? '☀️' : '🌙' }}
