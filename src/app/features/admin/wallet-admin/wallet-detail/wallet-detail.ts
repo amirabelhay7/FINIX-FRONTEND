@@ -66,12 +66,25 @@ export class WalletDetail implements OnInit {
       })
     ).subscribe({
       next: (w) => {
+        // Update wallet with new balance immediately
         this.wallet = w;
+        console.log('Credit successful - Updated wallet:', w);
+        
+        // Clear form
         this.creditAmount = null;
         this.creditDescription = '';
-        this.loadData(w.id); // Reload transactions
+        
+        // Only reload transactions, not the wallet (to avoid overwriting the updated balance)
+        this.walletService.adminGetUserTransactions(w.id).subscribe({
+          next: (txs) => {
+            this.transactions = txs;
+            this.cdr.detectChanges();
+          },
+          error: () => { }
+        });
       },
       error: (err) => {
+        console.error('Credit failed:', err);
         alert(err?.error?.message || 'Credit failed');
       }
     });
