@@ -21,6 +21,7 @@ export class WalletDetail implements OnInit, OnChanges {
   
   freezeLoading = false;
   invalidateLoading = false;
+  unfreezeLoading = false;
   
   private currentUserId: number | null = null;
 
@@ -170,6 +171,30 @@ export class WalletDetail implements OnInit, OnChanges {
       error: (err) => {
         console.error('Invalidate failed:', err);
         alert(err?.error?.message || 'Failed to invalidate ledger');
+      }
+    });
+  }
+
+  unfreezeAccount(): void {
+    if (!this.currentUserId || !confirm('Are you sure you want to unfreeze this account? This will restore all wallet operations.')) return;
+    
+    this.unfreezeLoading = true;
+    console.log('Unfreezing account for USER ID:', this.currentUserId);
+    
+    this.walletService.adminUnfreezeAccount(this.currentUserId).pipe(
+      finalize(() => {
+        this.unfreezeLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (w) => {
+        this.wallet = w;
+        console.log('Account unfrozen successfully:', w);
+        alert('Account has been unfrozen successfully. Wallet operations are now restored.');
+      },
+      error: (err) => {
+        console.error('Unfreeze failed:', err);
+        alert(err?.error?.message || 'Failed to unfreeze account');
       }
     });
   }
