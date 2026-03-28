@@ -36,7 +36,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let w of wallets" class="group transition-colors" [routerLink]="['/admin/wallet/wallets', w.id]">
+          <tr *ngFor="let w of wallets" class="group transition-colors" [routerLink]="['/admin/wallet/wallets', w.userId]">
             <td>
               <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-gray-300 group-hover:text-blue-500 transition-colors text-[18px]">account_balance_wallet</span>

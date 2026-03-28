@@ -30,6 +30,10 @@ export class WalletList implements OnInit {
           try {
             const arr = Array.isArray(data) ? data : [];
             this.wallets = arr;
+            console.log('Wallets loaded:', this.wallets);
+            this.wallets.forEach(w => {
+              console.log(`Wallet: ${w.accountNumber} - Wallet ID: ${w.id}, User ID: ${w.userId}, Email: ${w.clientEmail}`);
+            });
           } catch (e) {
             this.error = (e instanceof Error ? e.message : 'Invalid response') as string;
           }

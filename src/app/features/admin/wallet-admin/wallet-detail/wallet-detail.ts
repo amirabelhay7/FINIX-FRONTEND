@@ -29,6 +29,9 @@ export class WalletDetail implements OnInit, OnChanges {
 
   ngOnInit(): void {
     const userId = Number(this.route.snapshot.paramMap.get('id'));
+    console.log('Wallet detail - User ID from route:', userId);
+    console.log('Is valid userId:', !isNaN(userId) && userId > 0);
+    
     this.currentUserId = userId;
     this.loadData(userId);
   }
