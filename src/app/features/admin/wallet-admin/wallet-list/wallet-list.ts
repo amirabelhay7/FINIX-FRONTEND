@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { finalize } from 'rxjs';
 import { WalletService, WalletApi } from '../../../../services/wallet/wallet.service';
 
@@ -16,15 +16,14 @@ export class WalletList implements OnInit {
 
   constructor(
     private walletService: WalletService,
-    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    this.walletService.adminGetAllWallets()
+    this.walletService.getAllWalletsAdmin()
       .pipe(finalize(() => {
-        this.ngZone.runOutsideAngular(() => {
-          this.loading = false;
-        });
+        this.loading = false;
+        this.cdr.detectChanges();
       }))
       .subscribe({
         next: (data: WalletApi[]) => {
