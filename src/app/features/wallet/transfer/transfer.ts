@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { WalletService } from '../../../services/wallet/wallet.service';
 
-/**
- * ViewModel: P2P transfer (MVVM).
- */
 @Component({
   selector: 'app-transfer',
   standalone: false,
@@ -10,27 +9,51 @@ import { Component } from '@angular/core';
   styleUrl: './transfer.css',
 })
 export class Transfer {
-  readonly pageTitle = 'P2P Transfer';
-  readonly pageSubtitle = 'Send money instantly to any FINIX user.';
-  readonly balanceLabel = 'Your Balance';
-  readonly balanceAmount = '2,840.50 TND';
-  readonly recipientLabel = 'Recipient';
-  readonly recipientPlaceholder = 'Search by CIN, phone, or name...';
-  readonly recipientName = 'Sarah Sidibe';
-  readonly recipientMeta = 'CIN: 12345678 · Gold Tier';
-  /** Avatar URL for recipient (static UI). */
-  readonly recipientAvatarUrl = 'https://ui-avatars.com/api/?name=Sarah+Sidibe&background=135bec&color=fff';
-  readonly amountLabel = 'Amount';
-  readonly amountHint = 'Max: 2,840.50 TND — Transfer fee: 0.00 TND (free)';
-  readonly noteLabel = 'Note (Optional)';
-  readonly notePlaceholder = 'e.g. Rent payment...';
-  readonly summaryTransfer = 'Transfer Amount';
-  readonly summaryFee = 'Platform Fee';
-  readonly summaryFeeValue = 'Free';
-  readonly summaryTotal = 'Total Deducted';
-  readonly summaryAmount = '200.00 TND';
-  readonly confirmLabel = 'Confirm Transfer';
-  readonly backLabel = 'Back to Wallet';
+  targetEmail = '';
+  amount: number | null = null;
+  description = '';
+  showConfirm = false;
+  loading = false;
+  error: string | null = null;
+  success = false;
+  newBalance: number | null = null;
 
-  readonly quickAmounts: string[] = ['50', '100', '200', '500'];
+  constructor(private walletService: WalletService, private router: Router) {}
+
+  openConfirm(): void {
+    if (!this.targetEmail.trim()) { this.error = 'Please enter a recipient email.'; return; }
+    if (!this.amount || this.amount <= 0) { this.error = 'Please enter a valid amount.'; return; }
+    this.error = null;
+    this.showConfirm = true;
+  }
+
+  cancelConfirm(): void {
+    this.showConfirm = false;
+  }
+
+  confirm(): void {
+    this.loading = true;
+    this.error = null;
+    this.walletService.transfer({
+      targetEmail: this.targetEmail,
+      amount: this.amount!,
+      description: this.description || 'P2P Transfer',
+    }).subscribe({
+      next: (w) => {
+        this.loading = false;
+        this.showConfirm = false;
+        this.success = true;
+        this.newBalance = w.balance;
+      },
+      error: (err) => {
+        this.loading = false;
+        this.showConfirm = false;
+        this.error = err?.error?.message || 'Transfer failed. Please try again.';
+      },
+    });
+  }
+
+  goHome(): void {
+    this.router.navigate(['/wallet']);
+  }
 }

@@ -13,7 +13,7 @@ const routes: Routes = [
   { path: 'stub/:page', component: AgentStubComponent },
   { path: 'clients', component: Clients },
   { path: 'clients/:id', component: ClientDetail },
-  { path: 'top-up', component: TopUp },
+  { path: 'wallet', loadChildren: () => import('../wallet/wallet-module').then(m => m.WalletModule) },
   { path: 'loan-verification', component: LoanVerification },
   { path: '**', redirectTo: 'dashboard' }
 ];

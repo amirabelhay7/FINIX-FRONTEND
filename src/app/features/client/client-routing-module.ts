@@ -15,7 +15,7 @@ const routes: Routes = [
   { path: 'repayments', component: ClientRepayments },
   { path: 'vehicles', component: ClientVehicles },
   { path: 'insurance', component: ClientInsurance },
-  { path: 'wallet', component: ClientWallet },
+  { path: 'wallet', loadChildren: () => import('../wallet/wallet-module').then(m => m.WalletModule) },
   { path: 'score', component: ClientScore },
   { path: 'documents', component: ClientDocuments },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },

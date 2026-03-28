@@ -1,31 +1,38 @@
-import { Component } from '@angular/core';
-import { AdminTransactionLedgerRow, AdminFilterOption } from '../../../../models';
+import { Component, OnInit } from '@angular/core';
+import { WalletService, TransactionApi } from '../../../../services/wallet/wallet.service';
 
-/**
- * ViewModel: admin transaction ledger (MVVM).
- * All static data and filter options in VM; view only binds.
- */
 @Component({
   selector: 'app-transaction-list',
   standalone: false,
   templateUrl: './transaction-list.html',
   styleUrl: './transaction-list.css',
 })
-export class TransactionList {
-  readonly backRoute = '/admin/wallet';
-  readonly pageTitle = 'Transaction Ledger';
-  readonly searchPlaceholder = 'Search by ref, type...';
+export class TransactionList implements OnInit {
+  readonly pageTitle = 'Global Ledger';
+  txs: TransactionApi[] = [];
+  loading = true;
+  error: string | null = null;
 
-  readonly typeOptions: AdminFilterOption[] = [
-    { value: '', label: 'All types' },
-    { value: 'DEPOSIT', label: 'DEPOSIT' },
-    { value: 'WITHDRAWAL', label: 'WITHDRAWAL' },
-    { value: 'TRANSFER', label: 'TRANSFER' },
-  ];
+  constructor(private walletService: WalletService) {}
 
-  readonly rows: AdminTransactionLedgerRow[] = [
-    { id: 101, ref: 'TXN-992144', type: 'DEPOSIT', amount: '+1,450.00 DT', amountClass: 'text-green-600', status: 'Completed', statusClass: 'bg-green-50 text-green-700', date: '2025-02-24 10:32', viewRoute: '/admin/wallet/transactions/101' },
-    { id: 102, ref: 'TXN-992145', type: 'TRANSFER', amount: '-200.00 DT', amountClass: 'text-red-500', status: 'Completed', statusClass: 'bg-green-50 text-green-700', date: '2025-02-24 10:18', viewRoute: '/admin/wallet/transactions/102' },
-  ];
-  readonly viewLabel = 'View';
+  ngOnInit(): void {
+    this.walletService.adminGetAllTransactions().subscribe({
+      next: (data) => {
+        this.txs = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = err?.error?.message || 'Failed to load global transactions';
+        this.loading = false;
+      },
+    });
+  }
+
+  isPositive(t: TransactionApi): boolean {
+    return ['DEPOSIT', 'TRANSFER_IN', 'AGENT_TOP_UP', 'ADMIN_TOP_UP'].includes(t.transactionType);
+  }
+
+  formatDate(d: string): string {
+    return d ? new Date(d).toLocaleString() : '';
+  }
 }

@@ -1,35 +1,72 @@
-import { Component } from '@angular/core';
-import { TransactionsPageKpis, TransactionRow } from '../../../models';
+import { Component, OnInit } from '@angular/core';
+import { WalletService, TransactionApi } from '../../../services/wallet/wallet.service';
 
-/**
- * ViewModel: transaction history (MVVM).
- */
+function formatAmount(amount: number, positive: boolean): string {
+  return (positive ? '+' : '-') + Math.abs(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' TND';
+}
+
+const ICON_MAP: Record<string, string> = {
+  DEPOSIT: 'south_east', WITHDRAWAL: 'north_west',
+  TRANSFER_OUT: 'swap_horiz', TRANSFER_IN: 'swap_horiz',
+  AGENT_TOP_UP: 'storefront', ADMIN_TOP_UP: 'admin_panel_settings',
+  TREASURY_OUT: 'account_balance',
+};
+
 @Component({
   selector: 'app-transactions',
   standalone: false,
   templateUrl: './transactions.html',
   styleUrl: './transactions.css',
 })
-export class Transactions {
-  readonly pageTitle = 'Transaction History';
-  readonly pageSubtitle = 'Your complete immutable financial ledger.';
-  readonly paginationLabel = 'Showing 5 of 38 transactions';
+export class Transactions implements OnInit {
+  allTransactions: TransactionApi[] = [];
+  filtered: TransactionApi[] = [];
+  loading = true;
+  error: string | null = null;
+  filterType = 'ALL';
 
-  readonly kpis: TransactionsPageKpis = {
-    totalIn: '+15,200 TND',
-    totalOut: '-6,658 TND',
-    net: '+8,542 TND',
-    count: '38',
-    countLabel: '(30d)',
-  };
+  readonly types = ['ALL', 'DEPOSIT', 'WITHDRAWAL', 'TRANSFER_OUT', 'TRANSFER_IN', 'AGENT_TOP_UP', 'ADMIN_TOP_UP'];
 
-  readonly transactions: TransactionRow[] = [
-    { ref: '#TXN-992144', type: 'DEPOSIT', typeClass: 'bg-green-50 text-green-700 border-green-100', description: 'Bank transfer — BIAT', amount: '+4,350 TND', amountPositive: true, status: 'Success', statusDotClass: 'bg-green-500', statusTextClass: 'text-green-600', date: 'Feb 24, 2026' },
-    { ref: '#TXN-992145', type: 'REPAYMENT', typeClass: 'bg-blue-50 text-blue-700 border-blue-100', description: 'Contract #FIN-2025-0842 · Installment 2', amount: '-445.20 TND', amountPositive: false, status: 'Success', statusDotClass: 'bg-green-500', statusTextClass: 'text-green-600', date: 'Feb 24, 2026' },
-    { ref: '#TXN-991990', type: 'TRANSFER', typeClass: 'bg-purple-50 text-purple-700 border-purple-100', description: 'P2P → Sarah Sidibe (Rent)', amount: '-600 TND', amountPositive: false, status: 'Success', statusDotClass: 'bg-green-500', statusTextClass: 'text-green-600', date: 'Feb 23, 2026' },
-    { ref: '#TXN-991887', type: 'INSURANCE', typeClass: 'bg-orange-50 text-orange-700 border-orange-100', description: 'Moto Cover + Health Micro · Monthly', amount: '-63 TND', amountPositive: false, status: 'Success', statusDotClass: 'bg-green-500', statusTextClass: 'text-green-600', date: 'Feb 21, 2026' },
-    { ref: '#TXN-991201', type: 'WITHDRAWAL', typeClass: 'bg-red-50 text-red-700 border-red-100', description: 'Cash out → La Poste Tunisienne', amount: '-1,500 TND', amountPositive: false, status: 'Pending', statusDotClass: 'bg-yellow-400', statusTextClass: 'text-yellow-600', date: 'Feb 20, 2026' },
-  ];
+  constructor(private walletService: WalletService) {}
 
-  onExportCsv(): void {}
+  ngOnInit(): void {
+    this.walletService.getMyTransactions().subscribe({
+      next: (list) => {
+        this.allTransactions = list;
+        this.applyFilter();
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = err?.error?.message || 'Failed to load transactions';
+        this.loading = false;
+      },
+    });
+  }
+
+  setFilter(type: string): void {
+    this.filterType = type;
+    this.applyFilter();
+  }
+
+  private applyFilter(): void {
+    this.filtered = this.filterType === 'ALL'
+      ? this.allTransactions
+      : this.allTransactions.filter(t => t.transactionType === this.filterType);
+  }
+
+  isPositive(t: TransactionApi): boolean {
+    return ['DEPOSIT', 'TRANSFER_IN', 'AGENT_TOP_UP', 'ADMIN_TOP_UP'].includes(t.transactionType);
+  }
+
+  formatAmt(t: TransactionApi): string {
+    return formatAmount(t.amount, this.isPositive(t));
+  }
+
+  iconFor(t: TransactionApi): string {
+    return ICON_MAP[t.transactionType] ?? 'receipt_long';
+  }
+
+  formatDate(d: string): string {
+    return d ? new Date(d).toLocaleString() : '';
+  }
 }

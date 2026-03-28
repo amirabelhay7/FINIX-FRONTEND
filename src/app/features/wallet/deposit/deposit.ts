@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
-import { WalletFormOption } from '../../../models';
+import { Router } from '@angular/router';
+import { WalletService } from '../../../services/wallet/wallet.service';
 
-/**
- * ViewModel: deposit (MVVM).
- */
 @Component({
   selector: 'app-deposit',
   standalone: false,
@@ -11,17 +9,36 @@ import { WalletFormOption } from '../../../models';
   styleUrl: './deposit.css',
 })
 export class Deposit {
-  readonly pageTitle = 'Deposit (Online)';
-  readonly pageSubtitle = 'Add funds by card or bank transfer.';
-  readonly amountLabel = 'Amount (DT)';
-  readonly methodLabel = 'Payment method';
-  readonly continueLabel = 'Continue to payment';
-  readonly infoText = 'Unbanked? Top up in cash at an agent near you — no card needed.';
-  readonly findAgentLabel = 'Find agent →';
-  readonly findAgentRoute = '/wallet/agent-top-up';
+  amount: number | null = null;
+  description = '';
+  loading = false;
+  error: string | null = null;
+  success = false;
+  newBalance: number | null = null;
 
-  readonly paymentMethods: WalletFormOption[] = [
-    { value: 'card', label: 'Card' },
-    { value: 'bank', label: 'Bank transfer' },
-  ];
+  constructor(private walletService: WalletService, private router: Router) {}
+
+  submit(): void {
+    if (!this.amount || this.amount <= 0) {
+      this.error = 'Please enter a valid amount.';
+      return;
+    }
+    this.loading = true;
+    this.error = null;
+    this.walletService.deposit({ amount: this.amount, description: this.description || 'Deposit' }).subscribe({
+      next: (w) => {
+        this.loading = false;
+        this.success = true;
+        this.newBalance = w.balance;
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = err?.error?.message || 'Deposit failed. Please try again.';
+      },
+    });
+  }
+
+  goHome(): void {
+    this.router.navigate(['/wallet']);
+  }
 }

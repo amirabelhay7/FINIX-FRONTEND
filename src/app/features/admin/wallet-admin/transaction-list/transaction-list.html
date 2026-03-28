@@ -1,42 +1,72 @@
-<div class="space-y-8 pb-10">
-    <div class="flex items-center gap-4">
-        <a [routerLink]="backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+<div class="page-body s1">
+  
+  <div class="ph s2">
+    <div>
+      <div class="ph-eyebrow">Audit Trail</div>
+      <h1 class="ph-title">{{ pageTitle }}</h1>
+      <p class="ph-desc">Global immutable ledger of all financial events on the platform.</p>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-gray-50 flex flex-wrap gap-4">
-            <input type="text" [placeholder]="searchPlaceholder" class="flex-1 min-w-[200px] px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-            <select class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
-                <option *ngFor="let opt of typeOptions" [value]="opt.value">{{ opt.label }}</option>
-            </select>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Ref</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Type</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Amount</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Status</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Date</th>
-                        <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    <tr *ngFor="let row of rows" class="hover:bg-gray-50">
-                        <td class="py-4 px-6 font-mono text-gray-500">{{ row.id }}</td>
-                        <td class="py-4 px-6 font-mono">{{ row.ref }}</td>
-                        <td class="py-4 px-6 font-medium">{{ row.type }}</td>
-                        <td class="py-4 px-6 font-bold" [ngClass]="row.amountClass">{{ row.amount }}</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="row.statusClass">{{ row.status }}</span></td>
-                        <td class="py-4 px-6 text-gray-600">{{ row.date }}</td>
-                        <td class="py-4 px-6 text-right"><a [routerLink]="row.viewRoute" class="text-[#135bec] font-bold hover:underline">{{ viewLabel }}</a></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="ph-actions">
+      <span class="badge b-pending">
+        {{ txs.length }} Transactions
+      </span>
     </div>
+  </div>
+
+  <div *ngIf="loading" class="panel s3 py-20 flex flex-col items-center justify-center">
+    <span class="material-symbols-outlined text-4xl text-blue-100 animate-spin">progress_activity</span>
+    <p class="mt-4 text-sm font-medium text-gray-400">Syncing with global ledger...</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="panel s3 p-6 bg-red-50/30 border-red-100 flex items-center gap-3">
+    <span class="material-symbols-outlined text-red-500">error</span>
+    <p class="text-sm text-red-700 font-medium">{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error" class="panel s3">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th width="140">Reference</th>
+            <th>Event Type</th>
+            <th>Counterparty</th>
+            <th>Execution Date</th>
+            <th>Status</th>
+            <th style="text-align: right">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of txs" class="group transition-colors" [routerLink]="['/admin/wallet/transactions', t.id]">
+            <td>
+              <span class="td-ref">{{ t.referenceNumber }}</span>
+            </td>
+            <td>
+              <p class="td-primary uppercase text-[11px] tracking-tight">{{ t.transactionType.replace('_', ' ') }}</p>
+            </td>
+            <td>
+              <p class="td-primary">{{ t.clientEmail }}</p>
+            </td>
+            <td class="td-sub">{{ formatDate(t.transactionDate) }}</td>
+            <td>
+              <span class="badge" 
+                [class.b-actif]="t.status === 'COMPLETED'"
+                [class.b-pending]="t.status === 'PENDING'"
+                [class.b-rejected]="t.status === 'FAILED'">
+                {{ t.status }}
+              </span>
+            </td>
+            <td style="text-align: right">
+              <span class="td-amount" [class.text-green-600]="isPositive(t)" [class.text-red-500]="!isPositive(t)">
+                {{ isPositive(t) ? '+' : '-' }}{{ t.amount | number:'1.2-2' }} <small class="text-[10px]">TND</small>
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="txs.length === 0">
+            <td colspan="6" class="py-12 text-center text-gray-400 italic text-sm">No transaction events captured in the ledger.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

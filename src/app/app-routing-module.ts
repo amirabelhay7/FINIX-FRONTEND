@@ -84,6 +84,10 @@ const routes: Routes = [
         path: 'users',
         loadChildren: () => import('./features/admin/users/users-module').then((m) => m.UsersModule),
       },
+      {
+        path: 'wallet',
+        loadChildren: () => import('./features/admin/wallet-admin/wallet-admin-module').then((m) => m.WalletAdminModule),
+      },
       { path: '**', redirectTo: 'dashboard' },
     ],
   },

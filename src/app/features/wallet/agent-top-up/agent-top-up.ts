@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
-import { AgentLocation } from '../../../models';
+import { Router } from '@angular/router';
+import { WalletService } from '../../../services/wallet/wallet.service';
 
-/**
- * ViewModel: agent top-up (MVVM).
- */
 @Component({
   selector: 'app-agent-top-up',
   standalone: false,
@@ -11,16 +9,60 @@ import { AgentLocation } from '../../../models';
   styleUrl: './agent-top-up.css',
 })
 export class AgentTopUp {
-  readonly pageTitle = 'Top up via Agent';
-  readonly pageSubtitle = 'Give cash to an agent — they load your wallet. No card needed.';
-  readonly howItWorksTitle = 'How it works';
-  readonly howItWorksText = '1. Find an agent near you. 2. Give them cash and your phone number. 3. Agent loads your FINIX wallet. 4. You get a notification when the money is in.';
-  readonly findAgentTitle = 'Find an agent';
-  readonly searchPlaceholder = 'City or address...';
-  readonly nearYouTitle = 'Near you';
+  clientEmail = '';
+  amount: number | null = null;
+  description = '';
+  showConfirm = false;
+  loading = false;
+  error: string | null = null;
+  success = false;
+  resultBalance: number | null = null;
 
-  readonly agents: AgentLocation[] = [
-    { name: 'Agence FINIX Tunis Centre', address: 'Av. Habib Bourguiba, Tunis · Open until 6 PM', distance: '0.8 km', distanceClass: 'text-green-600' },
-    { name: 'Point FINIX La Marsa', address: 'Republic Street, La Marsa · Open until 8 PM', distance: '2.1 km', distanceClass: 'text-gray-500' },
-  ];
+  constructor(private walletService: WalletService, private router: Router) {}
+
+  openConfirm(): void {
+    if (!this.clientEmail.trim()) { this.error = 'Please enter the client email.'; return; }
+    if (!this.amount || this.amount <= 0) { this.error = 'Please enter a valid amount.'; return; }
+    this.error = null;
+    this.showConfirm = true;
+  }
+
+  cancelConfirm(): void {
+    this.showConfirm = false;
+  }
+
+  confirm(): void {
+    this.loading = true;
+    this.error = null;
+    this.walletService.agentTopUp({
+      targetEmail: this.clientEmail,
+      amount: this.amount!,
+      description: this.description || 'Agent cash-in',
+    }).subscribe({
+      next: (w) => {
+        this.loading = false;
+        this.showConfirm = false;
+        this.success = true;
+        this.resultBalance = w.balance;
+      },
+      error: (err) => {
+        this.loading = false;
+        this.showConfirm = false;
+        this.error = err?.error?.message || 'Top-up failed. Please try again.';
+      },
+    });
+  }
+
+  reset(): void {
+    this.clientEmail = '';
+    this.amount = null;
+    this.description = '';
+    this.success = false;
+    this.resultBalance = null;
+    this.error = null;
+  }
+
+  goHome(): void {
+    this.router.navigate(['/wallet']);
+  }
 }

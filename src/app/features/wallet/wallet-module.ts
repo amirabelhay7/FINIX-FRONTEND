@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 import { WalletRoutingModule } from './wallet-routing-module';
 import { WalletHome } from './wallet-home/wallet-home';
@@ -25,6 +26,7 @@ import { TransactionDetail } from './transaction-detail/transaction-detail';
   imports: [
     CommonModule,
     RouterModule,
+    FormsModule,
     WalletRoutingModule
   ]
 })

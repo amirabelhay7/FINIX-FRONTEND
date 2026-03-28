@@ -169,6 +169,46 @@
       Users
     </button>
 
+    <!-- Wallet & Treasury -->
+    <div class="sb-section">Wallet & Treasury</div>
+
+    <button
+      class="sb-item"
+      routerLink="/admin/wallet"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }">
+      <div class="sb-ico">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+        </svg>
+      </div>
+      Wallet Hub
+    </button>
+
+    <button
+      class="sb-item"
+      routerLink="/admin/wallet/wallets"
+      routerLinkActive="active">
+      <div class="sb-ico">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        </svg>
+      </div>
+      Client Wallets
+    </button>
+
+    <button
+      class="sb-item"
+      routerLink="/admin/wallet/transactions"
+      routerLinkActive="active">
+      <div class="sb-ico">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      Global Ledger
+    </button>
+
     <button
       class="sb-item"
       routerLink="/admin/settings"

@@ -1,22 +1,93 @@
-<div class="space-y-8 pb-10 max-w-2xl">
+<div class="page-body s1">
+  
+  <div class="ph s2">
     <div class="flex items-center gap-4">
-        <a [routerLink]="vm.backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ vm.pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ vm.pageSubtitle }}</p>
+      <button (click)="goBack()" class="btn btn-ghost btn-xs">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <div *ngIf="txn">
+        <h1 class="ph-title">Audit Log Detail</h1>
+        <p class="ph-desc">{{ txn.referenceNumber }}</p>
+      </div>
+    </div>
+    <div class="ph-actions" *ngIf="txn">
+      <span class="badge" 
+        [class.b-actif]="txn.status === 'COMPLETED'"
+        [class.b-pending]="txn.status === 'PENDING'"
+        [class.b-rejected]="txn.status === 'FAILED'">
+        {{ txn.status }}
+      </span>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="panel s3 py-20 flex flex-col items-center justify-center">
+    <span class="material-symbols-outlined text-4xl text-blue-100 animate-spin">progress_activity</span>
+    <p class="mt-4 text-sm font-medium text-gray-400">Retrieving audit record...</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="panel s3 p-6 bg-red-50/30 border-red-100 flex items-center gap-3">
+    <span class="material-symbols-outlined text-red-500">error</span>
+    <p class="text-sm text-red-700 font-medium">{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && txn" class="max-w-3xl mx-auto space-y-6 s3">
+    <div class="panel overflow-hidden">
+      <!-- Top Impact Banner -->
+      <div class="panel-body text-center space-y-4 border-b border-gray-100 bg-gray-50/50 py-12">
+        <p class="ph-eyebrow !mb-0 mx-auto w-fit">Transaction Impact</p>
+        <h2 class="text-4xl font-black tracking-tight" [class.text-green-600]="isPositive()" [class.text-red-500]="!isPositive()">
+          {{ isPositive() ? '+' : '-' }}{{ txn.amount | number:'1.2-2' }} <small class="text-lg font-bold">TND</small>
+        </h2>
+        <div class="flex justify-center">
+          <span class="badge" 
+            [class.b-actif]="txn.status === 'COMPLETED'"
+            [class.b-pending]="txn.status === 'PENDING'"
+            [class.b-rejected]="txn.status === 'FAILED'">
+            {{ txn.status }}
+          </span>
         </div>
+      </div>
+
+      <!-- Details grid -->
+      <div class="panel-body grid g2 gap-x-12 gap-y-8 py-10">
+        <div class="space-y-1">
+          <p class="td-sub uppercase text-[10px] font-black tracking-widest">Event Type</p>
+          <p class="td-primary uppercase">{{ txn.transactionType.replace('_', ' ') }}</p>
+        </div>
+        <div class="space-y-1">
+          <p class="td-sub uppercase text-[10px] font-black tracking-widest">Execution Date</p>
+          <p class="td-primary font-mono text-sm">{{ formatDate(txn.transactionDate) }}</p>
+        </div>
+        <div class="space-y-1">
+          <p class="td-sub uppercase text-[10px] font-black tracking-widest">Reference Number</p>
+          <span class="td-ref">{{ txn.referenceNumber }}</span>
+        </div>
+        <div class="space-y-1">
+          <p class="td-sub uppercase text-[10px] font-black tracking-widest">Ledger Account</p>
+          <p class="td-primary font-mono text-sm">{{ txn.walletAccountNumber }}</p>
+        </div>
+        <div class="space-y-1">
+          <p class="td-sub uppercase text-[10px] font-black tracking-widest">System Note</p>
+          <p class="td-primary text-sm font-medium leading-relaxed italic !text-gray-500">"{{ txn.description || 'No audit note provided.' }}"</p>
+        </div>
+        <div class="space-y-1">
+          <p class="td-sub uppercase text-[10px] font-black tracking-widest">Associated Client</p>
+          <p class="td-primary underline decoration-blue-200 underline-offset-4">{{ txn.clientEmail }}</p>
+        </div>
+      </div>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            <div *ngFor="let field of vm.fields" [ngClass]="field.label === 'Description' ? 'sm:col-span-2' : ''">
-                <dt class="text-gray-500">{{ field.label }}</dt>
-                <dd class="font-bold text-gray-800">
-                    <span *ngIf="field.isBadge" [ngClass]="field.valueClass">{{ field.value }}</span>
-                    <span *ngIf="!field.isBadge" [ngClass]="field.valueClass">{{ field.value }}</span>
-                </dd>
-            </div>
-        </dl>
+
+    <!-- Governance Footer -->
+    <div class="panel bg-amber-50/30 border-amber-100">
+      <div class="panel-body flex items-start gap-3">
+        <span class="material-symbols-outlined text-amber-600 shrink-0">gavel</span>
+        <div class="space-y-1">
+          <p class="text-xs text-amber-900 font-bold">Compliance Verification</p>
+          <p class="text-[11px] text-amber-800/70 font-medium leading-relaxed">
+            This record represents an immutable entry in the global financial clearing system. Any discrepancies should be reported to the platform's risk management board immediately.
+          </p>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
