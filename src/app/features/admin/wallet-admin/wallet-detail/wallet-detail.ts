@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs';
 import { WalletService, WalletApi, TransactionApi } from '../../../../services/wallet/wallet.service';
@@ -9,7 +9,7 @@ import { WalletService, WalletApi, TransactionApi } from '../../../../services/w
   templateUrl: './wallet-detail.html',
   styleUrl: './wallet-detail.css',
 })
-export class WalletDetail implements OnInit {
+export class WalletDetail implements OnInit, OnChanges {
   wallet: WalletApi | null = null;
   transactions: TransactionApi[] = [];
   loading = true;
@@ -32,6 +32,7 @@ export class WalletDetail implements OnInit {
 
   loadData(userId: number): void {
     this.loading = true;
+    console.log('Loading wallet data for user ID:', userId);
     this.walletService.adminGetWallet(userId).pipe(
       finalize(() => {
         this.loading = false;
@@ -40,17 +41,33 @@ export class WalletDetail implements OnInit {
     ).subscribe({
       next: (w) => {
         this.wallet = w;
+        console.log('Wallet loaded:', w);
+        console.log('Current balance:', w?.balance);
         this.walletService.adminGetUserTransactions(userId).subscribe({
           next: (txs) => {
             this.transactions = txs;
+            console.log('Transactions loaded:', txs.length, 'entries');
           },
           error: () => { }
         });
       },
       error: (err) => {
         this.error = err?.error?.message || 'Wallet not found';
+        console.error('Error loading wallet:', err);
       }
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['wallet']) {
+      console.log('Wallet object changed:', changes['wallet'].currentValue);
+    }
+  }
+
+  get currentBalance(): number {
+    const balance = this.wallet?.balance ?? 0;
+    console.log('Balance getter called, returning:', balance);
+    return balance;
   }
 
   applyCredit(): void {
