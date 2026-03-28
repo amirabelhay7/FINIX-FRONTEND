@@ -96,6 +96,14 @@ export class WalletService {
     return this.http.post<WalletApi>(`${this.base}/admin/credit/${userId}`, req);
   }
 
+  adminFreezeAccount(userId: number): Observable<WalletApi> {
+    return this.http.post<WalletApi>(`${this.base}/admin/freeze/${userId}`, {});
+  }
+
+  adminInvalidateLedger(userId: number): Observable<WalletApi> {
+    return this.http.post<WalletApi>(`${this.base}/admin/invalidate-ledger/${userId}`, {});
+  }
+
   getTransactionById(id: number): Observable<TransactionApi> {
     return this.http.get<TransactionApi>(`${this.base}/transactions/${id}`);
   }

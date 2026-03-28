@@ -19,6 +19,9 @@ export class WalletDetail implements OnInit, OnChanges {
   creditDescription = '';
   creditLoading = false;
   
+  freezeLoading = false;
+  invalidateLoading = false;
+  
   private currentUserId: number | null = null;
 
   constructor(
@@ -111,6 +114,62 @@ export class WalletDetail implements OnInit, OnChanges {
       error: (err) => {
         console.error('Credit failed:', err);
         alert(err?.error?.message || 'Credit failed');
+      }
+    });
+  }
+
+  freezeAccount(): void {
+    if (!this.currentUserId || !confirm('Are you sure you want to freeze this account? This will disable all wallet operations.')) return;
+    
+    this.freezeLoading = true;
+    console.log('Freezing account for USER ID:', this.currentUserId);
+    
+    this.walletService.adminFreezeAccount(this.currentUserId).pipe(
+      finalize(() => {
+        this.freezeLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (w) => {
+        this.wallet = w;
+        console.log('Account frozen successfully:', w);
+        alert('Account has been frozen successfully.');
+      },
+      error: (err) => {
+        console.error('Freeze failed:', err);
+        alert(err?.error?.message || 'Failed to freeze account');
+      }
+    });
+  }
+
+  invalidateLedger(): void {
+    if (!this.currentUserId || !confirm('Are you sure you want to invalidate the ledger? This will reset the balance to 0 TND.')) return;
+    
+    this.invalidateLoading = true;
+    console.log('Invalidating ledger for USER ID:', this.currentUserId);
+    
+    this.walletService.adminInvalidateLedger(this.currentUserId).pipe(
+      finalize(() => {
+        this.invalidateLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (w) => {
+        this.wallet = w;
+        console.log('Ledger invalidated successfully:', w);
+        alert('Ledger has been invalidated successfully. Balance reset to 0 TND.');
+        // Reload transactions to show the invalidation record
+        this.walletService.adminGetUserTransactions(this.currentUserId!).subscribe({
+          next: (txs) => {
+            this.transactions = txs;
+            this.cdr.detectChanges();
+          },
+          error: () => { }
+        });
+      },
+      error: (err) => {
+        console.error('Invalidate failed:', err);
+        alert(err?.error?.message || 'Failed to invalidate ledger');
       }
     });
   }
