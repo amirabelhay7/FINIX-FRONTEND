@@ -187,15 +187,15 @@
             <form (ngSubmit)="saveTransactionLimits()" class="space-y-4">
               <div class="flex items-center gap-4">
                 <label class="form-label !mb-0 w-32">Daily Limit (TND)</label>
-                <input type="number" class="form-input flex-1" [(ngModel)]="limitForm.dailyLimit" name="dailyLimit" min="0" step="0.01" placeholder="No limit">
+                <input type="number" class="form-input flex-1" [(ngModel)]="limitForm.dailyLimit" name="dailyLimit" min="0" step="0.01" [placeholder]="wallet?.dailyLimit || '2000'">
               </div>
               <div class="flex items-center gap-4">
                 <label class="form-label !mb-0 w-32">Monthly Limit (TND)</label>
-                <input type="number" class="form-input flex-1" [(ngModel)]="limitForm.monthlyLimit" name="monthlyLimit" min="0" step="0.01" placeholder="No limit">
+                <input type="number" class="form-input flex-1" [(ngModel)]="limitForm.monthlyLimit" name="monthlyLimit" min="0" step="0.01" [placeholder]="wallet?.monthlyLimit || '10000'">
               </div>
               <div class="flex items-center gap-4">
                 <label class="form-label !mb-0 w-32">Transaction Limit (TND)</label>
-                <input type="number" class="form-input flex-1" [(ngModel)]="limitForm.transactionLimit" name="transactionLimit" min="0" step="0.01" placeholder="No limit">
+                <input type="number" class="form-input flex-1" [(ngModel)]="limitForm.transactionLimit" name="transactionLimit" min="0" step="0.01" [placeholder]="wallet?.transactionLimit || '1000'">
               </div>
               <div class="flex gap-3 pt-2">
                 <button type="submit" class="btn btn-primary" [disabled]="limitsLoading">
