@@ -23,6 +23,14 @@ export class WalletDetail implements OnInit, OnChanges {
   invalidateLoading = false;
   unfreezeLoading = false;
   
+  // Transaction Limits
+  limitsLoading = false;
+  limitForm = {
+    dailyLimit: undefined as number | undefined,
+    monthlyLimit: undefined as number | undefined,
+    transactionLimit: undefined as number | undefined
+  };
+  
   private currentUserId: number | null = null;
 
   constructor(
@@ -53,6 +61,14 @@ export class WalletDetail implements OnInit, OnChanges {
         this.wallet = w;
         console.log('Wallet loaded:', w);
         console.log('Current balance:', w?.balance);
+        
+        // Initialize limit form with current values
+        this.limitForm = {
+          dailyLimit: w.dailyLimit || undefined,
+          monthlyLimit: w.monthlyLimit || undefined,
+          transactionLimit: w.transactionLimit || undefined
+        };
+        
         this.walletService.adminGetUserTransactions(userId).subscribe({
           next: (txs) => {
             this.transactions = txs;
@@ -195,6 +211,31 @@ export class WalletDetail implements OnInit, OnChanges {
       error: (err) => {
         console.error('Unfreeze failed:', err);
         alert(err?.error?.message || 'Failed to unfreeze account');
+      }
+    });
+  }
+
+  saveTransactionLimits(): void {
+    if (!this.currentUserId) return;
+    
+    this.limitsLoading = true;
+    console.log('Saving transaction limits for USER ID:', this.currentUserId);
+    console.log('Limits:', this.limitForm);
+    
+    this.walletService.adminSetTransactionLimits(this.currentUserId, this.limitForm).pipe(
+      finalize(() => {
+        this.limitsLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (w) => {
+        this.wallet = w;
+        console.log('Transaction limits saved successfully:', w);
+        alert('Transaction limits have been updated successfully.');
+      },
+      error: (err) => {
+        console.error('Save limits failed:', err);
+        alert(err?.error?.message || 'Failed to save transaction limits');
       }
     });
   }

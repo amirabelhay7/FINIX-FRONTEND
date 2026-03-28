@@ -12,6 +12,15 @@ export interface WalletApi {
   clientEmail: string;
   clientName: string;
   clientDeleted: boolean;
+  
+  // Transaction Limits
+  dailyLimit?: number;
+  monthlyLimit?: number;
+  transactionLimit?: number;
+  dailyUsed?: number;
+  monthlyUsed?: number;
+  dailyRemaining?: number;
+  monthlyRemaining?: number;
 }
 
 export interface TransactionApi {
@@ -106,6 +115,10 @@ export class WalletService {
 
   adminUnfreezeAccount(userId: number): Observable<WalletApi> {
     return this.http.post<WalletApi>(`${this.base}/admin/unfreeze/${userId}`, {});
+  }
+
+  adminSetTransactionLimits(userId: number, limits: { dailyLimit?: number, monthlyLimit?: number, transactionLimit?: number }): Observable<WalletApi> {
+    return this.http.post<WalletApi>(`${this.base}/admin/wallets/${userId}/limits`, limits);
   }
 
   getTransactionById(id: number): Observable<TransactionApi> {
