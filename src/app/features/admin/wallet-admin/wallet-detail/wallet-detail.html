@@ -141,69 +141,82 @@
       </div>
 
       <!-- Transaction Limits Management -->
-      <div class="panel p-6 space-y-6 border-t-4 border-t-purple-600 shadow-lg">
-        <div>
-          <h4 class="panel-title">Transaction Limits</h4>
-          <p class="td-sub">Set spending limits to control wallet transactions.</p>
+      <div class="panel">
+        <div class="panel-head">
+          <h4 class="panel-title"><div class="ptdot"></div> Transaction Limits</h4>
+          <span class="badge b-purple" *ngIf="wallet?.dailyLimit || wallet?.monthlyLimit">Active</span>
         </div>
         
-        <!-- Current Usage Display -->
-        <div *ngIf="wallet?.dailyLimit || wallet?.monthlyLimit" class="bg-purple-50 rounded-lg p-4 space-y-3">
-          <h5 class="font-semibold text-purple-800 mb-3">Current Usage</h5>
-          <div class="space-y-3">
-            <div *ngIf="wallet?.dailyLimit" class="flex items-center justify-between">
-              <div>
-                <span class="text-gray-600 text-sm">Daily:</span>
-                <div class="font-medium">{{wallet?.dailyUsed || 0}} / {{wallet?.dailyLimit}} TND</div>
-              </div>
-              <div class="flex-1 ml-4">
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                  <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" [style.width.%]="((wallet?.dailyUsed || 0) / (wallet?.dailyLimit || 1)) * 100"></div>
+        <div class="panel-body space-y-6">
+          <!-- Current Usage Display -->
+          <div *ngIf="wallet?.dailyLimit || wallet?.monthlyLimit" class="space-y-4">
+            <div class="p-4 bg-purple-50/30 rounded-2xl border border-purple-100">
+              <p class="td-sub uppercase text-[9px] font-black !mt-0 mb-3">Current Usage</p>
+              <div class="space-y-3">
+                <div *ngIf="wallet?.dailyLimit" class="flex items-center justify-between">
+                  <div>
+                    <p class="td-sub text-xs">Daily Limit</p>
+                    <p class="td-primary">{{wallet?.dailyUsed || 0}} / {{wallet?.dailyLimit}} TND</p>
+                  </div>
+                  <div class="flex-1 ml-4 max-w-[120px]">
+                    <div class="w-full bg-purple-200 rounded-full h-2">
+                      <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" [style.width.%]="((wallet?.dailyUsed || 0) / (wallet?.dailyLimit || 1)) * 100"></div>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="wallet?.monthlyLimit" class="flex items-center justify-between">
+                  <div>
+                    <p class="td-sub text-xs">Monthly Limit</p>
+                    <p class="td-primary">{{wallet?.monthlyUsed || 0}} / {{wallet?.monthlyLimit}} TND</p>
+                  </div>
+                  <div class="flex-1 ml-4 max-w-[120px]">
+                    <div class="w-full bg-purple-200 rounded-full h-2">
+                      <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" [style.width.%]="((wallet?.monthlyUsed || 0) / (wallet?.monthlyLimit || 1)) * 100"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div *ngIf="wallet?.monthlyLimit" class="flex items-center justify-between">
-              <div>
-                <span class="text-gray-600 text-sm">Monthly:</span>
-                <div class="font-medium">{{wallet?.monthlyUsed || 0}} / {{wallet?.monthlyLimit}} TND</div>
-              </div>
-              <div class="flex-1 ml-4">
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                  <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" [style.width.%]="((wallet?.monthlyUsed || 0) / (wallet?.monthlyLimit || 1)) * 100"></div>
+          </div>
+          
+          <!-- Limit Configuration -->
+          <div class="space-y-4">
+            <p class="td-sub uppercase text-[9px] font-black !mt-0">Configure Limits</p>
+            <form (ngSubmit)="saveTransactionLimits()" class="space-y-4">
+              <div class="grid g3 gap-4">
+                <div>
+                  <label class="form-label">Daily Limit (TND)</label>
+                  <input type="number" class="form-input" [(ngModel)]="limitForm.dailyLimit" name="dailyLimit" min="0" step="0.01" placeholder="No limit">
+                </div>
+                <div>
+                  <label class="form-label">Monthly Limit (TND)</label>
+                  <input type="number" class="form-input" [(ngModel)]="limitForm.monthlyLimit" name="monthlyLimit" min="0" step="0.01" placeholder="No limit">
+                </div>
+                <div>
+                  <label class="form-label">Transaction Limit (TND)</label>
+                  <input type="number" class="form-input" [(ngModel)]="limitForm.transactionLimit" name="transactionLimit" min="0" step="0.01" placeholder="No limit">
                 </div>
               </div>
+              <div class="flex gap-3 pt-2">
+                <button type="submit" class="btn btn-primary" [disabled]="limitsLoading">
+                  <span *ngIf="!limitsLoading">Save Limits</span>
+                  <span *ngIf="limitsLoading">Saving...</span>
+                </button>
+                <button type="button" class="btn btn-outline" (click)="limitForm = { dailyLimit: undefined, monthlyLimit: undefined, transactionLimit: undefined }">Clear</button>
+              </div>
+            </form>
+          </div>
+          
+          <!-- Info Section -->
+          <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+            <div class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-purple-500 text-[16px] mt-0.5">info</span>
+              <div>
+                <p class="td-sub text-xs mb-1">Limit Information</p>
+                <p class="text-xs text-gray-600">Leave fields empty for no limit. Limits apply to all outgoing transactions and reset automatically.</p>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <!-- Limit Configuration Form -->
-        <form (ngSubmit)="saveTransactionLimits()" class="space-y-4">
-          <div class="grid grid-cols-1 gap-4">
-            <div>
-              <label class="form-label">Daily Limit (TND)</label>
-              <input type="number" class="form-input" [(ngModel)]="limitForm.dailyLimit" name="dailyLimit" min="0" step="0.01" placeholder="No limit">
-            </div>
-            <div>
-              <label class="form-label">Monthly Limit (TND)</label>
-              <input type="number" class="form-input" [(ngModel)]="limitForm.monthlyLimit" name="monthlyLimit" min="0" step="0.01" placeholder="No limit">
-            </div>
-            <div>
-              <label class="form-label">Transaction Limit (TND)</label>
-              <input type="number" class="form-input" [(ngModel)]="limitForm.transactionLimit" name="transactionLimit" min="0" step="0.01" placeholder="No limit">
-            </div>
-          </div>
-          <div class="flex gap-3 pt-2">
-            <button type="submit" class="btn btn-primary" [disabled]="limitsLoading">
-              <span *ngIf="!limitsLoading">Save Limits</span>
-              <span *ngIf="limitsLoading">Saving...</span>
-            </button>
-            <button type="button" class="btn btn-outline" (click)="limitForm = { dailyLimit: undefined, monthlyLimit: undefined, transactionLimit: undefined }">Clear</button>
-          </div>
-        </form>
-        
-        <div class="pt-4 border-t border-gray-50 flex items-start gap-2">
-          <span class="material-symbols-outlined text-purple-500 text-[18px]">security</span>
-          <p class="text-[10px] text-gray-400 font-medium italic leading-relaxed">Leave fields empty for no limit. Limits apply to all outgoing transactions.</p>
         </div>
       </div>
 
