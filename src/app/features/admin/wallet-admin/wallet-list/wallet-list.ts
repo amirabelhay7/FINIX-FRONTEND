@@ -1,20 +1,44 @@
-import { Component } from '@angular/core';
-import { WalletAdminRow } from '../../../../models';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { finalize } from 'rxjs';
+import { WalletService, WalletApi } from '../../../../services/wallet/wallet.service';
 
-/**
- * ViewModel: wallet list (MVVM).
- */
 @Component({
   selector: 'app-wallet-list',
   standalone: false,
   templateUrl: './wallet-list.html',
   styleUrl: './wallet-list.css',
 })
-export class WalletList {
+export class WalletList implements OnInit {
   readonly pageTitle = 'All Wallets';
+  wallets: WalletApi[] = [];
+  loading = true;
+  error: string | null = null;
 
-  readonly wallets: WalletAdminRow[] = [
-    { id: 1, account: 'FINIX-****4292', clientEmail: 'amadou.kone@email.com', balance: '8,542.50 TND', status: 'Active', statusClass: 'bg-green-50 text-green-700', viewRoute: '/admin/wallet/wallets/1' },
-    { id: 2, account: 'FINIX-****1002', clientEmail: 'mariem.said@email.com', balance: '1,200.00 TND', status: 'Active', statusClass: 'bg-green-50 text-green-700', viewRoute: '/admin/wallet/wallets/2' },
-  ];
+  constructor(
+    private walletService: WalletService,
+    private cdr: ChangeDetectorRef,
+  ) {}
+
+  ngOnInit(): void {
+    this.walletService.adminGetAllWallets()
+      .pipe(finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (data: WalletApi[]) => {
+          try {
+            const arr = Array.isArray(data) ? data : [];
+            this.wallets = arr;
+          } catch (e) {
+            this.error = (e instanceof Error ? e.message : 'Invalid response') as string;
+          }
+        },
+        error: (err) => this.error = err?.error?.message || 'Failed to sync ledger records',
+      });
+  }
+
+  formatBalance(w: WalletApi): string {
+    return (w.balance ?? 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' ' + (w.currency || 'TND');
+  }
 }
