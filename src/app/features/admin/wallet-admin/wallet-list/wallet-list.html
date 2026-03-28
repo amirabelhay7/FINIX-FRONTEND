@@ -1,39 +1,73 @@
-<div class="space-y-8 pb-10">
-    <div class="flex items-center gap-4">
-        <a routerLink="/admin/wallet" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+<div class="page-body s1">
+  
+  <div class="ph s2">
+    <div>
+      <div class="ph-eyebrow">Financial Ledger</div>
+      <h1 class="ph-title">{{ pageTitle }}</h1>
+      <p class="ph-desc">Global cross-user wallet registry and liquidity audit.</p>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-gray-50">
-            <input type="text" placeholder="Search by email or account..." class="w-full max-w-md px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20" />
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Account</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Client email</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Balance</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Status</th>
-                        <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    <tr class="hover:bg-gray-50" *ngFor="let w of wallets">
-                        <td class="py-4 px-6 font-mono text-gray-500">{{ w.id }}</td>
-                        <td class="py-4 px-6 font-mono font-bold">{{ w.account }}</td>
-                        <td class="py-4 px-6 text-gray-600">{{ w.clientEmail }}</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">{{ w.balance }}</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="w.statusClass">{{ w.status }}</span></td>
-                        <td class="py-4 px-6 text-right">
-                            <a [routerLink]="w.viewRoute" class="text-[#135bec] font-bold hover:underline">View</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="ph-actions">
+      <span class="badge b-review">
+        {{ wallets.length }} Registered Wallets
+      </span>
     </div>
+  </div>
+
+  <div *ngIf="loading" class="panel s3 py-20 flex flex-col items-center justify-center">
+    <span class="material-symbols-outlined text-4xl text-blue-100 animate-spin">progress_activity</span>
+    <p class="mt-4 text-sm font-medium text-gray-400">Syncing ledger records...</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="panel s3 p-6 bg-red-50/30 border-red-100 flex items-center gap-3">
+    <span class="material-symbols-outlined text-red-500">error</span>
+    <p class="text-sm text-red-700 font-medium">{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error" class="panel s3">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Account Details</th>
+            <th>Client Identity</th>
+            <th>Access Status</th>
+            <th style="text-align: right">Balance</th>
+            <th width="60"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let w of wallets" class="group transition-colors" [routerLink]="['/admin/wallet/wallets', w.id]">
+            <td>
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-gray-300 group-hover:text-blue-500 transition-colors text-[18px]">account_balance_wallet</span>
+                <span class="td-primary">{{ w.accountNumber }}</span>
+              </div>
+            </td>
+            <td>
+              <div>
+                <p class="td-primary">{{ w.clientName }}</p>
+                <p class="td-sub">{{ w.clientEmail }}</p>
+              </div>
+            </td>
+            <td>
+              <span class="badge" [class.b-actif]="w.isActive" [class.b-closed]="!w.isActive">
+                {{ w.isActive ? 'OPERATIONAL' : 'FROZEN / LOCKED' }}
+              </span>
+            </td>
+            <td style="text-align: right">
+              <span class="td-amount">{{ formatBalance(w) }}</span>
+            </td>
+            <td style="text-align: right">
+              <button class="btn btn-ghost btn-xs">
+                <span class="material-symbols-outlined">chevron_right</span>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="wallets.length === 0">
+            <td colspan="5" class="py-12 text-center text-gray-400 italic text-sm">No wallets matching registry found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
