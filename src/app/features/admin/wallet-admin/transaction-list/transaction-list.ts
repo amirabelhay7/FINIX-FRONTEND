@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { finalize } from 'rxjs';
 import { WalletService, TransactionApi } from '../../../../services/wallet/wallet.service';
 
 @Component({
@@ -13,18 +14,30 @@ export class TransactionList implements OnInit {
   loading = true;
   error: string | null = null;
 
-  constructor(private walletService: WalletService) {}
+  constructor(
+    private walletService: WalletService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    this.walletService.adminGetAllTransactions().subscribe({
-      next: (data) => {
-        this.txs = data;
+    this.walletService.adminGetAllTransactions().pipe(
+      finalize(() => {
         this.loading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (data) => {
+        try {
+          const arr = Array.isArray(data) ? data : [];
+          this.txs = arr;
+          console.log('Global transactions loaded:', this.txs.length);
+        } catch (e) {
+          this.error = (e instanceof Error ? e.message : 'Invalid transaction data') as string;
+        }
       },
       error: (err) => {
         this.error = err?.error?.message || 'Failed to load global transactions';
-        this.loading = false;
-      },
+      }
     });
   }
 
