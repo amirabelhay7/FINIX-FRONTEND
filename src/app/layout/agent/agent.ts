@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-agent',
@@ -13,9 +14,30 @@ export class AgentLayout implements OnInit, OnDestroy {
   selectedPage = 'dashboard';
   showUserMenu = false;
 
+  private readonly API = 'http://localhost:8081/api';
+
+  /* ── Payment form ── */
+  showPaymentModal = false;
+  clientSearch = '';
+  clientResults: any[] = [];
+  selectedClient: any = null;
+  paymentForm = {
+    amountPaid: '',
+    paymentDate: '',
+    paymentMethod: '',
+    paymentStatus: '',
+    delinquencyCaseId: '',
+    recoveryActionId: '',
+  };
+  paymentLoading = false;
+  paymentError = '';
+  paymentSuccess = false;
+  recentPayments: any[] = [];
+
   constructor(
     private renderer: Renderer2,
     private router: Router,
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
@@ -58,32 +80,41 @@ export class AgentLayout implements OnInit, OnDestroy {
   }
 
   navItems = [
-    { page: 'dashboard', label: "Vue d'ensemble", section: 'PRINCIPAL', icon: 'grid' },
-    { page: 'flux', label: 'Flux Capital', section: 'OPÉRATIONS', icon: 'trending-up', badge: '5' },
-    {
-      page: 'dossiers',
-      label: 'Dossiers Crédit',
-      section: 'OPÉRATIONS',
-      icon: 'folder',
-      badge: '12',
-    },
-    { page: 'remboursements', label: 'Remboursements', section: 'OPÉRATIONS', icon: 'dollar' },
-    { page: 'clients', label: 'Clients', section: 'OPÉRATIONS', icon: 'users' },
-    { page: 'vehicules', label: 'Véhicules', section: 'OPÉRATIONS', icon: 'truck' },
-    { page: 'risque', label: 'Risque & Scoring', section: 'ANALYSE', icon: 'alert-triangle' },
-    { page: 'rapports', label: 'Rapports', section: 'ANALYSE', icon: 'file-text' },
-    { page: 'assurances', label: 'Assurances', section: 'ANALYSE', icon: 'shield' },
-    {
-      page: 'alertes',
-      label: 'Alertes',
-      section: 'SYSTÈME',
-      icon: 'bell',
-      badge: '3',
-      badgeType: 'danger',
-    },
-    { page: 'parametres', label: 'Paramètres', section: 'SYSTÈME', icon: 'settings' },
-  ];
+  { page: 'dashboard', label: 'Overview', section: 'MAIN', icon: 'grid' },
 
+  { page: 'flux', label: 'Cash Flow', section: 'OPERATIONS', icon: 'trending-up', badge: '5' },
+
+  {
+    page: 'dossiers',
+    label: 'Loan Applications',
+    section: 'OPERATIONS',
+    icon: 'folder',
+    badge: '12',
+  },
+
+  { page: 'remboursements', label: 'Repayments', section: 'OPERATIONS', icon: 'TND' },
+
+  { page: 'clients', label: 'Clients', section: 'OPERATIONS', icon: 'users' },
+
+  { page: 'vehicules', label: 'Vehicles', section: 'OPERATIONS', icon: 'truck' },
+
+  { page: 'risque', label: 'Risk & Scoring', section: 'ANALYSIS', icon: 'alert-triangle' },
+
+  { page: 'rapports', label: 'Reports', section: 'ANALYSIS', icon: 'file-text' },
+
+  { page: 'assurances', label: 'Insurance', section: 'ANALYSIS', icon: 'shield' },
+
+  {
+    page: 'alertes',
+    label: 'Alerts',
+    section: 'SYSTEM',
+    icon: 'bell',
+    badge: '3',
+    badgeType: 'danger',
+  },
+
+  { page: 'parametres', label: 'Settings', section: 'SYSTEM', icon: 'settings' },
+];
   get navSections(): string[] {
     const seen = new Set<string>();
     return this.navItems
@@ -97,6 +128,64 @@ export class AgentLayout implements OnInit, OnDestroy {
 
   navBySection(section: string) {
     return this.navItems.filter((i) => i.section === section);
+  }
+
+  /* ── Client search ── */
+  searchClients(): void {
+    const q = this.clientSearch.trim();
+    if (q.length < 2) { this.clientResults = []; return; }
+    this.http.get<any[]>(`${this.API}/users/search?q=${encodeURIComponent(q)}`).subscribe({
+      next: (res) => this.clientResults = res,
+      error: () => this.clientResults = [],
+    });
+  }
+
+  selectClient(c: any): void {
+    this.selectedClient = c;
+    this.paymentForm = { amountPaid: '', paymentDate: '', paymentMethod: '', paymentStatus: '', delinquencyCaseId: '', recoveryActionId: '' };
+    this.clientResults = [];
+    this.clientSearch = '';
+    this.paymentError = '';
+    this.paymentSuccess = false;
+  }
+
+  resetPaymentForm(): void {
+    this.selectedClient = null;
+    this.clientSearch = '';
+    this.clientResults = [];
+    this.paymentForm = { amountPaid: '', paymentDate: '', paymentMethod: '', paymentStatus: '', delinquencyCaseId: '', recoveryActionId: '' };
+    this.paymentError = '';
+    this.paymentSuccess = false;
+  }
+
+  submitPayment(): void {
+    if (!this.selectedClient) { this.paymentError = 'Veuillez sélectionner un client.'; return; }
+    if (!this.paymentForm.amountPaid || !this.paymentForm.paymentDate || !this.paymentForm.paymentMethod || !this.paymentForm.paymentStatus) {
+      this.paymentError = 'Veuillez remplir tous les champs obligatoires.'; return;
+    }
+    this.paymentLoading = true;
+    this.paymentError = '';
+    const payload: any = {
+      amountPaid:        Number(this.paymentForm.amountPaid),
+      paymentDate:       this.paymentForm.paymentDate,
+      paymentMethod:     this.paymentForm.paymentMethod,
+      paymentStatus:     this.paymentForm.paymentStatus,
+      userId:            this.selectedClient.id,
+      delinquencyCaseId: this.paymentForm.delinquencyCaseId ? Number(this.paymentForm.delinquencyCaseId) : null,
+      recoveryActionId:  this.paymentForm.recoveryActionId  ? Number(this.paymentForm.recoveryActionId)  : null,
+    };
+    this.http.post<any>(`${this.API}/payments`, payload).subscribe({
+      next: (res) => {
+        this.paymentLoading = false;
+        this.paymentSuccess = true;
+        this.recentPayments = [res, ...this.recentPayments].slice(0, 10);
+        this.paymentForm = { amountPaid: '', paymentDate: '', paymentMethod: '', paymentStatus: '', delinquencyCaseId: '', recoveryActionId: '' };
+      },
+      error: (err) => {
+        this.paymentLoading = false;
+        this.paymentError = err?.error?.message || 'Erreur lors de l\'enregistrement du paiement.';
+      },
+    });
   }
 
   tickerItems = [

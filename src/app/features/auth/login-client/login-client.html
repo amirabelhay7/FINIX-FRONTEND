@@ -11,7 +11,7 @@
     <div class="deco-content">
       <div class="deco-pill">
         <div class="deco-pill-dot"></div>
-        Plateforme N°1 en Tunisie
+        Plateform N°1 in Tunisia for auto credit and insurance
       </div>
       <h1 class="deco-h1">
         Your credit,<br />
@@ -41,7 +41,7 @@
             </svg>
           </div>
           <div class="rp-title">Client</div>
-          <div class="rp-desc">Crédits, assurance, suivi remboursements</div>
+          <div class="rp-desc">Credits, insurance, repayment tracking</div>
         </div>
         <div class="rp-card">
           <div class="rp-ico" style="background: rgba(6, 182, 212, 0.15)">
@@ -60,8 +60,8 @@
               <line x1="12" y1="17" x2="12" y2="21" />
             </svg>
           </div>
-          <div class="rp-title">Vendeur</div>
-          <div class="rp-desc">Publiez vos offres et gérez vos ventes</div>
+          <div class="rp-title">Seller</div>
+          <div class="rp-desc">Publish your listings and manage your sales</div>
         </div>
       </div>
     </div>
@@ -69,7 +69,7 @@
     <div class="deco-stats">
       <div class="ds-item">
         <div class="ds-val">1 248</div>
-        <div class="ds-lbl">Clients actifs</div>
+        <div class="ds-lbl">Active clients</div>
       </div>
       <div class="ds-item">
         <div class="ds-val">98.2%</div>
@@ -77,7 +77,7 @@
       </div>
       <div class="ds-item">
         <div class="ds-val">14.2M</div>
-        <div class="ds-lbl">TND gérés</div>
+        <div class="ds-lbl">TND managed</div>
       </div>
     </div>
   </div>
@@ -145,13 +145,13 @@
             </div>
             <div class="rc-title">Client</div>
             <div class="rc-desc">
-              Demandez un crédit, gérez vos remboursements et assurez vos véhicules.
+              Apply for credit, manage your repayments and insure your vehicles.
             </div>
             <div class="rc-tags">
-              <span class="rc-tag">Crédit auto</span>
-              <span class="rc-tag">Immobilier</span>
-              <span class="rc-tag">Assurance</span>
-              <span class="rc-tag">Remboursements</span>
+              <span class="rc-tag">Auto loan</span>
+              <span class="rc-tag">Real estate</span>
+              <span class="rc-tag">Insurance</span>
+              <span class="rc-tag">Repayments</span>
             </div>
           </div>
 
@@ -191,14 +191,14 @@
                 <line x1="12" y1="17" x2="12" y2="21" />
               </svg>
             </div>
-            <div class="rc-title">Vendeur</div>
+            <div class="rc-title">Seller</div>
             <div class="rc-desc">
-              Publiez vos véhicules, gérez vos offres et accédez au réseau FIN'IX.
+              List your vehicles, manage your offers and access the FIN'IX network.
             </div>
             <div class="rc-tags">
-              <span class="rc-tag">Catalogue véhicules</span>
+              <span class="rc-tag">Vehicle catalog</span>
               <span class="rc-tag">Commissions</span>
-              <span class="rc-tag">Dashboard ventes</span>
+              <span class="rc-tag">Sales dashboard</span>
             </div>
           </div>
         </div>
@@ -219,9 +219,9 @@
           <span>{{
             currentRole
               ? currentRole === 'client'
-                ? 'Continuer en tant que Client'
-                : 'Continuer en tant que Vendeur'
-              : 'Sélectionnez un profil'
+                ? 'Continue as Client'
+                : 'Continue as Seller'
+              : 'Select a profile'
           }}</span>
           <svg
             width="15"
@@ -240,12 +240,12 @@
 
         <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1.25rem">
           <div style="flex: 1; height: 1px; background: var(--g200)"></div>
-          <span style="font-size: 0.74rem; color: var(--g400)">Déjà un compte ?</span>
+          <span style="font-size: 0.74rem; color: var(--g400)">Already have an account?</span>
           <div style="flex: 1; height: 1px; background: var(--g200)"></div>
         </div>
         <div style="display: flex; gap: 0.75rem; margin-top: 1rem">
-          <button class="quick-login-btn" (click)="goLogin('client')">Connexion Client</button>
-          <button class="quick-login-btn" (click)="goLogin('seller')">Connexion Vendeur</button>
+          <button class="quick-login-btn" (click)="goLogin('client')">Client Login</button>
+          <button class="quick-login-btn" (click)="goLogin('seller')">Seller Login</button>
         </div>
 
         <div class="secure-strip">
@@ -292,7 +292,7 @@
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            Disponible 24h/24
+            Available 24/7
           </div>
         </div>
       </div>
@@ -322,8 +322,8 @@
             >
               {{ roleConfig.label }}
             </div>
-            <div class="auth-title">Content de vous revoir</div>
-            <div class="auth-sub">Connectez-vous à votre espace FIN'IX</div>
+            <div class="auth-title">Welcome back</div>
+            <div class="auth-sub">Sign in to your FIN'IX account</div>
           </div>
         </div>
 
@@ -348,7 +348,7 @@
               <polyline points="10 17 15 12 10 7" />
               <line x1="15" y1="12" x2="3" y2="12" />
             </svg>
-            Se connecter
+            Sign in
           </button>
           <button
             class="tab-btn"
@@ -370,7 +370,7 @@
               <line x1="20" y1="8" x2="20" y2="14" />
               <line x1="23" y1="11" x2="17" y2="11" />
             </svg>
-            Créer un compte
+            Create an account
           </button>
         </div>
 
@@ -429,15 +429,15 @@
 
           <div class="or-div">
             <div class="or-line"></div>
-            <div class="or-txt">ou avec votre e-mail</div>
+            <div class="or-txt">or with your email</div>
             <div class="or-line"></div>
           </div>
 
           <form (ngSubmit)="handleLogin()">
             <div class="form-group">
               <label class="form-label">
-                Adresse e-mail
-                <a (click)="showForgot()">Mot de passe oublié ?</a>
+                Email address
+                <a (click)="showForgot()">Forgot password?</a>
               </label>
               <div class="input-wrap">
                 <span class="input-ico">
@@ -462,17 +462,17 @@
                   type="email"
                   [(ngModel)]="loginEmail"
                   name="loginEmail"
-                  placeholder="votre@email.com"
+                  placeholder="your@email.com"
                   [class.input-err]="loginError === 'email' || loginError === 'both'"
                 />
               </div>
               <div class="err-msg" [class.show]="loginError === 'email' || loginError === 'both'">
-                Adresse e-mail invalide.
+                Invalid email address.
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Mot de passe</label>
+              <label class="form-label">Password</label>
               <div class="input-wrap">
                 <span class="input-ico">
                   <svg
@@ -517,7 +517,7 @@
                 class="err-msg"
                 [class.show]="loginError === 'password' || loginError === 'both'"
               >
-                Mot de passe incorrect.
+                Incorrect password.
               </div>
             </div>
 
@@ -528,12 +528,12 @@
                 [(ngModel)]="loginRemember"
                 name="loginRemember"
               />
-              <label for="login-remember">Se souvenir de moi sur cet appareil</label>
+              <label for="login-remember">Remember me on this device</label>
             </div>
 
             <button type="submit" class="submit-btn" [disabled]="isLoading">
               <div class="spinner" [style.display]="isLoading ? 'block' : 'none'"></div>
-              <span>{{ isLoading ? 'Connexion…' : 'Se connecter' }}</span>
+              <span>{{ isLoading ? 'Signing in…' : 'Sign in' }}</span>
               <svg
                 *ngIf="!isLoading"
                 width="15"
@@ -552,7 +552,7 @@
           </form>
 
           <div class="auth-footer">
-            Pas encore de compte ? <a (click)="switchTab('register')">Créer un compte gratuit</a>
+            Don't have an account? <a (click)="switchTab('register')">Create a free account</a>
           </div>
         </div>
 
@@ -561,7 +561,7 @@
           <form (ngSubmit)="handleRegister()">
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Prénom</label>
+                <label class="form-label">First name</label>
                 <div class="input-wrap">
                   <span class="input-ico">
                     <svg
@@ -583,12 +583,12 @@
                     type="text"
                     [(ngModel)]="regFirstname"
                     name="regFirstname"
-                    placeholder="Prénom"
+                    placeholder="First name"
                   />
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label">Nom</label>
+                <label class="form-label">Last name</label>
                 <div class="input-wrap">
                   <span class="input-ico">
                     <svg
@@ -610,14 +610,14 @@
                     type="text"
                     [(ngModel)]="regLastname"
                     name="regLastname"
-                    placeholder="Nom"
+                    placeholder="Last name"
                   />
                 </div>
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Adresse e-mail</label>
+              <label class="form-label">Email address</label>
               <div class="input-wrap">
                 <span class="input-ico">
                   <svg
@@ -641,17 +641,17 @@
                   type="email"
                   [(ngModel)]="regEmail"
                   name="regEmail"
-                  placeholder="votre@email.com"
+                  placeholder="your@email.com"
                   [class.input-err]="regEmailError"
                 />
               </div>
               <div class="err-msg" [class.show]="regEmailError">
-                Adresse e-mail déjà utilisée ou invalide.
+                Email already used or invalid.
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Numéro de téléphone</label>
+              <label class="form-label">Phone number</label>
               <div class="phone-wrap">
                 <select class="phone-prefix">
                   <option value="+216">🇹🇳 +216</option>
@@ -688,7 +688,7 @@
 
             <!-- CIN for client -->
             <div class="form-group" *ngIf="currentRole === 'client'">
-              <label class="form-label">Numéro CIN</label>
+              <label class="form-label">ID number (CIN)</label>
               <div class="input-wrap">
                 <span class="input-ico">
                   <svg
@@ -717,7 +717,7 @@
 
             <!-- Company for seller -->
             <div class="form-group" *ngIf="currentRole === 'seller'">
-              <label class="form-label">Nom de la société / Raison sociale</label>
+              <label class="form-label">Company name / Business name</label>
               <div class="input-wrap">
                 <span class="input-ico">
                   <svg
@@ -745,7 +745,7 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">Mot de passe</label>
+              <label class="form-label">Password</label>
               <div class="input-wrap">
                 <span class="input-ico">
                   <svg
@@ -767,7 +767,7 @@
                   [type]="showRegPassword ? 'text' : 'password'"
                   [(ngModel)]="regPassword"
                   name="regPassword"
-                  placeholder="Minimum 8 caractères"
+                  placeholder="Minimum 8 characters"
                   (input)="checkStrength(regPassword)"
                 />
                 <button type="button" class="pw-eye" (click)="togglePassword('register')">
@@ -801,7 +801,7 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">Confirmer le mot de passe</label>
+              <label class="form-label">Confirm password</label>
               <div class="input-wrap">
                 <span class="input-ico">
                   <svg
@@ -828,21 +828,21 @@
                 />
               </div>
               <div class="err-msg" [class.show]="regPasswordError">
-                Les mots de passe ne correspondent pas.
+                Passwords do not match.
               </div>
             </div>
 
             <div class="check-row">
               <input type="checkbox" id="reg-terms" [(ngModel)]="regTerms" name="regTerms" />
               <label for="reg-terms"
-                >J'accepte les <a href="#">Conditions d'utilisation</a> et la
-                <a href="#">Politique de confidentialité</a> de FIN'IX.</label
+                >I accept the <a href="#">Terms of Use</a> and the
+                <a href="#">Privacy Policy</a> of FIN'IX.</label
               >
             </div>
 
             <button type="submit" class="submit-btn" [disabled]="isLoading">
               <div class="spinner" [style.display]="isLoading ? 'block' : 'none'"></div>
-              <span>{{ isLoading ? 'Création du compte…' : 'Créer mon compte' }}</span>
+              <span>{{ isLoading ? 'Creating account…' : 'Create my account' }}</span>
               <svg
                 *ngIf="!isLoading"
                 width="15"
@@ -861,7 +861,7 @@
           </form>
 
           <div class="auth-footer">
-            Déjà un compte ? <a (click)="switchTab('login')">Se connecter</a>
+            Already have an account? <a (click)="switchTab('login')">Sign in</a>
           </div>
         </div>
       </div>
@@ -885,9 +885,11 @@
             </svg>
           </button>
           <div class="auth-header-txt">
-            <div class="auth-role-badge arb-client">Vérification</div>
-            <div class="auth-title">Code de vérification</div>
-            <div class="auth-sub">Entrez le code à 6 chiffres envoyé à <b>{{ pendingEmail }}</b></div>
+            <div class="auth-role-badge arb-client">Verification</div>
+            <div class="auth-title">Verification code</div>
+            <div class="auth-sub">
+              Enter the 6-digit code sent to <b>{{ pendingEmail }}</b>
+            </div>
           </div>
         </div>
 
@@ -915,15 +917,28 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
+              <path
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              />
+              <polyline points="22,6 12,13 2,6" />
             </svg>
           </div>
-          <div style="font-size: 0.8rem; color: var(--g500)">E-mail envoyé — valable 5 minutes</div>
+          <div style="font-size: 0.8rem; color: var(--g500)">Email sent — valid for 5 minutes</div>
         </div>
 
-        <div *ngIf="loginAlert.show && loginAlert.type === 'err'"
-          style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#DC2626;text-align:center">
+        <div
+          *ngIf="loginAlert.show && loginAlert.type === 'err'"
+          style="
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            color: #dc2626;
+            text-align: center;
+          "
+        >
           {{ loginAlert.message }}
         </div>
 
@@ -941,17 +956,17 @@
         </div>
 
         <div class="otp-timer">
-          Renvoyer dans <span>{{ otpCountdown }}</span>
+          Resend in <span>{{ otpCountdown }}</span>
         </div>
         <div style="text-align: center; margin-bottom: 1.5rem">
           <button class="otp-resend" [disabled]="otpResendDisabled" (click)="resendOtp()">
-            Renvoyer le code
+            Resend code
           </button>
         </div>
 
         <button class="submit-btn" [disabled]="!otpComplete || isLoading" (click)="verifyOtp()">
           <div class="spinner" [style.display]="isLoading ? 'block' : 'none'"></div>
-          <span>{{ isLoading ? 'Vérification…' : 'Vérifier' }}</span>
+          <span>{{ isLoading ? 'Verifying…' : 'Verify' }}</span>
           <svg
             *ngIf="!isLoading"
             width="15"
@@ -973,52 +988,118 @@
       <div class="view" [class.active]="currentView === 'forgot'">
         <div class="auth-header">
           <button class="back-btn" (click)="currentView = 'login'">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <line x1="19" y1="12" x2="5" y2="12" />
               <polyline points="12 19 5 12 12 5" />
             </svg>
           </button>
           <div class="auth-header-txt">
-            <div class="auth-role-badge arb-client">Mot de passe oublié</div>
-            <div class="auth-title">Réinitialiser votre mot de passe</div>
-            <div class="auth-sub">Entrez votre adresse e-mail et nous vous enverrons un code de vérification.</div>
+            <div class="auth-role-badge arb-client">Forgot password</div>
+            <div class="auth-title">Reset your password</div>
+            <div class="auth-sub">
+              Enter your email address and we'll send you a verification code.
+            </div>
           </div>
         </div>
 
-        <div style="text-align:center;margin-bottom:1.5rem">
-          <div style="width:60px;height:60px;background:var(--soft);border:2px solid rgba(31,111,234,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        <div style="text-align: center; margin-bottom: 1.5rem">
+          <div
+            style="
+              width: 60px;
+              height: 60px;
+              background: var(--soft);
+              border: 2px solid rgba(31, 111, 234, 0.15);
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin: 0 auto 1rem;
+            "
+          >
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--blue)"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
           </div>
         </div>
 
-        <div class="alert-box" [class.show]="loginAlert.show" [class.err]="loginAlert.type === 'err'" [class.ok]="loginAlert.type === 'ok'">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div
+          class="alert-box"
+          [class.show]="loginAlert.show"
+          [class.err]="loginAlert.type === 'err'"
+          [class.ok]="loginAlert.type === 'ok'"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
           <span>{{ loginAlert.message }}</span>
         </div>
 
         <form (ngSubmit)="handleForgotPassword()">
           <div class="form-group">
-            <label class="form-label">Adresse e-mail</label>
+            <label class="form-label">Email address</label>
             <div class="input-wrap">
-              <svg class="input-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
+              <svg
+                class="input-ico"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                />
+                <polyline points="22,6 12,13 2,6" />
               </svg>
-              <input class="form-input" type="email" placeholder="votre@email.com" [(ngModel)]="forgotEmail" [ngModelOptions]="{ standalone: true }" />
+              <input
+                class="form-input"
+                type="email"
+                placeholder="your@email.com"
+                [(ngModel)]="forgotEmail"
+                [ngModelOptions]="{ standalone: true }"
+              />
             </div>
           </div>
           <button class="submit-btn" type="submit" [disabled]="isLoading">
             <span class="spinner" [style.display]="isLoading ? 'block' : 'none'"></span>
-            <span *ngIf="!isLoading">Envoyer le code</span>
-            <span *ngIf="isLoading">Envoi en cours...</span>
+            <span *ngIf="!isLoading">Send code</span>
+            <span *ngIf="isLoading">Sending...</span>
           </button>
         </form>
 
-        <div class="auth-footer" style="margin-top:1rem">
-          <a (click)="currentView = 'login'">Retour à la connexion</a>
+        <div class="auth-footer" style="margin-top: 1rem">
+          <a (click)="currentView = 'login'">Back to sign in</a>
         </div>
       </div>
 
@@ -1026,30 +1107,81 @@
       <div class="view" [class.active]="currentView === 'reset-code'">
         <div class="auth-header">
           <button class="back-btn" (click)="currentView = 'forgot'">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <line x1="19" y1="12" x2="5" y2="12" />
               <polyline points="12 19 5 12 12 5" />
             </svg>
           </button>
           <div class="auth-header-txt">
-            <div class="auth-role-badge arb-client">Vérification</div>
-            <div class="auth-title">Code de vérification</div>
-            <div class="auth-sub">Entrez le code à 6 chiffres envoyé à <b>{{ pendingEmail }}</b></div>
+            <div class="auth-role-badge arb-client">Verification</div>
+            <div class="auth-title">Verification code</div>
+            <div class="auth-sub">
+              Enter the 6-digit code sent to <b>{{ pendingEmail }}</b>
+            </div>
           </div>
         </div>
 
-        <div style="text-align:center;margin-bottom:1.5rem">
-          <div style="width:60px;height:60px;background:var(--soft);border:2px solid rgba(31,111,234,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
+        <div style="text-align: center; margin-bottom: 1.5rem">
+          <div
+            style="
+              width: 60px;
+              height: 60px;
+              background: var(--soft);
+              border: 2px solid rgba(31, 111, 234, 0.15);
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin: 0 auto 1rem;
+            "
+          >
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--blue)"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              />
+              <polyline points="22,6 12,13 2,6" />
             </svg>
           </div>
-          <div style="font-size:.78rem;color:var(--g400)">E-mail envoyé — valable 10 minutes</div>
+          <div style="font-size: 0.78rem; color: var(--g400)">
+            Email sent — valid for 10 minutes
+          </div>
         </div>
 
-        <div class="alert-box" [class.show]="loginAlert.show && loginAlert.type === 'err'" [class.err]="true">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div
+          class="alert-box"
+          [class.show]="loginAlert.show && loginAlert.type === 'err'"
+          [class.err]="true"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
           <span>{{ loginAlert.message }}</span>
         </div>
 
@@ -1069,12 +1201,18 @@
         <div class="otp-timer">
           <span>{{ otpCountdown }}</span>
           <span *ngIf="!otpResendDisabled"> · </span>
-          <button *ngIf="!otpResendDisabled" class="otp-resend" (click)="resendResetCode()">Renvoyer le code</button>
+          <button *ngIf="!otpResendDisabled" class="otp-resend" (click)="resendResetCode()">
+            Resend code
+          </button>
         </div>
 
-        <button class="submit-btn" [disabled]="!otpComplete || isLoading" (click)="verifyResetCode()">
+        <button
+          class="submit-btn"
+          [disabled]="!otpComplete || isLoading"
+          (click)="verifyResetCode()"
+        >
           <span class="spinner" [style.display]="isLoading ? 'block' : 'none'"></span>
-          Vérifier le code
+          Verify code
         </button>
       </div>
 
@@ -1082,68 +1220,163 @@
       <div class="view" [class.active]="currentView === 'new-password'">
         <div class="auth-header">
           <div class="auth-header-txt">
-            <div class="auth-role-badge" style="background:rgba(34,197,94,.1);color:#16a34a">Nouveau mot de passe</div>
-            <div class="auth-title">Créer un nouveau mot de passe</div>
-            <div class="auth-sub">Choisissez un mot de passe sécurisé pour votre compte.</div>
+            <div class="auth-role-badge" style="background: rgba(34, 197, 94, 0.1); color: #16a34a">
+              New password
+            </div>
+            <div class="auth-title">Create a new password</div>
+            <div class="auth-sub">Choose a secure password for your account.</div>
           </div>
         </div>
 
-        <div style="text-align:center;margin-bottom:1.5rem">
-          <div style="width:60px;height:60px;background:rgba(34,197,94,.08);border:2px solid rgba(34,197,94,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        <div style="text-align: center; margin-bottom: 1.5rem">
+          <div
+            style="
+              width: 60px;
+              height: 60px;
+              background: rgba(34, 197, 94, 0.08);
+              border: 2px solid rgba(34, 197, 94, 0.15);
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin: 0 auto 1rem;
+            "
+          >
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#16a34a"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
           </div>
         </div>
 
-        <div class="alert-box" [class.show]="loginAlert.show" [class.err]="loginAlert.type === 'err'" [class.ok]="loginAlert.type === 'ok'">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div
+          class="alert-box"
+          [class.show]="loginAlert.show"
+          [class.err]="loginAlert.type === 'err'"
+          [class.ok]="loginAlert.type === 'ok'"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
           <span>{{ loginAlert.message }}</span>
         </div>
 
         <form (ngSubmit)="handleResetPassword()">
           <div class="form-group">
-            <label class="form-label">Nouveau mot de passe</label>
+            <label class="form-label">New password</label>
             <div class="input-wrap">
-              <svg class="input-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              <svg
+                class="input-ico"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
-              <input class="form-input" [type]="showNewPassword ? 'text' : 'password'" placeholder="Min. 6 caractères" [(ngModel)]="newPassword" [ngModelOptions]="{ standalone: true }" (input)="checkStrength(newPassword)" />
+              <input
+                class="form-input"
+                [type]="showNewPassword ? 'text' : 'password'"
+                placeholder="Min. 6 characters"
+                [(ngModel)]="newPassword"
+                [ngModelOptions]="{ standalone: true }"
+                (input)="checkStrength(newPassword)"
+              />
               <button type="button" class="pw-eye" (click)="showNewPassword = !showNewPassword">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
                 </svg>
               </button>
             </div>
             <div *ngIf="passwordStrength.level" class="pw-strength">
               <div class="pw-bars">
-                <div class="pw-bar" [class]="passwordStrength.level >= 1 ? passwordStrength.class : ''"></div>
-                <div class="pw-bar" [class]="passwordStrength.level >= 2 ? passwordStrength.class : ''"></div>
-                <div class="pw-bar" [class]="passwordStrength.level >= 3 ? passwordStrength.class : ''"></div>
-                <div class="pw-bar" [class]="passwordStrength.level >= 4 ? passwordStrength.class : ''"></div>
+                <div
+                  class="pw-bar"
+                  [class]="passwordStrength.level >= 1 ? passwordStrength.class : ''"
+                ></div>
+                <div
+                  class="pw-bar"
+                  [class]="passwordStrength.level >= 2 ? passwordStrength.class : ''"
+                ></div>
+                <div
+                  class="pw-bar"
+                  [class]="passwordStrength.level >= 3 ? passwordStrength.class : ''"
+                ></div>
+                <div
+                  class="pw-bar"
+                  [class]="passwordStrength.level >= 4 ? passwordStrength.class : ''"
+                ></div>
               </div>
-              <span class="pw-label" [class]="passwordStrength.class">{{ passwordStrength.label }}</span>
+              <span class="pw-label" [class]="passwordStrength.class">{{
+                passwordStrength.label
+              }}</span>
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Confirmer le mot de passe</label>
+            <label class="form-label">Confirm password</label>
             <div class="input-wrap">
-              <svg class="input-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              <svg
+                class="input-ico"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
-              <input class="form-input" type="password" placeholder="Retapez le mot de passe" [(ngModel)]="newPassword2" [ngModelOptions]="{ standalone: true }" />
+              <input
+                class="form-input"
+                type="password"
+                placeholder="Re-enter password"
+                [(ngModel)]="newPassword2"
+                [ngModelOptions]="{ standalone: true }"
+              />
             </div>
           </div>
 
           <button class="submit-btn" type="submit" [disabled]="isLoading">
             <span class="spinner" [style.display]="isLoading ? 'block' : 'none'"></span>
-            <span *ngIf="!isLoading">Réinitialiser le mot de passe</span>
-            <span *ngIf="isLoading">Réinitialisation...</span>
+            <span *ngIf="!isLoading">Reset password</span>
+            <span *ngIf="isLoading">Resetting...</span>
           </button>
         </form>
       </div>
@@ -1188,7 +1421,7 @@
                 margin-bottom: 0.625rem;
               "
             >
-              Votre espace vous attend
+              Your dashboard awaits
             </div>
             <div style="display: flex; flex-direction: column; gap: 0.5rem">
               <div
@@ -1212,7 +1445,7 @@
                 >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-                Tableau de bord personnalisé
+                Personalized dashboard
               </div>
               <div
                 style="

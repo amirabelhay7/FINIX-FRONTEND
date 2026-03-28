@@ -125,6 +125,12 @@ export class Register {
   isLoading = false;
   registerError = '';
 
+  // OTP verification state (CLIENT / SELLER flow)
+  otpRequired = false;
+  pendingEmail = '';
+  otpCode = '';
+  otpError = '';
+
   constructor(private router: Router, private authService: AuthService) {}
 
   nextStep(): void {
@@ -164,18 +170,46 @@ export class Register {
     }).subscribe({
       next: (res) => {
         this.isLoading = false;
-        const role = res.role;
-        const dest = role === 'agent' ? '/agent'
-          : role === 'seller' ? '/seller'
-          : role === 'insurer' ? '/insurer'
-          : role === 'admin' ? '/backoffice'
-          : '/client';
-        this.router.navigate([dest]);
+        if (res.otpRequired) {
+          this.otpRequired = true;
+          this.pendingEmail = res.email;
+          return;
+        }
+        this.navigateByRole(res.role);
       },
       error: (err: Error) => {
         this.isLoading = false;
         this.registerError = err.message;
       },
     });
+  }
+
+  submitOtp(): void {
+    if (!this.otpCode || this.otpCode.length !== 6) return;
+    this.isLoading = true;
+    this.otpError = '';
+    this.authService.verifyEmail(this.pendingEmail, this.otpCode).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        this.navigateByRole(res.role);
+      },
+      error: (err: Error) => {
+        this.isLoading = false;
+        this.otpError = err.message;
+      },
+    });
+  }
+
+  resendOtp(): void {
+    this.authService.resendCode(this.pendingEmail).subscribe();
+  }
+
+  private navigateByRole(role: string): void {
+    const dest = role === 'agent' ? '/agent'
+      : role === 'seller' ? '/seller'
+      : role === 'insurer' ? '/insurer'
+      : role === 'admin' ? '/backoffice'
+      : '/client';
+    this.router.navigate([dest]);
   }
 }

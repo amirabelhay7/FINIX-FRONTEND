@@ -81,12 +81,12 @@
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">First
                             Name</label>
-                        <input type="text" placeholder="Amadou"
+                        <input type="text" placeholder="Amadou" [(ngModel)]="firstName" name="firstName"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Last Name</label>
-                        <input type="text" placeholder="Kone"
+                        <input type="text" placeholder="Kone" [(ngModel)]="lastName" name="lastName"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                     <div class="relative">
                         <span
                             class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">mail</span>
-                        <input type="email" placeholder="you@example.com"
+                        <input type="email" placeholder="you@example.com" [(ngModel)]="email" name="email"
                             class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
@@ -106,13 +106,13 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Phone No.</label>
-                        <input type="tel" placeholder="+216 00 000 000"
+                        <input type="tel" placeholder="+216 00 000 000" [(ngModel)]="phone" name="phone"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Date of
                             Birth</label>
-                        <input type="date"
+                        <input type="date" [(ngModel)]="dateOfBirth" name="dateOfBirth"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
@@ -124,7 +124,7 @@
                     <div class="relative">
                         <span
                             class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">badge</span>
-                        <input type="text" placeholder="00000000"
+                        <input type="text" placeholder="00000000" [(ngModel)]="cin" name="cin"
                             class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
@@ -133,12 +133,12 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Address</label>
-                        <input type="text" placeholder="12 Rue de la Finance"
+                        <input type="text" placeholder="12 Rue de la Finance" [(ngModel)]="address" name="address"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">City</label>
-                        <input type="text" placeholder="Tunis"
+                        <input type="text" placeholder="Tunis" [(ngModel)]="city" name="city"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
@@ -149,7 +149,7 @@
                     <div class="relative">
                         <span
                             class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">lock</span>
-                        <input type="password" placeholder="Min. 8 characters"
+                        <input type="password" placeholder="Min. 8 characters" [(ngModel)]="password" name="password"
                             class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                 </div>
@@ -220,7 +220,7 @@
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Localisation /
                             Quartier</label>
-                        <input type="text" placeholder="e.g. Bab Souika, Tunis"
+                        <input type="text" placeholder="e.g. Bab Souika, Tunis" [(ngModel)]="localisation" name="localisation"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                     <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
@@ -235,13 +235,13 @@
                         <div class="space-y-2">
                             <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Agency
                                 Code</label>
-                            <input type="number" placeholder="e.g. 1024"
+                            <input type="number" placeholder="e.g. 1024" [(ngModel)]="agenceCode" name="agenceCode"
                                 class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                         </div>
                         <div class="space-y-2">
                             <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Region
                                 Code</label>
-                            <input type="number" placeholder="e.g. 3"
+                            <input type="number" placeholder="e.g. 3" [(ngModel)]="region" name="region"
                                 class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                         </div>
                     </div>
@@ -259,7 +259,7 @@
                         <div class="relative">
                             <span
                                 class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">receipt</span>
-                            <input type="text" placeholder="RC-2024-XXXXX"
+                            <input type="text" placeholder="RC-2024-XXXXX" [(ngModel)]="commercialRegister" name="commercialRegister"
                                 class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                         </div>
                     </div>
@@ -274,13 +274,13 @@
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Insurer / Company
                             Name</label>
-                        <input type="text" placeholder="e.g. Assurances BIAT"
+                        <input type="text" placeholder="e.g. Assurances BIAT" [(ngModel)]="insurerName" name="insurerName"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Contact Email
                             (Public)</label>
-                        <input type="email" placeholder="contact@assurances.tn"
+                        <input type="email" placeholder="contact@assurances.tn" [(ngModel)]="insurerEmail" name="insurerEmail"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
                     </div>
                     <div class="p-4 bg-green-50 rounded-xl border border-green-100">
@@ -318,6 +318,34 @@
             </div>
 
         </div>
+
+        <!-- ===================== OTP VERIFICATION ===================== -->
+        <div *ngIf="otpRequired" class="w-full max-w-md">
+            <div class="mb-8">
+                <p class="text-xs font-black text-[#135bec] uppercase tracking-widest mb-3">Email Verification</p>
+                <h2 class="text-3xl font-black text-gray-900 tracking-tight">Check your<br />inbox</h2>
+                <p class="text-gray-400 text-sm font-medium mt-3">A 6-digit code was sent to <span class="font-bold text-gray-700">{{ pendingEmail }}</span></p>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-5">
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest">Verification Code</label>
+                    <input type="text" placeholder="000000" maxlength="6" [(ngModel)]="otpCode" name="otpCode"
+                        class="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-2xl font-black text-gray-800 text-center tracking-[0.5em] placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
+                </div>
+                <button (click)="submitOtp()" [disabled]="isLoading || otpCode.length !== 6"
+                    class="w-full py-4 bg-[#135bec] text-white font-black rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-200 flex items-center justify-center space-x-2 disabled:opacity-60">
+                    <span>{{ isLoading ? 'Verifying...' : 'Verify & Create Account' }}</span>
+                </button>
+                <p class="text-center text-sm text-gray-400">
+                    Didn't receive it?
+                    <button (click)="resendOtp()" class="text-[#135bec] font-bold hover:underline">Resend code</button>
+                </p>
+                <div *ngIf="otpError" class="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm text-center">
+                    {{ otpError }}
+                </div>
+            </div>
+        </div>
+
     </div>
 
 </div>

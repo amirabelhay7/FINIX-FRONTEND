@@ -5,7 +5,7 @@
     <div class="in-tb-name">FIN<span>'IX</span></div>
   </div>
   <div class="in-tb-divider"></div>
-  <div class="in-tb-sub">Espace Assureur · Gestion des polices & sinistres</div>
+  <div class="in-tb-sub">Insurer Portal · Policy & Claims Management</div>
   <div class="in-tb-right">
     <button class="in-tb-btn">🔔<span class="in-notif-dot"></span></button>
     <button class="in-tb-btn">⚙️</button>
@@ -16,7 +16,7 @@
       <div class="in-tb-avatar">{{ userInitials }}</div>
       <div>
         <div class="in-tb-uname">{{ userName }}</div>
-        <div class="in-tb-urole">Assureur</div>
+        <div class="in-tb-urole">Insurer</div>
       </div>
       <span style="color:rgba(255,255,255,.3);font-size:.65rem;margin-left:.25rem;">▾</span>
       <div class="in-dropdown" [class.in-dropdown-hidden]="!showUserDropdown" (click)="$event.stopPropagation()">
@@ -28,12 +28,12 @@
           </div>
         </div>
         <div style="padding:.25rem 0;">
-          <button class="in-dp-item">👤 Mon profil</button>
-          <button class="in-dp-item">📊 Statistiques</button>
+          <button class="in-dp-item">👤 My Profile</button>
+          <button class="in-dp-item">📊 Analytics</button>
           <div class="in-dp-sep"></div>
-          <button class="in-dp-item">❓ Aide & Support</button>
+          <button class="in-dp-item">❓ Help & Support</button>
           <div class="in-dp-sep"></div>
-          <button class="in-dp-item in-red" (click)="logout()">🚪 Déconnexion</button>
+          <button class="in-dp-item in-red" (click)="logout()">🚪 Logout</button>
         </div>
       </div>
     </div>
@@ -43,21 +43,21 @@
 <!-- ═══════════ NAVBAR ═══════════ -->
 <nav class="in-nav">
   <button class="in-nav-tab" [class.active]="activeSection === 'dashboard'" (click)="activeSection = 'dashboard'">
-    📊 Tableau de bord
+    📊 Dashboard
   </button>
   <button class="in-nav-tab" [class.active]="activeSection === 'offers'" (click)="activeSection = 'offers'">
-    📋 Offres <span class="in-nav-badge">{{ offerCounts.total }}</span>
+    📋 Insurance Offers <span class="in-nav-badge">{{ offerCounts.total }}</span>
   </button>
   <button class="in-nav-tab" [class.active]="activeSection === 'events'" (click)="activeSection = 'events'">
-    ⚡ Événements <span class="in-nav-badge" [class.in-warn]="eventCounts.urgent > 0">{{ eventCounts.total }}</span>
+    ⚡ Events <span class="in-nav-badge" [class.in-warn]="eventCounts.urgent > 0">{{ eventCounts.total }}</span>
   </button>
   <button class="in-nav-tab" [class.active]="activeSection === 'catalogs'" (click)="activeSection = 'catalogs'">
-    📚 Catalogues <span class="in-nav-badge">{{ catalogs.length }}</span>
+    📚 Offer Catalogs <span class="in-nav-badge">{{ catalogs.length }}</span>
   </button>
   <div class="in-nav-actions">
     <div class="in-search-wrap">
       <span>🔍</span>
-      <input type="text" placeholder="Rechercher..." [(ngModel)]="searchQuery">
+      <input type="text" placeholder="Search..." [(ngModel)]="searchQuery">
     </div>
   </div>
 </nav>
@@ -82,35 +82,35 @@
     <!-- QUICK ACTIONS -->
     <div class="in-section-head">
       <div>
-        <div class="in-section-title">Actions rapides</div>
-        <div class="in-section-sub">Accédez rapidement aux fonctionnalités principales</div>
+        <div class="in-section-title">Quick Actions</div>
+        <div class="in-section-sub">Access main features quickly</div>
       </div>
     </div>
     <div class="in-quick-actions">
       <button class="in-qa-card" (click)="activeSection = 'events'; openAddEventModal()">
         <div class="in-qa-icon">⚡</div>
-        <div class="in-qa-label">Ajouter un événement</div>
-        <div class="in-qa-sub">Déclarer un sinistre, renouvellement...</div>
+        <div class="in-qa-label">Add Event</div>
+        <div class="in-qa-sub">Declare a claim, renewal...</div>
       </button>
       <button class="in-qa-card" (click)="activeSection = 'offers'; openAddOfferModal()">
         <div class="in-qa-icon">📋</div>
-        <div class="in-qa-label">Créer une offre</div>
-        <div class="in-qa-sub">Nouvelle offre d'assurance</div>
+        <div class="in-qa-label">Create Offer</div>
+        <div class="in-qa-sub">New insurance offer</div>
       </button>
       <button class="in-qa-card" (click)="activeSection = 'catalogs'; openAddCatalogModal()">
         <div class="in-qa-icon">📚</div>
-        <div class="in-qa-label">Nouveau catalogue</div>
-        <div class="in-qa-sub">Organiser vos produits</div>
+        <div class="in-qa-label">New Catalog</div>
+        <div class="in-qa-sub">Organize your products</div>
       </button>
     </div>
 
     <!-- RECENT EVENTS -->
     <div class="in-section-head">
       <div>
-        <div class="in-section-title">Événements récents</div>
-        <div class="in-section-sub">{{ eventCounts.urgent }} urgent(s) · {{ eventCounts.en_cours }} en cours</div>
+        <div class="in-section-title">Recent Events</div>
+        <div class="in-section-sub">{{ eventCounts.urgent }} urgent(s) · {{ eventCounts.en_cours }} in progress</div>
       </div>
-      <button class="in-btn-link" (click)="activeSection = 'events'">Voir tout →</button>
+      <button class="in-btn-link" (click)="activeSection = 'events'">View all →</button>
     </div>
     <div class="in-events-list">
       <div class="in-event-row" *ngFor="let e of events | slice:0:4">
@@ -135,10 +135,10 @@
   <div *ngIf="activeSection === 'offers'">
     <div class="in-section-head">
       <div>
-        <div class="in-section-title">Offres d'assurance</div>
-        <div class="in-section-sub">{{ offerCounts.active }} actives · {{ offerCounts.draft }} brouillons · {{ offerCounts.expired }} expirées</div>
+        <div class="in-section-title">Insurance Offers</div>
+        <div class="in-section-sub">{{ offerCounts.active }} active · {{ offerCounts.draft }} draft · {{ offerCounts.expired }} expired</div>
       </div>
-      <button class="in-btn-new" (click)="openAddOfferModal()">+ Nouvelle offre</button>
+      <button class="in-btn-new" (click)="openAddOfferModal()">+ New Offer</button>
     </div>
     <div class="in-offers-grid">
       <div class="in-offer-card" *ngFor="let o of filteredOffers">
@@ -156,7 +156,7 @@
           <div class="in-o-price">{{ formatPrice(o.price) }}<span class="in-o-dur"> / {{ o.duration }}</span></div>
           <div class="in-o-coverage">{{ o.coverage }}</div>
           <div class="in-o-meta">
-            <span>👥 {{ o.subscribers }} souscripteurs</span>
+            <span>👥 {{ o.subscribers }} subscribers</span>
             <span>📅 {{ o.date }}</span>
           </div>
         </div>
@@ -168,9 +168,9 @@
     </div>
     <div class="in-empty" *ngIf="filteredOffers.length === 0">
       <div class="in-empty-icon">📋</div>
-      <div class="in-empty-title">Aucune offre trouvée</div>
-      <div class="in-empty-sub">Modifiez votre recherche ou créez une nouvelle offre.</div>
-      <button class="in-btn-new" (click)="openAddOfferModal()">+ Nouvelle offre</button>
+      <div class="in-empty-title">No offer found</div>
+      <div class="in-empty-sub">Modify your search or create a new offer.</div>
+      <button class="in-btn-new" (click)="openAddOfferModal()">+ New Offer</button>
     </div>
   </div>
 
@@ -178,10 +178,10 @@
   <div *ngIf="activeSection === 'events'">
     <div class="in-section-head">
       <div>
-        <div class="in-section-title">Événements</div>
-        <div class="in-section-sub">{{ eventCounts.urgent }} urgent(s) · {{ eventCounts.en_cours }} en cours · {{ eventCounts.traite }} traité(s)</div>
+        <div class="in-section-title">Recent Events</div>
+        <div class="in-section-sub">{{ eventCounts.urgent }} urgent(s) · {{ eventCounts.en_cours }} in progress · {{ eventCounts.traite }} treated</div>
       </div>
-      <button class="in-btn-new" (click)="openAddEventModal()">+ Nouvel événement</button>
+      <button class="in-btn-new" (click)="openAddEventModal()">+ New Event</button>
     </div>
     <div class="in-events-full">
       <div class="in-event-card" *ngFor="let e of filteredEvents">
@@ -215,9 +215,9 @@
     </div>
     <div class="in-empty" *ngIf="filteredEvents.length === 0">
       <div class="in-empty-icon">⚡</div>
-      <div class="in-empty-title">Aucun événement trouvé</div>
-      <div class="in-empty-sub">Modifiez votre recherche ou déclarez un nouvel événement.</div>
-      <button class="in-btn-new" (click)="openAddEventModal()">+ Nouvel événement</button>
+      <div class="in-empty-title">No event found</div>
+      <div class="in-empty-sub">Modify your search or declare a new event.</div>
+      <button class="in-btn-new" (click)="openAddEventModal()">+ New Event</button>
     </div>
   </div>
 
@@ -225,10 +225,10 @@
   <div *ngIf="activeSection === 'catalogs'">
     <div class="in-section-head">
       <div>
-        <div class="in-section-title">Catalogues d'assurance</div>
-        <div class="in-section-sub">{{ catalogs.length }} catalogues · Organisez vos produits d'assurance</div>
+        <div class="in-section-title">Insurance Catalogs</div>
+        <div class="in-section-sub">{{ catalogs.length }} catalogs · Organize your insurance products</div>
       </div>
-      <button class="in-btn-new" (click)="openAddCatalogModal()">+ Nouveau catalogue</button>
+      <button class="in-btn-new" (click)="openAddCatalogModal()">+ New Catalog</button>
     </div>
     <div class="in-catalogs-grid">
       <div class="in-catalog-card" *ngFor="let c of catalogs">
@@ -238,7 +238,7 @@
           <div class="in-cat-category">{{ c.category }}</div>
           <div class="in-cat-desc">{{ c.description }}</div>
           <div class="in-cat-meta">
-            <span class="in-cat-count">{{ c.offersCount }} offres</span>
+            <span class="in-cat-count">{{ c.offersCount }} offers</span>
           </div>
         </div>
         <div class="in-cat-actions">
@@ -251,17 +251,17 @@
 
   <!-- FOOTER -->
   <footer class="in-footer">
-    <div>
-      <div class="in-ft-brand">FIN<span>'IX</span></div>
-      <div class="in-ft-copy">© 2026 FIN'IX — Espace Assureur · Gestion des polices & sinistres</div>
-    </div>
-    <div class="in-ft-links">
-      <a href="#" class="in-ft-link">Confidentialité</a>
-      <a href="#" class="in-ft-link">CGU</a>
-      <a href="#" class="in-ft-link">Aide</a>
-      <a href="#" class="in-ft-link">Contact</a>
-    </div>
-  </footer>
+  <div>
+    <div class="in-ft-brand">FIN<span>'IX</span></div>
+    <div class="in-ft-copy">© 2026 FIN'IX — Insurer Portal · Policy & Claims Management</div>
+  </div>
+  <div class="in-ft-links">
+    <a href="#" class="in-ft-link">Privacy Policy</a>
+    <a href="#" class="in-ft-link">Terms of Service</a>
+    <a href="#" class="in-ft-link">Help</a>
+    <a href="#" class="in-ft-link">Contact</a>
+  </div>
+</footer>
 </main>
 
 <!-- ═══════════ ADD OFFER MODAL ═══════════ -->

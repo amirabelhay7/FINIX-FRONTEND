@@ -5,12 +5,12 @@
     <div class="tb-name">FIN<span>'IX</span></div>
   </div>
   <div class="tb-divider"></div>
-  <div class="tb-sub">Institution de Microfinance · Agréée BCT</div>
+ 
   <div class="tb-right">
     
     <button class="tb-btn">🔔<span class="notif-dot"></span></button>
     <button class="tb-btn">⚙️</button>
-    <button class="tb-theme-toggle" (click)="toggleTheme()" title="Changer le thème">
+    <button class="tb-theme-toggle" (click)="toggleTheme()" title="Change the theme">
       {{ currentTheme === 'dark' ? '☀️' : '🌙' }}
     </button>
     <div class="tb-user" (click)="toggleUserDropdown()" style="position:relative;">
@@ -30,14 +30,14 @@
           </div>
         </div>
         <div style="padding:.25rem 0;">
-          <button class="dp-item">👤 Mon profil</button>
-          <button class="dp-item">🔐 Sécurité</button>
+          <button class="dp-item">👤 My Profile</button>
+          <button class="dp-item">🔐 Security</button>
           <button class="dp-item">🔔 Notifications</button>
           <div class="dp-sep"></div>
-          <button class="dp-item">📞 Contacter un agent</button>
-          <button class="dp-item">❓ Aide & Support</button>
+          <button class="dp-item">📞 Contact an agent</button>
+          <button class="dp-item">❓ Help & Support</button>
           <div class="dp-sep"></div>
-          <button class="dp-item red" (click)="logout()">🚪 Déconnexion</button>
+          <button class="dp-item red" (click)="logout()">🚪 Logout</button>
         </div>
       </div>
     </div>
@@ -55,10 +55,9 @@
   </a>
   <div class="nav-actions">
     <div class="search-wrap">
-      <span>🔍</span>
-      <input type="text" placeholder="Rechercher...">
+      <input type="text" placeholder="Search...">
     </div>
-    <button class="btn-new">+ Nouvelle demande</button>
+    <button class="btn-new">+ New Request</button>
   </div>
 </nav>
 
@@ -69,12 +68,12 @@
   <footer>
     <div>
       <div class="ft-brand">FIN<span>'IX</span></div>
-      <div class="ft-copy" style="margin-top:.25rem;">© 2026 FIN'IX — Institution de Microfinance agréée BCT n°2019-IMF-042</div>
+      <div class="ft-copy" style="margin-top:.25rem;">© 2026 FIN'IX </div>
     </div>
     <div class="ft-links">
-      <a href="#" class="ft-link">Confidentialité</a>
-      <a href="#" class="ft-link">CGU</a>
-      <a href="#" class="ft-link">Aide</a>
+      <a href="#" class="ft-link">Confidentiality</a>
+      <a href="#" class="ft-link">Terms of Service</a>
+      <a href="#" class="ft-link">Help</a>
       <a href="#" class="ft-link">Contact</a>
     </div>
   </footer>

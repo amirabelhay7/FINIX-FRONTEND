@@ -39,7 +39,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   editingUserId: number | null = null;
   addUserError = '';
   addUserLoading = false;
-  newUser: any = { firstName: '', lastName: '', email: '', password: '', role: 'AGENT', phoneNumber: '', address: '', city: '', agenceCode: '', region: '', insurerName: '', insurerEmail: '' };
+  newUser: any = { firstName: '', lastName: '', email: '', password: '', role: 'AGENT', phoneNumber: '', cin: '', address: '', city: '', agenceCode: '', region: '', insurerName: '', insurerEmail: '' };
   showViewUserModal = false;
   viewUser: any = null;
 
@@ -672,7 +672,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   /* Create */
   openAddUser(): void {
     this.editingUserId = null;
-    this.newUser = { firstName: '', lastName: '', email: '', password: '', role: 'AGENT', phoneNumber: '', address: '', city: '', agenceCode: '', region: '', insurerName: '', insurerEmail: '' };
+    this.newUser = { firstName: '', lastName: '', email: '', password: '', role: 'AGENT', phoneNumber: '', cin: '', address: '', city: '', agenceCode: '', region: '', insurerName: '', insurerEmail: '' };
     this.addUserError = '';
     this.showUserModal = true;
   }
@@ -687,6 +687,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       password: '',
       role: user.role || 'AGENT',
       phoneNumber: user.phoneNumber || '',
+      cin: user.cin || '',
       address: user.address || '',
       city: user.city || '',
       agenceCode: user.agenceCode || '',
@@ -737,6 +738,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         lastName: this.newUser.lastName,
         email: this.newUser.email,
         phoneNumber: this.newUser.phoneNumber ? Number(this.newUser.phoneNumber) : null,
+        cin: this.newUser.cin || null,
         address: this.newUser.address || null,
         city: this.newUser.city || null,
         role: this.newUser.role,
@@ -773,6 +775,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         password: this.newUser.password,
         role: this.newUser.role,
         phoneNumber: this.newUser.phoneNumber ? Number(this.newUser.phoneNumber) : null,
+        cin: this.newUser.cin || null,
       };
       if (this.newUser.role === 'AGENT') {
         payload.agenceCode = this.newUser.agenceCode ? Number(this.newUser.agenceCode) : null;
