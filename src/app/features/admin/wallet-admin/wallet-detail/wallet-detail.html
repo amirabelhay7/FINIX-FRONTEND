@@ -148,21 +148,29 @@
         </div>
         
         <!-- Current Usage Display -->
-        <div *ngIf="wallet?.dailyLimit || wallet?.monthlyLimit" class="bg-purple-50/50 rounded-lg p-4 space-y-2">
-          <h5 class="font-semibold text-purple-800">Current Usage</h5>
-          <div class="grid grid-cols-2 gap-4 text-sm">
-            <div *ngIf="wallet?.dailyLimit">
-              <span class="text-gray-600">Daily:</span>
-              <span class="font-medium">{{wallet?.dailyUsed || 0}} / {{wallet?.dailyLimit}} TND</span>
-              <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                <div class="bg-purple-600 h-2 rounded-full" [style.width.%]="((wallet?.dailyUsed || 0) / (wallet?.dailyLimit || 1)) * 100"></div>
+        <div *ngIf="wallet?.dailyLimit || wallet?.monthlyLimit" class="bg-purple-50 rounded-lg p-4 space-y-3">
+          <h5 class="font-semibold text-purple-800 mb-3">Current Usage</h5>
+          <div class="space-y-3">
+            <div *ngIf="wallet?.dailyLimit" class="flex items-center justify-between">
+              <div>
+                <span class="text-gray-600 text-sm">Daily:</span>
+                <div class="font-medium">{{wallet?.dailyUsed || 0}} / {{wallet?.dailyLimit}} TND</div>
+              </div>
+              <div class="flex-1 ml-4">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" [style.width.%]="((wallet?.dailyUsed || 0) / (wallet?.dailyLimit || 1)) * 100"></div>
+                </div>
               </div>
             </div>
-            <div *ngIf="wallet?.monthlyLimit">
-              <span class="text-gray-600">Monthly:</span>
-              <span class="font-medium">{{wallet?.monthlyUsed || 0}} / {{wallet?.monthlyLimit}} TND</span>
-              <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                <div class="bg-purple-600 h-2 rounded-full" [style.width.%]="((wallet?.monthlyUsed || 0) / (wallet?.monthlyLimit || 1)) * 100"></div>
+            <div *ngIf="wallet?.monthlyLimit" class="flex items-center justify-between">
+              <div>
+                <span class="text-gray-600 text-sm">Monthly:</span>
+                <div class="font-medium">{{wallet?.monthlyUsed || 0}} / {{wallet?.monthlyLimit}} TND</div>
+              </div>
+              <div class="flex-1 ml-4">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" [style.width.%]="((wallet?.monthlyUsed || 0) / (wallet?.monthlyLimit || 1)) * 100"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -170,7 +178,7 @@
         
         <!-- Limit Configuration Form -->
         <form (ngSubmit)="saveTransactionLimits()" class="space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 gap-4">
             <div>
               <label class="form-label">Daily Limit (TND)</label>
               <input type="number" class="form-input" [(ngModel)]="limitForm.dailyLimit" name="dailyLimit" min="0" step="0.01" placeholder="No limit">
@@ -184,8 +192,8 @@
               <input type="number" class="form-input" [(ngModel)]="limitForm.transactionLimit" name="transactionLimit" min="0" step="0.01" placeholder="No limit">
             </div>
           </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-purple" [disabled]="limitsLoading">
+          <div class="flex gap-3 pt-2">
+            <button type="submit" class="btn btn-primary" [disabled]="limitsLoading">
               <span *ngIf="!limitsLoading">Save Limits</span>
               <span *ngIf="limitsLoading">Saving...</span>
             </button>
