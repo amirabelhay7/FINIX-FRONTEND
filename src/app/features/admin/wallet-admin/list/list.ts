@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { finalize } from 'rxjs';
 import { WalletService } from '../../../../services/wallet/wallet.service';
 
@@ -23,12 +23,15 @@ export class List implements OnInit {
 
   constructor(
     private walletService: WalletService,
+    private ngZone: NgZone,
   ) {}
 
   ngOnInit(): void {
     this.walletService.adminGetAllWallets().pipe(
       finalize(() => {
-        this.loading = false;
+        this.ngZone.runOutsideAngular(() => {
+          this.loading = false;
+        });
       })
     ).subscribe({
       next: (list) => {
