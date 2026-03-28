@@ -82,7 +82,7 @@
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
           </svg>
           <svg
-            *ngIf="item.icon === 'dollar'"
+            *ngIf="item.icon === 'TND'"
             width="15"
             height="15"
             viewBox="0 0 24 24"
@@ -260,11 +260,11 @@
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
-        <input type="text" placeholder="Dossier, client, référence…" />
+        <input type="text" placeholder="File, client, reference…" />
       </div>
       <div class="cfm-tb-status">
         <div class="cfm-status-dot"></div>
-        Système opérationnel
+         Operational System
       </div>
       <div class="cfm-tb-time">{{ currentTime }}</div>
     </div>
@@ -281,13 +281,13 @@
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
           <circle cx="12" cy="10" r="3" />
         </svg>
-        Agence Tunis Central
+        Tunis Central Branch
       </div>
       <!-- Theme toggle -->
       <button
         class="cfm-tb-icon"
         (click)="toggleTheme()"
-        [title]="currentTheme === 'dark' ? 'Mode clair' : 'Mode sombre'"
+        [title]="currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode'"
       >
         <svg
           *ngIf="currentTheme === 'dark'"
@@ -353,7 +353,7 @@
 
   <!-- ── TICKER BAND ── -->
   <div class="cfm-ticker">
-    <span class="cfm-ticker-label">FLUX DIRECT</span>
+    <span class="cfm-ticker-label">Live feed</span>
     <div class="cfm-ticker-track">
       <div class="cfm-ticker-scroll">
         <span class="cfm-ticker-item" *ngFor="let t of tickerItems">
@@ -377,84 +377,7 @@
     </div>
   </div>
 
-  <!-- ── CMD BAR ── -->
-  <div class="cfm-cmd-bar">
-    <button class="cfm-cmd-btn cfm-cmd-primary">+ Nouveau dossier</button>
-    <button class="cfm-cmd-btn">
-      <svg
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="7 10 12 15 17 10" />
-        <line x1="12" y1="15" x2="12" y2="3" />
-      </svg>
-      Exporter
-    </button>
-    <button class="cfm-cmd-btn">
-      <svg
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="8.5" cy="7" r="4" />
-        <line x1="20" y1="8" x2="20" y2="14" />
-        <line x1="23" y1="11" x2="17" y2="11" />
-      </svg>
-      Ajouter client
-    </button>
-    <button class="cfm-cmd-btn">
-      <svg
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-      </svg>
-      Filtrer
-    </button>
-    <button class="cfm-cmd-btn">
-      <svg
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-      </svg>
-      Rapport rapide
-    </button>
-    <button class="cfm-cmd-btn cfm-cmd-alert">
-      <svg
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path
-          d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-        />
-      </svg>
-      Alertes risque
-      <span class="cfm-cmd-badge">3</span>
-    </button>
-  </div>
+  
 
   <!-- ── CONTENT ── -->
   <div class="cfm-content">
@@ -476,10 +399,10 @@
           <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
         <span
-          >3 dossiers en attente de décision depuis plus de 72h —
-          <strong>action requise</strong></span
+          >3 Cases pending decision —
+          <strong>required action </strong></span
         >
-        <button class="cfm-alert-action">Traiter maintenant</button>
+        <button class="cfm-alert-action">Take action now</button>
       </div>
 
       <!-- Page header -->
@@ -487,9 +410,9 @@
         <div>
           <div class="cfm-ph-eyebrow">CAPITAL FLOW MONITOR</div>
           <div class="cfm-ph-title">
-            Vue d'ensemble <span class="cfm-ph-grad">opérationnelle</span>
+            Operational <span class="cfm-ph-grad">overview</span>
           </div>
-          <div class="cfm-ph-desc">Actualisé il y a 2 min · Période : Mars 2026</div>
+          <div class="cfm-ph-desc">Updated 2 min ago</div>
         </div>
         <div class="cfm-ph-actions">
           <button class="cfm-btn cfm-btn-outline">
@@ -506,9 +429,9 @@
               <line x1="8" y1="2" x2="8" y2="6" />
               <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
-            Mars 2026
+            March 2026
           </button>
-          <button class="cfm-btn cfm-btn-primary">+ Nouveau dossier</button>
+          <button class="cfm-btn cfm-btn-primary">+ New case</button>
         </div>
       </div>
 
@@ -536,10 +459,10 @@
           </div>
         </div>
 
-        <!-- Card 2: Remboursements Reçus -->
+        <!-- Card 2: Payments Received / Repayments Collected -->
         <div class="cfm-card cfm-card-lg">
           <div class="cfm-card-label">
-            <span class="cfm-card-dot" style="background: #10b981"></span> REMBOURSEMENTS REÇUS
+            <span class="cfm-card-dot" style="background: #10b981"></span> PAYMENTS RECEIVED / REPayments COLLECTED
           </div>
           <div class="cfm-card-val">
             <span class="cfm-card-prefix" style="color: #10b981">TND</span> 892<span
@@ -558,14 +481,14 @@
           </div>
           <div class="cfm-progress-labels"><span>0</span><span>71%</span><span>1.25M</span></div>
           <div class="cfm-card-foot">
-            Taux recouvrement : <strong>97.2%</strong> · Retards : <strong>12</strong>
+            Recovery rate : <strong>97.2%</strong> · Delays : <strong>12</strong>
           </div>
         </div>
 
-        <!-- Card 3: Score Risque -->
+        <!-- Card 3: Portfolio Risk Score -->
         <div class="cfm-card cfm-card-lg">
           <div class="cfm-card-label">
-            <span class="cfm-card-dot" style="background: #f59e0b"></span> SCORE RISQUE PORTEFEUILLE
+            <span class="cfm-card-dot" style="background: #f59e0b"></span> PORTFOLIO RISK SCORE
           </div>
           <div class="cfm-score-ring">
             <svg viewBox="0 0 80 80" width="80" height="80">
@@ -607,28 +530,28 @@
           </div>
         </div>
 
-        <!-- Card 4: Dossiers Actifs -->
+        <!-- Card 4: Active Cases / Active Files -->
         <div class="cfm-card cfm-card-lg">
           <div class="cfm-card-label">
-            <span class="cfm-card-dot" style="background: #8b5cf6"></span> DOSSIERS ACTIFS
+            <span class="cfm-card-dot" style="background: #8b5cf6"></span> ACTIVE FILES
           </div>
           <div class="cfm-card-val cfm-card-val-xl">247</div>
-          <div class="cfm-card-trend cfm-trend-neutral">→ +18 cette semaine</div>
+          <div class="cfm-card-trend cfm-trend-neutral">→ +18 this week</div>
           <div class="cfm-dossier-grid">
             <div class="cfm-dg-item">
-              <div class="cfm-dg-label">EN ANALYSE</div>
+              <div class="cfm-dg-label">IN ANALYSIS</div>
               <div class="cfm-dg-val" style="color: #f59e0b">34</div>
             </div>
             <div class="cfm-dg-item">
-              <div class="cfm-dg-label">ACCORDÉS</div>
+              <div class="cfm-dg-label">APPROVED</div>
               <div class="cfm-dg-val" style="color: #10b981">189</div>
             </div>
             <div class="cfm-dg-item">
-              <div class="cfm-dg-label">REFUSÉS</div>
+              <div class="cfm-dg-label">REJECTED</div>
               <div class="cfm-dg-val" style="color: #ef4444">24</div>
             </div>
             <div class="cfm-dg-item">
-              <div class="cfm-dg-label">EN ATTENTE</div>
+              <div class="cfm-dg-label">PENDING</div>
               <div class="cfm-dg-val" style="color: #3b82f6">12</div>
             </div>
           </div>
@@ -653,8 +576,8 @@
                   <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
                 </svg>
               </div>
-              <span class="cfm-card-head-title">Évolution volume crédits</span>
-              <span class="cfm-card-head-sub">12 derniers mois · N-1</span>
+              <span class="cfm-card-head-title">Credit volume evolution</span>
+              <span class="cfm-card-head-sub">Last 12 months</span>
             </div>
             <div class="cfm-period-pills">
               <button class="cfm-pill">3M</button>
@@ -670,7 +593,7 @@
               ><span class="cfm-legend-dot" style="background: var(--fx-txt-4)"></span> 2025</span
             >
             <span style="margin-left: auto"
-              >Pic : <strong>387K</strong> · Moy : <strong>241K</strong></span
+              >Pic : <strong>387K</strong> · Avg : <strong>241K</strong></span
             >
           </div>
           <div class="cfm-chart-area">
@@ -743,8 +666,157 @@
       </div>
     </ng-container>
 
+    <!-- ── REpayment PAGE ── -->
+    <ng-container *ngIf="selectedPage === 'remboursements'">
+      <div class="cfm-page-head">
+        <div>
+          <div class="cfm-ph-eyebrow">Operations</div>
+          <div class="cfm-ph-title">Repayments</div>
+          <div class="cfm-ph-desc">Record a payment</div>
+        </div>
+        <div class="cfm-ph-actions">
+          <button class="cfm-btn cfm-btn-primary" (click)="resetPaymentForm()">+ New Payment</button>
+        </div>
+      </div>
+
+      <div class="pay-layout">
+
+        <!-- LEFT: Client search + form -->
+        <div class="pay-form-card">
+
+          <!-- Step 1 — Client search -->
+          <div class="pay-section-title">
+            <span class="pay-step">1</span> Select client
+          </div>
+          <div class="pay-search-wrap">
+            <div class="pay-search-input-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input
+                class="pay-search-input"
+                type="text"
+                placeholder="Search by CIN, name or first name…"
+                [(ngModel)]="clientSearch"
+                (input)="searchClients()"
+              />
+            </div>
+            <div class="pay-search-results" *ngIf="clientResults.length > 0">
+              <div
+                class="pay-search-result-item"
+                *ngFor="let c of clientResults"
+                (click)="selectClient(c)"
+              >
+                <div class="psr-avatar">{{ (c.firstName || '?')[0] }}{{ (c.lastName || '')[0] }}</div>
+                <div class="psr-info">
+                  <div class="psr-name">{{ c.firstName }} {{ c.lastName }}</div>
+                  <div class="psr-meta">CIN {{ c.cin || '—' }} · {{ c.email }}</div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected client chip -->
+          <div class="pay-client-chip" *ngIf="selectedClient">
+            <div class="pcc-avatar">{{ (selectedClient.firstName || '?')[0] }}{{ (selectedClient.lastName || '')[0] }}</div>
+            <div class="pcc-info">
+              <div class="pcc-name">{{ selectedClient.firstName }} {{ selectedClient.lastName }}</div>
+              <div class="pcc-meta">CIN {{ selectedClient.cin || '—' }} · ID #{{ selectedClient.id }}</div>
+            </div>
+            <button class="pcc-clear" (click)="resetPaymentForm()">✕</button>
+          </div>
+
+          <!-- Step 2 — Payment form -->
+          <div class="pay-section-title" style="margin-top:1.5rem">
+            <span class="pay-step">2</span> Payment details
+          </div>
+
+          <div class="pay-form-grid">
+            <div class="pay-field">
+              <label class="pay-label">Amount paid (TND) *</label>
+              <input class="pay-input" type="number" min="0" step="0.01" placeholder="0.00" [(ngModel)]="paymentForm.amountPaid" [disabled]="!selectedClient"/>
+            </div>
+            <div class="pay-field">
+              <label class="pay-label">Payment date *</label>
+              <input class="pay-input" type="datetime-local" [(ngModel)]="paymentForm.paymentDate" [disabled]="!selectedClient"/>
+            </div>
+            <div class="pay-field">
+              <label class="pay-label">Payment method *</label>
+              <select class="pay-input" [(ngModel)]="paymentForm.paymentMethod" [disabled]="!selectedClient">
+                <option value="">-- Select --</option>
+                <option value="D17">D17</option>
+                <option value="CARD">Bank Card</option>
+                <option value="CASH_AGENT">Cash (Agent)</option>
+                <option value="CASH_IMF">Cash (IMF)</option>
+              </select>
+            </div>
+            <div class="pay-field">
+              <label class="pay-label">Status *</label>
+              <select class="pay-input" [(ngModel)]="paymentForm.paymentStatus" [disabled]="!selectedClient">
+                <option value="">-- Select --</option>
+                <option value="DONE">Paid</option>
+                <option value="PENDING">Pending</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+            </div>
+            <div class="pay-field">
+              <label class="pay-label">Delinquency Case ID</label>
+              <input class="pay-input" type="number" min="1" placeholder="Optionnel" [(ngModel)]="paymentForm.delinquencyCaseId" [disabled]="!selectedClient"/>
+            </div>
+            <div class="pay-field">
+              <label class="pay-label">Recovery Action ID</label>
+              <input class="pay-input" type="number" min="1" placeholder="Optionnel" [(ngModel)]="paymentForm.recoveryActionId" [disabled]="!selectedClient"/>
+            </div>
+          </div>
+
+          <!-- Error / Success -->
+          <div class="pay-error" *ngIf="paymentError">{{ paymentError }}</div>
+          <div class="pay-success" *ngIf="paymentSuccess">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Payment recorded successfully.
+          </div>
+
+          <button
+            class="cfm-btn cfm-btn-primary pay-submit"
+            (click)="submitPayment()"
+            [disabled]="paymentLoading || !selectedClient"
+          >
+            <svg *ngIf="!paymentLoading" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            {{ paymentLoading ? 'Recording…' : 'Record Payment' }}
+          </button>
+        </div>
+
+        <!-- RIGHT: Recent payments -->
+        <div class="pay-recent-card">
+          <div class="pay-section-title">
+            <span class="pay-step" style="background:var(--fx-blue-soft);color:var(--fx-blue)">↺</span>
+            Recent Payments (Session)
+          </div>
+          <div *ngIf="recentPayments.length === 0" class="pay-empty">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>No payment recorded in this session</span>
+          </div>
+          <div class="pay-recent-list">
+            <div class="pay-recent-item" *ngFor="let p of recentPayments">
+              <div class="pri-left">
+                <div class="pri-ref">#{{ p.id }}</div>
+                <div class="pri-meta">{{ p.paymentMethod }} · {{ p.paymentDate | date:'dd/MM/yyyy HH:mm' }}</div>
+              </div>
+              <div class="pri-right">
+                <span class="pri-amount">{{ p.amountPaid | number:'1.2-2' }} TND</span>
+                <span class="pri-badge"
+                  [style.background]="p.paymentStatus === 'DONE' ? 'rgba(16,185,129,.12)' : p.paymentStatus === 'PENDING' ? 'rgba(245,158,11,.12)' : 'rgba(239,68,68,.12)'"
+                  [style.color]="p.paymentStatus === 'DONE' ? '#10b981' : p.paymentStatus === 'PENDING' ? '#f59e0b' : '#ef4444'"
+                >{{ p.paymentStatus }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+
     <!-- Placeholder for other pages -->
-    <ng-container *ngIf="selectedPage !== 'dashboard'">
+    <ng-container *ngIf="selectedPage !== 'dashboard' && selectedPage !== 'remboursements'">
       <div class="cfm-page-head">
         <div>
           <div class="cfm-ph-eyebrow">CAPITAL FLOW MONITOR</div>
@@ -758,9 +830,5 @@
   </div>
 
   <!-- ── FOOTER ── -->
-  <footer class="cfm-footer">
-    <span>FIN'IX Capital Monitor</span>
-    <span>Back-Office · Agence Tunis Central</span>
-    <span>v2.4.1 · build 2026.03</span>
-  </footer>
+  
 </div>

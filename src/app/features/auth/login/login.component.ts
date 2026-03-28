@@ -55,69 +55,68 @@ export class LoginComponent {
 
   ROLES: Record<string, RoleConfig> = {
     agent: {
-      label: 'Agent IMF',
+      label: 'IMF Agent',
       color: '#1F6FEA',
       colorRgb: '31,111,234',
       gradStart: '#EAF2FF',
       gradEnd: '#5B8DEF',
-      tagTxt: 'Espace Agent IMF',
+      tagTxt: 'IMF Agent space',
       iconBg: 'rgba(31,111,234,.18)',
       iconShadow: 'rgba(31,111,234,.28)',
       icon: `<svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#EAF2FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
-      h1: 'Gérez vos\ndossiers\nclients.',
-      desc: 'Traitez les demandes de crédit, suivez les remboursements et accompagnez vos clients à chaque étape.',
-      features: ['Dossiers clients', 'Demandes crédit', 'Suivi remboursements', 'Relances auto'],
-      ctaTxt: "Continuer en tant qu'Agent ",
-      sucTitle: 'Bienvenue, Agent IMF !',
-      sucSub: 'Votre espace est prêt. Consultez vos dossiers assignés.',
-      f1: 'Tableau de bord agents',
-      f2: 'Gestion des dossiers clients',
-      f3: 'Suivi des crédits en cours',
-      cta: "Accéder à l'espace Agent",
+      h1: 'Manage your\nclient\nfiles.',
+      desc: 'Process loan requests, track repayments, and support your clients at every step.',
+      features: ['Client files', 'Loan requests', 'Repayment tracking', 'Auto reminders'],
+      ctaTxt: 'Continue as Agent',
+      sucTitle: 'Welcome, IMF Agent !',
+      sucSub: 'Your space is ready. Check your assigned files.',
+      f1: 'Agents dashboard',
+      f2: 'Client files management',
+      f3: 'Tracking of ongoing credits',
+      cta: 'Access the Agent space',
     },
     insurer: {
-      label: 'Assureur',
+      label: 'Insureur',
       color: '#2ECC71',
       colorRgb: '46,204,113',
       gradStart: '#F0FDF4',
       gradEnd: '#2ECC71',
-      tagTxt: 'Espace Assureur',
+      tagTxt: 'Insureur space',
       iconBg: 'rgba(46,204,113,.18)',
       iconShadow: 'rgba(46,204,113,.25)',
       icon: `<svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#F0FDF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-      h1: "Gérez vos\ncontrats\nd'assurance.",
-      desc: "Créez et suivez les polices d'assurance, traitez les sinistres et gérez les renouvellements de vos clients.",
-      features: ['Polices actives', 'Sinistres', 'Renouvellements', 'Rapports'],
-      ctaTxt: "Continuer en tant qu'Assureur ",
-      sucTitle: 'Bienvenue, Assureur !',
-      sucSub: 'Votre espace est prêt. Consultez vos contrats et polices.',
-      f1: 'Tableau de bord assureur',
-      f2: 'Gestion des contrats actifs',
-      f3: 'Traitement des sinistres',
-      cta: "Accéder à l'espace Assureur",
+      h1: 'Manage your\ninsurance\ncontracts.',
+      desc: 'Create and track insurance policies, process claims, and manage renewals for your clients.',
+      features: ['Active policies', 'Claims', 'Renewals', 'Reports'],
+      ctaTxt: 'Continue as Insurer ',
+      sucTitle: 'Welcome, Insurer !',
+      sucSub: 'Your space is ready. Check your contracts and policies.',
+      f1: 'Insurer dashboard',
+      f2: 'Active policies management',
+      f3: 'Claims processing',
+      cta: 'Access the Insurer space',
     },
     admin: {
-      label: 'Admin IMF',
+      label: 'IMF Admin',
       color: '#F5A623',
       colorRgb: '245,166,35',
       gradStart: '#FFFBEB',
       gradEnd: '#F5A623',
-      tagTxt: 'Console Admin IMF',
+      tagTxt: 'IMF Admin Console',
       iconBg: 'rgba(245,166,35,.18)',
       iconShadow: 'rgba(245,166,35,.25)',
       icon: `<svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#FFFBEB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
-      h1: "Administrez\nl'ensemble\nde FIN'IX.",
-      desc: "Créez des comptes, attribuez des rôles, paramétrez le système et consultez les rapports d'activité.",
-      features: ['Gestion users', 'Rôles & accès', 'Paramètres', 'Rapports'],
-      ctaTxt: "Continuer en tant qu'Admin ",
-      sucTitle: 'Bienvenue, Administrateur !',
-      sucSub: "Console d'administration prête. Gérez les utilisateurs et paramètres.",
-      f1: "Console d'administration",
-      f2: 'Gestion des utilisateurs & rôles',
-      f3: 'Rapports & paramétrage',
-      cta: 'Accéder à la console Admin',
+      h1: "Manage the entire\nFIN'IX\nplatform.",
+      desc: 'Create accounts, assign roles, configure the system, and view activity reports.',
+      features: ['User Management', 'Roles & Access', 'Settings', 'Reports'],
+      ctaTxt: 'Continue as Admin ',
+      sucTitle: 'Welcome, Administrator !',
+      sucSub: 'Admin console is ready. Manage users and settings.',
+      f1: 'Admin dashboard',
+      f2: 'User Management',
+      f3: 'Reports & Configuration',
+      cta: 'Access the Admin Console',
     },
-    
   };
 
   get cfg(): RoleConfig | null {
@@ -245,7 +244,11 @@ export class LoginComponent {
   }
 
   pwVisible = false;
-  constructor(private router: Router, private authService: AuthService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   selectRole(role: string): void {
     this.currentRole = role;
@@ -365,7 +368,11 @@ export class LoginComponent {
           localStorage.removeItem('finix_role');
           localStorage.removeItem('currentUser');
           const roleLabels: Record<string, string> = {
-            admin: 'Administrateur', agent: 'Agent IMF', insurer: 'Assureur', client: 'Client', seller: 'Vendeur'
+            admin: 'Administrateur',
+            agent: 'Agent IMF',
+            insurer: 'Assureur',
+            client: 'Client',
+            seller: 'Vendeur',
           };
           const actualLabel = roleLabels[actualRole || ''] || actualRole;
           const selectedLabel = roleLabels[selectedRole || ''] || selectedRole;

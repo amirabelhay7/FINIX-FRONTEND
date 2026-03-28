@@ -1,132 +1,494 @@
 <div class="page-body">
+
+  <!-- ── Page header ── -->
   <div class="ph s1">
     <div>
-      <div class="ph-eyebrow">Remboursements</div>
-      <div class="ph-title">Échéancier de paiement</div>
-      <div class="ph-desc">Gérez vos échéances mensuelles en toute sérénité</div>
-    </div>
-    <div class="ph-actions">
-      <button class="btn btn-outline">📅 Planifier</button>
-      <button class="btn btn-success">💸 Effectuer un paiement</button>
+      <div class="ph-eyebrow">Repayment</div>
+      <div class="ph-title">Track your payments</div>
+      <div class="ph-desc">Pay each due date and view your payment history</div>
     </div>
   </div>
 
+  <!-- ── Summary cards ── -->
   <div class="repay-summary s2">
     <div class="repay-card">
-      <div class="rc-icon" style="background:var(--fx-warning-soft);">⚠️</div>
-      <div class="rc-val" style="color:var(--warning);">850 TND</div>
-      <div class="rc-lbl">Prochaine échéance</div>
-      <div class="rc-note">📅 Due le 05 Mars 2026 — Dans 5 jours</div>
+      <div class="rc-icon" style="background:var(--fx-warning-soft);"></div>
+      <ng-container *ngIf="nextDueInstallment; else noNext">
+        <div class="rc-val" style="color:var(--warning);">{{ nextDueInstallment.mensualite | number:'1.0-0' }} TND</div>
+        <div class="rc-lbl">Next due date</div>
+        <div class="rc-note">Due on {{ nextDueInstallment.date }}</div>
+      </ng-container>
+      <ng-template #noNext>
+        <div class="rc-val" style="color:var(--success);">—</div>
+        <div class="rc-lbl">Next due date</div>
+        <div class="rc-note">No upcoming due dates</div>
+      </ng-template>
     </div>
+
     <div class="repay-card">
-      <div class="rc-icon" style="background:var(--fx-success-soft);">✅</div>
-      <div class="rc-val" style="color:var(--success);">1 270 TND</div>
-      <div class="rc-lbl">Derniers paiements</div>
-      <div class="rc-note">✓ Payé en Février 2026 · À temps</div>
+      <div class="rc-icon" style="background:var(--fx-success-soft);"></div>
+      <ng-container *ngIf="lastPayment; else noPaid">
+        <div class="rc-val" style="color:var(--success);">{{ lastPayment.amountPaid | number:'1.0-0' }} TND</div>
+        <div class="rc-lbl">Last payment</div>
+        <div class="rc-note">✓ Installment #{{ lastPayment.installmentNumber }}</div>
+      </ng-container>
+      <ng-template #noPaid>
+        <div class="rc-val">—</div>
+        <div class="rc-lbl">Last payment</div>
+        <div class="rc-note">No payments recorded</div>
+      </ng-template>
     </div>
+
     <div class="repay-card">
-      <div class="rc-icon" style="background:var(--soft);">📊</div>
-      <div class="rc-val">18 200 TND</div>
-      <div class="rc-lbl">Total remboursé</div>
-      <div class="rc-note">74% de l'encours total remboursé</div>
+      <div class="rc-icon" style="background:var(--soft);"></div>
+      <div class="rc-val">{{ totalPaid | number:'1.0-0' }} TND</div>
+      <div class="rc-lbl">Total paid</div>
+      <div class="rc-note">{{ totalPaidPercent | number:'1.0-0' }}% of the total amount</div>
     </div>
   </div>
 
-  <!-- Calendar strip -->
-  <div class="calendar-strip s3">
-    <div class="calendar-title"><span class="ptdot"></span>Calendrier des échéances — 2026</div>
-    <div class="cal-months">
-      <div class="cal-month paid">
-        <div class="cal-m">Jan</div>
-        <div class="cal-a">1 150</div>
-        <div class="cal-s cs-paid">✓ Payé</div>
+  <!-- ── Ticket du mois en cours ── -->
+  <div class="s3">
+    <div class="section-header">
+      <span class="ptdot"></span>
+      <span class="section-title-text">Due date for the current month</span>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="ticket-placeholder">
+      Loading the contract…
+    </div>
+
+    <!-- No contract -->
+    <div *ngIf="!isLoading && !contract" class="ticket-placeholder">
+      No active loan contract.
+    </div>
+
+    <!-- No installment (toutes remboursées) -->
+    <div *ngIf="!isLoading && contract && !currentInstallment && amortizationRows.length > 0" class="ticket-placeholder ticket-done">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/></svg>
+      All your installments have been paid. Congratulations!
+    </div>
+    <!-- Calcul en cours -->
+    <div *ngIf="!isLoading && contract && amortizationRows.length === 0" class="ticket-placeholder">
+      Amortization schedule calculation failed — please check the contract data.
+    </div>
+
+    <!-- Ticket card -->
+    <div
+      *ngIf="!isLoading && contract && currentInstallment"
+      class="installment-ticket"
+      [class.ticket-is-paid]="currentInstallmentPaid"
+    >
+      <div class="ticket-accent-bar"></div>
+
+      <div class="ticket-inner">
+        <!-- Left: info -->
+        <div class="ticket-info">
+          <div class="ticket-num">Installment #{{ currentInstallment.num }}</div>
+          <div class="ticket-month-label">
+            {{ getMonthName(currentInstallment.dateObj) }} {{ currentInstallment.dateObj.getFullYear() }}
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-meta-label">Due date</span>
+            <span class="ticket-meta-val">{{ currentInstallment.date }}</span>
+          </div>
+          <div class="ticket-progress-wrap">
+            <div class="ticket-progress-bar">
+              <div
+                class="ticket-progress-fill"
+                [style.width.%]="(currentInstallment.num / amortizationRows.length) * 100"
+              ></div>
+            </div>
+            <span class="ticket-progress-label">
+              {{ currentInstallment.num }} / {{ amortizationRows.length }} mensualités
+            </span>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="ticket-divider"></div>
+
+        <!-- Right: amount + action -->
+        <div class="ticket-action">
+          <div class="ticket-amount-wrap">
+            <div class="ticket-amount">{{ currentInstallment.mensualite | number:'1.2-2' }}</div>
+            <div class="ticket-currency">TND</div>
+          </div>
+
+          <ng-container *ngIf="currentInstallmentPaid; else unpaidAction">
+            <span class="badge-ticket-paid">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Payé
+            </span>
+          </ng-container>
+
+          <ng-template #unpaidAction>
+            <button
+              class="btn-pay-ticket"
+              (click)="openStripeModal()"
+              [disabled]="stripeLoadingIntent"
+            >
+              <ng-container *ngIf="stripeLoadingIntent">
+                <span class="pay-spinner"></span> Initializing...
+              </ng-container>
+              <ng-container *ngIf="!stripeLoadingIntent">
+                <!-- Icône carte bancaire -->
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+                Pay by card
+              </ng-container>
+            </button>
+          </ng-template>
+
+        </div>
       </div>
-      <div class="cal-month paid">
-        <div class="cal-m">Fév</div>
-        <div class="cal-a">1 270</div>
-        <div class="cal-s cs-paid">✓ Payé</div>
-      </div>
-      <div class="cal-month due">
-        <div class="cal-m">Mar</div>
-        <div class="cal-a">850</div>
-        <div class="cal-s cs-due">⚠ J-5</div>
-      </div>
-      <div class="cal-month future">
-        <div class="cal-m">Avr</div>
-        <div class="cal-a">1 270</div>
-        <div class="cal-s cs-next">→ À venir</div>
-      </div>
-      <div class="cal-month future">
-        <div class="cal-m">Mai</div>
-        <div class="cal-a">1 270</div>
-        <div class="cal-s cs-next">→ À venir</div>
-      </div>
-      <div class="cal-month future">
-        <div class="cal-m">Jun</div>
-        <div class="cal-a">1 270</div>
-        <div class="cal-s cs-next">→ À venir</div>
+    </div>
+
+    <!-- Tracker calendar (expandable) -->
+    <div class="tracker-row" *ngIf="!isLoading && contract">
+      <div class="cal-month cm-tracker" [class.cm-tracker-expanded]="calExpanded">
+
+        <!-- Collapsed -->
+        <ng-container *ngIf="!calExpanded">
+          <div class="cal-bar" style="background:linear-gradient(90deg,#22c55e,#3b82f6)"></div>
+          <div class="tracker-collapsed-body">
+            <div class="tracker-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div class="cal-month-name">Complete Tracking</div>
+            <div class="cal-year">All your payments</div>
+            <div class="tracker-badges">
+              <span class="cs-badge cs-green">{{ paymentHistory.length }} paid</span>
+              <span class="cs-badge cs-future">{{ amortizationRows.length - paymentHistory.length }} upcoming</span>
+            </div>
+            <button class="tracker-expand-btn" (click)="calExpanded = true">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+              </svg>
+              View Calendar
+            </button>
+          </div>
+        </ng-container>
+
+        <!-- Expanded -->
+        <ng-container *ngIf="calExpanded">
+          <div class="tc-header">
+            <button class="tc-nav" (click)="prevCalMonth()">‹</button>
+            <div class="tc-title">{{ monthNames[calViewMonth] }} {{ calViewYear }}</div>
+            <button class="tc-nav" (click)="nextCalMonth()">›</button>
+            <button class="tc-close" (click)="calExpanded = false">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div class="tc-weekdays">
+            <div *ngFor="let wd of weekDays" class="tc-wd">{{ wd }}</div>
+          </div>
+          <div class="tc-grid">
+            <ng-container *ngFor="let week of getCalGrid()">
+              <div
+                *ngFor="let cell of week"
+                class="tc-cell"
+                [class.tc-out]="!cell.inMonth"
+                [class.tc-ontime]="cell.status === 'ontime'"
+                [class.tc-tolerance]="cell.status === 'tolerance'"
+                [class.tc-late]="cell.status === 'late'"
+                [class.tc-due-today]="cell.status === 'due-today'"
+                [class.tc-future-due]="cell.status === 'future-due'"
+                [class.tc-past-unpaid]="cell.status === 'past-unpaid'"
+                [class.tc-tzone]="cell.status === 'tolerance-zone'"
+              >{{ cell.day }}</div>
+            </ng-container>
+          </div>
+          <div class="tc-legend">
+            <span class="tcl-item"><span class="tcl-dot tcd-green"></span>On Time</span>
+            <span class="tcl-item"><span class="tcl-dot tcd-orange"></span>Tolerance</span>
+            <span class="tcl-item"><span class="tcl-dot tcd-red"></span>Late</span>
+            <span class="tcl-item"><span class="tcl-dot tcd-blue"></span>Due Today</span>
+            <span class="tcl-item"><span class="tcl-dot tcd-future"></span>Future Due</span>
+            <span class="tcl-item"><span class="tcl-dot tcd-past"></span>Past Unpaid</span>
+          </div>
+        </ng-container>
+
       </div>
     </div>
   </div>
 
-  <!-- Table -->
+  <!-- ── Tabbed Panel ── -->
   <div class="panel s4">
     <div class="panel-head">
-      <div class="panel-title"><span class="ptdot"></span>Historique des paiements</div>
-      <button class="btn btn-ghost btn-sm">Tout l'historique →</button>
+      <div class="tab-bar">
+        <button class="tab-btn" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
+          Payment History
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'amortization'" (click)="activeTab = 'amortization'">
+          Amortization Table
+        </button>
+      </div>
+      <button class="btn btn-ghost btn-sm" *ngIf="activeTab === 'amortization'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export PDF
+      </button>
     </div>
-    <div class="tbl-wrap">
-      <table>
+
+    <!-- Payment History -->
+    <div class="tbl-wrap" *ngIf="activeTab === 'history'">
+      <div *ngIf="historyLoading" class="tbl-loading">Loading payment history…</div>
+      <table *ngIf="!historyLoading">
         <thead>
           <tr>
-            <th>Référence</th>
-            <th>Crédit</th>
-            <th>Montant</th>
-            <th>Date</th>
-            <th>Mode</th>
-            <th>Statut</th>
-            <th></th>
+            <th>Reference</th>
+            <th>Installment</th>
+            <th>Amount</th>
+            <th>Payment Date</th>
+            <th>Method</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><span class="td-ref">#PAY-2026-028</span></td>
-            <td><div class="td-primary">Crédit Auto #001</div></td>
-            <td><span class="td-amount">260 TND</span></td>
-            <td>28 Fév 2026</td>
-            <td>Virement</td>
-            <td><span class="badge b-paid">Payé</span></td>
-            <td><button class="btn btn-ghost btn-xs">Reçu</button></td>
+          <tr *ngIf="paymentHistory.length === 0">
+            <td colspan="6" class="td-empty">No payments made.</td>
           </tr>
-          <tr>
-            <td><span class="td-ref">#PAY-2026-027</span></td>
-            <td><div class="td-primary">Consommation #018</div></td>
-            <td><span class="td-amount">310 TND</span></td>
-            <td>28 Fév 2026</td>
-            <td>Prélèvement</td>
-            <td><span class="badge b-paid">Payé</span></td>
-            <td><button class="btn btn-ghost btn-xs">Reçu</button></td>
-          </tr>
-          <tr>
-            <td><span class="td-ref">#PAY-2026-015</span></td>
-            <td><div class="td-primary">Crédit Auto #001</div></td>
-            <td><span class="td-amount">260 TND</span></td>
-            <td>31 Jan 2026</td>
-            <td>Virement</td>
-            <td><span class="badge b-paid">Payé</span></td>
-            <td><button class="btn btn-ghost btn-xs">Reçu</button></td>
-          </tr>
-          <tr>
-            <td><span class="td-ref">#PAY-2026-001</span></td>
-            <td><div class="td-primary">Consommation #018</div></td>
-            <td><span class="td-amount">310 TND</span></td>
-            <td>31 Jan 2026</td>
-            <td>Prélèvement</td>
-            <td><span class="badge b-paid">Payé</span></td>
-            <td><button class="btn btn-ghost btn-xs">Reçu</button></td>
+          <tr *ngFor="let p of paymentHistory">
+            <td><span class="td-ref">#PAY-{{ p.id }}</span></td>
+            <td>
+              <div class="td-primary">Installment #{{ p.installmentNumber }}</div>
+              <div class="td-sub" *ngIf="p.numeroContrat">{{ p.numeroContrat }}</div>
+            </td>
+            <td><span class="td-amount">{{ p.amountPaid | number:'1.2-2' }} TND</span></td>
+            <td>{{ p.paymentDate | date:'dd MMM yyyy' }}</td>
+            <td>{{ p.paymentMethod }}</td>
+            <td>
+              <span class="badge"
+                [class.b-paid]="getPaymentTiming(p) === 'ontime'"
+                [class.b-tolerance]="getPaymentTiming(p) === 'tolerance'"
+                [class.b-late]="getPaymentTiming(p) === 'late'">
+                {{ getPaymentTiming(p) === 'ontime' ? 'À temps' : getPaymentTiming(p) === 'tolerance' ? 'Tolérance' : 'En retard' }}
+              </span>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <!-- Tableau d'amortissement -->
+    <div *ngIf="activeTab === 'amortization'">
+      <div *ngIf="contract" class="amort-summary">
+        <div class="amort-kpi">
+          <div class="amort-kpi-label">Capital borrowed</div>
+          <div class="amort-kpi-val">{{ contract.montantTotalRembourse | number:'1.0-0' }} TND</div>
+        </div>
+        <div class="amort-kpi">
+          <div class="amort-kpi-label">Installment</div>
+          <div class="amort-kpi-val" style="color:var(--blue)">{{ mensualite | number:'1.2-2' }} TND</div>
+        </div>
+        <div class="amort-kpi">
+          <div class="amort-kpi-label">Annual Rate</div>
+          <div class="amort-kpi-val">{{ contract.tauxInteret }}%</div>
+        </div>
+        <div class="amort-kpi">
+          <div class="amort-kpi-label">Duration</div>
+          <div class="amort-kpi-val">{{ contract.dureeMois }} months</div>
+        </div>
+      </div>
+
+      <div *ngIf="isLoading" style="text-align:center;padding:2rem;color:var(--muted)">
+        Loading…
+      </div>
+      <div *ngIf="!isLoading && !contract" style="text-align:center;padding:2rem;color:var(--muted)">
+        No active contract.
+      </div>
+
+      <div class="tbl-wrap" *ngIf="!isLoading && contract">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Installment</th>
+              <th>Interests</th>
+              <th>Remaining Capital</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let row of amortizationRows"
+              [class.row-paid]="isRowPaid(row.num)"
+            >
+              <td><span class="td-ref">#{{ row.num }}</span></td>
+              <td>{{ row.date }}</td>
+              <td><span class="td-amount">{{ row.mensualite | number:'1.2-2' }} TND</span></td>
+              <td class="td-interest">{{ row.interet | number:'1.2-2' }} TND</td>
+              <td><span class="td-amount">{{ row.restant | number:'1.2-2' }} TND</span></td>
+              <td>
+                <span
+                  class="badge"
+                  [class.b-paid]="isRowPaid(row.num)"
+                  [class.b-pending]="!isRowPaid(row.num)"
+                >
+                  {{ isRowPaid(row.num) ? 'Paid' : 'Pending' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     Modal Stripe — Paiement sécurisé par carte
+     ════════════════════════════════════════════════════ -->
+<div class="stripe-overlay" *ngIf="stripeModalOpen" (click)="closeStripeModal()">
+  <div class="stripe-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="stripe-modal-head">
+      <div class="stripe-modal-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        Paiement sécurisé
+      </div>
+      <button class="stripe-modal-close" (click)="closeStripeModal()" [disabled]="stripePaymentLoading">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Récapitulatif montant -->
+    <div class="stripe-recap">
+      <div class="stripe-recap-label">Installment #{{ currentInstallment?.num }}</div>
+      <div class="stripe-recap-amount">
+        {{ currentInstallment?.mensualite | number:'1.2-2' }}
+        <span class="stripe-recap-currency">TND</span>
+      </div>
+      <div class="stripe-recap-date">Due Date: {{ currentInstallment?.date }}</div>
+    </div>
+
+    <!-- ─── Étape 1 : Confirmation ─── -->
+    <ng-container *ngIf="stripeStep === 'confirm'">
+      <div class="stripe-confirm-body">
+        <div class="stripe-confirm-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <p class="stripe-confirm-text">
+          Do you want to confirm the payment of<br>
+          <strong>{{ currentInstallment?.mensualite | number:'1.2-2' }} TND</strong>
+          for the installment <strong>#{{ currentInstallment?.num }}</strong> ?
+        </p>
+        <div *ngIf="stripeError" class="stripe-err-msg" style="margin:0 0 .5rem">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          {{ stripeError }}
+        </div>
+        <div class="stripe-confirm-actions">
+          <button class="stripe-cancel-btn" (click)="closeStripeModal()">Annuler</button>
+          <button class="stripe-yes-btn" (click)="initStripePayment()">
+             Yes, pay by card
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ─── Étape 2 : Initialisation (spinner) ─── -->
+    <ng-container *ngIf="stripeStep === 'processing'">
+      <div class="stripe-processing-body">
+        <span class="stripe-spin-lg"></span>
+        <p>Initializing secure payment…</p>
+      </div>
+    </ng-container>
+
+    <!-- ─── Étape 3 : Formulaire carte ─── -->
+    <ng-container *ngIf="stripeStep === 'card'">
+      <div class="stripe-field-label">Bank Card Information</div>
+
+      <div id="stripe-card-element" class="stripe-card-el">
+        <ng-container *ngIf="!stripeReady">
+          <div class="stripe-card-loading">
+            <span class="pay-spinner"></span> Loading form...
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="stripe-err-msg" *ngIf="stripeError">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        {{ stripeError }}
+      </div>
+
+      <button
+        class="stripe-confirm-btn"
+        (click)="confirmStripePayment()"
+        [disabled]="stripePaymentLoading || !stripeReady"
+      >
+        <ng-container *ngIf="stripePaymentLoading">
+          <span class="pay-spinner"></span> Processing...
+        </ng-container>
+        <ng-container *ngIf="!stripePaymentLoading">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Confirm — {{ currentInstallment?.mensualite | number:'1.2-2' }} TND
+        </ng-container>
+      </button>
+
+      <div class="stripe-footer">
+        <div class="stripe-cards">
+          <span class="card-chip visa">VISA</span>
+          <span class="card-chip mc">MC</span>
+          
+        </div>
+        <div class="stripe-powered-by">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          Secured by Stripe
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ─── Étape 4 : Succès ─── -->
+    <ng-container *ngIf="stripeStep === 'success'">
+      <div class="stripe-success-body">
+        <div class="stripe-success-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="stripe-success-title">Payment confirmed</div>
+        <div class="stripe-success-sub">Your installment has been successfully recorded.</div>
+      </div>
+    </ng-container>
+
   </div>
 </div>

@@ -186,6 +186,7 @@ export class AuthService {
     if (err.status === 401) message = 'Identifiants incorrects.';
     else if (err.status === 400) message = err.error?.message || 'Requête invalide.';
     else if (err.status === 403) message = 'Accès refusé.';
+    else if (err.status === 500) message = err.error?.message || 'Erreur serveur. Veuillez réessayer.';
     else if (err.status === 0) message = 'Serveur injoignable.';
     return throwError(() => new Error(message));
   }
