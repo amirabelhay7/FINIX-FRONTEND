@@ -1,0 +1,238 @@
+<div class="analytics-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
+        <p class="text-gray-600 mt-1">Real-time insights into your financial operations</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <select 
+          [(ngModel)]="selectedDays" 
+          (change)="onDaysChange()"
+          class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+          <option *ngFor="let days of dayOptions" [value]="days">{{ days }} days</option>
+        </select>
+        <button (click)="loadAllData()" class="btn btn-primary">
+          <span class="material-symbols-outlined text-[18px]">refresh</span>
+          Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex items-center justify-center h-64">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+    <span class="ml-3 text-gray-600">Loading analytics...</span>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+    <div class="flex items-center">
+      <span class="material-symbols-outlined text-red-500 mr-2">error</span>
+      <span class="text-red-700">{{ error }}</span>
+    </div>
+  </div>
+
+  <!-- Main Dashboard Content -->
+  <div *ngIf="!loading && !error" class="dashboard-content space-y-6">
+    
+    <!-- Key Metrics Cards -->
+    <div class="metrics-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Treasury Balance -->
+      <div class="metric-card bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-6 rounded-xl">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-indigo-100 text-sm font-medium">Treasury Balance</p>
+            <p class="text-2xl font-bold mt-2">{{ formatCurrency(dashboardData.treasuryBalance || 0) }}</p>
+            <p class="text-indigo-100 text-xs mt-1">{{ dashboardData.treasuryAccountNumber }}</p>
+          </div>
+          <span class="material-symbols-outlined text-3xl text-indigo-200">account_balance</span>
+        </div>
+      </div>
+
+      <!-- Total Wallets -->
+      <div class="metric-card bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-green-100 text-sm font-medium">Total Wallets</p>
+            <p class="text-2xl font-bold mt-2">{{ formatNumber(dashboardData.totalWallets || 0) }}</p>
+            <p class="text-green-100 text-xs mt-1">{{ dashboardData.activeWallets || 0 }} active</p>
+          </div>
+          <span class="material-symbols-outlined text-3xl text-green-200">wallet</span>
+        </div>
+      </div>
+
+      <!-- Weekly Transaction Volume -->
+      <div class="metric-card bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-blue-100 text-sm font-medium">Weekly Volume</p>
+            <p class="text-2xl font-bold mt-2">{{ formatCurrency(dashboardData.weeklyTransactionVolume || 0) }}</p>
+            <p class="text-blue-100 text-xs mt-1">{{ dashboardData.weeklyTransactionCount || 0 }} transactions</p>
+          </div>
+          <span class="material-symbols-outlined text-3xl text-blue-200">trending_up</span>
+        </div>
+      </div>
+
+      <!-- Average Transaction Size -->
+      <div class="metric-card bg-gradient-to-br from-amber-500 to-amber-600 text-white p-6 rounded-xl">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-amber-100 text-sm font-medium">Avg Transaction</p>
+            <p class="text-2xl font-bold mt-2">{{ formatCurrency(dashboardData.averageTransactionSize || 0) }}</p>
+            <p class="text-amber-100 text-xs mt-1">Per transaction</p>
+          </div>
+          <span class="material-symbols-outlined text-3xl text-amber-200">payments</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <!-- Treasury Balance Trend -->
+      <div class="chart-card bg-white p-6 rounded-xl border border-gray-200">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-900">Treasury Balance Trend</h3>
+          <span class="material-symbols-outlined text-gray-400">show_chart</span>
+        </div>
+        <div class="chart-container">
+          <apxchart 
+            [series]="treasuryChartOptions.series"
+            [chart]="treasuryChartOptions.chart"
+            [dataLabels]="treasuryChartOptions.dataLabels"
+            [stroke]="treasuryChartOptions.stroke"
+            [fill]="treasuryChartOptions.fill"
+            [xaxis]="treasuryChartOptions.xaxis"
+            [yaxis]="treasuryChartOptions.yaxis"
+            [tooltip]="treasuryChartOptions.tooltip"
+            [colors]="treasuryChartOptions.colors"
+            height="350">
+          </apxchart>
+        </div>
+      </div>
+
+      <!-- Wallet Status Distribution -->
+      <div class="chart-card bg-white p-6 rounded-xl border border-gray-200">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-900">Wallet Status</h3>
+          <span class="material-symbols-outlined text-gray-400">pie_chart</span>
+        </div>
+        <div class="chart-container">
+          <apxchart 
+            [series]="walletChartOptions.series"
+            [chart]="walletChartOptions.chart"
+            [labels]="walletChartOptions.labels"
+            [colors]="walletChartOptions.colors"
+            [plotOptions]="walletChartOptions.plotOptions"
+            [dataLabels]="walletChartOptions.dataLabels"
+            [legend]="walletChartOptions.legend"
+            height="300">
+          </apxchart>
+        </div>
+        <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+            <span class="text-gray-600">Active: {{ walletStats.activeWallets || 0 }}</span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+            <span class="text-gray-600">Inactive: {{ walletStats.inactiveWallets || 0 }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction Volume Chart -->
+    <div class="chart-card bg-white p-6 rounded-xl border border-gray-200">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Transaction Volume by Type</h3>
+        <span class="material-symbols-outlined text-gray-400">bar_chart</span>
+      </div>
+      <div class="chart-container">
+        <apxchart 
+          [series]="volumeChartOptions.series"
+          [chart]="volumeChartOptions.chart"
+          [plotOptions]="volumeChartOptions.plotOptions"
+          [xaxis]="volumeChartOptions.xaxis"
+          [yaxis]="volumeChartOptions.yaxis"
+          [tooltip]="volumeChartOptions.tooltip"
+          [colors]="volumeChartOptions.colors"
+          height="350">
+        </apxchart>
+      </div>
+    </div>
+
+    <!-- Additional Statistics -->
+    <div class="stats-grid grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Balance Statistics -->
+      <div class="stat-card bg-white p-6 rounded-xl border border-gray-200">
+        <div class="flex items-center mb-4">
+          <span class="material-symbols-outlined text-indigo-500 mr-2">account_balance_wallet</span>
+          <h3 class="text-lg font-semibold text-gray-900">Balance Statistics</h3>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Total Balance</span>
+            <span class="font-medium">{{ formatCurrency(walletStats.totalBalance || 0) }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Average Balance</span>
+            <span class="font-medium">{{ formatCurrency(walletStats.averageBalance || 0) }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Highest Balance</span>
+            <span class="font-medium">{{ formatCurrency(walletStats.maxBalance || 0) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Limit Coverage -->
+      <div class="stat-card bg-white p-6 rounded-xl border border-gray-200">
+        <div class="flex items-center mb-4">
+          <span class="material-symbols-outlined text-green-500 mr-2">security</span>
+          <h3 class="text-lg font-semibold text-gray-900">Limit Coverage</h3>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Daily Limits</span>
+            <span class="font-medium">{{ walletStats.walletsWithDailyLimits || 0 }} wallets</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Monthly Limits</span>
+            <span class="font-medium">{{ walletStats.walletsWithMonthlyLimits || 0 }} wallets</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Transaction Limits</span>
+            <span class="font-medium">{{ walletStats.walletsWithTransactionLimits || 0 }} wallets</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Health -->
+      <div class="stat-card bg-white p-6 rounded-xl border border-gray-200">
+        <div class="flex items-center mb-4">
+          <span class="material-symbols-outlined text-blue-500 mr-2">monitoring</span>
+          <h3 class="text-lg font-semibold text-gray-900">System Health</h3>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Wallets with Limits</span>
+            <span class="font-medium">{{ dashboardData.walletsWithLimits || 0 }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Wallets without Limits</span>
+            <span class="font-medium text-orange-600">{{ dashboardData.walletsWithoutLimits || 0 }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">System Status</span>
+            <span class="font-medium text-green-600">Healthy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
