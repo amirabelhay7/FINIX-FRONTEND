@@ -30,7 +30,7 @@ export class List implements OnInit {
     this.walletService.adminGetAllWallets().pipe(
       finalize(() => {
         this.loading = false;
-        this.cdr.detectChanges();
+        setTimeout(() => this.cdr.detectChanges(), 0);
       })
     ).subscribe({
       next: (list) => {
