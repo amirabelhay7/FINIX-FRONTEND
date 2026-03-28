@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 export interface WalletApi {
   id: number;
+  userId: number;
   balance: number;
   currency: string;
   accountNumber: string;

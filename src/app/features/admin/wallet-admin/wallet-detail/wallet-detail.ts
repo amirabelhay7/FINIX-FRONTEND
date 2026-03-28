@@ -18,6 +18,8 @@ export class WalletDetail implements OnInit, OnChanges {
   creditAmount: number | null = null;
   creditDescription = '';
   creditLoading = false;
+  
+  private currentUserId: number | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -27,6 +29,7 @@ export class WalletDetail implements OnInit, OnChanges {
 
   ngOnInit(): void {
     const userId = Number(this.route.snapshot.paramMap.get('id'));
+    this.currentUserId = userId;
     this.loadData(userId);
   }
 
@@ -71,9 +74,11 @@ export class WalletDetail implements OnInit, OnChanges {
   }
 
   applyCredit(): void {
-    if (!this.creditAmount || this.creditAmount <= 0) return;
+    if (!this.creditAmount || this.creditAmount <= 0 || !this.currentUserId) return;
     this.creditLoading = true;
-    this.walletService.adminCredit(this.wallet!.id, { 
+    console.log('Applying credit to USER ID:', this.currentUserId, 'not wallet ID:', this.wallet?.id);
+    
+    this.walletService.adminCredit(this.currentUserId, { 
       amount: this.creditAmount, 
       description: this.creditDescription || 'Admin adjustment' 
     }).pipe(
@@ -92,7 +97,7 @@ export class WalletDetail implements OnInit, OnChanges {
         this.creditDescription = '';
         
         // Only reload transactions, not the wallet (to avoid overwriting the updated balance)
-        this.walletService.adminGetUserTransactions(w.id).subscribe({
+        this.walletService.adminGetUserTransactions(this.currentUserId!).subscribe({
           next: (txs) => {
             this.transactions = txs;
             this.cdr.detectChanges();
