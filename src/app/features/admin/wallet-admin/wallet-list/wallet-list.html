@@ -47,6 +47,9 @@
               <div>
                 <p class="td-primary">{{ w.clientName }}</p>
                 <p class="td-sub">{{ w.clientEmail }}</p>
+                <p *ngIf="w.clientDeleted" class="text-xs font-bold text-red-600 flex items-center gap-1 mt-1">
+                  <span class="material-symbols-outlined text-[14px]">person_off</span> DELETED
+                </p>
               </div>
             </td>
             <td>

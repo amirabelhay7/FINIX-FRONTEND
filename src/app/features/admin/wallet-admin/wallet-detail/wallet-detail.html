@@ -1,41 +1,155 @@
-<div class="space-y-8 pb-10">
+<div class="page-body s1">
+  
+  <div class="ph s2">
     <div class="flex items-center gap-4">
-        <a [routerLink]="vm.backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <div class="flex-1">
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ vm.pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ vm.pageSubtitle }}</p>
-        </div>
-        <span class="px-3 py-1.5 rounded-lg text-xs font-bold" [ngClass]="vm.statusClass">{{ vm.status }}</span>
+      <a routerLink="/admin/wallet/wallets" class="btn btn-ghost btn-xs">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </a>
+      <div *ngIf="wallet">
+        <h1 class="ph-title">Account Detail</h1>
+        <p class="ph-desc">{{ wallet.clientEmail }}</p>
+      </div>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ vm.balanceLabel }}</p>
-            <p class="text-2xl font-black text-gray-900 mt-1">{{ vm.balance }}</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ vm.currencyLabel }}</p>
-            <p class="text-xl font-bold text-gray-800 mt-1">{{ vm.currency }}</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ vm.accountLabel }}</p>
-            <p class="text-lg font-mono font-bold text-gray-800 mt-1">{{ vm.accountNumber }}</p>
-        </div>
+    <div class="ph-actions" *ngIf="wallet">
+      <span class="badge" [class.b-actif]="wallet.isActive" [class.b-closed]="!wallet.isActive">
+        {{ wallet.isActive ? 'OPERATIONAL' : 'FROZEN / RESTRICTED' }}
+      </span>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-gray-50 flex items-center justify-between">
-            <h4 class="font-bold text-gray-800">{{ vm.recentTitle }}</h4>
-            <a [routerLink]="vm.viewAllRoute" class="text-sm font-bold text-[#135bec] hover:underline">{{ vm.viewAllLabel }}</a>
-        </div>
-        <div class="divide-y divide-gray-50">
-            <a *ngFor="let tx of vm.recentTransactions" [routerLink]="tx.route" class="flex items-center px-6 py-4 hover:bg-gray-50">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center mr-4 shrink-0" [ngClass]="tx.iconBgClass">
-                    <span class="material-symbols-outlined text-[18px]" [ngClass]="tx.iconColorClass">{{ tx.icon }}</span>
-                </div>
-                <div class="flex-1"><p class="text-sm font-bold text-gray-800">{{ tx.title }}</p><p class="text-xs text-gray-500">{{ tx.subtitle }}</p></div>
-                <span class="text-sm font-black" [ngClass]="tx.amountClass">{{ tx.amount }}</span>
-            </a>
-        </div>
+  </div>
+
+  <div *ngIf="loading" class="panel s3 py-20 flex flex-col items-center justify-center">
+    <span class="material-symbols-outlined text-4xl text-blue-100 animate-spin">progress_activity</span>
+    <p class="mt-4 text-sm font-medium text-gray-400">Syncing with treasury register...</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="panel s3 p-8 text-center space-y-4">
+    <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500">
+      <span class="material-symbols-outlined text-3xl">sentiment_dissatisfied</span>
     </div>
+    <h2 class="panel-title mx-auto text-xl">Account Not Found</h2>
+    <p class="td-sub">{{ error }}</p>
+    <a routerLink="/admin/wallet/wallets" class="btn btn-outline btn-sm">Go Back to Registry</a>
+  </div>
+
+  <div *ngIf="!loading && wallet" class="grid g21 s3">
+    
+    <!-- Main Content -->
+    <div class="space-y-6">
+      <!-- Balance Card -->
+      <div class="panel overflow-hidden">
+        <div class="panel-body bg-gray-50/50 border-b border-gray-100 flex justify-between items-end py-10">
+          <div class="space-y-1">
+            <p class="ph-eyebrow !mb-0">Available Liquidity</p>
+            <h2 class="text-4xl font-black text-gray-900 tracking-tighter">
+              {{ wallet.balance | number:'1.2-2' }} <small class="text-lg text-gray-400 font-bold uppercase">{{ wallet.currency }}</small>
+            </h2>
+          </div>
+          <div class="text-right">
+            <span class="td-ref font-mono">{{ wallet.accountNumber }}</span>
+          </div>
+        </div>
+        
+        <div class="panel-body grid g2 gap-8">
+          <div class="space-y-4">
+            <div class="p-4 bg-blue-50/30 rounded-2xl border border-blue-100 flex items-center justify-between">
+              <div>
+                <p class="td-sub uppercase text-[9px] font-black !mt-0">Ledger Entry Type</p>
+                <p class="td-primary">Personal Wallet</p>
+              </div>
+              <span class="material-symbols-outlined text-blue-500">account_balance_wallet</span>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <p class="td-sub uppercase text-[9px] font-black mb-1">Owner Identity</p>
+              <p class="td-primary">{{ wallet.clientName }}</p>
+              <p *ngIf="wallet.clientDeleted" class="text-xs font-bold text-red-600 flex items-center gap-1 mt-1">
+                <span class="material-symbols-outlined text-[16px]">person_off</span> ACCOUNT DELETED
+              </p>
+            </div>
+            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <p class="td-sub uppercase text-[9px] font-black mb-1">Compliance Check</p>
+              <p class="text-xs font-bold text-green-600 flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">verified</span> KYC VERIFIED
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transaction History (Ledger) -->
+      <div class="panel">
+        <div class="panel-head">
+          <h4 class="panel-title"><div class="ptdot"></div> Recent Ledger Events</h4>
+          <span class="badge b-review">{{ transactions.length }} Entries</span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Execution Date</th>
+                <th style="text-align: right">Impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let t of transactions">
+                <td class="td-primary">{{ t.transactionType.replace('_', ' ') }}</td>
+                <td class="td-sub">{{ formatDate(t.transactionDate) }}</td>
+                <td style="text-align: right">
+                  <span class="td-amount font-black" [class.text-green-600]="isPositive(t)" [class.text-red-500]="!isPositive(t)">
+                    {{ isPositive(t) ? '+' : '-' }}{{ t.amount | number:'1.2-2' }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="transactions.length === 0">
+                <td colspan="3" class="py-10 text-center text-gray-400 italic text-sm">No ledger entries recorded for this account.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Actions Sidebar -->
+    <div class="space-y-6">
+      <div class="panel p-6 space-y-6 border-t-4 border-t-blue-600 shadow-lg">
+        <div>
+          <h4 class="panel-title">Treasury Adjustment</h4>
+          <p class="td-sub">Direct liquidity injection from central funds.</p>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Amount (TND)</label>
+            <input type="number" [(ngModel)]="creditAmount" placeholder="0.00"
+              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-lg font-black text-gray-800 outline-none focus:border-blue-500 transition-all" />
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Compliance Note</label>
+            <textarea [(ngModel)]="creditDescription" placeholder="Reason for adjustment..."
+              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 h-24 outline-none focus:border-blue-500 transition-all resize-none"></textarea>
+          </div>
+          <button (click)="applyCredit()" [disabled]="creditLoading || !creditAmount"
+            class="w-full btn btn-primary py-4 flex items-center justify-center gap-2">
+            <span *ngIf="creditLoading" class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+            {{ creditLoading ? 'Synchronizing...' : 'Authorize Credit' }}
+          </button>
+        </div>
+        
+        <div class="pt-4 border-t border-gray-50 flex items-start gap-2">
+          <span class="material-symbols-outlined text-amber-500 text-[18px]">gavel</span>
+          <p class="text-[10px] text-gray-400 font-medium italic leading-relaxed">Adjustments are non-reversible and globally audited.</p>
+        </div>
+      </div>
+
+      <div class="panel bg-red-50/20 border-red-100 p-6 space-y-4">
+        <h4 class="panel-title text-red-700">Restricted Zones</h4>
+        <button class="w-full btn btn-outline btn-sm text-red-600 hover:!bg-red-600 hover:!text-white border-red-200">Freeze Account</button>
+        <button class="w-full btn btn-outline btn-sm text-red-600 hover:!bg-red-600 hover:!text-white border-red-200">Invalidate Ledger</button>
+      </div>
+    </div>
+
+  </div>
+
 </div>
