@@ -3,6 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { ClientSearchService, ClientSearchResult } from '../../../services/client/client-search.service';
 import { WalletService } from '../../../services/wallet/wallet.service';
 import { AgentService, AgentStats } from '../../../services/agent/agent.service';
+import { RealTimeService, RealTimeTransaction } from '../../../services/realtime/realtime.service';
+import { Subscription } from 'rxjs';
 
 interface Client extends ClientSearchResult {}
 
@@ -42,9 +44,11 @@ export class TopUpEnhanced {
   constructor(
     private clientSearchService: ClientSearchService,
     private walletService: WalletService,
-    private agentService: AgentService
+    private agentService: AgentService,
+    private realTimeService: RealTimeService
   ) {
     this.loadAgentStats();
+    this.subscribeToRealTimeUpdates();
   }
   
   // Form Data
@@ -57,6 +61,9 @@ export class TopUpEnhanced {
   transactionNotes = '';
   uploadedFiles: File[] = [];
   processing = false;
+
+  // Real-time subscriptions
+  private transactionSubscription: Subscription | null = null;
 
   // Configuration
   readonly minTopUpAmount = 10;
@@ -72,6 +79,26 @@ export class TopUpEnhanced {
   };
 
   recentTransactions: Transaction[] = [];
+
+  // Real-time updates
+  subscribeToRealTimeUpdates(): void {
+    this.transactionSubscription = this.realTimeService.getTransactionUpdates().subscribe({
+      next: (transactions: RealTimeTransaction[]) => {
+        // Update recent transactions with real-time data
+        this.recentTransactions = transactions.map(txn => ({
+          id: txn.id,
+          clientName: txn.clientName,
+          amount: txn.amount,
+          type: txn.type,
+          status: txn.status,
+          time: txn.time
+        }));
+      },
+      error: (error: any) => {
+        console.error('Real-time update error:', error);
+      }
+    });
+  }
 
   // Load Agent Statistics
   loadAgentStats(): void {
@@ -270,6 +297,16 @@ export class TopUpEnhanced {
     this.transactionNotes = '';
     this.uploadedFiles = [];
     this.searchQuery = '';
+    
+    // Refresh real-time data after reset
+    this.realTimeService.refreshTransactions();
+  }
+
+  // Cleanup on component destroy
+  ngOnDestroy(): void {
+    if (this.transactionSubscription) {
+      this.transactionSubscription.unsubscribe();
+    }
   }
 
   // UI Helper Methods
