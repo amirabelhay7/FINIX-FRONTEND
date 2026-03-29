@@ -99,7 +99,7 @@
           <span class="material-symbols-outlined text-gray-400">show_chart</span>
         </div>
         <div class="chart-container">
-          <apxchart 
+          <apx-chart 
             [series]="treasuryChartOptions.series"
             [chart]="treasuryChartOptions.chart"
             [dataLabels]="treasuryChartOptions.dataLabels"
@@ -110,7 +110,7 @@
             [tooltip]="treasuryChartOptions.tooltip"
             [colors]="treasuryChartOptions.colors"
             height="350">
-          </apxchart>
+          </apx-chart>
         </div>
       </div>
 
@@ -121,7 +121,7 @@
           <span class="material-symbols-outlined text-gray-400">pie_chart</span>
         </div>
         <div class="chart-container">
-          <apxchart 
+          <apx-chart 
             [series]="walletChartOptions.series"
             [chart]="walletChartOptions.chart"
             [labels]="walletChartOptions.labels"
@@ -130,7 +130,7 @@
             [dataLabels]="walletChartOptions.dataLabels"
             [legend]="walletChartOptions.legend"
             height="300">
-          </apxchart>
+          </apx-chart>
         </div>
         <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
           <div class="flex items-center">
@@ -152,7 +152,7 @@
         <span class="material-symbols-outlined text-gray-400">bar_chart</span>
       </div>
       <div class="chart-container">
-        <apxchart 
+        <apx-chart 
           [series]="volumeChartOptions.series"
           [chart]="volumeChartOptions.chart"
           [plotOptions]="volumeChartOptions.plotOptions"
@@ -161,7 +161,7 @@
           [tooltip]="volumeChartOptions.tooltip"
           [colors]="volumeChartOptions.colors"
           height="350">
-        </apxchart>
+        </apx-chart>
       </div>
     </div>
 
