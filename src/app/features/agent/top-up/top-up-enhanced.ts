@@ -6,6 +6,7 @@ import { WalletService } from '../../../services/wallet/wallet.service';
 import { AgentService, AgentStats } from '../../../services/agent/agent.service';
 import { RealTimeService, RealTimeTransaction } from '../../../services/realtime/realtime.service';
 import { FileUploadService, UploadResult } from '../../../services/file/file-upload.service';
+import { FormValidationService, ValidationResult } from '../../../services/validation/form-validation.service';
 import { Subscription } from 'rxjs';
 
 interface Client extends ClientSearchResult {}
@@ -48,7 +49,8 @@ export class TopUpEnhanced {
     private walletService: WalletService,
     private agentService: AgentService,
     private realTimeService: RealTimeService,
-    private fileUploadService: FileUploadService
+    private fileUploadService: FileUploadService,
+    private validationService: FormValidationService
   ) {
     this.loadAgentStats();
     this.subscribeToRealTimeUpdates();
@@ -66,6 +68,7 @@ export class TopUpEnhanced {
   uploadedFileResults: UploadResult[] = [];
   uploadingFiles: { [key: string]: number } = {}; // Track upload progress
   processing = false;
+  validationErrors: string[] = [];
 
   // Real-time subscriptions
   private transactionSubscription: Subscription | null = null;
@@ -153,14 +156,21 @@ export class TopUpEnhanced {
     });
   }
 
-  // Client Search
+  // Client Search with validation
   searchClient(): void {
-    if (!this.searchQuery.trim()) {
-      this.selectedClient = null;
-      this.verificationStatus = null;
+    // Validate search query
+    const validation = this.validationService.validateClientSearch(this.searchQuery);
+    if (!validation.valid) {
+      this.validationErrors = validation.errors;
+      this.verificationStatus = {
+        title: 'Search Error',
+        message: validation.errors[0],
+        type: 'error'
+      };
       return;
     }
 
+    this.validationErrors = [];
     this.processing = true;
     this.verificationStatus = {
       title: 'Searching...',
@@ -297,9 +307,27 @@ export class TopUpEnhanced {
     return Object.keys(this.uploadingFiles).some(k => k.startsWith(fileName));
   }
 
-  // Transaction Processing
+  // Transaction Processing with enhanced validation
   processTopUp(): void {
-    if (!this.canSubmit()) return;
+    const validation = this.validateForm();
+    if (!validation.valid) {
+      this.validationErrors = validation.errors;
+      this.verificationStatus = {
+        title: 'Validation Error',
+        message: validation.errors[0],
+        type: 'error'
+      };
+      return;
+    }
+
+    if (this.isAnyFileUploading()) {
+      this.verificationStatus = {
+        title: 'Files Uploading',
+        message: 'Please wait for all files to finish uploading',
+        type: 'warning'
+      };
+      return;
+    }
 
     this.processing = true;
     this.verificationStatus = {
@@ -362,15 +390,43 @@ export class TopUpEnhanced {
     });
   }
 
-  // Form Validation
+  // Enhanced Form Validation
+  validateForm(): ValidationResult {
+    const formData = {
+      selectedClient: this.selectedClient,
+      topUpAmount: this.topUpAmount,
+      paymentMethod: this.paymentMethod,
+      referenceNumber: this.referenceNumber,
+      transactionNotes: this.transactionNotes
+    };
+    
+    return this.validationService.validateTopUpForm(formData);
+  }
+
+  getValidationHints(fieldName: string): string[] {
+    const value = this.getFieldValue(fieldName);
+    return this.validationService.getValidationHints(fieldName, value);
+  }
+
+  getFieldValue(fieldName: string): any {
+    switch (fieldName) {
+      case 'searchQuery': return this.searchQuery;
+      case 'topUpAmount': return this.topUpAmount;
+      case 'referenceNumber': return this.referenceNumber;
+      case 'transactionNotes': return this.transactionNotes;
+      default: return null;
+    }
+  }
+
+  // Enhanced canSubmit with validation
   canSubmit(): boolean {
-    return !!(
-      this.selectedClient &&
-      this.topUpAmount &&
-      this.topUpAmount >= this.minTopUpAmount &&
-      this.topUpAmount <= this.maxTopUpAmount &&
-      !this.processing
-    );
+    const validation = this.validateForm();
+    this.validationErrors = validation.errors;
+    return validation.valid && !this.processing && !this.isAnyFileUploading();
+  }
+
+  isAnyFileUploading(): boolean {
+    return Object.keys(this.uploadingFiles).length > 0;
   }
 
   resetForm(): void {
@@ -381,7 +437,14 @@ export class TopUpEnhanced {
     this.referenceNumber = '';
     this.transactionNotes = '';
     this.uploadedFiles = [];
+    this.uploadedFileResults = [];
     this.searchQuery = '';
+    this.validationErrors = [];
+    
+    // Cancel any ongoing uploads
+    Object.keys(this.uploadingFiles).forEach(key => {
+      delete this.uploadingFiles[key];
+    });
     
     // Refresh real-time data after reset
     this.realTimeService.refreshTransactions();
