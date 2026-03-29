@@ -110,6 +110,12 @@ export class TopUpEnhanced {
       },
       error: (error: any) => {
         console.error('Real-time update error:', error);
+        if (error.status === 403) {
+          // Silently handle 403 for real-time updates as they're non-critical
+          console.log('Real-time updates require authentication');
+        } else {
+          this.uiNotificationService.warning('Real-time Updates', 'Failed to connect to real-time updates');
+        }
       }
     });
   }
@@ -128,6 +134,11 @@ export class TopUpEnhanced {
       },
       error: (error: any) => {
         console.error('Failed to load agent stats:', error);
+        if (error.status === 403) {
+          this.uiNotificationService.warning('Authentication Required', 'Please log in to access agent features');
+        } else {
+          this.uiNotificationService.error('Stats Error', 'Failed to load agent statistics');
+        }
         // Set default values on error
         this.agentCashBalance = 0;
         this.todaysSummary = {
@@ -157,6 +168,11 @@ export class TopUpEnhanced {
       },
       error: (error: any) => {
         console.error('Failed to load recent transactions:', error);
+        if (error.status === 403) {
+          this.uiNotificationService.warning('Authentication Required', 'Please log in to view transaction history');
+        } else {
+          this.uiNotificationService.error('Transactions Error', 'Failed to load recent transactions');
+        }
         this.recentTransactions = [];
       }
     });
@@ -224,12 +240,22 @@ export class TopUpEnhanced {
         
         this.processing = false;
         this.selectedClient = null;
-        this.verificationStatus = {
-          title: 'Search Error',
-          message: 'Failed to search for clients. Please try again.',
-          type: 'error'
-        };
-        this.uiNotificationService.error('Search Failed', 'Failed to search for clients. Please try again.');
+        
+        if (error.status === 403) {
+          this.verificationStatus = {
+            title: 'Authentication Required',
+            message: 'Please log in to search for clients',
+            type: 'warning'
+          };
+          this.uiNotificationService.warning('Authentication Required', 'Please log in to search for clients');
+        } else {
+          this.verificationStatus = {
+            title: 'Search Error',
+            message: 'Failed to search for clients. Please try again.',
+            type: 'error'
+          };
+          this.uiNotificationService.error('Search Failed', 'Failed to search for clients. Please try again.');
+        }
         console.error('Client search error:', error);
       }
     });
@@ -420,12 +446,22 @@ export class TopUpEnhanced {
         }
         
         this.processing = false;
-        this.verificationStatus = {
-          title: 'Transaction Failed',
-          message: error.error?.message || 'Failed to process transaction. Please try again.',
-          type: 'error'
-        };
-        this.uiNotificationService.error('Transaction Failed', error.error?.message || 'Failed to process transaction. Please try again.');
+        
+        if (error.status === 403) {
+          this.verificationStatus = {
+            title: 'Authentication Required',
+            message: 'Please log in to process transactions',
+            type: 'warning'
+          };
+          this.uiNotificationService.warning('Authentication Required', 'Please log in to process transactions');
+        } else {
+          this.verificationStatus = {
+            title: 'Transaction Failed',
+            message: error.error?.message || 'Failed to process transaction. Please try again.',
+            type: 'error'
+          };
+          this.uiNotificationService.error('Transaction Failed', error.error?.message || 'Failed to process transaction. Please try again.');
+        }
         console.error('Transaction processing error:', error);
       }
     });
