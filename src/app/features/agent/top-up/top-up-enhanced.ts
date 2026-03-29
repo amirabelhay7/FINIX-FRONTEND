@@ -122,8 +122,14 @@ export class TopUpEnhanced {
 
   // Load Agent Statistics
   loadAgentStats(): void {
+    // Debug: Check authentication state
+    console.log('Loading agent stats...');
+    console.log('Token exists:', !!localStorage.getItem('finix_access_token'));
+    console.log('User role:', localStorage.getItem('finix_role'));
+    
     this.agentService.getTodayStats().subscribe({
       next: (stats: AgentStats) => {
+        console.log('Agent stats loaded successfully:', stats);
         this.agentCashBalance = stats.cashBalance;
         this.todaysSummary = {
           topUps: stats.topUps,
@@ -134,8 +140,15 @@ export class TopUpEnhanced {
       },
       error: (error: any) => {
         console.error('Failed to load agent stats:', error);
+        console.error('Error status:', error.status);
+        console.error('Error headers:', error.headers);
+        
         if (error.status === 403) {
-          this.uiNotificationService.warning('Authentication Required', 'Please log in to access agent features');
+          console.log('403 error - checking user role...');
+          const userRole = localStorage.getItem('finix_role');
+          console.log('Current user role:', userRole);
+          
+          this.uiNotificationService.warning('Authentication Required', `Please log in as an agent to access agent features. Current role: ${userRole || 'None'}`);
         } else {
           this.uiNotificationService.error('Stats Error', 'Failed to load agent statistics');
         }
