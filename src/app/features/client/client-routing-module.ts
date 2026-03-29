@@ -8,6 +8,8 @@ import { ClientInsurance } from './insurance/insurance';
 import { ClientWallet } from './wallet/wallet';
 import { ClientScore } from './score/score';
 import { ClientDocuments } from './documents/documents';
+import { CampaignsListComponent } from '../../frontoffice/campaigns-list/campaigns-list';
+import { CampaignDetailComponent } from '../../frontoffice/campaign-detail/campaign-detail';
 
 const routes: Routes = [
   { path: 'dashboard', component: ClientDashboard },
@@ -19,6 +21,8 @@ const routes: Routes = [
   { path: 'score', component: ClientScore },
   { path: 'documents', component: ClientDocuments },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: 'campaigns',     component: CampaignsListComponent },
+{ path: 'campaigns/:id', component: CampaignDetailComponent },
 ];
 
 @NgModule({

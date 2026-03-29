@@ -30,4 +30,7 @@ export class MarketingCampaignService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/delete/${id}`);
   }
+  getActive(): Observable<MarketingCampaign[]> {
+  return this.http.get<MarketingCampaign[]>(`${this.url}/active`);
+}
 }

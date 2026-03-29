@@ -21,7 +21,8 @@ export class Frontoffice implements OnInit, OnDestroy {
     { label: 'Assurance', icon: '🛡️', route: '/client/insurance' },
     { label: 'Wallet', icon: '👛', route: '/client/wallet' },
     { label: 'Mon Score', icon: '📊', route: '/client/score' },
-    { label: 'Documents', icon: '📄', route: '/client/documents' }
+    { label: 'Documents', icon: '📄', route: '/client/documents' },
+    { label: 'Campagnes', icon: '📣', route: '/client/campaigns' },
   ];
 
   showUserDropdown = false;

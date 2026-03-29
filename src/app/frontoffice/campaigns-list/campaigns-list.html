@@ -1,0 +1,20 @@
+<div class="fo-campaigns">
+  <h2>📣 Campagnes actives</h2>
+
+  <div *ngIf="loading" class="fo-loading">Chargement...</div>
+
+  <div *ngIf="!loading && campaigns.length === 0" class="fo-empty">
+    Aucune campagne active pour le moment.
+  </div>
+
+  <div class="fo-grid" *ngIf="!loading && campaigns.length > 0">
+    <div class="fo-card" *ngFor="let c of campaigns">
+      <div class="fo-card-header">
+        <span class="fo-badge">{{ c.campaignType }}</span>
+        <span class="fo-dates">{{ c.startDate | date:'dd/MM/yyyy' }} → {{ c.endDate | date:'dd/MM/yyyy' }}</span>
+      </div>
+      <h3 class="fo-card-title">{{ c.name }}</h3>
+      <p class="fo-card-desc">{{ c.description | slice:0:100 }}...</p>
+      <button class="fo-btn" (click)="voirOffre(c.id!)">Voir l'offre →</button>    </div>
+  </div>
+</div>

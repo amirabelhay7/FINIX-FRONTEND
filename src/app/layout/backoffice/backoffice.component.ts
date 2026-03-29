@@ -433,6 +433,9 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   // ── Steering ──
  /* ── Steering ── */
+  savingIndicator = false;
+  savingTreasury = false;
+  savingSimulation = false;
   showIndicatorForm = false;
   indicatorError = '';
   indicatorForm: any = {
@@ -486,7 +489,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.indicatorError = '';
   }
 
-  savingIndicator = false;
+
   saveIndicator() {
     if (this.savingIndicator) return;
     this.savingIndicator = true;
@@ -521,7 +524,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.editingTreasuryId = null;
   }
 
-savingTreasury = false;
+
   saveTreasury() {
     if (this.savingTreasury) return;
     this.savingTreasury = true;
@@ -560,7 +563,7 @@ savingTreasury = false;
     this.simulationError = '';
   }
 
-  savingSimulation = false;
+  
   saveSimulation() {
     if (this.savingSimulation) return;
     this.savingSimulation = true;
@@ -605,7 +608,11 @@ savingTreasury = false;
         this.showMovementForm = false;
         this.movementError = '';
         this.loadTreasuryAccounts();
-        this.viewMovements(this.selectedTreasuryId);
+        const id = this.selectedTreasuryId;
+        this.cashMovementService.getByAccount(id!).subscribe({
+          next: data => this.movements = [...data],
+          error: err => console.error('Movements reload error', err)
+        });
       },
       error: err => {
         if (err.status === 400) this.movementError = err.error?.message || 'Données invalides.';

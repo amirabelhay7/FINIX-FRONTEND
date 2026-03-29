@@ -1,0 +1,28 @@
+<div *ngIf="loading" class="fo-loading">Chargement...</div>
+<div *ngIf="!loading && !campaign" class="fo-empty">Campagne introuvable.</div>
+
+<div class="fo-detail" *ngIf="!loading && campaign as c">
+  <button class="fo-retour" (click)="retour()">← Retour aux campagnes</button>
+
+  <div class="fo-detail-header">
+    <span class="fo-badge">{{ c.campaignType }}</span>
+    <h2>{{ c.name }}</h2>
+  </div>
+
+  <p class="fo-detail-desc">{{ c.description }}</p>
+
+  <div class="fo-detail-grid">
+    <div class="fo-detail-item">
+      <label>Date de début</label>
+      <span>{{ c.startDate | date:'dd/MM/yyyy' }}</span>
+    </div>
+    <div class="fo-detail-item">
+      <label>Date de fin</label>
+      <span>{{ c.endDate | date:'dd/MM/yyyy' }}</span>
+    </div>
+    <div class="fo-detail-item">
+      <label>Type</label>
+      <span>{{ c.campaignType }}</span>
+    </div>
+  </div>
+</div>

@@ -36,7 +36,6 @@ import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized
     AuthModule,
   ],
   providers: [
-    provideBrowserGlobalErrorListeners(),
     provideHttpClient(withInterceptors([authInterceptor])),
   ],
   bootstrap: [App]
