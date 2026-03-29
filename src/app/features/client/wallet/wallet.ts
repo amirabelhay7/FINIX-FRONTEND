@@ -15,6 +15,22 @@ export class ClientWallet implements OnInit {
   wallet: WalletApi | null = null;
   transactions: TransactionApi[] = [];
 
+  // Operation states
+  withdrawLoading = false;
+  transferLoading = false;
+
+  // Form states
+  showWithdrawModal = false;
+  showTransferModal = false;
+  showAddFundsModal = false;
+
+  // Form data
+  withdrawForm = { amount: '', description: '' };
+  transferForm = { amount: '', description: '', targetEmail: '' };
+
+  // Messages
+  successMessage: string | null = null;
+
   constructor(
     private walletService: WalletService,
     private cdr: ChangeDetectorRef,
@@ -118,5 +134,114 @@ export class ClientWallet implements OnInit {
 
   abs(value: number): number {
     return Math.abs(value);
+  }
+
+  // ─── Wallet Operations ──────────────────────────────────────────────────────
+
+  withdraw(): void {
+    if (!this.withdrawForm.amount || parseFloat(this.withdrawForm.amount) <= 0) {
+      this.error = 'Please enter a valid amount';
+      return;
+    }
+
+    if (this.wallet && parseFloat(this.withdrawForm.amount) > this.wallet.balance) {
+      this.error = 'Insufficient balance';
+      return;
+    }
+
+    this.withdrawLoading = true;
+    this.error = null;
+    this.successMessage = null;
+
+    this.walletService.withdraw({
+      amount: parseFloat(this.withdrawForm.amount),
+      description: this.withdrawForm.description || 'Cash withdrawal request'
+    }).subscribe({
+      next: (updatedWallet) => {
+        this.wallet = updatedWallet;
+        this.withdrawLoading = false;
+        this.successMessage = `Withdrawal request for ${this.formatBalance(parseFloat(this.withdrawForm.amount))} submitted. Contact agent for cash pickup.`;
+        this.showWithdrawModal = false;
+        this.withdrawForm = { amount: '', description: '' };
+        this.loadWalletData(); // Refresh data
+      },
+      error: (err) => {
+        this.withdrawLoading = false;
+        this.error = err?.error?.message || 'Withdrawal request failed';
+      }
+    });
+  }
+
+  transfer(): void {
+    if (!this.transferForm.amount || parseFloat(this.transferForm.amount) <= 0) {
+      this.error = 'Please enter a valid amount';
+      return;
+    }
+
+    if (!this.transferForm.targetEmail) {
+      this.error = 'Please enter recipient email';
+      return;
+    }
+
+    if (this.wallet && parseFloat(this.transferForm.amount) > this.wallet.balance) {
+      this.error = 'Insufficient balance';
+      return;
+    }
+
+    this.transferLoading = true;
+    this.error = null;
+    this.successMessage = null;
+
+    this.walletService.transfer({
+      amount: parseFloat(this.transferForm.amount),
+      description: this.transferForm.description || 'Transfer',
+      targetEmail: this.transferForm.targetEmail
+    }).subscribe({
+      next: (updatedWallet) => {
+        this.wallet = updatedWallet;
+        this.transferLoading = false;
+        this.successMessage = `Successfully transferred ${this.formatBalance(parseFloat(this.transferForm.amount))} to ${this.transferForm.targetEmail}`;
+        this.showTransferModal = false;
+        this.transferForm = { amount: '', description: '', targetEmail: '' };
+        this.loadWalletData(); // Refresh data
+      },
+      error: (err) => {
+        this.transferLoading = false;
+        this.error = err?.error?.message || 'Transfer failed';
+      }
+    });
+  }
+
+  // ─── UI Helpers ─────────────────────────────────────────────────────────────
+
+  openWithdrawModal(): void {
+    this.showWithdrawModal = true;
+    this.error = null;
+    this.successMessage = null;
+  }
+
+  openTransferModal(): void {
+    this.showTransferModal = true;
+    this.error = null;
+    this.successMessage = null;
+  }
+
+  showAddFundsInfo(): void {
+    this.showAddFundsModal = true;
+    this.error = null;
+    this.successMessage = null;
+  }
+
+  closeModals(): void {
+    this.showWithdrawModal = false;
+    this.showTransferModal = false;
+    this.showAddFundsModal = false;
+    this.error = null;
+    this.successMessage = null;
+  }
+
+  clearMessages(): void {
+    this.error = null;
+    this.successMessage = null;
   }
 }
