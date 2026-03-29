@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-agent',
@@ -18,26 +19,29 @@ export class AgentLayout implements OnInit, OnDestroy {
 
   /* ── Payment form ── */
   showPaymentModal = false;
-  clientSearch = '';
+  cinSearch = '';
   clientResults: any[] = [];
   selectedClient: any = null;
-  paymentForm = {
-    amountPaid: '',
-    paymentDate: '',
-    paymentMethod: '',
-    paymentStatus: '',
-    delinquencyCaseId: '',
-    recoveryActionId: '',
-  };
+  nextInstallment: any = null;
+  installmentLoading = false;
+  installmentError = '';
   paymentLoading = false;
   paymentError = '';
   paymentSuccess = false;
+  lastPayment: any = null;
+  showReceiptPopup = false;
   recentPayments: any[] = [];
+
+  /* ── History ── */
+  agentHistory: any[] = [];
+  historyLoading = false;
+  historyError = '';
 
   constructor(
     private renderer: Renderer2,
     private router: Router,
     private http: HttpClient,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -58,6 +62,27 @@ export class AgentLayout implements OnInit, OnDestroy {
 
   switchPage(page: string): void {
     this.selectedPage = page;
+    if (page === 'remboursements') this.loadAgentHistory();
+  }
+
+  loadAgentHistory(): void {
+    this.historyLoading = true;
+    this.historyError = '';
+    this.http.get<any[]>(`${this.API}/payment-history/agent-transactions`).pipe(
+      finalize(() => {
+        this.historyLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (res) => {
+        console.log('[History] response:', res);
+        this.agentHistory = Array.isArray(res) ? res : [];
+      },
+      error: (err) => {
+        console.error('[History] error:', err?.status, err?.error);
+        this.historyError = 'Erreur ' + (err?.status || '') + ' — ' + (err?.error?.message || err?.message || 'impossible de charger l\'historique');
+      },
+    });
   }
 
   logout(): void {
@@ -130,60 +155,140 @@ export class AgentLayout implements OnInit, OnDestroy {
     return this.navItems.filter((i) => i.section === section);
   }
 
-  /* ── Client search ── */
-  searchClients(): void {
-    const q = this.clientSearch.trim();
-    if (q.length < 2) { this.clientResults = []; return; }
+  /* ── Agent IMF Payment ── */
+  onCinInput(event: Event): void {
+    this.cinSearch = (event.target as HTMLInputElement).value;
+    this.searchByCin();
+  }
+
+  searchByCin(): void {
+    const q = this.cinSearch.trim();
+    if (q.length < 1) { this.clientResults = []; return; }
+    this.installmentError = '';
     this.http.get<any[]>(`${this.API}/users/search?q=${encodeURIComponent(q)}`).subscribe({
-      next: (res) => this.clientResults = res,
-      error: () => this.clientResults = [],
+      next: (res) => {
+        this.clientResults = res;
+        // Auto-select when exactly one result matches the typed CIN exactly
+        if (res.length === 1 && res[0].cin?.toString().toLowerCase() === q.toLowerCase()) {
+          this.selectClient(res[0]);
+        }
+      },
+      error: () => { this.clientResults = []; this.installmentError = 'Erreur lors de la recherche.'; },
     });
   }
 
   selectClient(c: any): void {
     this.selectedClient = c;
-    this.paymentForm = { amountPaid: '', paymentDate: '', paymentMethod: '', paymentStatus: '', delinquencyCaseId: '', recoveryActionId: '' };
     this.clientResults = [];
-    this.clientSearch = '';
-    this.paymentError = '';
+    this.cinSearch = '';
     this.paymentSuccess = false;
+    this.paymentError = '';
+    this.installmentError = '';
+    this.nextInstallment = null;
+    this.installmentLoading = true;
+
+    this.http.get<any>(`${this.API}/payment-history/next-installment/by-user/${c.id}`).subscribe({
+      next: (res) => {
+        this.installmentLoading = false;
+        this.nextInstallment = res;
+      },
+      error: (err) => {
+        this.installmentLoading = false;
+        console.error('Next installment error:', err?.status, err?.error);
+        this.installmentError = err?.error?.error || err?.error?.message || 'Aucune mensualité en attente pour ce client.';
+      },
+    });
   }
 
   resetPaymentForm(): void {
-    this.selectedClient = null;
-    this.clientSearch = '';
+    this.cinSearch = '';
     this.clientResults = [];
-    this.paymentForm = { amountPaid: '', paymentDate: '', paymentMethod: '', paymentStatus: '', delinquencyCaseId: '', recoveryActionId: '' };
+    this.selectedClient = null;
+    this.nextInstallment = null;
+    this.installmentLoading = false;
+    this.installmentError = '';
     this.paymentError = '';
     this.paymentSuccess = false;
+    this.lastPayment = null;
+    this.showReceiptPopup = false;
   }
 
-  submitPayment(): void {
-    if (!this.selectedClient) { this.paymentError = 'Veuillez sélectionner un client.'; return; }
-    if (!this.paymentForm.amountPaid || !this.paymentForm.paymentDate || !this.paymentForm.paymentMethod || !this.paymentForm.paymentStatus) {
-      this.paymentError = 'Veuillez remplir tous les champs obligatoires.'; return;
+  closePopup(): void {
+    this.showReceiptPopup = false;
+  }
+
+  printReceipt(): void {
+    const p = this.lastPayment;
+    const client = this.selectedClient;
+    const html = `
+      <!DOCTYPE html><html><head>
+      <meta charset="UTF-8"/>
+      <title>Reçu de paiement</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 32px; max-width: 420px; margin: auto; color: #111; }
+        .logo { font-size: 1.5rem; font-weight: 900; color: #2563eb; margin-bottom: 4px; }
+        .sub  { font-size: .8rem; color: #666; margin-bottom: 24px; }
+        h2 { font-size: 1rem; color: #059669; margin: 0 0 20px; border-bottom: 2px solid #059669; padding-bottom: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+        td { padding: 7px 4px; border-bottom: 1px solid #eee; }
+        td:first-child { color: #555; }
+        td:last-child  { text-align: right; font-weight: 600; }
+        .amount td:last-child { font-size: 1.1rem; color: #059669; font-weight: 800; }
+        .footer { margin-top: 28px; font-size: .75rem; color: #999; text-align: center; }
+      </style></head><body>
+      <div class="logo">FIN'IX</div>
+      <div class="sub">Institution de Microfinance — Reçu Officiel</div>
+      <h2>✓ Paiement confirmé</h2>
+      <table>
+        <tr><td>Référence</td><td>#${p.id}</td></tr>
+        <tr><td>Client</td><td>${client?.firstName || ''} ${client?.lastName || ''}</td></tr>
+        <tr><td>CIN</td><td>${client?.cin || '—'}</td></tr>
+        <tr><td>Contrat</td><td>${p.numeroContrat}</td></tr>
+        <tr><td>Mensualité N°</td><td>${p.installmentNumber}</td></tr>
+        <tr><td>Échéance</td><td>${p.dueDate}</td></tr>
+        <tr class="amount"><td>Montant payé</td><td>${Number(p.amountPaid).toLocaleString('fr-TN', {minimumFractionDigits:2})} TND</td></tr>
+        <tr><td>Méthode</td><td>Cash Agent</td></tr>
+        <tr><td>Date</td><td>${new Date(p.paymentDate).toLocaleString('fr-FR')}</td></tr>
+      </table>
+      <div class="footer">Document généré automatiquement par FIN'IX — ${new Date().toLocaleDateString('fr-FR')}</div>
+      </body></html>`;
+    const w = window.open('', '_blank', 'width=500,height=700');
+    if (w) { w.document.write(html); w.document.close(); w.focus(); w.print(); }
+  }
+
+  submitAgentPayment(): void {
+    console.log('[Agent] submitAgentPayment called, selectedClient=', this.selectedClient);
+    if (!this.selectedClient) {
+      console.warn('[Agent] No client selected, aborting');
+      return;
     }
     this.paymentLoading = true;
     this.paymentError = '';
-    const payload: any = {
-      amountPaid:        Number(this.paymentForm.amountPaid),
-      paymentDate:       this.paymentForm.paymentDate,
-      paymentMethod:     this.paymentForm.paymentMethod,
-      paymentStatus:     this.paymentForm.paymentStatus,
-      userId:            this.selectedClient.id,
-      delinquencyCaseId: this.paymentForm.delinquencyCaseId ? Number(this.paymentForm.delinquencyCaseId) : null,
-      recoveryActionId:  this.paymentForm.recoveryActionId  ? Number(this.paymentForm.recoveryActionId)  : null,
-    };
-    this.http.post<any>(`${this.API}/payments`, payload).subscribe({
-      next: (res) => {
+    this.paymentSuccess = false;
+
+    const url = `${this.API}/payment-history/record-agent`;
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const body = { userId: this.selectedClient.id, agentId: currentUser.userId || null };
+    console.log('[Agent] POST', url, body);
+
+    this.http.post<any>(url, body).pipe(
+      finalize(() => {
         this.paymentLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (res) => {
+        console.log('[Agent] Payment success:', res);
         this.paymentSuccess = true;
+        this.lastPayment = res;
         this.recentPayments = [res, ...this.recentPayments].slice(0, 10);
-        this.paymentForm = { amountPaid: '', paymentDate: '', paymentMethod: '', paymentStatus: '', delinquencyCaseId: '', recoveryActionId: '' };
+        this.nextInstallment = null;
+        this.showReceiptPopup = true;
+        this.loadAgentHistory();
       },
       error: (err) => {
-        this.paymentLoading = false;
-        this.paymentError = err?.error?.message || 'Erreur lors de l\'enregistrement du paiement.';
+        console.error('[Agent] Payment error:', err?.status, err?.error);
+        this.paymentError = err?.error?.error || err?.message || 'Erreur lors de l\'enregistrement du paiement.';
       },
     });
   }

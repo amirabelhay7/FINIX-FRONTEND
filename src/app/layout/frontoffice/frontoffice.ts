@@ -15,8 +15,8 @@ export class Frontoffice implements OnInit, OnDestroy {
 
   navTabs = [
     { label: 'Dashboard', icon: '🏠', route: '/client/dashboard' },
-    { label: 'My Credits', icon: '💳', route: '/client/credits', badge: '3' },
-    { label: 'Payments', icon: '💸', route: '/client/repayments', badge: '1', badgeClass: 'warn' },
+    { label: 'My Credits', icon: '💳', route: '/client/credits' },
+    { label: 'Repayments', icon: '💸', route: '/client/repayments', badge: '1', badgeClass: 'warn' },
     { label: 'Vehicles', icon: '🚗', route: '/client/vehicles' },
     { label: 'Insurance', icon: '🛡️', route: '/client/insurance' },
     { label: 'Wallet', icon: '👛', route: '/client/wallet' },

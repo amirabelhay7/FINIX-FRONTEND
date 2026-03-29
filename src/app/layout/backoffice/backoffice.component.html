@@ -681,9 +681,9 @@
     <div class="page" [class.active]="selectedPage === 'repayments'" id="page-remboursements">
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Suivi financier</div>
-          <div class="ph-title">Remboursements</div>
-          <div class="ph-desc">Collecte mensuelle : 487 200 TND · Taux de recouvrement : 98.2%</div>
+          <div class="ph-eyebrow">Financial Tracking</div>
+          <div class="ph-title">Repayments</div>
+          <div class="ph-desc">Monthly Collection : 487 200 TND · Recovery Rate : 98.2%</div>
         </div>
         <div class="ph-actions">
           <button class="btn btn-outline btn-sm">
@@ -701,7 +701,7 @@
             </svg>
             Export
           </button>
-          <button class="btn btn-primary btn-sm">+ Saisir paiement</button>
+          <button class="btn btn-primary btn-sm" (click)="openAdminPayModal()">+ Saisir paiement</button>
         </div>
       </div>
 
@@ -728,8 +728,8 @@
           <div class="kpi-val" style="font-size: 1.3rem">
             TND <span style="font-size: 1.9rem">487 200</span>
           </div>
-          <div class="kpi-lbl">Collecté ce mois</div>
-          <div class="kpi-foot">Objectif : <b>500 000 TND (97.4%)</b></div>
+          <div class="kpi-lbl">Collected this month</div>
+          <div class="kpi-foot">Target : <b>500 000 TND (97.4%)</b></div>
         </div>
 
         <div class="kpi" style="--kc: var(--danger)">
@@ -752,13 +752,13 @@
                 <line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
             </div>
-            <div class="kpi-trend danger">12 cas</div>
+            <div class="kpi-trend danger">12 cases</div>
           </div>
           <div class="kpi-val" style="font-size: 1.3rem">
             TND <span style="font-size: 1.9rem">8 940</span>
           </div>
-          <div class="kpi-lbl">Impayés totaux</div>
-          <div class="kpi-foot">Taux de défaut : <b>1.8%</b></div>
+          <div class="kpi-lbl">Unpaid totals</div>
+          <div class="kpi-foot">Default rate : <b>1.8%</b></div>
         </div>
 
         <div class="kpi" style="--kc: var(--blue)">
@@ -785,8 +785,8 @@
           <div class="kpi-val" style="font-size: 1.3rem">
             TND <span style="font-size: 1.9rem">52 800</span>
           </div>
-          <div class="kpi-lbl">Echeances Mars</div>
-          <div class="kpi-foot">Prochaine : <b>05 Mars 2026</b></div>
+          <div class="kpi-lbl">Due Dates for March</div>
+          <div class="kpi-foot">Next : <b>05 March 2026</b></div>
         </div>
 
         <div class="kpi" style="--kc: var(--purple)">
@@ -808,8 +808,8 @@
             <div class="kpi-trend success">98.2%</div>
           </div>
           <div class="kpi-val">1 248</div>
-          <div class="kpi-lbl">Contrats suivis</div>
-          <div class="kpi-foot">Automatises : <b>892 (71%)</b></div>
+          <div class="kpi-lbl">Contracts Followed</div>
+          <div class="kpi-foot">Automated : <b>892 (71%)</b></div>
         </div>
       </div>
 
@@ -817,29 +817,57 @@
         <div class="panel-head">
           <div class="panel-title">
             <span class="ptdot"></span>
-            Historique des remboursements &mdash; Fev 2026
+            Payment History
           </div>
-          <div style="display: flex; align-items: center; gap: 0.625rem; margin-left: auto">
-            <select
-              class="form-input"
-              style="width: 150px; padding: 0.3rem 0.7rem; font-size: 0.775rem"
-            >
-              <option>Fevrier 2026</option>
-              <option>Janvier 2026</option>
-              <option>Decembre 2025</option>
-            </select>
-            <button class="btn btn-outline btn-sm">Filtres</button>
+          <div style="display:flex;align-items:center;gap:.5rem;margin-left:auto">
+            
           </div>
         </div>
-        <div class="tbl-wrap">
-          <table>
+
+        <!-- Filters bar -->
+        <div class="pay-filters" *ngIf="adminPayments.length > 0">
+          <div class="pay-filter-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search client, ID, contract, agent…"
+              [(ngModel)]="paymentFilter" class="form-input" style="border:none;flex:1;padding:.35rem .5rem;font-size:.8rem;background:transparent"/>
+          </div>
+          <select class="form-input pay-filter-select" [(ngModel)]="paymentStatusFilter">
+            <option value="">All</option>
+            <option value="PAID">Paid</option>
+            <option value="PENDING">Pending</option>
+            <option value="CANCELLED">Cancelled</option>
+            
+          </select>
+          <select class="form-input pay-filter-select" [(ngModel)]="paymentMethodFilter">
+            <option value="">All methods</option>
+            <option value="CASH_AGENT">Cash Agent</option>
+            <option value="CARD">Card</option>
+            <option value="CASH_IMF">Cash IMF</option>
+            
+          </select>
+          <div class="pay-filter-count">{{ filteredPayments.length }} result(s)</div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="adminPaymentsLoading" style="text-align:center;padding:2rem;opacity:.5">…</div>
+
+        <!-- Empty -->
+        <div *ngIf="!adminPaymentsLoading && adminPayments.length === 0" style="text-align:center;padding:2rem;opacity:.4;font-size:.85rem">No payments recorded</div>
+
+        <!-- No filter results -->
+        <div *ngIf="!adminPaymentsLoading && adminPayments.length > 0 && filteredPayments.length === 0" style="text-align:center;padding:2rem;opacity:.4;font-size:.85rem">Aucun résultat pour ce filtre</div>
+
+        <!-- Table (no horizontal scroll) -->
+        <div *ngIf="!adminPaymentsLoading && filteredPayments.length > 0">
+          <table class="admin-pay-tbl">
             <thead>
               <tr>
-                <th>Reference</th>
+                <th>Ref</th>
                 <th>Client</th>
-                <th>Dossier</th>
-                <th>Montant</th>
-                <th>Date</th>
+                <th>Contract</th>
+                <th>Installment</th>
+                <th>Amount</th>
+                <th>Payment Date</th>
                 <th>Mode</th>
                 <th>Statut</th>
                 <th>Agent</th>
@@ -847,74 +875,49 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let p of payments">
+              <tr *ngFor="let p of filteredPayments">
+                <td><span class="td-ref">#{{ p.id }}</span></td>
                 <td>
-                  <span class="td-ref">{{ p.ref }}</span>
+                  <div class="td-primary" style="font-size:.82rem">{{ p.clientFirstName }} {{ p.clientLastName }}</div>
+                  <div style="font-size:.7rem;color:var(--g400)">CIN {{ p.clientCin || '—' }}</div>
                 </td>
-                <td class="td-primary">{{ p.client }}</td>
+                <td><span class="td-ref" style="font-size:.75rem">{{ p.numeroContrat || '—' }}</span></td>
+                <td style="text-align:center">{{ p.installmentNumber }}</td>
+                <td class="td-amount" style="font-size:.82rem">{{ p.amountPaid | number:'1.2-2' }} TND</td>
+                <td style="font-size:.75rem;color:var(--g500)">{{ p.paymentDate | date:'dd/MM/yy HH:mm' }}</td>
                 <td>
-                  <span class="td-ref">{{ p.file }}</span>
-                  <div class="td-sub">{{ p.fileType }}</div>
-                </td>
-                <td class="td-amount">{{ p.amount }}</td>
-                <td style="font-size: 0.8rem; color: var(--g500)">{{ p.date }}</td>
-                <td>
-                  <span
-                    class="badge"
+                  <span class="badge"
                     [ngClass]="{
-                      'b-blue': p.mode === 'Transfer' || p.mode === 'Virement',
-                      'b-purple': p.mode === 'Direct Debit' || p.mode === 'Prelevement',
-                      'b-teal': p.mode === 'Cash' || p.mode === 'Especes',
-                    }"
-                  >
-                    {{
-                      p.mode === 'Transfer'
-                        ? 'Virement'
-                        : p.mode === 'Direct Debit'
-                          ? 'Prelevement'
-                          : p.mode === 'Cash'
-                            ? 'Especes'
-                            : p.mode || '—'
-                    }}
+                      'b-blue': p.paymentMethod === 'CARD',
+                      'b-teal': p.paymentMethod === 'CASH_AGENT' || p.paymentMethod === 'CASH_IMF',
+                      'b-purple': p.paymentMethod === 'D17'
+                    }">
+                    {{ p.paymentMethod === 'CASH_AGENT' ? 'Cash Agent'
+                     : p.paymentMethod === 'CARD' ? 'Card'
+                     : p.paymentMethod === 'CASH_IMF' ? 'Cash IMF'
+                     : p.paymentMethod || '—' }}
                   </span>
                 </td>
                 <td>
-                  <span *ngIf="p.status === 'Paid' || p.status === 'Paye'" class="badge b-actif">
-                    v Paye
-                  </span>
-                  <span
-                    *ngIf="p.status === 'Pending' || p.status === 'En attente'"
-                    class="badge b-review"
-                  >
-                    En attente
-                  </span>
-                  <span
-                    *ngIf="
-                      p.status !== 'Paid' &&
-                      p.status !== 'Paye' &&
-                      p.status !== 'Pending' &&
-                      p.status !== 'En attente'
-                    "
-                    class="badge b-danger"
-                  >
-                    X Impaye
-                  </span>
+                  <span *ngIf="p.paymentStatus === 'PAID'" class="badge b-actif">Paid</span>
+                  <span *ngIf="p.paymentStatus === 'PENDING'" class="badge b-review">Pending</span>
+                  <span *ngIf="p.paymentStatus === 'CANCELLED'" class="badge b-danger">Cancelled</span>
+                  
                 </td>
-                <td style="font-size: 0.75rem; color: var(--g500)">{{ p.agent }}</td>
+                <td style="font-size:.78rem">
+                  <span *ngIf="p.agentFirstName">
+                    <div style="font-weight:600;color:var(--g800)">{{ p.agentFirstName }} {{ p.agentLastName }}</div>
+                    <div style="font-size:.68rem;color:var(--g400)" *ngIf="p.agentAgenceCode">Agence #{{ p.agentAgenceCode }}</div>
+                  </span>
+                  <span *ngIf="!p.agentFirstName" style="opacity:.4;color:var(--g500)">— Auto</span>
+                </td>
                 <td>
-                  <div
-                    style="display: flex; gap: 0.375rem"
-                    *ngIf="p.status === 'Pending' || p.status === 'En attente'"
-                  >
-                    <button class="btn btn-primary btn-xs">Saisir</button>
-                    <button class="btn btn-outline btn-xs">Relancer</button>
-                  </div>
-                  <button
-                    *ngIf="p.status === 'Paid' || p.status === 'Paye'"
-                    class="btn btn-ghost btn-xs"
-                  >
-                    Recu
-                  </button>
+                  <select class="form-input"
+                    style="width:100px;padding:.2rem .4rem;font-size:.7rem"
+                    [value]="p.paymentStatus"
+                    (change)="changePaymentStatus(p.id, $any($event.target).value)">
+                    <option *ngFor="let s of statusOptions" [value]="s" [selected]="s === p.paymentStatus">{{ s }}</option>
+                  </select>
                 </td>
               </tr>
             </tbody>
@@ -923,6 +926,88 @@
       </div>
     </div>
     <!-- /page-remboursements -->
+
+    <!-- ═══ MODAL: Saisir paiement admin (CASH_IMF) ═══ -->
+    <div class="modal-overlay" *ngIf="showAdminPayModal" (click)="closeAdminPayModal()">
+      <div class="modal-card admin-pay-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div>
+            <div class="modal-title">Saisir un paiement</div>
+            <div class="modal-sub">Méthode : Cash IMF</div>
+          </div>
+          <button class="modal-close" (click)="closeAdminPayModal()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Search -->
+          <label class="form-label">Rechercher le client (CIN ou nom)</label>
+          <div style="position:relative">
+            <input class="form-input" type="text" placeholder="Saisir le CIN…"
+              [value]="adminCinSearch" (input)="onAdminCinInput($event)"/>
+            <div class="admin-search-results" *ngIf="adminClientResults.length > 0">
+              <div class="admin-search-item" *ngFor="let c of adminClientResults" (click)="selectAdminClient(c)">
+                <strong>{{ c.firstName }} {{ c.lastName }}</strong>
+                <span style="color:var(--g400);margin-left:.5rem">CIN {{ c.cin || '—' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error -->
+          <div *ngIf="adminInstError" class="admin-pay-error" style="margin-top:.75rem">{{ adminInstError }}</div>
+
+          <!-- Loading installment -->
+          <div *ngIf="adminInstLoading" style="text-align:center;padding:1rem;opacity:.5;font-size:.85rem">Chargement…</div>
+
+          <!-- Selected client + installment -->
+          <div *ngIf="adminSelectedClient && adminNextInstallment" style="margin-top:1rem">
+            <div class="admin-pay-client-chip">
+              <strong>{{ adminSelectedClient.firstName }} {{ adminSelectedClient.lastName }}</strong>
+              <span style="color:var(--g400)">· CIN {{ adminSelectedClient.cin || '—' }} · Contrat {{ adminNextInstallment.numeroContrat }}</span>
+              <button style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--g400)" (click)="resetAdminPayForm()">✕</button>
+            </div>
+            <div class="admin-pay-details">
+              <div class="admin-pay-detail-row">
+                <span>Mensualité</span>
+                <strong>#{{ adminNextInstallment.installmentNumber }} / {{ adminNextInstallment.totalInstallments }}</strong>
+              </div>
+              <div class="admin-pay-detail-row">
+                <span>Échéance</span>
+                <strong>{{ adminNextInstallment.dueDate }}</strong>
+              </div>
+              <div class="admin-pay-detail-row">
+                <span>Montant</span>
+                <strong style="font-size:1.05rem;color:var(--success)">{{ adminNextInstallment.amountDue | number:'1.2-2' }} TND</strong>
+              </div>
+              <div class="admin-pay-detail-row">
+                <span>Méthode</span>
+                <span class="badge b-teal">Cash IMF</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Success -->
+          <div *ngIf="adminPaySuccess && adminLastPayment" class="admin-pay-success" style="margin-top:1rem">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Paiement #{{ adminLastPayment.id }} enregistré — {{ adminLastPayment.amountPaid | number:'1.2-2' }} TND</span>
+          </div>
+
+          <!-- Error -->
+          <div *ngIf="adminPayError" class="admin-pay-error" style="margin-top:.75rem">{{ adminPayError }}</div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline btn-sm" (click)="adminPaySuccess ? resetAdminPayForm() : closeAdminPayModal()">
+            {{ adminPaySuccess ? 'Nouveau paiement' : 'Annuler' }}
+          </button>
+          <button class="btn btn-primary btn-sm"
+            *ngIf="adminNextInstallment && !adminPaySuccess"
+            [disabled]="adminPayLoading"
+            (click)="submitAdminPayment()">
+            {{ adminPayLoading ? 'Enregistrement…' : 'Confirmer le paiement' }}
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- ═══════════════════════════════════════════════════════
          PAGE : VÉHICULES
