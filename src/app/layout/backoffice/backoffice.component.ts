@@ -465,7 +465,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     treasuryAccountId: null, movementDirection: 'INFLOW',
     description: '', amount: null
   };
-  
+
   // ── Load methods ──
   loadCampaigns(): void {
     this.campaignService.getAll().subscribe({ next: data => this.campaigns = data, error: err => console.error('Campaigns error', err) });
@@ -486,12 +486,16 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.indicatorError = '';
   }
 
+  savingIndicator = false;
   saveIndicator() {
+    if (this.savingIndicator) return;
+    this.savingIndicator = true;
     this.indicatorService.add(this.indicatorForm).subscribe({
-      next: () => { this.loadIndicators(); this.closeIndicatorForm(); },
+      next: () => { this.loadIndicators(); this.closeIndicatorForm(); this.savingIndicator = false; },
       error: err => {
         if (err.status === 400) this.indicatorError = err.error?.message || JSON.stringify(err.error?.errors) || 'Données invalides.';
         else this.indicatorError = 'Une erreur est survenue.';
+        this.savingIndicator = false;
       }
     });
   }
@@ -517,23 +521,28 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.editingTreasuryId = null;
   }
 
+savingTreasury = false;
   saveTreasury() {
+    if (this.savingTreasury) return;
+    this.savingTreasury = true;
     if (this.editingTreasuryId) {
       this.treasuryService.update(this.editingTreasuryId, this.treasuryUpdateForm).subscribe({
-        next: () => { this.loadTreasuryAccounts(); this.closeTreasuryForm(); },
+        next: () => { this.loadTreasuryAccounts(); this.closeTreasuryForm(); this.savingTreasury = false; },
         error: err => {
           if (err.status === 400) this.treasuryError = err.error?.message || 'Données invalides.';
           else this.treasuryError = 'Une erreur est survenue.';
+          this.savingTreasury = false;
         }
       });
     } else {
       this.treasuryForm.currentBalance = this.treasuryForm.initialBalance;
       this.treasuryService.add(this.treasuryForm).subscribe({
-        next: () => { this.loadTreasuryAccounts(); this.closeTreasuryForm(); },
+        next: () => { this.loadTreasuryAccounts(); this.closeTreasuryForm(); this.savingTreasury = false; },
         error: err => {
           if (err.status === 400) this.treasuryError = err.error?.message || 'Données invalides.';
           else if (err.status === 409) this.treasuryError = 'Un compte de ce type et cette devise existe déjà.';
           else this.treasuryError = 'Une erreur est survenue.';
+          this.savingTreasury = false;
         }
       });
     }
@@ -551,12 +560,16 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.simulationError = '';
   }
 
+  savingSimulation = false;
   saveSimulation() {
+    if (this.savingSimulation) return;
+    this.savingSimulation = true;
     this.simulationService.add(this.simulationForm).subscribe({
-      next: () => { this.loadSimulations(); this.closeSimulationForm(); },
+      next: () => { this.loadSimulations(); this.closeSimulationForm(); this.savingSimulation = false; },
       error: err => {
         if (err.status === 400) this.simulationError = err.error?.message || 'Données invalides.';
         else this.simulationError = 'Une erreur est survenue.';
+        this.savingSimulation = false;
       }
     });
   }
