@@ -284,7 +284,12 @@
             class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             placeholder="recipient@example.com">
         </div>
-        <p class="text-xs text-gray-500 mt-1">Enter the email address of the person you want to send money to</p>
+        <div class="mt-1">
+          <p class="text-xs text-gray-500">Enter the email address of the person you want to send money to</p>
+          <p *ngIf="transferForm.targetEmail && !isValidEmail(transferForm.targetEmail)" class="text-xs text-red-500 mt-1">
+            Please enter a valid email address (e.g., user@domain.com)
+          </p>
+        </div>
       </div>
       
       <!-- Amount -->

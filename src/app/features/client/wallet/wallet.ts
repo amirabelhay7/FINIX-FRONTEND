@@ -167,7 +167,27 @@ export class ClientWallet implements OnInit {
       },
       error: (err) => {
         this.withdrawLoading = false;
-        this.error = err?.error?.message || 'Withdrawal request failed';
+        console.error('Withdrawal error:', err);
+        
+        // Handle specific error scenarios
+        if (err?.status === 400) {
+          if (err?.error?.message?.includes('insufficient') || err?.error?.message?.includes('balance')) {
+            this.error = 'Insufficient balance for this withdrawal.';
+          } else if (err?.error?.message?.includes('limit') || err?.error?.message?.includes('transaction')) {
+            this.error = 'Withdrawal amount exceeds transaction limit.';
+          } else {
+            this.error = err?.error?.message || 'Invalid withdrawal request. Please check all details and try again.';
+          }
+        } else if (err?.status === 403) {
+          this.error = 'You are not authorized to make withdrawals.';
+        } else if (err?.status === 401) {
+          this.error = 'Your session has expired. Please log in again.';
+        } else {
+          this.error = err?.error?.message || 'Withdrawal request failed. Please try again later.';
+        }
+        
+        // Trigger change detection to avoid NG0100 error
+        this.cdr.detectChanges();
       }
     });
   }
@@ -180,6 +200,13 @@ export class ClientWallet implements OnInit {
 
     if (!this.transferForm.targetEmail) {
       this.error = 'Please enter recipient email';
+      return;
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.transferForm.targetEmail)) {
+      this.error = 'Please enter a valid email address';
       return;
     }
 
@@ -207,7 +234,29 @@ export class ClientWallet implements OnInit {
       },
       error: (err) => {
         this.transferLoading = false;
-        this.error = err?.error?.message || 'Transfer failed';
+        console.error('Transfer error:', err);
+        
+        // Handle specific error scenarios
+        if (err?.status === 400) {
+          if (err?.error?.message?.includes('not found') || err?.error?.message?.includes('User not found')) {
+            this.error = `User with email "${this.transferForm.targetEmail}" not found. Please check the email address and try again.`;
+          } else if (err?.error?.message?.includes('insufficient') || err?.error?.message?.includes('balance')) {
+            this.error = 'Insufficient balance for this transfer.';
+          } else if (err?.error?.message?.includes('same') || err?.error?.message?.includes('yourself')) {
+            this.error = 'You cannot transfer money to yourself.';
+          } else {
+            this.error = err?.error?.message || 'Invalid transfer request. Please check all details and try again.';
+          }
+        } else if (err?.status === 403) {
+          this.error = 'You are not authorized to make transfers.';
+        } else if (err?.status === 401) {
+          this.error = 'Your session has expired. Please log in again.';
+        } else {
+          this.error = err?.error?.message || 'Transfer failed. Please try again later.';
+        }
+        
+        // Trigger change detection to avoid NG0100 error
+        this.cdr.detectChanges();
       }
     });
   }
@@ -243,5 +292,10 @@ export class ClientWallet implements OnInit {
   clearMessages(): void {
     this.error = null;
     this.successMessage = null;
+  }
+
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 }

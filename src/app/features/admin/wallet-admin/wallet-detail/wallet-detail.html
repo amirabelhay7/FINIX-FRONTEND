@@ -35,18 +35,10 @@
     
     <!-- Main Content -->
     <div class="space-y-6">
-      <!-- Balance Card -->
-      <div class="panel overflow-hidden">
-        <div class="panel-body bg-gray-50/50 border-b border-gray-100 flex justify-between items-end py-10">
-          <div class="space-y-1">
-            <p class="ph-eyebrow !mb-0">Available Liquidity</p>
-            <h2 class="text-4xl font-black text-gray-900 tracking-tighter">
-              {{ currentBalance | number:'1.2-2' }} <small class="text-lg text-gray-400 font-bold uppercase">{{ wallet.currency }}</small>
-            </h2>
-          </div>
-          <div class="text-right">
-            <span class="td-ref font-mono">{{ wallet.accountNumber }}</span>
-          </div>
+      <!-- Wallet Overview Panel -->
+      <div class="panel">
+        <div class="panel-head">
+          <h4 class="panel-title">Wallet Overview</h4>
         </div>
         
         <div class="panel-body grid g2 gap-8">
@@ -77,6 +69,44 @@
         </div>
       </div>
 
+      <!-- Balance Card -->
+      <div class="panel overflow-hidden">
+        <div class="panel-body bg-gray-50/50 border-b border-gray-100 flex justify-between items-end py-10">
+          <div class="space-y-1">
+            <p class="ph-eyebrow !mb-0">Available Liquidity</p>
+            <h2 class="text-4xl font-black text-gray-900 tracking-tighter">
+              {{ currentBalance | number:'1.2-2' }} <small class="text-lg text-gray-400 font-bold uppercase">{{ wallet.currency }}</small>
+            </h2>
+          </div>
+          <div class="text-right">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium"
+                 [style.background]="wallet?.isActive ? 'var(--green)' : 'var(--red)'"
+                 [style.color]="'white'">
+              <span class="w-2 h-2 rounded-full bg-white/60"></span>
+              {{ wallet?.isActive ? 'Active' : 'Inactive' }}
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel-body grid grid-cols-3 gap-4 text-center">
+          <div>
+            <p class="text-xs text-gray-600 mb-1">Daily Used</p>
+            <p class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.dailyUsed || 0) }}</p>
+            <p class="text-xs text-gray-500">of {{ formatBalance(wallet?.dailyLimit || 0) }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-600 mb-1">Monthly Used</p>
+            <p class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.monthlyUsed || 0) }}</p>
+            <p class="text-xs text-gray-500">of {{ formatBalance(wallet?.monthlyLimit || 0) }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-600 mb-1">Per Transaction</p>
+            <p class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.transactionLimit || 0) }}</p>
+            <p class="text-xs text-gray-500">maximum</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Transaction History (Ledger) -->
       <div class="panel">
         <div class="panel-head">
@@ -97,8 +127,8 @@
                 <td class="td-primary">{{ t.transactionType.replace('_', ' ') }}</td>
                 <td class="td-sub">{{ formatDate(t.transactionDate) }}</td>
                 <td style="text-align: right">
-                  <span class="td-amount font-black" [class.text-green-600]="isPositive(t)" [class.text-red-500]="!isPositive(t)">
-                    {{ isPositive(t) ? '+' : '-' }}{{ t.amount | number:'1.2-2' }}
+                  <span class="td-amount" [class.positive]="isCredit(t.transactionType)" [class.negative]="!isCredit(t.transactionType)">
+                    {{ isCredit(t.transactionType) ? '+' : '-' }}{{ formatBalance(t.amount) }}
                   </span>
                 </td>
               </tr>
@@ -113,113 +143,238 @@
 
     <!-- Admin Actions Sidebar -->
     <div class="space-y-6">
+      <!-- Treasury Adjustment -->
       <div class="panel p-6 space-y-6 border-t-4 border-t-blue-600 shadow-lg">
-        <div>
-          <h4 class="panel-title">Treasury Adjustment</h4>
-          <p class="td-sub">Direct liquidity injection from central funds.</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+            <span class="text-white text-lg">💰</span>
+          </div>
+          <div>
+            <h4 class="panel-title text-lg font-bold">Treasury Adjustment</h4>
+            <p class="td-sub text-sm">Direct liquidity injection from central funds.</p>
+          </div>
         </div>
         
-        <form (ngSubmit)="applyCredit()" class="space-y-4">
-          <div class="flex items-center gap-4">
-            <label class="form-label !mb-0 w-32">Amount (TND)</label>
-            <input type="number" class="form-input flex-1" [(ngModel)]="creditAmount" name="creditAmount" required min="0.01" step="0.01" placeholder="0.00">
+        <form (ngSubmit)="applyCredit()" class="space-y-5">
+          <!-- Amount Input -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Amount (TND) <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-400">💵</span>
+              </div>
+              <input 
+                type="number" 
+                class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-lg font-semibold"
+                [(ngModel)]="creditAmount" 
+                name="creditAmount" 
+                required 
+                min="0.01" 
+                step="0.01" 
+                placeholder="0.00">
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Enter amount to credit to this account</p>
           </div>
-          <div class="flex items-center gap-4">
-            <label class="form-label !mb-0 w-32">Description</label>
-            <input type="text" class="form-input flex-1" [(ngModel)]="creditDescription" name="creditDescription" placeholder="Admin adjustment">
+          
+          <!-- Description Input -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Description <span class="text-gray-400 text-xs">(Optional)</span>
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-400">📝</span>
+              </div>
+              <input 
+                type="text" 
+                class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                [(ngModel)]="creditDescription" 
+                name="creditDescription" 
+                placeholder="e.g., Administrative adjustment, bonus payment">
+            </div>
           </div>
-          <div class="flex justify-end pt-2">
-            <button type="submit" class="btn btn-primary" [disabled]="creditLoading || !creditAmount || creditAmount <= 0">
-              <span *ngIf="!creditLoading">Credit Account</span>
-              <span *ngIf="creditLoading">Processing...</span>
+          
+          <!-- Action Buttons -->
+          <div class="flex gap-3 pt-2">
+            <button 
+              type="submit" 
+              class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+              [disabled]="creditLoading || !creditAmount || creditAmount <= 0">
+              <span *ngIf="!creditLoading" class="flex items-center justify-center gap-2">
+                <span>Credit Account</span>
+                <span>💰</span>
+              </span>
+              <span *ngIf="creditLoading" class="flex items-center justify-center gap-2">
+                <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Processing...</span>
+              </span>
+            </button>
+            <button 
+              type="button" 
+              class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+              (click)="creditAmount = null; creditDescription = ''">
+              Clear
             </button>
           </div>
         </form>
         
-        <div class="pt-4 border-t border-gray-50 flex items-start gap-2">
-          <span class="material-symbols-outlined text-amber-500 text-[18px]">gavel</span>
-          <p class="text-[10px] text-gray-400 font-medium italic leading-relaxed">Adjustments are non-reversible and globally audited.</p>
+        <!-- Warning Section -->
+        <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <div class="flex items-start gap-3">
+            <span class="text-amber-600 mt-0.5">⚠️</span>
+            <div class="text-sm text-amber-700">
+              <strong>Important:</strong> Treasury adjustments are non-reversible and globally audited. Use with caution and proper authorization.
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Transaction Limits Management -->
       <div class="panel">
         <div class="panel-head">
-          <h4 class="panel-title"><div class="ptdot"></div> Transaction Limits</h4>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <span class="text-white text-lg">🔒</span>
+            </div>
+            <div>
+              <h4 class="panel-title text-lg font-bold">Transaction Limits</h4>
+              <p class="td-sub text-sm">Control outgoing transaction amounts</p>
+            </div>
+          </div>
           <span class="badge b-purple" *ngIf="wallet?.dailyLimit || wallet?.monthlyLimit">Active</span>
         </div>
         
         <div class="panel-body space-y-6">
           <!-- Current Usage Display -->
-          <div *ngIf="wallet?.dailyLimit || wallet?.monthlyLimit" class="space-y-4">
-            <div class="p-4 bg-purple-50/30 rounded-2xl border border-purple-100">
-              <p class="td-sub uppercase text-[9px] font-black !mt-0 mb-3">Current Usage</p>
-              <div class="space-y-3">
-                <div *ngIf="wallet?.dailyLimit" class="flex items-center justify-between">
-                  <div>
-                    <p class="td-sub text-xs">Daily Limit</p>
-                    <p class="td-primary">{{wallet?.dailyUsed || 0}} / {{wallet?.dailyLimit}} TND</p>
-                  </div>
-                  <div class="flex-1 ml-4 max-w-[120px]">
-                    <div class="w-full bg-purple-200 rounded-full h-2">
-                      <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" [style.width.%]="((wallet?.dailyUsed || 0) / (wallet?.dailyLimit || 1)) * 100"></div>
-                    </div>
-                  </div>
-                </div>
-                <div *ngIf="wallet?.monthlyLimit" class="flex items-center justify-between">
-                  <div>
-                    <p class="td-sub text-xs">Monthly Limit</p>
-                    <p class="td-primary">{{wallet?.monthlyUsed || 0}} / {{wallet?.monthlyLimit}} TND</p>
-                  </div>
-                  <div class="flex-1 ml-4 max-w-[120px]">
-                    <div class="w-full bg-purple-200 rounded-full h-2">
-                      <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" [style.width.%]="((wallet?.monthlyUsed || 0) / (wallet?.monthlyLimit || 1)) * 100"></div>
-                    </div>
-                  </div>
-                </div>
+          <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4">
+            <div class="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p class="text-xs text-gray-600 mb-1">Daily Used</p>
+                <p class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.dailyUsed || 0) }}</p>
+                <p class="text-xs text-gray-500">of {{ formatBalance(wallet?.dailyLimit || 0) }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-600 mb-1">Monthly Used</p>
+                <p class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.monthlyUsed || 0) }}</p>
+                <p class="text-xs text-gray-500">of {{ formatBalance(wallet?.monthlyLimit || 0) }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-600 mb-1">Per Transaction</p>
+                <p class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.transactionLimit || 0) }}</p>
+                <p class="text-xs text-gray-500">maximum</p>
               </div>
             </div>
           </div>
           
           <!-- Limit Configuration -->
-          <div class="space-y-4">
-            <p class="td-sub uppercase text-[9px] font-black !mt-0">Configure Limits</p>
-            <form (ngSubmit)="saveTransactionLimits()" class="space-y-4">
-              <div class="flex items-center gap-4">
-                <label class="form-label !mb-0 w-32">Daily Limit (TND)</label>
-                <input type="number" class="form-input flex-1" [(ngModel)]="limitForm.dailyLimit" name="dailyLimit" min="0" step="0.01" [placeholder]="wallet?.dailyLimit || '2000'">
+          <div class="space-y-5">
+            <div class="flex items-center gap-2">
+              <span class="text-purple-600">⚙️</span>
+              <p class="td-sub uppercase text-[10px] font-black !mt-0">Configure Limits</p>
+            </div>
+            
+            <form (ngSubmit)="saveTransactionLimits()" class="space-y-5">
+              <!-- Daily Limit -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  Daily Limit (TND) <span class="text-gray-400 text-xs">(Optional)</span>
+                </label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span class="text-gray-400">📅</span>
+                  </div>
+                  <input 
+                    type="number" 
+                    class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    [(ngModel)]="limitForm.dailyLimit" 
+                    name="dailyLimit" 
+                    min="0" 
+                    step="0.01" 
+                    [placeholder]="wallet?.dailyLimit ? formatBalance(wallet.dailyLimit) : 'No limit'">
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Maximum total amount per day (leave empty for no limit)</p>
               </div>
-              <div class="flex items-center gap-4">
-                <label class="form-label !mb-0 w-32">Monthly Limit (TND)</label>
-                <input type="number" class="form-input flex-1" [(ngModel)]="limitForm.monthlyLimit" name="monthlyLimit" min="0" step="0.01" [placeholder]="wallet?.monthlyLimit || '10000'">
+              
+              <!-- Monthly Limit -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  Monthly Limit (TND) <span class="text-gray-400 text-xs">(Optional)</span>
+                </label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span class="text-gray-400">📆</span>
+                  </div>
+                  <input 
+                    type="number" 
+                    class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    [(ngModel)]="limitForm.monthlyLimit" 
+                    name="monthlyLimit" 
+                    min="0" 
+                    step="0.01" 
+                    [placeholder]="wallet?.monthlyLimit ? formatBalance(wallet.monthlyLimit) : 'No limit'">
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Maximum total amount per month (leave empty for no limit)</p>
               </div>
-              <div class="flex items-center gap-4">
-                <label class="form-label !mb-0 w-32">Transaction Limit (TND)</label>
-                <input type="number" class="form-input flex-1" [(ngModel)]="limitForm.transactionLimit" name="transactionLimit" min="0" step="0.01" [placeholder]="wallet?.transactionLimit || '1000'">
+              
+              <!-- Transaction Limit -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  Transaction Limit (TND) <span class="text-gray-400 text-xs">(Optional)</span>
+                </label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span class="text-gray-400">💳</span>
+                  </div>
+                  <input 
+                    type="number" 
+                    class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    [(ngModel)]="limitForm.transactionLimit" 
+                    name="transactionLimit" 
+                    min="0" 
+                    step="0.01" 
+                    [placeholder]="wallet?.transactionLimit ? formatBalance(wallet.transactionLimit) : 'No limit'">
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Maximum amount per single transaction (leave empty for no limit)</p>
               </div>
+              
+              <!-- Action Buttons -->
               <div class="flex gap-3 pt-2">
-                <button type="submit" class="btn btn-primary" [disabled]="limitsLoading">
-                  <span *ngIf="!limitsLoading">Save Limits</span>
-                  <span *ngIf="limitsLoading">Saving...</span>
+                <button 
+                  type="submit" 
+                  class="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                  [disabled]="limitsLoading">
+                  <span *ngIf="!limitsLoading" class="flex items-center justify-center gap-2">
+                    <span>Save Limits</span>
+                    <span>🔒</span>
+                  </span>
+                  <span *ngIf="limitsLoading" class="flex items-center justify-center gap-2">
+                    <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Saving...</span>
+                  </span>
                 </button>
-                <button type="button" class="btn btn-outline" (click)="limitForm = { dailyLimit: undefined, monthlyLimit: undefined, transactionLimit: undefined }">Clear</button>
+                <button 
+                  type="button" 
+                  class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+                  (click)="limitForm = { dailyLimit: undefined, monthlyLimit: undefined, transactionLimit: undefined }">
+                  Clear
+                </button>
               </div>
             </form>
           </div>
           
           <!-- Info Section -->
-          <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
-            <div class="flex items-start gap-2">
-              <span class="material-symbols-outlined text-purple-500 text-[16px] mt-0.5">info</span>
-              <div>
-                <p class="td-sub text-xs mb-1">Limit Information</p>
-                <p class="text-xs text-gray-600">Leave fields empty for no limit. Limits apply to all outgoing transactions and reset automatically.</p>
+          <div class="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+            <div class="flex items-start gap-3">
+              <span class="text-purple-600 mt-0.5">ℹ️</span>
+              <div class="text-sm text-purple-700">
+                <strong>Limit Information:</strong> Leave fields empty for no limit. Limits apply to all outgoing transactions and reset automatically at the beginning of each period.
               </div>
             </div>
           </div>
         </div>
       </div>
-
       <div class="panel bg-red-50/20 border-red-100 p-6 space-y-4">
         <h4 class="panel-title text-red-700">Restricted Zones</h4>
         

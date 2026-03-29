@@ -96,6 +96,15 @@ export class WalletDetail implements OnInit, OnChanges {
     return balance;
   }
 
+  formatBalance(amount: number | undefined): string {
+    if (amount === undefined || amount === null) return '0.00 TND';
+    return amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' ' + (this.wallet?.currency || 'TND');
+  }
+
+  isCredit(transactionType: string): boolean {
+    return ['DEPOSIT', 'ADMIN_TOP_UP'].includes(transactionType?.toUpperCase());
+  }
+
   applyCredit(): void {
     if (!this.creditAmount || this.creditAmount <= 0 || !this.currentUserId) return;
     this.creditLoading = true;
