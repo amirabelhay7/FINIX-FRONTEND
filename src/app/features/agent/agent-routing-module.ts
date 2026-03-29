@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { Dashboard } from './dashboard/dashboard';
 import { Clients } from './clients/clients';
 import { TopUp } from './top-up/top-up';
+import { TopUpEnhanced } from './top-up/top-up-enhanced';
 import { LoanVerification } from './loan-verification/loan-verification';
 import { ClientDetail } from './client-detail/client-detail';
 import { AgentStubComponent } from './agent-stub/agent-stub';
@@ -13,7 +14,8 @@ const routes: Routes = [
   { path: 'stub/:page', component: AgentStubComponent },
   { path: 'clients', component: Clients },
   { path: 'clients/:id', component: ClientDetail },
-  { path: 'wallet', loadChildren: () => import('../wallet/wallet-module').then(m => m.WalletModule) },
+  { path: 'top-up', component: TopUp },
+  { path: 'top-up-enhanced', component: TopUpEnhanced },
   { path: 'loan-verification', component: LoanVerification },
   { path: '**', redirectTo: 'dashboard' }
 ];

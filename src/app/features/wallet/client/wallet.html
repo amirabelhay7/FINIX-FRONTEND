@@ -47,16 +47,16 @@
         <!-- Balance Display -->
         <div class="mb-6">
           <div class="text-blue-100 text-sm font-medium mb-2">Available balance</div>
-          <div class="text-4xl font-bold mb-2">{{ formatBalance(wallet?.balance || 0) }}</div>
+          <div class="text-4xl font-bold mb-2">{{ formatBalance(wallet!.balance || 0) }}</div>
           <div class="text-blue-200 text-sm">
-            💼 Savings account · 📋 IBAN: {{ wallet?.accountNumber || 'Loading...' }}
+            💼 Savings account · 📋 IBAN: {{ wallet!.accountNumber || 'Loading...' }}
           </div>
         </div>
         
         <!-- Status Badge -->
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-6">
           <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-          <span class="text-sm font-medium">{{ wallet?.isActive ? 'Active' : 'Inactive' }}</span>
+          <span class="text-sm font-medium">{{ wallet!.isActive ? 'Active' : 'Inactive' }}</span>
         </div>
         
         <!-- Action Buttons -->
@@ -131,32 +131,44 @@
         <div class="panel">
           <div class="panel-head">
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span class="text-white text-sm">ℹ️</span>
+              <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                <span class="material-symbols-outlined text-white">info</span>
               </div>
               <div class="panel-title">Wallet Information</div>
             </div>
           </div>
           <div class="panel-body space-y-4">
-            <div class="flex justify-between items-center py-2 border-b border-gray-100">
-              <span class="text-sm text-gray-600">Account Number</span>
-              <span class="text-sm font-medium">{{ wallet?.accountNumber || 'Loading...' }}</span>
+            <!-- Account Type Card -->
+            <div class="p-4 bg-purple-50/30 rounded-2xl border border-purple-100 flex items-center justify-between">
+              <div>
+                <p class="td-sub uppercase text-[9px] font-black !mt-0">Account Type</p>
+                <p class="td-primary">Personal Wallet</p>
+              </div>
+              <span class="material-symbols-outlined text-purple-500">account_balance_wallet</span>
             </div>
-            <div class="flex justify-between items-center py-2 border-b border-gray-100">
-              <span class="text-sm text-gray-600">Client Email</span>
-              <span class="text-sm font-medium">{{ wallet?.clientEmail || 'N/A' }}</span>
+            
+            <!-- Owner Identity -->
+            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <p class="td-sub uppercase text-[9px] font-black mb-1">Owner Identity</p>
+              <p class="td-primary">{{ wallet!.clientName || 'N/A' }}</p>
+              <p class="text-xs text-gray-500 mt-1">{{ wallet!.clientEmail || 'N/A' }}</p>
             </div>
-            <div class="flex justify-between items-center py-2 border-b border-gray-100">
-              <span class="text-sm text-gray-600">Client Name</span>
-              <span class="text-sm font-medium">{{ wallet?.clientName || 'N/A' }}</span>
-            </div>
-            <div class="flex justify-between items-center py-2">
-              <span class="text-sm text-gray-600">Account Status</span>
-              <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full" [style.background]="wallet?.isActive ? 'var(--green)' : 'var(--red)'"></div>
-                <span class="text-sm font-medium" [style.color]="wallet?.isActive ? 'var(--green)' : 'var(--red)'">
-                  {{ wallet?.isActive ? 'Active' : 'Inactive' }}
-                </span>
+            
+            <!-- Account Details -->
+            <div class="grid grid-cols-1 gap-3">
+              <div class="p-3 bg-blue-50/30 rounded-xl border border-blue-100">
+                <p class="td-sub uppercase text-[9px] font-black mb-1">Account Number</p>
+                <p class="td-primary font-mono text-sm">{{ wallet!.accountNumber || 'Loading...' }}</p>
+              </div>
+              
+              <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <p class="td-sub uppercase text-[9px] font-black mb-1">Account Status</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <div class="w-2 h-2 rounded-full" [style.background]="wallet!.isActive ? 'var(--green)' : 'var(--red)'"></div>
+                  <span class="text-xs font-bold" [style.color]="wallet!.isActive ? 'var(--green)' : 'var(--red)'">
+                    {{ wallet!.isActive ? 'ACTIVE' : 'INACTIVE' }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -166,29 +178,71 @@
         <div class="panel">
           <div class="panel-head">
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
-                <span class="text-white text-sm">🔒</span>
+              <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg">
+                <span class="material-symbols-outlined text-white">security</span>
               </div>
               <div class="panel-title">Transaction Limits</div>
             </div>
           </div>
-          <div class="panel-body space-y-4">
-            <div class="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg p-4">
-              <div class="grid grid-cols-1 gap-3">
-                <div class="text-center">
-                  <p class="text-xs text-gray-600 mb-1">Daily Used</p>
-                  <p class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.dailyUsed || 0) }}</p>
-                  <p class="text-xs text-gray-500">of {{ formatBalance(wallet?.dailyLimit || 0) }}</p>
+          
+          <!-- Balance Card Style Like Admin -->
+          <div class="panel-body bg-gray-50/50 border-b border-gray-100">
+            <div class="grid grid-cols-1 gap-4 text-center">
+              <!-- Daily Limit -->
+              <div class="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-100">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="td-sub uppercase text-[9px] font-black !mt-0">Daily Usage</p>
+                  <span class="material-symbols-outlined text-orange-500 text-lg">today</span>
                 </div>
-                <div class="text-center">
-                  <p class="text-xs text-gray-600 mb-1">Monthly Used</p>
-                  <p class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.monthlyUsed || 0) }}</p>
-                  <p class="text-xs text-gray-500">of {{ formatBalance(wallet?.monthlyLimit || 0) }}</p>
+                <div class="space-y-2">
+                  <p class="text-2xl font-black text-gray-900 tracking-tighter">
+                    {{ formatBalance(wallet!.dailyUsed || 0) }}
+                  </p>
+                  <p class="text-xs text-gray-500">of {{ formatBalance(wallet!.dailyLimit || 0) }}</p>
+                  <!-- Progress Bar -->
+                  <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div class="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full transition-all duration-300" 
+                         [style.width]="getDailyLimitPercentage() + '%'"></div>
+                  </div>
+                  <p class="text-xs font-medium text-orange-600">{{ getDailyLimitPercentage().toFixed(0) }}% Used</p>
                 </div>
-                <div class="text-center">
-                  <p class="text-xs text-gray-600 mb-1">Per Transaction</p>
-                  <p class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.transactionLimit || 0) }}</p>
-                  <p class="text-xs text-gray-500">maximum</p>
+              </div>
+              
+              <!-- Monthly Limit -->
+              <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="td-sub uppercase text-[9px] font-black !mt-0">Monthly Usage</p>
+                  <span class="material-symbols-outlined text-blue-500 text-lg">calendar_month</span>
+                </div>
+                <div class="space-y-2">
+                  <p class="text-2xl font-black text-gray-900 tracking-tighter">
+                    {{ formatBalance(wallet!.monthlyUsed || 0) }}
+                  </p>
+                  <p class="text-xs text-gray-500">of {{ formatBalance(wallet!.monthlyLimit || 0) }}</p>
+                  <!-- Progress Bar -->
+                  <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div class="bg-gradient-to-r from-blue-400 to-blue-500 h-2 rounded-full transition-all duration-300" 
+                         [style.width]="getMonthlyLimitPercentage() + '%'"></div>
+                  </div>
+                  <p class="text-xs font-medium text-blue-600">{{ getMonthlyLimitPercentage().toFixed(0) }}% Used</p>
+                </div>
+              </div>
+              
+              <!-- Per Transaction Limit -->
+              <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="td-sub uppercase text-[9px] font-black !mt-0">Per Transaction</p>
+                  <span class="material-symbols-outlined text-green-500 text-lg">receipt_long</span>
+                </div>
+                <div class="space-y-2">
+                  <p class="text-2xl font-black text-gray-900 tracking-tighter">
+                    {{ formatBalance(wallet!.transactionLimit || 0) }}
+                  </p>
+                  <p class="text-xs text-gray-500">maximum limit</p>
+                  <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    Fixed Limit
+                  </div>
                 </div>
               </div>
             </div>
@@ -212,7 +266,7 @@
       
       <div class="border-l-4 border-green-500 pl-4">
         <h4 class="font-medium text-green-800">🏦 Bank Transfer</h4>
-        <p class="text-sm text-gray-600 mt-1">Transfer from your bank account using your IBAN: {{ wallet?.accountNumber || 'Loading...' }}</p>
+        <p class="text-sm text-gray-600 mt-1">Transfer from your bank account using your IBAN: {{ wallet!.accountNumber || 'Loading...' }}</p>
       </div>
       
       <div class="border-l-4 border-purple-500 pl-4">
@@ -244,7 +298,7 @@
     <div class="mb-2 p-3 bg-gray-50 rounded-lg text-sm">
       <div class="flex justify-between">
         <span>Available Balance:</span>
-        <span class="font-medium">{{ formatBalance(wallet?.balance || 0) }}</span>
+        <span class="font-medium">{{ formatBalance(wallet!.balance || 0) }}</span>
       </div>
     </div>
     
@@ -257,7 +311,7 @@
         placeholder="0.00"
         min="0.01"
         step="0.01"
-        [max]="wallet?.balance || 0">
+        [max]="wallet!.balance || 0">
     </div>
     
     <div class="mb-4">
@@ -317,7 +371,7 @@
     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-6">
       <div class="flex justify-between items-center">
         <span class="text-sm text-gray-600">Available Balance</span>
-        <span class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.balance || 0) }}</span>
+        <span class="text-lg font-bold text-gray-900">{{ formatBalance(wallet!.balance || 0) }}</span>
       </div>
     </div>
 
@@ -362,11 +416,11 @@
             placeholder="0.00"
             min="0.01"
             step="0.01"
-            [max]="wallet?.balance || 0">
+            [max]="wallet!.balance || 0">
         </div>
         <div class="flex justify-between mt-1">
           <p class="text-xs text-gray-500">Minimum: 0.01 TND</p>
-          <p class="text-xs text-gray-500">Maximum: {{ formatBalance(wallet?.balance || 0) }}</p>
+          <p class="text-xs text-gray-500">Maximum: {{ formatBalance(wallet!.balance || 0) }}</p>
         </div>
       </div>
       

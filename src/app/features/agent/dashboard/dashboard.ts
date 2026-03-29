@@ -7,23 +7,23 @@ import { Component } from '@angular/core';
   selector: 'app-dashboard',
   standalone: false,
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css',
+  styleUrls: ['./dashboard.css'],
 })
 export class Dashboard {
   readonly chartBars = [35, 42, 55, 48, 38, 52, 60, 45, 58, 72, 65, 85];
   readonly chartMonths = [
+    'Jan',
+    'Feb',
     'Mar',
-    'Avr',
-    'Mai',
+    'Apr',
+    'May',
     'Jun',
     'Jul',
-    'Aoû',
+    'Aug',
     'Sep',
     'Oct',
     'Nov',
-    'Déc',
-    'Jan',
-    'Fév',
+    'Dec',
   ];
 
   readonly riskClients = [

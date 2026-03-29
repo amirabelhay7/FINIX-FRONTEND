@@ -298,4 +298,23 @@ export class ClientWallet implements OnInit {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
+
+  getDailyLimitPercentage(): number {
+    if (!this.wallet?.dailyLimit || this.wallet.dailyLimit === 0) return 0;
+    const dailyUsed = this.wallet.dailyUsed || 0;
+    const dailyLimit = this.wallet.dailyLimit || 1;
+    return Math.min((dailyUsed / dailyLimit) * 100, 100);
+  }
+
+  getMonthlyLimitPercentage(): number {
+    if (!this.wallet?.monthlyLimit || this.wallet.monthlyLimit === 0) return 0;
+    const monthlyUsed = this.wallet.monthlyUsed || 0;
+    const monthlyLimit = this.wallet.monthlyLimit || 1;
+    return Math.min((monthlyUsed / monthlyLimit) * 100, 100);
+  }
+
+  viewTransactionDetail(transaction: any): void {
+    console.log('View transaction detail:', transaction);
+    // TODO: Navigate to transaction detail page or show detail modal
+  }
 }

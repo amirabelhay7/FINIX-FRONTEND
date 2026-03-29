@@ -1,20 +1,271 @@
-<div class="space-y-8 pb-10">
-    <div>
-        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-        <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+  <!-- Page Header -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Cash Operations</div>
+          </div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ pageTitle }}</h1>
+          <p class="text-gray-600 text-lg">{{ pageSubtitle }}</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="text-right">
+            <div class="text-sm text-gray-500">Today's Top-Ups</div>
+            <div class="text-2xl font-bold text-gray-900">{{ agentStats.topUps }}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-sm text-gray-500">Total Amount</div>
+            <div class="text-2xl font-bold text-green-600">{{ agentStats.totalAmount.toLocaleString() }} TND</div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6 max-w-lg">
-        <div class="space-y-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ clientLabel }}</label>
-            <input type="text" [placeholder]="clientPlaceholder" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec]" />
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Main Form -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          <!-- Form Header -->
+          <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
+            <h2 class="text-xl font-bold text-white mb-1">Quick Top-Up</h2>
+            <p class="text-blue-100 text-sm">Load client wallet instantly</p>
+          </div>
+          
+          <!-- Form Body -->
+          <div class="p-8 space-y-8">
+            <!-- Client Search Section -->
+            <div class="space-y-4">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="8.5" cy="10.5" r="2.5"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-900">Client Information</h3>
+                  <p class="text-sm text-gray-500">Search by phone, email, or CIN</p>
+                </div>
+              </div>
+              
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                  </svg>
+                </div>
+                <input 
+                  type="text" 
+                  [placeholder]="clientPlaceholder" 
+                  class="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  (focus)="searchFocused = true"
+                  (blur)="searchFocused = false">
+              </div>
+              
+              <!-- Client Preview (when found) -->
+              <div class="hidden bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg">MA</div>
+                  <div class="flex-1">
+                    <div class="font-semibold text-gray-900">Mohamed Ali</div>
+                    <div class="text-sm text-gray-600">mohamed.ali@email.com • +216 52 123 456</div>
+                    <div class="text-sm font-medium text-green-600 mt-1">✓ Client Verified</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm text-gray-500">Current Balance</div>
+                    <div class="text-xl font-bold text-gray-900">15,000 TND</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Amount Section -->
+            <div class="space-y-4">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2"/>
+                    <line x1="7" y1="8" x2="17" y2="8"/>
+                    <line x1="7" y1="12" x2="17" y2="12"/>
+                    <line x1="7" y1="16" x2="10" y2="16"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-900">Amount Details</h3>
+                  <p class="text-sm text-gray-500">Enter the cash amount received</p>
+                </div>
+              </div>
+              
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span class="text-2xl font-bold text-gray-400">TND</span>
+                </div>
+                <input 
+                  type="number" 
+                  [placeholder]="amountPlaceholder" 
+                  class="w-full pl-20 pr-4 py-6 bg-gray-50 border border-gray-200 rounded-xl text-3xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-right"
+                  (input)="amount = $event.target.value">
+              </div>
+              
+              <!-- Quick Amount Buttons -->
+              <div class="grid grid-cols-4 gap-3">
+                <button 
+                  *ngFor="let amount of quickAmounts"
+                  (click)="setQuickAmount(amount)"
+                  class="py-3 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium text-gray-700 transition-colors">
+                  {{ amount }}
+                </button>
+              </div>
+              
+              <!-- Amount Limits -->
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">Minimum: <span class="font-medium text-green-600">10 TND</span></span>
+                <span class="text-gray-500">Maximum: <span class="font-medium text-orange-600">10,000 TND</span></span>
+              </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="space-y-4">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2">
+                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                    <path d="M2 10h20"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-900">Payment Method</h3>
+                  <p class="text-sm text-gray-500">How did you receive the payment?</p>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-3 gap-3">
+                <button 
+                  (click)="selectPaymentMethod('cash')"
+                  [class]="paymentMethod === 'cash' ? 'py-4 px-4 bg-blue-600 text-white rounded-lg font-medium transition-all' : 'py-4 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-all'">
+                  <div class="text-2xl mb-2">💵</div>
+                  <div class="text-sm">Cash</div>
+                </button>
+                <button 
+                  (click)="selectPaymentMethod('bank')"
+                  [class]="paymentMethod === 'bank' ? 'py-4 px-4 bg-blue-600 text-white rounded-lg font-medium transition-all' : 'py-4 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-all'">
+                  <div class="text-2xl mb-2">🏦</div>
+                  <div class="text-sm">Bank</div>
+                </button>
+                <button 
+                  (click)="selectPaymentMethod('check')"
+                  [class]="paymentMethod === 'check' ? 'py-4 px-4 bg-blue-600 text-white rounded-lg font-medium transition-all' : 'py-4 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-all'">
+                  <div class="text-2xl mb-2">📄</div>
+                  <div class="text-sm">Check</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Confirmation Note -->
+            <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M12 9v4m0 4h.01"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-900 mb-1">Important Confirmation</h4>
+                  <p class="text-sm text-gray-700">{{ confirmNote }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="button" (click)="processTopUp()" class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-lg font-bold hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg">
+              <div class="flex items-center justify-center gap-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                {{ submitLabel }}
+              </div>
+            </button>
+          </div>
         </div>
-        <div class="space-y-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ amountLabel }}</label>
-            <input type="number" [placeholder]="amountPlaceholder" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-lg font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec]" />
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Agent Stats -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+          <h3 class="font-bold text-gray-900 mb-4">Today's Performance</h3>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+              <span class="text-gray-600">Top-Ups</span>
+              <span class="text-xl font-bold text-gray-900">{{ agentStats.topUps }}</span>
+            </div>
+            <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+              <span class="text-gray-600">Total Amount</span>
+              <span class="text-xl font-bold text-green-600">{{ agentStats.totalAmount.toLocaleString() }} TND</span>
+            </div>
+            <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+              <span class="text-gray-600">Commission</span>
+              <span class="text-xl font-bold text-blue-600">{{ agentStats.commission.toLocaleString() }} TND</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Clients Served</span>
+              <span class="text-xl font-bold text-purple-600">{{ agentStats.clientsServed }}</span>
+            </div>
+          </div>
         </div>
-        <div class="p-3 bg-blue-50 rounded-xl text-sm text-gray-700">
-            {{ confirmNote }}
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+          <h3 class="font-bold text-gray-900 mb-4">Recent Activity</h3>
+          <div class="space-y-3">
+            <div *ngFor="let activity of recentActivity; let last = last" 
+                 class="flex items-center gap-3" 
+                 [class.pb-3]="!last"
+                 [class.border-b]="!last"
+                 [class.border-gray-100]="!last">
+              <div class="w-10 h-10 bg-{{ activity.color }}-100 rounded-full flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" [attr.stroke]="activity.color === 'green' ? '#059669' : activity.color === 'blue' ? '#2563eb' : '#ea580c'" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900">{{ activity.clientName }}</div>
+                <div class="text-sm text-gray-500">{{ activity.amount.toLocaleString() }} TND • {{ activity.method }}</div>
+              </div>
+              <div class="text-xs text-gray-400">{{ activity.time }}</div>
+            </div>
+          </div>
         </div>
-        <button type="button" class="w-full py-3 bg-[#135bec] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all">{{ submitLabel }}</button>
+
+        <!-- Quick Actions -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-xl p-6 text-white">
+          <h3 class="font-bold mb-4">Quick Actions</h3>
+          <div class="space-y-3">
+            <button class="w-full py-3 px-4 bg-white/20 hover:bg-white/30 rounded-lg font-medium transition-all text-left">
+              📊 View Transaction History
+            </button>
+            <button class="w-full py-3 px-4 bg-white/20 hover:bg-white/30 rounded-lg font-medium transition-all text-left">
+              💰 Check Cash Balance
+            </button>
+            <button class="w-full py-3 px-4 bg-white/20 hover:bg-white/30 rounded-lg font-medium transition-all text-left">
+              📈 Performance Report
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>

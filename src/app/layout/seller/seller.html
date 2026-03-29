@@ -5,18 +5,18 @@
     <div class="sl-tb-name">FIN<span>'IX</span></div>
   </div>
   <div class="sl-tb-divider"></div>
-  <div class="sl-tb-sub">Espace Vendeur · Gestion des offres véhicules</div>
+  <div class="sl-tb-sub">Seller Space · Vehicle offers management</div>
   <div class="sl-tb-right">
     <button type="button" class="sl-tb-btn" (click)="goToNotifications()" title="Notifications">🔔<span class="sl-notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span></button>
     <button type="button" class="sl-tb-btn">⚙️</button>
-    <button type="button" class="sl-theme-toggle" (click)="toggleTheme()" title="Changer le thème">
+    <button type="button" class="sl-theme-toggle" (click)="toggleTheme()" title="Change theme">
       {{ currentTheme === 'dark' ? '☀️' : '🌙' }}
     </button>
     <div class="sl-tb-user" (click)="toggleUserDropdown()" style="position:relative;">
       <div class="sl-tb-avatar">{{ userInitials }}</div>
       <div>
         <div class="sl-tb-uname">{{ userName }}</div>
-        <div class="sl-tb-urole">Vendeur</div>
+        <div class="sl-dp-urole">Seller</div>
       </div>
       <span style="color:rgba(255,255,255,.3);font-size:.65rem;margin-left:.25rem;">▾</span>
       <div class="sl-dropdown" [class.sl-dropdown-hidden]="!showUserDropdown" (click)="$event.stopPropagation()">
@@ -28,12 +28,12 @@
           </div>
         </div>
         <div style="padding:.25rem 0;">
-          <button type="button" class="sl-dp-item">👤 Mon profil</button>
-          <button type="button" class="sl-dp-item">📊 Statistiques</button>
+          <button type="button" class="sl-dp-item">👤 My Profile</button>
+          <button type="button" class="sl-dp-item">📊 Statistics</button>
           <div class="sl-dp-sep"></div>
-          <button type="button" class="sl-dp-item">❓ Aide & Support</button>
+          <button type="button" class="sl-dp-item">❓ Help & Support</button>
           <div class="sl-dp-sep"></div>
-          <button type="button" class="sl-dp-item sl-red" (click)="logout()">🚪 Déconnexion</button>
+          <button type="button" class="sl-dp-item sl-red" (click)="logout()">🚪 Logout</button>
         </div>
       </div>
     </div>
@@ -47,12 +47,12 @@
   <footer class="sl-footer">
     <div>
       <div class="sl-ft-brand">FIN<span>'IX</span></div>
-      <div class="sl-ft-copy">© 2026 FIN'IX — Espace Vendeur · Gestion des offres véhicules</div>
+      <div class="sl-ft-copy">© 2026 FIN'IX — Seller Space · Vehicle offers management</div>
     </div>
     <div class="sl-ft-links">
-      <a href="#" class="sl-ft-link">Confidentialité</a>
-      <a href="#" class="sl-ft-link">CGU</a>
-      <a href="#" class="sl-ft-link">Aide</a>
+      <a href="#" class="sl-ft-link">Privacy</a>
+      <a href="#" class="sl-ft-link">Terms</a>
+      <a href="#" class="sl-ft-link">Help</a>
       <a href="#" class="sl-ft-link">Contact</a>
     </div>
   </footer>
@@ -63,76 +63,76 @@
   <div class="sl-modal" (click)="$event.stopPropagation()">
     <div class="sl-modal-head">
       <div>
-        <div class="sl-modal-title">Ajouter un véhicule</div>
-        <div class="sl-modal-sub">Remplissez les informations du véhicule à publier</div>
+        <div class="sl-modal-title">Add a vehicle</div>
+        <div class="sl-modal-sub">Fill in the vehicle information to publish</div>
       </div>
       <button type="button" class="sl-modal-close" (click)="closeAddModal()">✕</button>
     </div>
     <div class="sl-modal-body">
       <div class="sl-form-row">
         <div class="sl-form-group">
-          <label class="sl-label">Marque</label>
+          <label class="sl-label">Brand</label>
           <input class="sl-input" type="text" placeholder="Ex: Renault" [(ngModel)]="newVehicle.brand">
         </div>
         <div class="sl-form-group">
-          <label class="sl-label">Modèle</label>
+          <label class="sl-label">Model</label>
           <input class="sl-input" type="text" placeholder="Ex: Clio 5" [(ngModel)]="newVehicle.model">
         </div>
       </div>
       <div class="sl-form-row">
         <div class="sl-form-group">
-          <label class="sl-label">Année</label>
+          <label class="sl-label">Year</label>
           <input class="sl-input" type="number" [(ngModel)]="newVehicle.year">
         </div>
         <div class="sl-form-group">
-          <label class="sl-label">Prix (TND)</label>
+          <label class="sl-label">Price (TND)</label>
           <input class="sl-input" type="number" placeholder="Ex: 52000" [(ngModel)]="newVehicle.price">
         </div>
       </div>
       <div class="sl-form-row">
         <div class="sl-form-group">
-          <label class="sl-label">Kilométrage</label>
+          <label class="sl-label">Mileage</label>
           <input class="sl-input" type="number" placeholder="Ex: 12000" [(ngModel)]="newVehicle.km">
         </div>
         <div class="sl-form-group">
-          <label class="sl-label">Couleur</label>
-          <input class="sl-input" type="text" placeholder="Ex: Blanc" [(ngModel)]="newVehicle.color">
+          <label class="sl-label">Color</label>
+          <input class="sl-input" type="text" placeholder="Ex: White" [(ngModel)]="newVehicle.color">
         </div>
       </div>
       <div class="sl-form-row">
         <div class="sl-form-group">
-          <label class="sl-label">Carburant</label>
+          <label class="sl-label">Fuel</label>
           <select class="sl-input" [(ngModel)]="newVehicle.fuel">
             <option>Essence</option>
             <option>Diesel</option>
-            <option>Hybride</option>
-            <option>Électrique</option>
+            <option>Hybrid</option>
+            <option>Electric</option>
           </select>
         </div>
         <div class="sl-form-group">
           <label class="sl-label">Transmission</label>
           <select class="sl-input" [(ngModel)]="newVehicle.transmission">
-            <option>Manuelle</option>
-            <option>Automatique</option>
+            <option>Manual</option>
+            <option>Automatic</option>
           </select>
         </div>
       </div>
       <div class="sl-form-group">
         <label class="sl-label">Description</label>
-        <textarea class="sl-input sl-textarea" placeholder="Décrivez votre véhicule..." [(ngModel)]="newVehicle.description"></textarea>
+        <textarea class="sl-input sl-textarea" placeholder="Describe your vehicle..." [(ngModel)]="newVehicle.description"></textarea>
       </div>
       <div class="sl-form-group">
         <label class="sl-label">Photos</label>
         <div class="sl-upload-zone">
           <div class="sl-upload-icon">📷</div>
-          <div class="sl-upload-text">Glissez vos photos ici ou <span>parcourir</span></div>
-          <div class="sl-upload-hint">JPG, PNG · Max 5 Mo par photo · Jusqu'à 10 photos</div>
+          <div class="sl-upload-text">Drag your photos here or <span>browse</span></div>
+          <div class="sl-upload-hint">JPG, PNG · Max 5 MB per photo · Up to 10 photos</div>
         </div>
       </div>
     </div>
     <div class="sl-modal-foot">
-      <button type="button" class="sl-btn-outline" (click)="closeAddModal()">Annuler</button>
-      <button type="button" class="sl-btn-primary" (click)="closeAddModal()">Publier l'annonce</button>
+      <button type="button" class="sl-btn-outline" (click)="closeAddModal()">Cancel</button>
+      <button type="button" class="sl-btn-primary" (click)="closeAddModal()">Publish Ad</button>
     </div>
   </div>
 </div>

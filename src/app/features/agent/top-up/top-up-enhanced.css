@@ -1,0 +1,565 @@
+/* Enhanced Agent Top-Up Styles */
+
+/* ─── Layout ─── */
+.cfm-page-wrap {
+  min-height: 100vh;
+  background: var(--fx-bg);
+}
+
+.cfm-main-content {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ─── Card Components ─── */
+.cfm-card {
+  background: var(--fx-card-bg);
+  border: 1px solid var(--fx-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.cfm-card-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--fx-border);
+  background: var(--fx-bg2);
+}
+
+.cfm-card-head-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cfm-card-head-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--fx-txt-1);
+}
+
+.cfm-card-head-sub {
+  font-size: 0.875rem;
+  color: var(--fx-txt-3);
+  margin-top: 0.25rem;
+}
+
+.cfm-card-body {
+  padding: 1.5rem;
+}
+
+/* ─── Client Verification ─── */
+.cfm-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cfm-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--fx-border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: var(--fx-input-bg);
+  color: var(--fx-txt-1);
+  transition: all 0.2s ease;
+}
+
+.cfm-input:focus {
+  outline: none;
+  border-color: var(--fx-blue);
+  box-shadow: 0 0 0 3px rgba(19, 78, 74, 0.1);
+}
+
+.cfm-search-btn {
+  padding: 0.75rem 1.5rem;
+  background: var(--fx-blue);
+  color: white;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.cfm-search-btn:hover:not(:disabled) {
+  background: var(--fx-blue-hover);
+  transform: translateY(-1px);
+}
+
+.cfm-search-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Client Info Display ─── */
+.cfm-client-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 8px;
+}
+
+.cfm-client-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--fx-blue);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.cfm-client-name {
+  font-weight: 600;
+  color: var(--fx-txt-1);
+  font-size: 1rem;
+}
+
+.cfm-client-email {
+  color: var(--fx-txt-3);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.cfm-client-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.cfm-client-id {
+  font-size: 0.75rem;
+  color: var(--fx-txt-3);
+  font-family: monospace;
+}
+
+.cfm-client-status {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.cfm-client-status.status-active {
+  background: var(--fx-success);
+  color: white;
+}
+
+.cfm-client-status:not(.status-active) {
+  background: var(--fx-warning);
+  color: white;
+}
+
+/* ─── Verification Status ─── */
+.cfm-verification-status {
+  margin-top: 1rem;
+}
+
+.cfm-verification-success {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: var(--fx-success);
+}
+
+.cfm-verification-warning {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  color: var(--fx-warning);
+}
+
+.cfm-verification-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--fx-danger);
+}
+
+.cfm-verification-pending {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: var(--fx-blue);
+}
+
+.cfm-verification-icon {
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
+}
+
+.cfm-verification-title {
+  font-weight: 600;
+  color: var(--fx-txt-1);
+}
+
+.cfm-verification-desc {
+  font-size: 0.875rem;
+  color: var(--fx-txt-3);
+  margin-top: 0.25rem;
+}
+
+/* ─── Form Elements ─── */
+.cfm-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--fx-txt-2);
+  margin-bottom: 0.5rem;
+}
+
+.cfm-amount-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cfm-amount-input {
+  flex: 1;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  border: 1px solid var(--fx-border);
+  border-radius: 8px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: right;
+  background: var(--fx-input-bg);
+  color: var(--fx-txt-1);
+}
+
+.cfm-amount-currency {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 600;
+  color: var(--fx-txt-3);
+}
+
+.cfm-amount-limits {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--fx-txt-3);
+}
+
+.cfm-limit-min {
+  color: var(--fx-success);
+}
+
+.cfm-limit-max {
+  color: var(--fx-warning);
+}
+
+.cfm-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--fx-border);
+  border-radius: 8px;
+  background: var(--fx-input-bg);
+  color: var(--fx-txt-1);
+  font-size: 0.875rem;
+}
+
+.cfm-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--fx-border);
+  border-radius: 8px;
+  background: var(--fx-input-bg);
+  color: var(--fx-txt-1);
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ─── File Upload ─── */
+.cfm-upload-area {
+  border: 2px dashed var(--fx-border);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.cfm-upload-area:hover {
+  border-color: var(--fx-blue);
+  background: rgba(19, 78, 74, 0.05);
+}
+
+.cfm-file-input {
+  display: none;
+}
+
+.cfm-upload-content {
+  pointer-events: none;
+}
+
+.cfm-upload-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.cfm-upload-text {
+  color: var(--fx-txt-2);
+}
+
+.cfm-upload-hint {
+  font-size: 0.75rem;
+  color: var(--fx-txt-3);
+  margin-top: 0.5rem;
+}
+
+.cfm-uploaded-files {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cfm-uploaded-file {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--fx-bg2);
+  border: 1px solid var(--fx-border);
+  border-radius: 6px;
+}
+
+.cfm-file-name {
+  font-size: 0.75rem;
+  color: var(--fx-txt-2);
+}
+
+.cfm-file-remove {
+  background: none;
+  border: none;
+  color: var(--fx-danger);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+}
+
+.cfm-file-remove:hover {
+  background: var(--fx-danger);
+  color: white;
+  border-radius: 4px;
+}
+
+/* ─── Submit Section ─── */
+.cfm-submit-section {
+  margin-top: 2rem;
+}
+
+.cfm-btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+}
+
+.cfm-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ─── Summary Grid ─── */
+.cfm-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.cfm-summary-item {
+  text-align: center;
+  padding: 1rem;
+  background: var(--fx-bg2);
+  border-radius: 8px;
+}
+
+.cfm-summary-label {
+  font-size: 0.75rem;
+  color: var(--fx-txt-3);
+  margin-bottom: 0.5rem;
+}
+
+.cfm-summary-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--fx-txt-1);
+}
+
+/* ─── Transaction List ─── */
+.cfm-transaction-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.cfm-transaction-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--fx-border-light);
+  transition: background 0.2s ease;
+}
+
+.cfm-transaction-item:hover {
+  background: var(--fx-hover);
+}
+
+.cfm-transaction-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  margin-right: 1rem;
+}
+
+.cfm-transaction-icon-cash {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--fx-success);
+}
+
+.cfm-transaction-icon-bank {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--fx-blue);
+}
+
+.cfm-transaction-icon-check {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--fx-warning);
+}
+
+.cfm-transaction-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cfm-transaction-client {
+  font-weight: 500;
+  color: var(--fx-txt-1);
+}
+
+.cfm-transaction-amount {
+  font-weight: 600;
+  color: var(--fx-txt-1);
+}
+
+.cfm-transaction-time {
+  font-size: 0.75rem;
+  color: var(--fx-txt-3);
+}
+
+.cfm-transaction-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.cfm-transaction-status-completed {
+  background: var(--fx-success);
+  color: white;
+}
+
+.cfm-transaction-status-pending {
+  background: var(--fx-warning);
+  color: white;
+}
+
+.cfm-transaction-status-failed {
+  background: var(--fx-danger);
+  color: white;
+}
+
+/* ─── Empty State ─── */
+.cfm-empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.cfm-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.cfm-empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--fx-txt-2);
+  margin-bottom: 0.5rem;
+}
+
+.cfm-empty-sub {
+  font-size: 0.875rem;
+  color: var(--fx-txt-3);
+}
+
+/* ─── Responsive Design ─── */
+@media (max-width: 1024px) {
+  .cfm-main-content {
+    padding: 1rem;
+  }
+  
+  .cfm-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .cfm-transaction-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .cfm-transaction-status {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .cfm-card-head-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .cfm-amount-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .cfm-amount-currency {
+    position: static;
+    transform: none;
+    margin-bottom: 0.5rem;
+  }
+}

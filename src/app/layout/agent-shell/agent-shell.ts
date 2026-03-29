@@ -96,6 +96,8 @@ export class AgentShell implements OnInit, OnDestroy {
     if (item.page === 'dashboard') return '/agent/dashboard';
     if (item.page === 'clients') return '/agent/clients';
     if (item.page === 'alertes') return '/notifications';
+    if (item.page === 'top-up') return '/agent/top-up';
+    if (item.page === 'top-up-enhanced') return '/agent/top-up-enhanced';
     return ['/agent/stub', item.page];
   }
 
@@ -104,29 +106,31 @@ export class AgentShell implements OnInit, OnDestroy {
   }
 
   readonly navItems: AgentNavItem[] = [
-    { page: 'dashboard', label: "Vue d'ensemble", section: 'PRINCIPAL', icon: 'grid' },
-    { page: 'flux', label: 'Flux Capital', section: 'OPÉRATIONS', icon: 'trending-up', badge: '5' },
+    { page: 'dashboard', label: "Overview", section: 'MAIN', icon: 'grid' },
+    { page: 'flux', label: 'Capital Flow', section: 'OPERATIONS', icon: 'trending-up', badge: '5' },
     {
       page: 'dossiers',
-      label: 'Dossiers Crédit',
-      section: 'OPÉRATIONS',
+      label: 'Credit Files',
+      section: 'OPERATIONS',
       icon: 'folder',
       badge: '12',
     },
-    { page: 'remboursements', label: 'Remboursements', section: 'OPÉRATIONS', icon: 'dollar' },
-    { page: 'clients', label: 'Clients', section: 'OPÉRATIONS', icon: 'users' },
-    { page: 'vehicules', label: 'Véhicules', section: 'OPÉRATIONS', icon: 'truck' },
-    { page: 'risque', label: 'Risque & Scoring', section: 'ANALYSE', icon: 'alert-triangle' },
-    { page: 'rapports', label: 'Rapports', section: 'ANALYSE', icon: 'file-text' },
-    { page: 'assurances', label: 'Assurances', section: 'ANALYSE', icon: 'shield' },
+    { page: 'remboursements', label: 'Repayments', section: 'OPERATIONS', icon: 'dollar' },
+    { page: 'top-up', label: 'Top-Up', section: 'OPERATIONS', icon: 'trending-up' },
+    { page: 'top-up-enhanced', label: 'Enhanced Top-Up', section: 'OPERATIONS', icon: 'plus-circle' },
+    { page: 'clients', label: 'Clients', section: 'OPERATIONS', icon: 'users' },
+    { page: 'vehicules', label: 'Vehicles', section: 'OPERATIONS', icon: 'truck' },
+    { page: 'risque', label: 'Risk & Scoring', section: 'ANALYSIS', icon: 'alert-triangle' },
+    { page: 'rapports', label: 'Reports', section: 'ANALYSIS', icon: 'file-text' },
+    { page: 'assurances', label: 'Insurance', section: 'ANALYSIS', icon: 'shield' },
     {
       page: 'alertes',
-      label: 'Alertes',
-      section: 'SYSTÈME',
+      label: 'Alerts',
+      section: 'SYSTEM',
       icon: 'bell',
       badgeType: 'danger',
     },
-    { page: 'parametres', label: 'Paramètres', section: 'SYSTÈME', icon: 'settings' },
+    { page: 'parametres', label: 'Settings', section: 'SYSTEM', icon: 'settings' },
   ];
 
   get navSections(): string[] {
@@ -149,7 +153,7 @@ export class AgentShell implements OnInit, OnDestroy {
       ref: '#CR-2025-844',
       client: 'S. Bouaziz',
       amount: '-32 000 TND',
-      type: 'CRÉDIT',
+      type: 'CREDIT',
       typeClass: 'credit',
     },
     {
@@ -170,7 +174,7 @@ export class AgentShell implements OnInit, OnDestroy {
       ref: '#CR-2025-842',
       client: 'L. Chaari',
       amount: '-85 000 TND',
-      type: 'CRÉDIT',
+      type: 'CREDIT',
       typeClass: 'credit',
     },
   ];

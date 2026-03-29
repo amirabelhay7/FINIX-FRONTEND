@@ -53,7 +53,7 @@ export class Guarantees implements OnInit {
   givenGuarantees = [
     {
       id: 4,
-      beneficiaryName: 'Fatoumata Touré',
+      beneficiaryName: 'Fatoumata Toue',
       pointsOffered: 50,
       reason: 'First loan application support',
       createdAt: '1 week ago',
@@ -64,7 +64,7 @@ export class Guarantees implements OnInit {
     },
     {
       id: 5,
-      beneficiaryName: 'Bakary Konaté',
+      beneficiaryName: 'Bakary Konate',
       pointsOffered: 100,
       reason: 'Business partnership guarantee',
       createdAt: '2 weeks ago',

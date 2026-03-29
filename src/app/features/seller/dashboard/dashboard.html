@@ -2,23 +2,23 @@
 
 <nav class="sl-nav">
   <button type="button" class="sl-nav-tab" [class.active]="activeTab === 'all'" (click)="activeTab = 'all'">
-    🏠 Toutes les offres <span class="sl-nav-badge">{{ activeCounts.all }}</span>
+    🏠 All offers <span class="sl-nav-badge">{{ activeCounts.all }}</span>
   </button>
   <button type="button" class="sl-nav-tab" [class.active]="activeTab === 'active'" (click)="activeTab = 'active'">
-    ✅ Actives <span class="sl-nav-badge">{{ activeCounts.active }}</span>
+    ✅ Active <span class="sl-nav-badge">{{ activeCounts.active }}</span>
   </button>
   <button type="button" class="sl-nav-tab" [class.active]="activeTab === 'pending'" (click)="activeTab = 'pending'">
-    ⏳ En attente <span class="sl-nav-badge sl-warn">{{ activeCounts.pending }}</span>
+    ⏳ Pending <span class="sl-nav-badge sl-warn">{{ activeCounts.pending }}</span>
   </button>
   <button type="button" class="sl-nav-tab" [class.active]="activeTab === 'sold'" (click)="activeTab = 'sold'">
-    🏷️ Vendues <span class="sl-nav-badge">{{ activeCounts.sold }}</span>
+    🏷️ Sold <span class="sl-nav-badge">{{ activeCounts.sold }}</span>
   </button>
   <div class="sl-nav-actions">
     <div class="sl-search-wrap">
       <span>🔍</span>
-      <input type="text" placeholder="Rechercher une voiture..." [(ngModel)]="searchQuery">
+      <input type="text" placeholder="Search a vehicle..." [(ngModel)]="searchQuery">
     </div>
-    <button type="button" class="sl-btn-new" (click)="openAddVehicleModal()">+ Ajouter un véhicule</button>
+    <button type="button" class="sl-btn-new" (click)="openAddVehicleModal()">+ Add a vehicle</button>
   </div>
 </nav>
 
@@ -35,10 +35,10 @@
 
 <div class="sl-section-head">
   <div>
-    <div class="sl-section-title">Mes offres véhicules</div>
-    <div class="sl-section-sub">{{ filteredVehicles.length }} véhicule(s) trouvé(s)</div>
+    <div class="sl-section-title">My vehicle offers</div>
+    <div class="sl-section-sub">{{ filteredVehicles.length }} vehicle(s) found</div>
   </div>
-  <button type="button" class="sl-btn-new" (click)="openAddVehicleModal()">+ Ajouter un véhicule</button>
+  <button type="button" class="sl-btn-new" (click)="openAddVehicleModal()">+ Add a vehicle</button>
 </div>
 
 <div class="sl-vehicles-grid">
@@ -80,7 +80,7 @@
 
 <div class="sl-empty" *ngIf="filteredVehicles.length === 0">
   <div class="sl-empty-icon">🚗</div>
-  <div class="sl-empty-title">Aucun véhicule trouvé</div>
-  <div class="sl-empty-sub">Essayez de modifier vos filtres ou ajoutez un nouveau véhicule.</div>
-  <button type="button" class="sl-btn-new" (click)="openAddVehicleModal()">+ Ajouter un véhicule</button>
+  <div class="sl-empty-title">No vehicle found</div>
+  <div class="sl-empty-sub">Try modifying your filters or add a new vehicle.</div>
+  <button type="button" class="sl-btn-new" (click)="openAddVehicleModal()">+ Add a vehicle</button>
 </div>
