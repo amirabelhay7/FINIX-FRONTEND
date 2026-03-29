@@ -7,6 +7,7 @@ import { AgentService, AgentStats } from '../../../services/agent/agent.service'
 import { RealTimeService, RealTimeTransaction } from '../../../services/realtime/realtime.service';
 import { FileUploadService, UploadResult } from '../../../services/file/file-upload.service';
 import { FormValidationService, ValidationResult } from '../../../services/validation/form-validation.service';
+import { UINotificationService } from '../../../services/ui/ui-notification.service';
 import { Subscription } from 'rxjs';
 
 interface Client extends ClientSearchResult {}
@@ -50,7 +51,8 @@ export class TopUpEnhanced {
     private agentService: AgentService,
     private realTimeService: RealTimeService,
     private fileUploadService: FileUploadService,
-    private validationService: FormValidationService
+    private validationService: FormValidationService,
+    private uiNotificationService: UINotificationService
   ) {
     this.loadAgentStats();
     this.subscribeToRealTimeUpdates();
@@ -69,6 +71,10 @@ export class TopUpEnhanced {
   uploadingFiles: { [key: string]: number } = {}; // Track upload progress
   processing = false;
   validationErrors: string[] = [];
+  
+  // Loading state IDs
+  private searchLoadingId: string | null = null;
+  private transactionLoadingId: string | null = null;
 
   // Real-time subscriptions
   private transactionSubscription: Subscription | null = null;
@@ -156,21 +162,20 @@ export class TopUpEnhanced {
     });
   }
 
-  // Client Search with validation
+  // Client Search with validation and loading states
   searchClient(): void {
     // Validate search query
     const validation = this.validationService.validateClientSearch(this.searchQuery);
     if (!validation.valid) {
       this.validationErrors = validation.errors;
-      this.verificationStatus = {
-        title: 'Search Error',
-        message: validation.errors[0],
-        type: 'error'
-      };
+      this.uiNotificationService.error('Search Error', validation.errors[0]);
       return;
     }
 
     this.validationErrors = [];
+    
+    // Show loading state
+    this.searchLoadingId = this.uiNotificationService.showLoading('Searching for clients...', { showProgress: false });
     this.processing = true;
     this.verificationStatus = {
       title: 'Searching...',
@@ -183,6 +188,12 @@ export class TopUpEnhanced {
       limit: 10
     }).subscribe({
       next: (clients: ClientSearchResult[]) => {
+        // Hide loading state
+        if (this.searchLoadingId) {
+          this.uiNotificationService.hideLoading(this.searchLoadingId);
+          this.searchLoadingId = null;
+        }
+        
         this.processing = false;
         
         if (clients.length > 0) {
@@ -193,6 +204,7 @@ export class TopUpEnhanced {
             message: `Found ${clients.length} client(s). Selected: ${clients[0].name}`,
             type: 'success'
           };
+          this.uiNotificationService.success('Client Found', `${clients[0].name} verified successfully`);
         } else {
           this.selectedClient = null;
           this.verificationStatus = {
@@ -200,9 +212,16 @@ export class TopUpEnhanced {
             message: 'No client found with the provided search criteria',
             type: 'error'
           };
+          this.uiNotificationService.warning('Client Not Found', 'No client found with the provided search criteria');
         }
       },
       error: (error: any) => {
+        // Hide loading state
+        if (this.searchLoadingId) {
+          this.uiNotificationService.hideLoading(this.searchLoadingId);
+          this.searchLoadingId = null;
+        }
+        
         this.processing = false;
         this.selectedClient = null;
         this.verificationStatus = {
@@ -210,6 +229,7 @@ export class TopUpEnhanced {
           message: 'Failed to search for clients. Please try again.',
           type: 'error'
         };
+        this.uiNotificationService.error('Search Failed', 'Failed to search for clients. Please try again.');
         console.error('Client search error:', error);
       }
     });
@@ -262,12 +282,14 @@ export class TopUpEnhanced {
               message: `${file.name} uploaded successfully`,
               type: 'success'
             };
+            this.uiNotificationService.success('File Uploaded', `${file.name} uploaded successfully`);
           } else {
             this.verificationStatus = {
               title: 'Upload Failed',
               message: event.body?.error || 'Failed to upload file',
               type: 'error'
             };
+            this.uiNotificationService.error('Upload Failed', event.body?.error || 'Failed to upload file');
           }
         }
       },
@@ -278,6 +300,7 @@ export class TopUpEnhanced {
           message: `Failed to upload ${file.name}: ${error.message}`,
           type: 'error'
         };
+        this.uiNotificationService.error('Upload Error', `Failed to upload ${file.name}: ${error.message}`);
         console.error('File upload error:', error);
       }
     });
@@ -321,6 +344,7 @@ export class TopUpEnhanced {
     }
 
     if (this.isAnyFileUploading()) {
+      this.uiNotificationService.warning('Files Uploading', 'Please wait for all files to finish uploading');
       this.verificationStatus = {
         title: 'Files Uploading',
         message: 'Please wait for all files to finish uploading',
@@ -328,6 +352,9 @@ export class TopUpEnhanced {
       };
       return;
     }
+
+    // Show loading state
+    this.transactionLoadingId = this.uiNotificationService.showLoading('Processing transaction...', { showProgress: false });
 
     this.processing = true;
     this.verificationStatus = {
@@ -349,6 +376,12 @@ export class TopUpEnhanced {
     // Call real API
     this.walletService.agentTopUp(transactionRequest).subscribe({
       next: (response) => {
+        // Hide loading state
+        if (this.transactionLoadingId) {
+          this.uiNotificationService.hideLoading(this.transactionLoadingId);
+          this.transactionLoadingId = null;
+        }
+        
         // Add to recent transactions
         const newTransaction: Transaction = {
           id: response.id || `TXN${Date.now()}`,
@@ -373,18 +406,26 @@ export class TopUpEnhanced {
           message: `Successfully loaded ${this.topUpAmount} TND to ${this.selectedClient?.name}'s wallet`,
           type: 'success'
         };
+        this.uiNotificationService.success('Transaction Successful', `Successfully loaded ${this.topUpAmount} TND to ${this.selectedClient?.name}'s wallet`);
 
         // Reset form
         this.resetForm();
         this.processing = false;
       },
       error: (error: any) => {
+        // Hide loading state
+        if (this.transactionLoadingId) {
+          this.uiNotificationService.hideLoading(this.transactionLoadingId);
+          this.transactionLoadingId = null;
+        }
+        
         this.processing = false;
         this.verificationStatus = {
           title: 'Transaction Failed',
           message: error.error?.message || 'Failed to process transaction. Please try again.',
           type: 'error'
         };
+        this.uiNotificationService.error('Transaction Failed', error.error?.message || 'Failed to process transaction. Please try again.');
         console.error('Transaction processing error:', error);
       }
     });
