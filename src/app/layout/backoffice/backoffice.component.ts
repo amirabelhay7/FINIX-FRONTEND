@@ -8,6 +8,7 @@ import { CustomerSegmentService } from '../../services/marketing/customer-segmen
 import { FinancialIndicatorService } from '../../services/steering/financial-indicator.service';
 import { TreasuryAccountService } from '../../services/steering/treasury-account.service';
 import { FundingSimulationService } from '../../services/steering/funding-simulation.service';
+import { CashMovementService, CashMovement } from '../../services/steering/cash-movement.service';
 import { CampaignSegmentLinkService } from '../../services/marketing/campaign-segment-link.service';
 import { CampaignCreditLinkService } from '../../services/marketing/campaign-credit-link.service';
 import { CampaignCreditLink } from '../../models/marketing.model';
@@ -112,7 +113,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   clients: any[] = [];
   clientsLoading = false;
 
-  constructor(
+ constructor(
     private renderer: Renderer2,
     private router: Router,
     private http: HttpClient,
@@ -124,6 +125,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     private simulationService: FundingSimulationService,
     private campaignSegmentLinkService: CampaignSegmentLinkService,
     private campaignCreditLinkService: CampaignCreditLinkService,
+    private cashMovementService: CashMovementService,
   ) {}
 
   ngOnInit(): void {
@@ -430,12 +432,40 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   }
 
   // ── Steering ──
-  openIndicatorForm() {}
-  openTreasuryForm() {}
-  editTreasury(t: any) {}
-  viewMovements(id: any) {}
-  openSimulationForm() {}
+ /* ── Steering ── */
+  showIndicatorForm = false;
+  indicatorError = '';
+  indicatorForm: any = {
+    name: '', referenceIndicator: '', value: null,
+    warningThreshold: null, criticalThreshold: null
+  };
 
+  showTreasuryForm = false;
+  editingTreasuryId: number | null = null;
+  treasuryError = '';
+  treasuryForm: any = {
+    name: '', type: 'MAIN', initialBalance: null,
+    currentBalance: null, currency: 'TND'
+  };
+  treasuryUpdateForm: any = { name: '', currency: 'TND', status: 'ACTIVE' };
+
+  showSimulationForm = false;
+  simulationError = '';
+  simulationForm: any = {
+    projectedAmount: null, averageDefaultRate: null,
+    estimatedProvisionNeeded: null, decision: null
+  };
+
+  showMovementsPanel = false;
+  selectedTreasuryId: number | null = null;
+  movements: CashMovement[] = [];
+  showMovementForm = false;
+  movementError = '';
+  movementForm: any = {
+    treasuryAccountId: null, movementDirection: 'INFLOW',
+    description: '', amount: null
+  };
+  
   // ── Load methods ──
   loadCampaigns(): void {
     this.campaignService.getAll().subscribe({ next: data => this.campaigns = data, error: err => console.error('Campaigns error', err) });
@@ -443,6 +473,132 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   loadSegments(): void {
     this.segmentService.getAll().subscribe({ next: data => this.segments = data, error: err => console.error('Segments error', err) });
+  }
+  // ── Indicateur ──
+  openIndicatorForm() {
+    this.indicatorForm = { name: '', referenceIndicator: '', value: null, warningThreshold: null, criticalThreshold: null };
+    this.indicatorError = '';
+    this.showIndicatorForm = true;
+  }
+
+  closeIndicatorForm() {
+    this.showIndicatorForm = false;
+    this.indicatorError = '';
+  }
+
+  saveIndicator() {
+    this.indicatorService.add(this.indicatorForm).subscribe({
+      next: () => { this.loadIndicators(); this.closeIndicatorForm(); },
+      error: err => {
+        if (err.status === 400) this.indicatorError = err.error?.message || JSON.stringify(err.error?.errors) || 'Données invalides.';
+        else this.indicatorError = 'Une erreur est survenue.';
+      }
+    });
+  }
+
+  // ── Trésorerie ──
+  openTreasuryForm() {
+    this.treasuryForm = { name: '', type: 'MAIN', initialBalance: null, currentBalance: null, currency: 'TND' };
+    this.editingTreasuryId = null;
+    this.treasuryError = '';
+    this.showTreasuryForm = true;
+  }
+
+  editTreasury(t: any) {
+    this.editingTreasuryId = t.id;
+    this.treasuryUpdateForm = { name: t.name, currency: t.currency, status: t.status };
+    this.treasuryError = '';
+    this.showTreasuryForm = true;
+  }
+
+  closeTreasuryForm() {
+    this.showTreasuryForm = false;
+    this.treasuryError = '';
+    this.editingTreasuryId = null;
+  }
+
+  saveTreasury() {
+    if (this.editingTreasuryId) {
+      this.treasuryService.update(this.editingTreasuryId, this.treasuryUpdateForm).subscribe({
+        next: () => { this.loadTreasuryAccounts(); this.closeTreasuryForm(); },
+        error: err => {
+          if (err.status === 400) this.treasuryError = err.error?.message || 'Données invalides.';
+          else this.treasuryError = 'Une erreur est survenue.';
+        }
+      });
+    } else {
+      this.treasuryForm.currentBalance = this.treasuryForm.initialBalance;
+      this.treasuryService.add(this.treasuryForm).subscribe({
+        next: () => { this.loadTreasuryAccounts(); this.closeTreasuryForm(); },
+        error: err => {
+          if (err.status === 400) this.treasuryError = err.error?.message || 'Données invalides.';
+          else if (err.status === 409) this.treasuryError = 'Un compte de ce type et cette devise existe déjà.';
+          else this.treasuryError = 'Une erreur est survenue.';
+        }
+      });
+    }
+  }
+
+  // ── Simulation ──
+  openSimulationForm() {
+    this.simulationForm = { projectedAmount: null, averageDefaultRate: null, estimatedProvisionNeeded: null, decision: null };
+    this.simulationError = '';
+    this.showSimulationForm = true;
+  }
+
+  closeSimulationForm() {
+    this.showSimulationForm = false;
+    this.simulationError = '';
+  }
+
+  saveSimulation() {
+    this.simulationService.add(this.simulationForm).subscribe({
+      next: () => { this.loadSimulations(); this.closeSimulationForm(); },
+      error: err => {
+        if (err.status === 400) this.simulationError = err.error?.message || 'Données invalides.';
+        else this.simulationError = 'Une erreur est survenue.';
+      }
+    });
+  }
+
+  // ── Mouvements ──
+  viewMovements(id: any) {
+    this.selectedTreasuryId = id;
+    this.showMovementsPanel = true;
+    this.showMovementForm = false;
+    this.movementError = '';
+    this.movements = [];
+    this.cashMovementService.getByAccount(id).subscribe({
+      next: data => this.movements = data,
+      error: err => console.error('Movements error', err)
+    });
+  }
+
+  closeMovementsPanel() {
+    this.showMovementsPanel = false;
+    this.selectedTreasuryId = null;
+    this.movements = [];
+  }
+
+  openMovementForm() {
+    this.movementForm = { treasuryAccountId: this.selectedTreasuryId, movementDirection: 'INFLOW', description: '', amount: null };
+    this.movementError = '';
+    this.showMovementForm = true;
+  }
+
+  saveMovement() {
+    this.cashMovementService.add(this.movementForm).subscribe({
+      next: () => {
+        this.showMovementForm = false;
+        this.movementError = '';
+        this.loadTreasuryAccounts();
+        this.viewMovements(this.selectedTreasuryId);
+      },
+      error: err => {
+        if (err.status === 400) this.movementError = err.error?.message || 'Données invalides.';
+        else this.movementError = 'Une erreur est survenue.';
+      }
+    });
   }
 
   loadIndicators(): void {

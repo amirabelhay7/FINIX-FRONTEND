@@ -1,4 +1,4 @@
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+﻿<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
 <app-sidebar (pageChanged)="onPageChange($event)"></app-sidebar>
 
@@ -919,6 +919,54 @@
         <div><div class="ph-eyebrow">Pilotage Financier</div><div class="ph-title">Indicateurs financiers</div><div class="ph-desc">Santé globale de l'institution — snapshots historiques</div></div>
         <div class="ph-actions"><button class="btn btn-primary" (click)="openIndicatorForm()">+ Nouvel indicateur</button></div>
       </div>
+      <!-- FORMULAIRE INLINE INDICATEUR -->
+      <div *ngIf="showIndicatorForm" class="panel" style="border:2px solid var(--blue);margin-bottom:1rem;">
+        <div class="panel-head">
+          <div class="panel-title"><span class="ptdot"></span>Nouvel indicateur</div>
+          <button class="btn btn-outline btn-sm" (click)="closeIndicatorForm()">✕ Annuler</button>
+        </div>
+        <div class="panel-body">
+          <div *ngIf="indicatorError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
+            ⚠ {{ indicatorError }}
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nom *</label>
+              <input class="form-input" type="text" [(ngModel)]="indicatorForm.name" placeholder="Ex: Taux de défaut NPL">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Référence *</label>
+              <input class="form-input" type="text" [(ngModel)]="indicatorForm.referenceIndicator" placeholder="Ex: NPL_RATIO">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Valeur actuelle *</label>
+              <input class="form-input" type="number" step="0.01" [(ngModel)]="indicatorForm.value" placeholder="Ex: 0.12">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Seuil Warning *</label>
+              <input class="form-input" type="number" step="0.01" [(ngModel)]="indicatorForm.warningThreshold" placeholder="Ex: 0.15">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Seuil Critique *</label>
+              <input class="form-input" type="number" step="0.01" [(ngModel)]="indicatorForm.criticalThreshold" placeholder="Ex: 0.25">
+            </div>
+          </div>
+          <div *ngIf="indicatorForm.warningThreshold !== null && indicatorForm.criticalThreshold !== null && indicatorForm.warningThreshold >= indicatorForm.criticalThreshold"
+            style="color:var(--danger);font-size:.75rem;margin-bottom:.5rem;">
+            ⚠ Le seuil warning doit être inférieur au seuil critique
+          </div>
+          <div style="display:flex;gap:.75rem;margin-top:1rem;">
+            <button class="btn btn-success" (click)="saveIndicator()"
+              [disabled]="!indicatorForm.name || !indicatorForm.referenceIndicator || indicatorForm.value === null || indicatorForm.warningThreshold === null || indicatorForm.criticalThreshold === null || indicatorForm.warningThreshold >= indicatorForm.criticalThreshold"
+              [style.opacity]="!indicatorForm.name || !indicatorForm.referenceIndicator || indicatorForm.value === null || indicatorForm.warningThreshold === null || indicatorForm.criticalThreshold === null || indicatorForm.warningThreshold >= indicatorForm.criticalThreshold ? '0.5' : '1'">
+              ✓ Enregistrer l'indicateur
+            </button>
+            <button class="btn btn-outline" (click)="closeIndicatorForm()">Annuler</button>
+          </div>
+        </div>
+      </div>
       <div class="panel s2">
         <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Indicateurs enregistrés</div></div>
         <div class="tbl-wrap">
@@ -949,6 +997,132 @@
         <div><div class="ph-eyebrow">Pilotage Financier</div><div class="ph-title">Comptes trésorerie</div><div class="ph-desc">Soldes et mouvements des comptes de l'institution</div></div>
         <div class="ph-actions"><button class="btn btn-primary" (click)="openTreasuryForm()">+ Nouveau compte</button></div>
       </div>
+      <!-- FORMULAIRE INLINE TRÉSORERIE -->
+      <div *ngIf="showTreasuryForm" class="panel" style="border:2px solid var(--blue);margin-bottom:1rem;">
+        <div class="panel-head">
+          <div class="panel-title"><span class="ptdot"></span>{{ editingTreasuryId ? 'Modifier le compte' : 'Nouveau compte trésorerie' }}</div>
+          <button class="btn btn-outline btn-sm" (click)="closeTreasuryForm()">✕ Annuler</button>
+        </div>
+        <div class="panel-body">
+          <div *ngIf="treasuryError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
+            ⚠ {{ treasuryError }}
+          </div>
+          <!-- CRÉATION -->
+          <ng-container *ngIf="!editingTreasuryId">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Nom *</label>
+                <input class="form-input" type="text" [(ngModel)]="treasuryForm.name" placeholder="Ex: Compte principal TND">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Type *</label>
+                <select class="form-input" [(ngModel)]="treasuryForm.type">
+                  <option value="MAIN">MAIN</option>
+                  <option value="RESERVE">RESERVE</option>
+                  <option value="PROVISION">PROVISION</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Devise * (3 lettres)</label>
+                <input class="form-input" type="text" [(ngModel)]="treasuryForm.currency" placeholder="TND" maxlength="3" style="text-transform:uppercase">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Solde initial *</label>
+                <input class="form-input" type="number" [(ngModel)]="treasuryForm.initialBalance" placeholder="Ex: 100000">
+                <span style="font-size:.72rem;color:var(--g400)">Le solde actuel sera automatiquement égal au solde initial.</span>
+              </div>
+            </div>
+          </ng-container>
+          <!-- MODIFICATION -->
+          <ng-container *ngIf="editingTreasuryId">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Nom *</label>
+                <input class="form-input" type="text" [(ngModel)]="treasuryUpdateForm.name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Devise * (3 lettres)</label>
+                <input class="form-input" type="text" [(ngModel)]="treasuryUpdateForm.currency" maxlength="3" style="text-transform:uppercase">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Statut *</label>
+                <select class="form-input" [(ngModel)]="treasuryUpdateForm.status">
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="INACTIVE">INACTIVE</option>
+                </select>
+              </div>
+            </div>
+          </ng-container>
+          <div style="display:flex;gap:.75rem;margin-top:1rem;">
+            <button class="btn btn-success" (click)="saveTreasury()">
+              ✓ {{ editingTreasuryId ? 'Mettre à jour' : 'Créer le compte' }}
+            </button>
+            <button class="btn btn-outline" (click)="closeTreasuryForm()">Annuler</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANNEAU MOUVEMENTS -->
+      <div *ngIf="showMovementsPanel" class="panel" style="border:2px solid var(--purple);margin-bottom:1rem;">
+        <div class="panel-head">
+          <div class="panel-title"><span class="ptdot" style="background:var(--purple)"></span>Mouvements — Compte #{{ selectedTreasuryId }}</div>
+          <div style="display:flex;gap:.5rem;">
+            <button class="btn btn-primary btn-sm" (click)="openMovementForm()">+ Nouveau mouvement</button>
+            <button class="btn btn-outline btn-sm" (click)="closeMovementsPanel()">✕ Fermer</button>
+          </div>
+        </div>
+        <!-- Formulaire mouvement inline -->
+        <div *ngIf="showMovementForm" class="panel-body" style="border-bottom:1px solid var(--g200);">
+          <div *ngIf="movementError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
+            ⚠ {{ movementError }}
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Direction *</label>
+              <select class="form-input" [(ngModel)]="movementForm.movementDirection">
+                <option value="INFLOW">INFLOW (Entrée)</option>
+                <option value="OUTFLOW">OUTFLOW (Sortie)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Montant *</label>
+              <input class="form-input" type="number" [(ngModel)]="movementForm.amount" placeholder="Ex: 5000">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">Description * (min 5 caractères)</label>
+            <input class="form-input" type="text" [(ngModel)]="movementForm.description" placeholder="Ex: Virement client Karim Hadj">
+          </div>
+          <div style="display:flex;gap:.75rem;">
+            <button class="btn btn-success" (click)="saveMovement()"
+              [disabled]="!movementForm.description || movementForm.description.length < 5 || !movementForm.amount || movementForm.amount <= 0"
+              [style.opacity]="!movementForm.description || movementForm.description.length < 5 || !movementForm.amount || movementForm.amount <= 0 ? '0.5' : '1'">
+              ✓ Enregistrer
+            </button>
+            <button class="btn btn-outline" (click)="showMovementForm = false">Annuler</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Direction</th><th>Montant</th><th>Description</th><th>Date mouvement</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let m of movements">
+                <td><span class="badge" [ngClass]="m.movementDirection === 'INFLOW' ? 'b-actif' : 'b-danger'">{{ m.movementDirection }}</span></td>
+                <td class="td-amount" [style.color]="m.movementDirection === 'INFLOW' ? 'var(--success)' : 'var(--danger)'">
+                  {{ m.movementDirection === 'INFLOW' ? '+' : '-' }}{{ m.amount | number }} TND
+                </td>
+                <td>{{ m.description }}</td>
+                <td style="font-size:.75rem;color:var(--g400)">{{ m.movementDate | date:'dd/MM/yyyy HH:mm' }}</td>
+              </tr>
+              <tr *ngIf="movements.length === 0">
+                <td colspan="4" style="text-align:center;color:var(--g400);padding:1.5rem;">Aucun mouvement enregistré</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
       <div class="panel s2">
         <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Comptes actifs</div></div>
         <div class="tbl-wrap">
@@ -978,6 +1152,59 @@
       <div class="ph s1">
         <div><div class="ph-eyebrow">Pilotage Financier</div><div class="ph-title">Simulations de financement</div><div class="ph-desc">Évaluez la capacité de l'institution à financer de nouveaux crédits</div></div>
         <div class="ph-actions"><button class="btn btn-primary" (click)="openSimulationForm()">+ Nouvelle simulation</button></div>
+      </div>
+      <!-- FORMULAIRE INLINE SIMULATION -->
+      <div *ngIf="showSimulationForm" class="panel" style="border:2px solid var(--blue);margin-bottom:1rem;">
+        <div class="panel-head">
+          <div class="panel-title"><span class="ptdot"></span>Nouvelle simulation de financement</div>
+          <button class="btn btn-outline btn-sm" (click)="closeSimulationForm()">✕ Annuler</button>
+        </div>
+        <div class="panel-body">
+          <div *ngIf="simulationError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
+            ⚠ {{ simulationError }}
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Montant projeté (TND) *</label>
+              <input class="form-input" type="number" [(ngModel)]="simulationForm.projectedAmount" placeholder="Ex: 500000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Taux de défaut moyen * (entre 0 et 1)</label>
+              <input class="form-input" type="number" step="0.01" min="0" max="1" [(ngModel)]="simulationForm.averageDefaultRate" placeholder="Ex: 0.15">
+              <span style="font-size:.72rem;color:var(--g400);">Si ≥ 0.20 → décision automatiquement REJECTED</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Provision estimée (TND) *</label>
+              <input class="form-input" type="number" [(ngModel)]="simulationForm.estimatedProvisionNeeded" placeholder="Ex: 75000">
+              <span *ngIf="simulationForm.estimatedProvisionNeeded > simulationForm.projectedAmount && simulationForm.projectedAmount"
+                style="color:var(--danger);font-size:.75rem;">La provision ne peut pas dépasser le montant projeté</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Décision (optionnelle)</label>
+              <select class="form-input" [(ngModel)]="simulationForm.decision">
+                <option [ngValue]="null">-- Auto calculée par le backend --</option>
+                <option value="ACCEPTED">ACCEPTED</option>
+                <option value="REJECTED">REJECTED</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:.75rem;margin-top:1rem;">
+            <button class="btn btn-success" (click)="saveSimulation()"
+              [disabled]="!simulationForm.projectedAmount || simulationForm.projectedAmount <= 0
+                          || simulationForm.averageDefaultRate === null
+                          || simulationForm.estimatedProvisionNeeded === null
+                          || simulationForm.estimatedProvisionNeeded > simulationForm.projectedAmount"
+              [style.opacity]="!simulationForm.projectedAmount || simulationForm.projectedAmount <= 0
+                          || simulationForm.averageDefaultRate === null
+                          || simulationForm.estimatedProvisionNeeded === null
+                          || simulationForm.estimatedProvisionNeeded > simulationForm.projectedAmount ? '0.5' : '1'">
+              ✓ Lancer la simulation
+            </button>
+            <button class="btn btn-outline" (click)="closeSimulationForm()">Annuler</button>
+          </div>
+        </div>
       </div>
       <div class="panel s2">
         <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Historique des simulations</div></div>
