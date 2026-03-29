@@ -190,32 +190,64 @@ export class TopUpEnhanced {
     if (!this.canSubmit()) return;
 
     this.processing = true;
+    this.verificationStatus = {
+      title: 'Processing...',
+      message: 'Processing top-up transaction...',
+      type: 'pending'
+    };
 
-    // Simulate transaction processing (replace with actual API call)
-    setTimeout(() => {
-      // Add to recent transactions
-      const newTransaction: Transaction = {
-        id: `TXN${Date.now()}`,
-        clientName: this.selectedClient?.name || 'Unknown',
-        amount: this.topUpAmount || 0,
-        type: this.paymentMethod as any,
-        status: 'completed',
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-      };
+    // Prepare transaction request
+    const transactionRequest = {
+      amount: this.topUpAmount!,
+      description: this.transactionNotes || `Top-up via ${this.paymentMethod}`,
+      targetEmail: this.selectedClient!.email,
+      paymentMethod: this.paymentMethod,
+      referenceNumber: this.referenceNumber,
+      receiptFiles: this.uploadedFiles.map(file => file.name)
+    };
 
-      this.recentTransactions.unshift(newTransaction);
+    // Call real API
+    this.walletService.agentTopUp(transactionRequest).subscribe({
+      next: (response) => {
+        // Add to recent transactions
+        const newTransaction: Transaction = {
+          id: response.id || `TXN${Date.now()}`,
+          clientName: this.selectedClient?.name || 'Unknown',
+          amount: this.topUpAmount || 0,
+          type: this.paymentMethod as any,
+          status: 'completed',
+          time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        };
 
-      // Show success message
-      this.verificationStatus = {
-        title: 'Transaction Successful',
-        message: `Successfully loaded ${this.topUpAmount} TND to ${this.selectedClient?.name}'s wallet`,
-        type: 'success'
-      };
+        this.recentTransactions.unshift(newTransaction);
 
-      // Reset form
-      this.resetForm();
-      this.processing = false;
-    }, 2000);
+        // Update statistics
+        this.todaysSummary.topUps++;
+        this.todaysSummary.totalAmount += this.topUpAmount!;
+        this.todaysSummary.commission += (this.topUpAmount! * 0.01); // 1% commission
+        this.todaysSummary.clientsServed++;
+
+        // Show success message
+        this.verificationStatus = {
+          title: 'Transaction Successful',
+          message: `Successfully loaded ${this.topUpAmount} TND to ${this.selectedClient?.name}'s wallet`,
+          type: 'success'
+        };
+
+        // Reset form
+        this.resetForm();
+        this.processing = false;
+      },
+      error: (error: any) => {
+        this.processing = false;
+        this.verificationStatus = {
+          title: 'Transaction Failed',
+          message: error.error?.message || 'Failed to process transaction. Please try again.',
+          type: 'error'
+        };
+        console.error('Transaction processing error:', error);
+      }
+    });
   }
 
   // Form Validation
