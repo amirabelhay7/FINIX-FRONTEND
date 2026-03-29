@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HttpEventType } from '@angular/common/http';
 import { ClientSearchService, ClientSearchResult } from '../../../services/client/client-search.service';
 import { WalletService } from '../../../services/wallet/wallet.service';
 import { AgentService, AgentStats } from '../../../services/agent/agent.service';
 import { RealTimeService, RealTimeTransaction } from '../../../services/realtime/realtime.service';
+import { FileUploadService, UploadResult } from '../../../services/file/file-upload.service';
 import { Subscription } from 'rxjs';
 
 interface Client extends ClientSearchResult {}
@@ -45,7 +47,8 @@ export class TopUpEnhanced {
     private clientSearchService: ClientSearchService,
     private walletService: WalletService,
     private agentService: AgentService,
-    private realTimeService: RealTimeService
+    private realTimeService: RealTimeService,
+    private fileUploadService: FileUploadService
   ) {
     this.loadAgentStats();
     this.subscribeToRealTimeUpdates();
@@ -60,6 +63,8 @@ export class TopUpEnhanced {
   referenceNumber = '';
   transactionNotes = '';
   uploadedFiles: File[] = [];
+  uploadedFileResults: UploadResult[] = [];
+  uploadingFiles: { [key: string]: number } = {}; // Track upload progress
   processing = false;
 
   // Real-time subscriptions
@@ -203,13 +208,93 @@ export class TopUpEnhanced {
   // File Upload
   onReceiptUpload(event: any): void {
     const files = event.target.files;
-    if (files) {
-      this.uploadedFiles = [...this.uploadedFiles, ...Array.from(files) as File[]];
-    }
+    if (!files) return;
+
+    Array.from(files).forEach((file: File) => {
+      // Validate file before upload
+      const validation = this.fileUploadService.validateFile(file);
+      if (!validation.valid) {
+        this.verificationStatus = {
+          title: 'File Upload Error',
+          message: `${file.name}: ${validation.error}`,
+          type: 'error'
+        };
+        return;
+      }
+
+      // Add to local files list
+      this.uploadedFiles = [...this.uploadedFiles, file];
+      
+      // Start upload
+      this.uploadSingleFile(file);
+    });
+  }
+
+  uploadSingleFile(file: File): void {
+    const fileKey = `${file.name}_${Date.now()}`;
+    this.uploadingFiles[fileKey] = 0;
+
+    this.fileUploadService.uploadFile(file, 'receipts').subscribe({
+      next: (event: HttpEvent<UploadResult>) => {
+        if (event.type === HttpEventType.UploadProgress) {
+          if (event.total) {
+            const progress = Math.round(100 * event.loaded / event.total);
+            this.uploadingFiles[fileKey] = progress;
+          }
+        } else if (event.type === HttpEventType.Response) {
+          // Upload complete
+          delete this.uploadingFiles[fileKey];
+          
+          if (event.body?.success) {
+            this.uploadedFileResults.push(event.body);
+            this.verificationStatus = {
+              title: 'File Uploaded',
+              message: `${file.name} uploaded successfully`,
+              type: 'success'
+            };
+          } else {
+            this.verificationStatus = {
+              title: 'Upload Failed',
+              message: event.body?.error || 'Failed to upload file',
+              type: 'error'
+            };
+          }
+        }
+      },
+      error: (error: any) => {
+        delete this.uploadingFiles[fileKey];
+        this.verificationStatus = {
+          title: 'Upload Error',
+          message: `Failed to upload ${file.name}: ${error.message}`,
+          type: 'error'
+        };
+        console.error('File upload error:', error);
+      }
+    });
   }
 
   removeFile(file: File): void {
+    // Remove from local files
     this.uploadedFiles = this.uploadedFiles.filter(f => f !== file);
+    
+    // Remove from upload results if exists
+    this.uploadedFileResults = this.uploadedFileResults.filter(result => result.fileName !== file.name);
+    
+    // Remove from uploading progress
+    Object.keys(this.uploadingFiles).forEach(key => {
+      if (key.startsWith(file.name)) {
+        delete this.uploadingFiles[key];
+      }
+    });
+  }
+
+  getUploadProgress(fileName: string): number {
+    const key = Object.keys(this.uploadingFiles).find(k => k.startsWith(fileName));
+    return key ? this.uploadingFiles[key] : 0;
+  }
+
+  isFileUploading(fileName: string): boolean {
+    return Object.keys(this.uploadingFiles).some(k => k.startsWith(fileName));
   }
 
   // Transaction Processing
