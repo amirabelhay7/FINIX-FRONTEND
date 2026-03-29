@@ -122,11 +122,6 @@ export class TopUpEnhanced {
 
   // Load Agent Statistics
   loadAgentStats(): void {
-    // Debug: Check authentication state
-    console.log('Loading agent stats...');
-    console.log('Token exists:', !!localStorage.getItem('finix_access_token'));
-    console.log('User role:', localStorage.getItem('finix_role'));
-    
     this.agentService.getTodayStats().subscribe({
       next: (stats: AgentStats) => {
         console.log('Agent stats loaded successfully:', stats);
@@ -140,14 +135,9 @@ export class TopUpEnhanced {
       },
       error: (error: any) => {
         console.error('Failed to load agent stats:', error);
-        console.error('Error status:', error.status);
-        console.error('Error headers:', error.headers);
         
         if (error.status === 403) {
-          console.log('403 error - checking user role...');
-          const userRole = localStorage.getItem('finix_role');
-          console.log('Current user role:', userRole);
-          
+          console.log('403 error - loading demo data');
           // Show demo data when backend is not available
           this.uiNotificationService.info('Demo Mode', 'Backend agent endpoints not available. Showing demo data.');
           this.loadDemoData();
