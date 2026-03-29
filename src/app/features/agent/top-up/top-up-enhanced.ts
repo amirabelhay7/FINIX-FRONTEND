@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ClientSearchService, ClientSearchResult } from '../../../services/client/client-search.service';
 import { WalletService } from '../../../services/wallet/wallet.service';
+import { AgentService, AgentStats } from '../../../services/agent/agent.service';
 
 interface Client extends ClientSearchResult {}
 
@@ -40,8 +41,11 @@ export class TopUpEnhanced {
   
   constructor(
     private clientSearchService: ClientSearchService,
-    private walletService: WalletService
-  ) {}
+    private walletService: WalletService,
+    private agentService: AgentService
+  ) {
+    this.loadAgentStats();
+  }
   
   // Form Data
   searchQuery = '';
@@ -58,41 +62,64 @@ export class TopUpEnhanced {
   readonly minTopUpAmount = 10;
   readonly maxTopUpAmount = 10000;
 
-  // Mock Data (replace with real API calls)
-  readonly agentCashBalance = 5000;
-  readonly todaysSummary: DailySummary = {
-    topUps: 12,
-    totalAmount: 45000,
-    commission: 450,
-    clientsServed: 8
+  // Dynamic Data (loaded from API)
+  agentCashBalance = 0;
+  todaysSummary: DailySummary = {
+    topUps: 0,
+    totalAmount: 0,
+    commission: 0,
+    clientsServed: 0
   };
 
-  readonly recentTransactions: Transaction[] = [
-    {
-      id: 'TXN001',
-      clientName: 'Mohamed Ali',
-      amount: 5000,
-      type: 'cash',
-      status: 'completed',
-      time: '10:30 AM'
-    },
-    {
-      id: 'TXN002',
-      clientName: 'Sarra Ben',
-      amount: 2500,
-      type: 'bank',
-      status: 'completed',
-      time: '09:45 AM'
-    },
-    {
-      id: 'TXN003',
-      clientName: 'Karim Tounsi',
-      amount: 7500,
-      type: 'cash',
-      status: 'pending',
-      time: '09:15 AM'
-    }
-  ];
+  recentTransactions: Transaction[] = [];
+
+  // Load Agent Statistics
+  loadAgentStats(): void {
+    this.agentService.getTodayStats().subscribe({
+      next: (stats: AgentStats) => {
+        this.agentCashBalance = stats.cashBalance;
+        this.todaysSummary = {
+          topUps: stats.topUps,
+          totalAmount: stats.totalAmount,
+          commission: stats.commission,
+          clientsServed: stats.clientsServed
+        };
+      },
+      error: (error: any) => {
+        console.error('Failed to load agent stats:', error);
+        // Set default values on error
+        this.agentCashBalance = 0;
+        this.todaysSummary = {
+          topUps: 0,
+          totalAmount: 0,
+          commission: 0,
+          clientsServed: 0
+        };
+      }
+    });
+
+    // Load recent transactions
+    this.loadRecentTransactions();
+  }
+
+  loadRecentTransactions(): void {
+    this.agentService.getRecentTransactions(5).subscribe({
+      next: (transactions: any[]) => {
+        this.recentTransactions = transactions.map(txn => ({
+          id: txn.id || `TXN${Date.now()}`,
+          clientName: txn.clientName || 'Unknown',
+          amount: txn.amount || 0,
+          type: txn.type || 'cash',
+          status: txn.status || 'completed',
+          time: txn.time || new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        }));
+      },
+      error: (error: any) => {
+        console.error('Failed to load recent transactions:', error);
+        this.recentTransactions = [];
+      }
+    });
+  }
 
   // Client Search
   searchClient(): void {
