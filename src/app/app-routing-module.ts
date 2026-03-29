@@ -87,7 +87,7 @@ const routes: Routes = [
       },
       {
         path: 'wallet',
-        loadChildren: () => import('./features/admin/wallet-admin/wallet-admin-module').then((m) => m.WalletAdminModule),
+        loadChildren: () => import('./features/wallet/admin/wallet-admin-module').then((m) => m.WalletAdminModule),
       },
       { path: 'analytics', component: AnalyticsDashboardComponent },
       { path: '**', redirectTo: 'dashboard' },

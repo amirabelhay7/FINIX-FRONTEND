@@ -7,9 +7,9 @@ import { ClientCredits } from './credits/credits';
 import { ClientRepayments } from './repayments/repayments';
 import { ClientVehicles } from './vehicles/vehicles';
 import { ClientInsurance } from './insurance/insurance';
-import { ClientWallet } from './wallet/wallet';
 import { ClientScore } from './score/score';
 import { ClientDocuments } from './documents/documents';
+import { ClientWallet } from '../wallet/client/wallet';
 
 @NgModule({
   declarations: [
