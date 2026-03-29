@@ -1,14 +1,9 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ClientSearchService, ClientSearchResult } from '../../../services/client/client-search.service';
+import { WalletService } from '../../../services/wallet/wallet.service';
 
-interface Client {
-  id: string;
-  name: string;
-  email: string;
-  initials: string;
-  isActive: boolean;
-  walletBalance?: number;
-}
+interface Client extends ClientSearchResult {}
 
 interface VerificationStatus {
   title: string;
@@ -42,6 +37,11 @@ interface DailySummary {
   styleUrls: ['./top-up.css']
 })
 export class TopUpEnhanced {
+  
+  constructor(
+    private clientSearchService: ClientSearchService,
+    private walletService: WalletService
+  ) {}
   
   // Form Data
   searchQuery = '';
@@ -96,50 +96,54 @@ export class TopUpEnhanced {
 
   // Client Search
   searchClient(): void {
-    if (!this.searchQuery.trim()) return;
+    if (!this.searchQuery.trim()) {
+      this.selectedClient = null;
+      this.verificationStatus = null;
+      return;
+    }
 
-    // Simulate client search (replace with actual API call)
     this.processing = true;
-    
-    setTimeout(() => {
-      if (this.searchQuery.toLowerCase().includes('mohamed')) {
-        this.selectedClient = {
-          id: 'CLT001',
-          name: 'Mohamed Ali',
-          email: 'mohamed.ali@email.com',
-          initials: 'MA',
-          isActive: true,
-          walletBalance: 15000
-        };
-        this.verificationStatus = {
-          title: 'Client Verified',
-          message: 'Client identity confirmed and wallet located',
-          type: 'success'
-        };
-      } else if (this.searchQuery.toLowerCase().includes('sarra')) {
-        this.selectedClient = {
-          id: 'CLT002',
-          name: 'Sarra Ben',
-          email: 'sarra.ben@email.com',
-          initials: 'SB',
-          isActive: true,
-          walletBalance: 8500
-        };
-        this.verificationStatus = {
-          title: 'Client Verified',
-          message: 'Client identity confirmed and wallet located',
-          type: 'success'
-        };
-      } else {
+    this.verificationStatus = {
+      title: 'Searching...',
+      message: 'Looking up client information...',
+      type: 'pending'
+    };
+
+    this.clientSearchService.searchClients({
+      query: this.searchQuery,
+      limit: 10
+    }).subscribe({
+      next: (clients: ClientSearchResult[]) => {
+        this.processing = false;
+        
+        if (clients.length > 0) {
+          // Take the first match for now, later we can show a selection UI
+          this.selectedClient = clients[0];
+          this.verificationStatus = {
+            title: 'Client Verified',
+            message: `Found ${clients.length} client(s). Selected: ${clients[0].name}`,
+            type: 'success'
+          };
+        } else {
+          this.selectedClient = null;
+          this.verificationStatus = {
+            title: 'Client Not Found',
+            message: 'No client found with the provided search criteria',
+            type: 'error'
+          };
+        }
+      },
+      error: (error: any) => {
+        this.processing = false;
         this.selectedClient = null;
         this.verificationStatus = {
-          title: 'Client Not Found',
-          message: 'No client found with the provided search criteria',
+          title: 'Search Error',
+          message: 'Failed to search for clients. Please try again.',
           type: 'error'
         };
+        console.error('Client search error:', error);
       }
-      this.processing = false;
-    }, 1000);
+    });
   }
 
   // File Upload
