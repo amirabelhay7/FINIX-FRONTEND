@@ -31,29 +31,59 @@
   <!-- Main Content -->
   <div *ngIf="!loading && !error && wallet">
     <div class="ph s1">
-      <div>
-        <div class="ph-eyebrow">Wallet</div>
-        <div class="ph-title">My wallet</div>
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+          <span class="text-white text-xl">💳</span>
+        </div>
+        <div>
+          <div class="ph-eyebrow">Wallet</div>
+          <div class="ph-title">My wallet</div>
+        </div>
       </div>
     </div>
 
     <div class="wallet-hero s2">
-      <div class="wh-label">Available balance</div>
-      <div class="wh-balance">{{ formatBalance(wallet?.balance || 0) }}</div>
-      <div class="wh-sub">Savings account · IBAN: {{ wallet?.accountNumber || 'Loading...' }}</div>
-      <div class="wh-actions">
-        <button class="wh-btn wh-btn-primary" (click)="openTransferModal()" [disabled]="transferLoading">
-          → Transfer
-        </button>
-        <button class="wh-btn wh-btn-primary" (click)="openWithdrawModal()" [disabled]="withdrawLoading">
-          ↓ Request Withdrawal
-        </button>
-        <button class="wh-btn wh-btn-ghost" (click)="showAddFundsInfo()">
-          📞 Add Funds Info
-        </button>
-        <button class="wh-btn wh-btn-ghost" disabled>
-          💳 Pay Bills
-        </button>
+      <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-8 text-white shadow-2xl">
+        <!-- Balance Display -->
+        <div class="mb-6">
+          <div class="text-blue-100 text-sm font-medium mb-2">Available balance</div>
+          <div class="text-4xl font-bold mb-2">{{ formatBalance(wallet?.balance || 0) }}</div>
+          <div class="text-blue-200 text-sm">
+            💼 Savings account · 📋 IBAN: {{ wallet?.accountNumber || 'Loading...' }}
+          </div>
+        </div>
+        
+        <!-- Status Badge -->
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-6">
+          <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+          <span class="text-sm font-medium">{{ wallet?.isActive ? 'Active' : 'Inactive' }}</span>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-3">
+          <button class="flex items-center justify-center gap-2 px-4 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition-all transform hover:scale-[1.02] active:scale-[0.98]" 
+                  (click)="openTransferModal()" 
+                  [disabled]="transferLoading">
+            <span>→</span>
+            <span>Transfer</span>
+          </button>
+          <button class="flex items-center justify-center gap-2 px-4 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition-all transform hover:scale-[1.02] active:scale-[0.98]" 
+                  (click)="openWithdrawModal()" 
+                  [disabled]="withdrawLoading">
+            <span>↓</span>
+            <span>Request Withdrawal</span>
+          </button>
+          <button class="flex items-center justify-center gap-2 px-4 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg font-medium transition-all" 
+                  (click)="showAddFundsInfo()">
+            <span>📞</span>
+            <span>Add Funds Info</span>
+          </button>
+          <button class="flex items-center justify-center gap-2 px-4 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg font-medium transition-all" 
+                  disabled>
+            <span>💳</span>
+            <span>Pay Bills</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -61,7 +91,12 @@
       <!-- Transactions -->
       <div class="panel">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Recent transactions</div>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+              <span class="text-white text-sm">📊</span>
+            </div>
+            <div class="panel-title">Recent transactions</div>
+          </div>
           <button class="btn btn-ghost btn-sm">View all →</button>
         </div>
         <div class="transactions-list">
@@ -77,65 +112,84 @@
           <!-- Real transactions -->
           <div *ngFor="let tx of transactions | slice:0:5" class="tx-item">
             <div class="tx-ico" [style.background]="getTransactionIconBg(tx.transactionType)">
-              {{ getTransactionIcon(tx.transactionType) }}
+              <span>{{ getTransactionIcon(tx.transactionType) }}</span>
             </div>
-            <div>
-              <div class="tx-title">{{ tx.description || 'Transaction' }}</div>
-              <div class="tx-sub">{{ tx.referenceNumber || 'No reference' }}</div>
+            <div class="tx-dt">
+              <div class="tx-title">{{ tx.transactionType.replace('_', ' ') }}</div>
+              <div class="tx-sub">{{ formatDate(tx.transactionDate) }}</div>
             </div>
-            <div>
-              <div class="tx-amount" [class.tx-credit]="isCredit(tx.transactionType)" [class.tx-debit]="!isCredit(tx.transactionType)">
-                {{ isCredit(tx.transactionType) ? '+' : '-' }}{{ formatBalance(abs(tx.amount)) }}
-              </div>
-              <div class="tx-date">{{ formatDate(tx.transactionDate) }}</div>
+            <div class="tx-amount" [class.positive]="isCredit(tx.transactionType)" [class.negative]="!isCredit(tx.transactionType)">
+              {{ isCredit(tx.transactionType) ? '+' : '-' }}{{ formatBalance(tx.amount) }}
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Stats wallet -->
-      <div style="display:flex;flex-direction:column;gap:1rem;">
+      
+      <!-- Wallet Info & Stats -->
+      <div class="space-y-6">
+        <!-- Wallet Information -->
         <div class="panel">
           <div class="panel-head">
-            <div class="panel-title"><span class="ptdot"></span>Transaction Limits</div>
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <span class="text-white text-sm">ℹ️</span>
+              </div>
+              <div class="panel-title">Wallet Information</div>
+            </div>
           </div>
-          <div class="panel-body">
-            <div style="display:flex;flex-direction:column;gap:.625rem;">
-              <div class="si-row">
-                <span class="si-lbl">📊 Daily Used</span>
-                <span class="si-val">{{ formatBalance(wallet?.dailyUsed || 0) }} / {{ formatBalance(wallet?.dailyLimit || 0) }}</span>
-              </div>
-              <div class="si-row">
-                <span class="si-lbl">📈 Monthly Used</span>
-                <span class="si-val">{{ formatBalance(wallet?.monthlyUsed || 0) }} / {{ formatBalance(wallet?.monthlyLimit || 0) }}</span>
-              </div>
-              <div class="si-row">
-                <span class="si-lbl">💳 Transaction Limit</span>
-                <span class="si-val">{{ formatBalance(wallet?.transactionLimit || 0) }}</span>
+          <div class="panel-body space-y-4">
+            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+              <span class="text-sm text-gray-600">Account Number</span>
+              <span class="text-sm font-medium">{{ wallet?.accountNumber || 'Loading...' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+              <span class="text-sm text-gray-600">Client Email</span>
+              <span class="text-sm font-medium">{{ wallet?.clientEmail || 'N/A' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+              <span class="text-sm text-gray-600">Client Name</span>
+              <span class="text-sm font-medium">{{ wallet?.clientName || 'N/A' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-2">
+              <span class="text-sm text-gray-600">Account Status</span>
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full" [style.background]="wallet?.isActive ? 'var(--green)' : 'var(--red)'"></div>
+                <span class="text-sm font-medium" [style.color]="wallet?.isActive ? 'var(--green)' : 'var(--red)'">
+                  {{ wallet?.isActive ? 'Active' : 'Inactive' }}
+                </span>
               </div>
             </div>
           </div>
         </div>
         
+        <!-- Transaction Limits -->
         <div class="panel">
           <div class="panel-head">
-            <div class="panel-title"><span class="ptdot"></span>Account Status</div>
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                <span class="text-white text-sm">🔒</span>
+              </div>
+              <div class="panel-title">Transaction Limits</div>
+            </div>
           </div>
-          <div class="panel-body">
-            <div style="display:flex;flex-direction:column;gap:.625rem;">
-              <div class="si-row">
-                <span class="si-lbl">� Email</span>
-                <span class="si-val">{{ wallet?.clientEmail || 'N/A' }}</span>
-              </div>
-              <div class="si-row">
-                <span class="si-lbl">� Client Name</span>
-                <span class="si-val">{{ wallet?.clientName || 'N/A' }}</span>
-              </div>
-              <div class="si-row">
-                <span class="si-lbl">🔄 Status</span>
-                <span class="si-val" [style.color]="wallet?.isActive ? 'var(--green)' : 'var(--red)'">
-                  {{ wallet?.isActive ? 'Active' : 'Inactive' }}
-                </span>
+          <div class="panel-body space-y-4">
+            <div class="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg p-4">
+              <div class="grid grid-cols-1 gap-3">
+                <div class="text-center">
+                  <p class="text-xs text-gray-600 mb-1">Daily Used</p>
+                  <p class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.dailyUsed || 0) }}</p>
+                  <p class="text-xs text-gray-500">of {{ formatBalance(wallet?.dailyLimit || 0) }}</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-gray-600 mb-1">Monthly Used</p>
+                  <p class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.monthlyUsed || 0) }}</p>
+                  <p class="text-xs text-gray-500">of {{ formatBalance(wallet?.monthlyLimit || 0) }}</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-gray-600 mb-1">Per Transaction</p>
+                  <p class="text-lg font-bold text-gray-900">{{ formatBalance(wallet?.transactionLimit || 0) }}</p>
+                  <p class="text-xs text-gray-500">maximum</p>
+                </div>
               </div>
             </div>
           </div>

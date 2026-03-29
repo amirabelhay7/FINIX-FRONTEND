@@ -30,7 +30,7 @@ export class Schedule {
       { label: 'Installment 2 · Feb 15, 2025', statusNote: 'Paid Feb 15 · Wallet', amount: '445.20 TND', status: 'paid', icon: 'check_circle', iconBgClass: 'bg-green-50', iconColorClass: 'text-green-600' },
     ];
     const due: ScheduleItem[] = [
-      { label: 'Installment 3 · Mar 15, 2025', statusNote: 'Due in 18 days', amount: '445.20 TND', status: 'due', icon: 'schedule', iconBgClass: 'bg-amber-50', iconColorClass: 'text-amber-600', rowBgClass: 'bg-amber-50/50', payRoute: '/wallet' },
+      { label: 'Installment 3 · Mar 15, 2025', statusNote: 'Due in 18 days', amount: '445.20 TND', status: 'due', icon: 'schedule', iconBgClass: 'bg-amber-50', iconColorClass: 'text-amber-600', rowBgClass: 'bg-amber-50/50', payRoute: '/client/wallet' },
     ];
     const dates = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const upcoming: ScheduleItem[] = [];

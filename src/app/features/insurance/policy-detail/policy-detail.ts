@@ -19,7 +19,7 @@ export class PolicyDetail {
   readonly nextPaymentAmount = '8.00 TND';
   readonly nextPaymentDue = 'Due Mar 15, 2025';
   readonly payFromWalletLabel = 'Pay from wallet →';
-  readonly payFromWalletRoute = '/wallet';
+  readonly payFromWalletRoute = '/client/wallet';
   readonly claimsTitle = 'Claims';
   readonly fileClaimLabel = 'File a claim';
   readonly fileClaimRoute = '/insurance/file-claim';
