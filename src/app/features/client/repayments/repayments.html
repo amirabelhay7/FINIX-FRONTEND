@@ -121,7 +121,7 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
-              Payé
+              Paid
             </span>
           </ng-container>
 
@@ -279,7 +279,7 @@
                 [class.b-paid]="getPaymentTiming(p) === 'ontime'"
                 [class.b-tolerance]="getPaymentTiming(p) === 'tolerance'"
                 [class.b-late]="getPaymentTiming(p) === 'late'">
-                {{ getPaymentTiming(p) === 'ontime' ? 'À temps' : getPaymentTiming(p) === 'tolerance' ? 'Tolérance' : 'En retard' }}
+                {{ getPaymentTiming(p) === 'ontime' ? 'On Time' : getPaymentTiming(p) === 'tolerance' ? 'Tolerance' : 'Late' }}
               </span>
             </td>
           </tr>

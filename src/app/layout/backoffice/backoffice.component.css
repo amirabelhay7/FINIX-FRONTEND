@@ -855,3 +855,115 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
 
 /* kpi-row gap */
 .kpi-row { gap: 1.125rem; }
+
+/* ── Admin payment modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(15,23,42,.5);
+  backdrop-filter: blur(4px); z-index: 1100;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn .2s ease;
+}
+.admin-pay-modal {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 16px; width: 480px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 25px 60px rgba(0,0,0,.2);
+  animation: slideUp .25s var(--ease);
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.5rem; border-bottom: 1px solid var(--g100);
+}
+.modal-title { font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 800; color: var(--g900); }
+.modal-sub { font-size: .75rem; color: var(--g400); margin-top: .15rem; }
+.modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--g400); line-height: 1; }
+.modal-close:hover { color: var(--g700); }
+.modal-body { padding: 1.25rem 1.5rem; }
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: .5rem;
+  padding: 1rem 1.5rem; border-top: 1px solid var(--g100);
+}
+.form-label { display: block; font-size: .78rem; font-weight: 600; color: var(--g500); margin-bottom: .35rem; }
+.admin-search-results {
+  position: absolute; left: 0; right: 0; top: 100%; z-index: 10;
+  background: var(--card-bg); border: 1px solid var(--g200);
+  border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  max-height: 180px; overflow-y: auto;
+}
+.admin-search-item {
+  padding: .5rem .75rem; cursor: pointer; font-size: .82rem;
+  border-bottom: 1px solid var(--g50);
+}
+.admin-search-item:hover { background: var(--g50); }
+.admin-pay-client-chip {
+  display: flex; align-items: center; gap: .4rem;
+  padding: .6rem .9rem; background: var(--g50);
+  border: 1px solid var(--g200); border-radius: 10px; font-size: .82rem;
+}
+.admin-pay-details {
+  margin-top: .75rem; display: flex; flex-direction: column; gap: .4rem;
+}
+.admin-pay-detail-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .4rem 0; border-bottom: 1px solid var(--g50); font-size: .84rem;
+}
+.admin-pay-detail-row span:first-child { color: var(--g400); }
+.admin-pay-success {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .7rem 1rem; background: rgba(16,185,129,.08);
+  border: 1px solid rgba(16,185,129,.25); border-radius: 10px;
+  font-size: .85rem; font-weight: 600; color: #059669;
+}
+.admin-pay-error {
+  padding: .5rem .8rem; background: rgba(239,68,68,.08);
+  border: 1px solid rgba(239,68,68,.2); border-radius: 8px;
+  font-size: .82rem; color: #ef4444;
+}
+
+/* ── Admin payment table — full width, no h-scroll ── */
+.admin-pay-tbl {
+  width: 100%; border-collapse: collapse; font-size: .8rem; table-layout: fixed;
+}
+.admin-pay-tbl thead th {
+  padding: .55rem .6rem; font-size: .68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em;
+  color: var(--g400); text-align: left;
+  background: var(--g50); border-bottom: 1px solid var(--g200);
+}
+.admin-pay-tbl tbody tr { border-bottom: 1px solid var(--g100); transition: background .15s; }
+.admin-pay-tbl tbody tr:hover { background: var(--g50); }
+.admin-pay-tbl tbody td {
+  padding: .5rem .6rem; vertical-align: middle;
+  overflow: hidden; text-overflow: ellipsis;
+}
+/* Column widths */
+.admin-pay-tbl th:nth-child(1) { width: 50px; }   /* Réf */
+.admin-pay-tbl th:nth-child(2) { width: 15%; }     /* Client */
+.admin-pay-tbl th:nth-child(3) { width: 9%; }      /* Contrat */
+.admin-pay-tbl th:nth-child(4) { width: 45px; }    /* Mens */
+.admin-pay-tbl th:nth-child(5) { width: 10%; }     /* Montant */
+.admin-pay-tbl th:nth-child(6) { width: 10%; }     /* Date */
+.admin-pay-tbl th:nth-child(7) { width: 8%; }      /* Mode */
+.admin-pay-tbl th:nth-child(8) { width: 8%; }      /* Statut */
+.admin-pay-tbl th:nth-child(9) { width: 13%; }     /* Agent */
+.admin-pay-tbl th:nth-child(10) { width: 100px; }  /* Action */
+
+/* ── Filters bar ── */
+.pay-filters {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .6rem 1rem; border-bottom: 1px solid var(--g100);
+  flex-wrap: wrap;
+}
+.pay-filter-search {
+  display: flex; align-items: center; gap: .35rem;
+  border: 1px solid var(--g200); border-radius: 8px;
+  padding: 0 .6rem; flex: 1; min-width: 200px;
+  background: var(--g50);
+}
+.pay-filter-search:focus-within { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(59,130,246,.12); }
+.pay-filter-select {
+  padding: .35rem .6rem; font-size: .78rem;
+  border-radius: 8px; min-width: 130px;
+}
+.pay-filter-count {
+  font-size: .72rem; color: var(--g400); white-space: nowrap; margin-left: auto;
+}
