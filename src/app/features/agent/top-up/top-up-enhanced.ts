@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpEventType } from '@angular/common/http';
+import { HttpEventType, HttpEvent } from '@angular/common/http';
 import { ClientSearchService, ClientSearchResult } from '../../../services/client/client-search.service';
 import { WalletService } from '../../../services/wallet/wallet.service';
 import { AgentService, AgentStats } from '../../../services/agent/agent.service';
@@ -237,7 +237,7 @@ export class TopUpEnhanced {
 
   // File Upload
   onReceiptUpload(event: any): void {
-    const files = event.target.files;
+    const files = event.target.files as FileList;
     if (!files) return;
 
     Array.from(files).forEach((file: File) => {
@@ -384,7 +384,7 @@ export class TopUpEnhanced {
         
         // Add to recent transactions
         const newTransaction: Transaction = {
-          id: response.id || `TXN${Date.now()}`,
+          id: String(response.id) || `TXN${Date.now()}`,
           clientName: this.selectedClient?.name || 'Unknown',
           amount: this.topUpAmount || 0,
           type: this.paymentMethod as any,
