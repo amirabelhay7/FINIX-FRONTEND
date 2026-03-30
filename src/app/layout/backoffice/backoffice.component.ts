@@ -1,6 +1,8 @@
-import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { Credit } from '../../services/credit/credit';
+import { RequestLoanDto, PageResponse } from '../../models/credit.model';
+import { finalize } from 'rxjs';
+import { CreateEventPayload, EventDto, EventPageResponse, EventService } from '../../services/event.service';
 
 interface PipelineCard {
   name: string;
@@ -21,77 +23,112 @@ interface PipelineColumn {
   selector: 'app-backoffice',
   standalone: false,
   templateUrl: './backoffice.component.html',
-  styleUrl: './backoffice.component.css',
-  encapsulation: ViewEncapsulation.None,
+  styleUrls: ['./backoffice.component.css']
 })
-export class BackofficeComponent implements OnInit, OnDestroy {
+export class BackofficeComponent implements OnInit {
   selectedPage = 'dashboard';
   hover = false;
   showModal = false;
   decisionNote = '';
-  currentTheme: 'light' | 'dark' = 'light';
+  private ignoreNextOverlayClose = false;
 
-  /* ── Users management ── */
-  private readonly API = 'http://localhost:8081/api';
-  usersList: any[] = [];
-  usersLoading = false;
-  showUserModal = false;
-  editingUserId: number | null = null;
-  addUserError = '';
-  addUserLoading = false;
-  newUser: any = { firstName: '', lastName: '', email: '', password: '', role: 'AGENT', phoneNumber: '', address: '', city: '', agenceCode: '', region: '', insurerName: '', insurerEmail: '' };
-  showViewUserModal = false;
-  viewUser: any = null;
+  requestLoans: RequestLoanDto[] = [];
+  loansLoading = false;
+  loansError = '';
 
-  /* ── Logs ── */
-  logsList: any[] = [];
-  logsLoading = false;
-  usersTab: 'users' | 'logs' = 'users';
+  decisionSubmitting = false;
+  decisionError = '';
 
-  constructor(private renderer: Renderer2, private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
+  showEventModal = false;
+  isCreatingEvent = false;
+  eventCreateError = '';
+  eventCreateSuccess = '';
+  hasRegistrationFee = false;
+  events: EventDto[] = [];
+  eventsLoading = false;
+  eventsError = '';
 
-  logout(): void {
-    localStorage.removeItem('finix_access_token');
-    localStorage.removeItem('currentUser');
-    this.router.navigate(['/login']);
-  }
+  eventForm = {
+    title: '',
+    description: '',
+    rules: '',
+    city: '',
+    address: '',
+    startDate: '',
+    endDate: '',
+    registrationDeadline: '',
+    maxParticipants: 0,
+    currentParticipants: 0,
+    paidEvent: false,
+    registrationFee: 0,
+    imageUrl: 'https://example.com/marathon.jpg',
+    externalUrl: 'https://example.com/marathon',
+    status: 'PUBLISHED',
+    publicEvent: true,
+    userId: 0,
+  };
+
+  constructor(
+    private creditService: Credit,
+    private eventService: EventService,
+  ) {}
 
   ngOnInit(): void {
-    const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
-    this.currentTheme = saved || 'light';
-    this.applyTheme();
-  }
-
-  toggleTheme(): void {
-    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
-    localStorage.setItem('finix_theme', this.currentTheme);
-    this.applyTheme();
-  }
-
-  ngOnDestroy(): void {
-    this.renderer.removeAttribute(document.documentElement, 'data-theme');
-  }
-
-  private applyTheme(): void {
-    this.renderer.setAttribute(document.documentElement, 'data-theme', this.currentTheme);
+    this.loadRequestLoans();
   }
 
   onPageChange(page: string) {
     this.selectedPage = page;
-    if (page === 'users') {
-      this.usersTab = 'users';
-      this.loadUsers();
-      this.loadLogs();
+
+    if (page === 'credits' && this.requestLoans.length === 0) {
+      this.loadRequestLoans();
     }
-    if (page === 'clients') {
-      this.loadClients();
+    if (page === 'events' && this.events.length === 0) {
+      this.loadEvents();
     }
   }
 
-  switchUsersTab(tab: 'users' | 'logs'): void {
-    this.usersTab = tab;
+  loadEvents(page = 0, size = 10): void {
+    this.eventsLoading = true;
+    this.eventsError = '';
+    this.events = [];
+    this.eventService
+      .getEvents(page, size)
+      .pipe(finalize(() => (this.eventsLoading = false)))
+      .subscribe({
+        next: (response: EventPageResponse) => {
+          this.events = Array.isArray(response?.content) ? response.content : [];
+        },
+        error: () => {
+          this.eventsError = 'Impossible de charger les événements.';
+        },
+      });
   }
 
+  loadRequestLoans(): void {
+    this.loansLoading = true;
+    this.loansError = '';
+    this.requestLoans = [];
+    this.selectedFile = null;
+    this.showModal = false;
+
+    this.creditService
+      .getRequestLoans(0, 20)
+      .pipe(
+        finalize(() => {
+          this.loansLoading = false;
+        }),
+      )
+      .subscribe({
+        next: (response: PageResponse<RequestLoanDto>) => {
+          this.requestLoans = Array.isArray(response?.content) ? response.content : [];
+        },
+        error: (error: unknown) => {
+          console.error('Error while loading request loans', error);
+          this.loansError = 'Impossible de charger les demandes de crédit.';
+        },
+      });
+  }
 
   dossiers = [
     {
@@ -226,8 +263,38 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     }
   ];
 
-  clients: any[] = [];
-  clientsLoading = false;
+  clients = [
+    {
+      initials: "BM",
+      name: "Bilel Mrabet",
+      email: "bilel.mrabet@email.com",
+      phone: "+216 20 123 456",
+      cin: "08 123 456",
+      city: "Tunis",
+      score: 742,
+      scoreColor: "var(--success)",
+      credits: "3 active",
+      encours: "24 500 TND",
+      kyc: "Complete",
+      status: "Active",
+      statusClass: "b-actif"
+    },
+    {
+      initials: "LB",
+      name: "Leila Bourguiba",
+      email: "l.bourguiba@email.com",
+      phone: "+216 22 654 321",
+      cin: "12 456 789",
+      city: "Sousse",
+      score: 610,
+      scoreColor: "var(--warning)",
+      credits: "1 active",
+      encours: "32 500 TND",
+      kyc: "Partial",
+      status: "Active",
+      statusClass: "b-actif"
+    }
+  ];
 
 
   pipelineColumns: PipelineColumn[] = [
@@ -570,12 +637,141 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     console.log('Navigate credits');
   }
 
+  openCreateEventModal(): void {
+    this.resetEventForm();
+    this.showEventModal = true;
+  }
+
+  closeCreateEventModal(): void {
+    this.showEventModal = false;
+    this.eventCreateError = '';
+    this.eventCreateSuccess = '';
+    this.isCreatingEvent = false;
+  }
+
+  onPaidEventToggle(checked: boolean): void {
+    this.eventForm.paidEvent = checked;
+    if (!checked) {
+      this.hasRegistrationFee = false;
+      this.eventForm.registrationFee = 0;
+    }
+  }
+
+  onRegistrationFeeToggle(checked: boolean): void {
+    this.hasRegistrationFee = checked;
+    if (checked) {
+      this.eventForm.paidEvent = true;
+      if (!this.eventForm.registrationFee) {
+        this.eventForm.registrationFee = 1;
+      }
+    } else {
+      this.eventForm.registrationFee = 0;
+      this.eventForm.paidEvent = false;
+    }
+  }
+
+  createEvent(): void {
+    const userId = this.getConnectedUserId();
+    if (!userId) {
+      this.eventCreateError = 'Utilisateur connecté introuvable.';
+      return;
+    }
+
+    this.eventForm.userId = userId;
+    this.isCreatingEvent = true;
+    this.eventCreateError = '';
+    this.eventCreateSuccess = '';
+
+    const payload: CreateEventPayload = {
+      title: this.eventForm.title.trim(),
+      description: this.eventForm.description.trim(),
+      rules: this.eventForm.rules.trim(),
+      city: this.eventForm.city.trim(),
+      address: this.eventForm.address.trim(),
+      startDate: this.eventForm.startDate,
+      endDate: this.eventForm.endDate,
+      registrationDeadline: this.eventForm.registrationDeadline,
+      maxParticipants: Number(this.eventForm.maxParticipants) || 0,
+      currentParticipants: 0,
+      paidEvent: this.eventForm.paidEvent,
+      registrationFee: this.hasRegistrationFee ? Number(this.eventForm.registrationFee) || 0 : 0,
+      imageUrl: (this.eventForm.imageUrl || 'https://example.com/marathon.jpg').trim(),
+      externalUrl: (this.eventForm.externalUrl || 'https://example.com/marathon').trim(),
+      status: this.eventForm.status || 'PUBLISHED',
+      publicEvent: this.eventForm.publicEvent,
+      userId,
+    };
+
+    if (!payload.title || !payload.city || !payload.address || !payload.startDate || !payload.endDate) {
+      this.isCreatingEvent = false;
+      this.eventCreateError = 'Veuillez remplir les champs obligatoires.';
+      return;
+    }
+
+    this.eventService
+      .createEvent(payload)
+      .pipe(finalize(() => (this.isCreatingEvent = false)))
+      .subscribe({
+        next: () => {
+          this.eventCreateSuccess = 'Evenement créé avec succès.';
+          this.closeCreateEventModal();
+          this.loadEvents();
+        },
+        error: (err: any) => {
+          if (err?.status === 403) {
+            this.eventCreateError = 'Accès refusé par le backend pour la création d’événement.';
+            return;
+          }
+          this.eventCreateError = err?.error?.message || "Echec de la création de l'evenement.";
+        },
+      });
+  }
+
+  private resetEventForm(): void {
+    this.hasRegistrationFee = false;
+    this.eventCreateError = '';
+    this.eventCreateSuccess = '';
+    this.eventForm = {
+      title: '',
+      description: '',
+      rules: '',
+      city: '',
+      address: '',
+      startDate: '',
+      endDate: '',
+      registrationDeadline: '',
+      maxParticipants: 0,
+      currentParticipants: 0,
+      paidEvent: false,
+      registrationFee: 0,
+      imageUrl: 'https://example.com/marathon.jpg',
+      externalUrl: 'https://example.com/marathon',
+      status: 'PUBLISHED',
+      publicEvent: true,
+      userId: this.getConnectedUserId() || 0,
+    };
+  }
+
+  private getConnectedUserId(): number | null {
+    try {
+      const raw = localStorage.getItem('currentUser');
+      if (!raw) return null;
+      const user = JSON.parse(raw);
+      return typeof user.userId === 'number' ? user.userId : null;
+    } catch {
+      return null;
+    }
+  }
+
 
 
   selectedFile:any;
 
   openModal(file:any){
     this.selectedFile = file;
+    this.decisionNote = '';
+    this.decisionError = '';
+    this.ignoreNextOverlayClose = true;
     console.log(file);
     this.showModal = true;
   }
@@ -589,226 +785,74 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
 
   closeModal(event?: Event) {
+    if (this.ignoreNextOverlayClose) {
+      this.ignoreNextOverlayClose = false;
+      return;
+    }
     if (event) {
       event.stopPropagation();
     }
     this.showModal = false;
   }
 
-  approveCase() {
-    console.log("Approved", this.decisionNote);
-    this.closeModal();
+  approveCase(): void {
+    if (this.selectedFile?.idDemande != null) {
+      const id = this.selectedFile.idDemande;
+      this.decisionSubmitting = true;
+      this.decisionError = '';
+      this.creditService
+        .approveRequestLoan(id, this.decisionPayload())
+        .pipe(finalize(() => (this.decisionSubmitting = false)))
+        .subscribe({
+          next: () => this.loadRequestLoans(),
+          error: () => {
+            this.decisionError = "Impossible d'approuver la demande.";
+          },
+        });
+      return;
+    }
+    console.log('Approved', this.decisionNote);
+    this.closeDecisionModalUi();
   }
 
-  rejectCase() {
-    console.log("Rejected", this.decisionNote);
-    this.closeModal();
+  rejectCase(): void {
+    if (this.selectedFile?.idDemande != null) {
+      const id = this.selectedFile.idDemande;
+      this.decisionSubmitting = true;
+      this.decisionError = '';
+      this.creditService
+        .rejectRequestLoan(id, this.decisionPayload())
+        .pipe(finalize(() => (this.decisionSubmitting = false)))
+        .subscribe({
+          next: () => this.loadRequestLoans(),
+          error: () => {
+            this.decisionError = 'Impossible de rejeter la demande.';
+          },
+        });
+      return;
+    }
+    console.log('Rejected', this.decisionNote);
+    this.closeDecisionModalUi();
+  }
+
+  private decisionPayload(): { note?: string } | undefined {
+    const n = this.decisionNote?.trim();
+    return n ? { note: n } : undefined;
+  }
+
+  /** Fermeture du modal sans être bloquée par ignoreNextOverlayClose (dossiers mock hors API). */
+  private closeDecisionModalUi(): void {
+    this.ignoreNextOverlayClose = false;
+    this.showModal = false;
   }
 
   requestMoreInfo() {
     console.log("More info requested", this.decisionNote);
   }
 
-  /* ── Clients API ── */
-  loadClients(): void {
-    this.clientsLoading = true;
-    this.http.get<any[]>(`${this.API}/users`).subscribe({
-      next: (users) => {
-        this.clients = users
-          .filter((u: any) => u.role === 'CLIENT')
-          .map((u: any) => ({
-            id: u.id,
-            initials: ((u.firstName?.[0] || '') + (u.lastName?.[0] || '')).toUpperCase(),
-            name: (u.firstName || '') + ' ' + (u.lastName || ''),
-            email: u.email || '—',
-            phone: u.phoneNumber ? '+216 ' + u.phoneNumber : '—',
-            cin: u.cin || '—',
-            city: u.city || '—',
-            status: 'Active',
-            statusClass: 'b-actif'
-          }));
-        this.clientsLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.clientsLoading = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  /* ── Logs API ── */
-  loadLogs(): void {
-    this.logsLoading = true;
-    this.http.get<any[]>(`${this.API}/users/logs`).subscribe({
-      next: (logs) => {
-        this.logsList = logs;
-        this.logsLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.logsLoading = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  /* ── Users API ── */
-  loadUsers(): void {
-    this.usersLoading = true;
-    this.http.get<any[]>(`${this.API}/users`).subscribe({
-      next: (users) => {
-        this.usersList = users.filter((u: any) => u.role === 'AGENT' || u.role === 'INSURER');
-        this.usersLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.usersLoading = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  /* Create */
-  openAddUser(): void {
-    this.editingUserId = null;
-    this.newUser = { firstName: '', lastName: '', email: '', password: '', role: 'AGENT', phoneNumber: '', address: '', city: '', agenceCode: '', region: '', insurerName: '', insurerEmail: '' };
-    this.addUserError = '';
-    this.showUserModal = true;
-  }
-
-  /* Edit */
-  openEditUser(user: any): void {
-    this.editingUserId = user.id;
-    this.newUser = {
-      firstName: user.firstName || '',
-      lastName: user.lastName || '',
-      email: user.email || '',
-      password: '',
-      role: user.role || 'AGENT',
-      phoneNumber: user.phoneNumber || '',
-      address: user.address || '',
-      city: user.city || '',
-      agenceCode: user.agenceCode || '',
-      region: user.region || '',
-      insurerName: user.insurerName || '',
-      insurerEmail: user.insurerEmail || '',
-    };
-    this.addUserError = '';
-    this.showUserModal = true;
-  }
-
-  closeUserModal(): void {
-    this.showUserModal = false;
-  }
-
-  /* View */
-  openViewUser(user: any): void {
-    this.viewUser = user;
-    this.showViewUserModal = true;
-  }
-
-  closeViewUser(): void {
-    this.showViewUserModal = false;
-  }
-
-  /* Submit create or update */
-  submitUser(): void {
-    console.log('[ADMIN] submitUser() called');
-    console.log('[ADMIN] newUser:', JSON.stringify(this.newUser));
-    this.addUserError = '';
-    if (!this.newUser.firstName || !this.newUser.lastName || !this.newUser.email) {
-      this.addUserError = 'Veuillez remplir tous les champs obligatoires.';
-      console.log('[ADMIN] Validation failed: champs obligatoires manquants');
-      return;
-    }
-    if (!this.editingUserId && !this.newUser.password) {
-      this.addUserError = 'Le mot de passe est obligatoire pour un nouveau compte.';
-      console.log('[ADMIN] Validation failed: password manquant');
-      return;
-    }
-    console.log('[ADMIN] Validation passed, sending request...');
-    this.addUserLoading = true;
-
-    if (this.editingUserId) {
-      // UPDATE
-      const payload: any = {
-        firstName: this.newUser.firstName,
-        lastName: this.newUser.lastName,
-        email: this.newUser.email,
-        phoneNumber: this.newUser.phoneNumber ? Number(this.newUser.phoneNumber) : null,
-        address: this.newUser.address || null,
-        city: this.newUser.city || null,
-        role: this.newUser.role,
-      };
-      if (this.newUser.password) {
-        payload.password = this.newUser.password;
-      }
-      if (this.newUser.role === 'AGENT') {
-        payload.agenceCode = this.newUser.agenceCode ? Number(this.newUser.agenceCode) : null;
-        payload.region = this.newUser.region ? Number(this.newUser.region) : null;
-      } else if (this.newUser.role === 'INSURER') {
-        payload.insurerName = this.newUser.insurerName;
-        payload.insurerEmail = this.newUser.insurerEmail;
-      }
-      this.http.put(`${this.API}/users/${this.editingUserId}`, payload).subscribe({
-        next: () => {
-          this.addUserLoading = false;
-          this.showUserModal = false;
-          this.cdr.detectChanges();
-          this.loadUsers();
-        },
-        error: (err: any) => {
-          this.addUserLoading = false;
-          this.addUserError = err.error?.message || 'Erreur lors de la mise à jour.';
-          this.cdr.detectChanges();
-        }
-      });
-    } else {
-      // CREATE
-      const payload: any = {
-        firstName: this.newUser.firstName,
-        lastName: this.newUser.lastName,
-        email: this.newUser.email,
-        password: this.newUser.password,
-        role: this.newUser.role,
-        phoneNumber: this.newUser.phoneNumber ? Number(this.newUser.phoneNumber) : null,
-      };
-      if (this.newUser.role === 'AGENT') {
-        payload.agenceCode = this.newUser.agenceCode ? Number(this.newUser.agenceCode) : null;
-        payload.region = this.newUser.region ? Number(this.newUser.region) : null;
-      } else if (this.newUser.role === 'INSURER') {
-        payload.insurerName = this.newUser.insurerName;
-        payload.insurerEmail = this.newUser.insurerEmail;
-      }
-      console.log('[ADMIN] Creating user with payload:', JSON.stringify(payload));
-      this.http.post(`${this.API}/auth/register`, payload).subscribe({
-        next: (res) => {
-          console.log('[ADMIN] User created successfully:', res);
-          this.addUserLoading = false;
-          this.showUserModal = false;
-          this.cdr.detectChanges();
-          this.loadUsers();
-        },
-        error: (err: any) => {
-          console.error('[ADMIN] Create user error:', err);
-          this.addUserLoading = false;
-          this.addUserError = err.error?.message || err.message || 'Erreur lors de la création.';
-          this.cdr.detectChanges();
-        }
-      });
-    }
-  }
-
-  /* Delete */
-  deleteUser(id: number): void {
-    this.http.delete(`${this.API}/users/${id}`).subscribe({
-      next: () => this.loadUsers(),
-      error: (err: any) => console.error('[ADMIN] Delete error:', err)
-    });
-  }
-
-  getUserInitials(user: any): string {
-    return ((user.firstName?.[0] || '') + (user.lastName?.[0] || '')).toUpperCase();
-  }
 }
+
+
+
+
+

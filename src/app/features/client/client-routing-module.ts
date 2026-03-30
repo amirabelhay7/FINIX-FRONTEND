@@ -8,12 +8,14 @@ import { ClientInsurance } from './insurance/insurance';
 import { ClientWallet } from './wallet/wallet';
 import { ClientScore } from './score/score';
 import { ClientDocuments } from './documents/documents';
+import { ClientEvents } from './events/events';
 
 const routes: Routes = [
   { path: 'dashboard', component: ClientDashboard },
   { path: 'credits', component: ClientCredits },
   { path: 'repayments', component: ClientRepayments },
   { path: 'vehicles', component: ClientVehicles },
+  { path: 'events', component: ClientEvents },
   { path: 'insurance', component: ClientInsurance },
   { path: 'wallet', component: ClientWallet },
   { path: 'score', component: ClientScore },

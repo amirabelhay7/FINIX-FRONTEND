@@ -1,130 +1,130 @@
 <div class="page-body">
   <div class="ph s1">
     <div>
-      <div class="ph-eyebrow">Mes Crédits</div>
-      <div class="ph-title">Gestion des dossiers</div>
-      <div class="ph-desc">3 crédits actifs · Encours total : 24 500 TND</div>
+      <div class="ph-eyebrow">Mes demandes</div>
+      <div class="ph-title">Mes Request Loans</div>
+      <div class="ph-desc">Demandes liees a mon compte client</div>
     </div>
     <div class="ph-actions">
-      <button class="btn btn-outline">📊 Simulateur</button>
-      <button class="btn btn-primary">+ Nouvelle demande</button>
+      <button class="btn btn-outline" (click)="loadMyRequestLoans()">Actualiser</button>
     </div>
   </div>
 
-  <div class="filter-bar s2">
-    <button class="filter-chip active">Tous (4)</button>
-    <button class="filter-chip">Actifs (2)</button>
-    <button class="filter-chip">En étude (1)</button>
-    <button class="filter-chip">Clôturés (1)</button>
-    <button class="filter-chip">Auto</button>
-    <button class="filter-chip">Consommation</button>
-    <button class="filter-chip">Immobilier</button>
+  <div class="panel s2">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot"></span>Liste de mes demandes</div>
+    </div>
+
+    <div class="panel-body" *ngIf="loading">Chargement des demandes...</div>
+    <div class="panel-body" *ngIf="error">{{ error }}</div>
+
+    <div class="tbl-wrap" *ngIf="!loading && myLoans.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Montant</th>
+            <th>Apport</th>
+            <th>Duree</th>
+            <th>Mensualite</th>
+            <th>Objectif</th>
+            <th>Statut</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let loan of myLoans"
+            [style.cursor]="loan.statutDemande === 'PENDING' ? 'pointer' : 'default'"
+            (click)="openEditModal(loan)"
+          >
+            <td>{{ loan.idDemande }}</td>
+            <td>{{ loan.montantDemande }} TND</td>
+            <td>{{ loan.apportPersonnel }} TND</td>
+            <td>{{ loan.dureeMois }} mois</td>
+            <td>{{ loan.mensualiteEstimee }} TND</td>
+            <td>{{ loan.objectifCredit || '-' }}</td>
+            <td>
+              <span class="badge"
+                    [ngClass]="{
+                      'b-actif': loan.statutDemande === 'APPROVED',
+                      'b-rejected': loan.statutDemande === 'REJECTED',
+                      'b-review': loan.statutDemande === 'PENDING',
+                      'b-blue': loan.statutDemande === 'CONDITIONAL'
+                    }">
+                {{ loan.statutDemande }}
+              </span>
+            </td>
+            <td>{{ (loan.dateCreation || loan.dateSoumission || loan.dateDecision) ? ((loan.dateCreation || loan.dateSoumission || loan.dateDecision) | date:'short') : '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel-body" *ngIf="!loading && myLoans.length === 0 && !error">
+      {{ emptyCreditsMessage }}
+    </div>
   </div>
 
-  <div class="credit-card-grid s3">
-    <div class="credit-card">
-      <div class="cc-top">
-        <div class="cc-type">Crédit Automobile</div>
-        <div class="cc-amount">12 500 TND</div>
-        <div class="cc-ref">#CR-2024-001 · Toyota Corolla 2022</div>
-        <div class="cc-tag cc-tag-active">Actif</div>
-      </div>
-      <div class="cc-body">
-        <div class="cc-progress">
-          <div style="display:flex;justify-content:space-between;font-size:.73rem;color:var(--g500);margin-bottom:.35rem;">
-            <span>Progression</span><span style="font-weight:700;color:var(--blue)">72%</span>
-          </div>
-          <div class="cc-progress-track">
-            <div class="cc-progress-fill" style="--w:72%"></div>
-          </div>
-          <div class="cc-progress-labels">
-            <span>Payé : 9 000 TND</span>
-            <span>Restant : 3 500 TND</span>
-          </div>
+  <div class="rl-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="rl-modal" (click)="$event.stopPropagation()">
+      <div class="rl-head">
+        <div>
+          <div class="rl-title">Modification demande #{{ selectedLoan?.idDemande }}</div>
+          <div class="rl-sub">Modification autorisee uniquement pour les demandes PENDING</div>
         </div>
-        <div class="cc-meta">
-          <div class="cc-meta-item"><div class="ccm-lbl">Durée</div><div class="ccm-val">48 mois</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Mensualité</div><div class="ccm-val">260 TND</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Taux</div><div class="ccm-val">7.5%</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Fin</div><div class="ccm-val">Mar 2027</div></div>
-        </div>
+        <button class="btn btn-outline btn-xs" (click)="closeEditModal()">Fermer</button>
       </div>
-      <div class="cc-footer">
-        <span class="badge b-actif">Actif</span>
-        <div style="display:flex;gap:.5rem;">
-          <button class="btn btn-outline btn-xs">Détails</button>
-          <button class="btn btn-primary btn-xs">Payer</button>
-        </div>
-      </div>
-    </div>
 
-    <div class="credit-card">
-      <div class="cc-top">
-        <div class="cc-type">Crédit Consommation</div>
-        <div class="cc-amount">7 000 TND</div>
-        <div class="cc-ref">#CR-2024-018 · Personnel</div>
-        <div class="cc-tag cc-tag-active">Actif</div>
-      </div>
-      <div class="cc-body">
-        <div class="cc-progress">
-          <div style="display:flex;justify-content:space-between;font-size:.73rem;color:var(--g500);margin-bottom:.35rem;">
-            <span>Progression</span><span style="font-weight:700;color:var(--blue)">45%</span>
-          </div>
-          <div class="cc-progress-track">
-            <div class="cc-progress-fill" style="--w:45%"></div>
-          </div>
-          <div class="cc-progress-labels">
-            <span>Payé : 3 150 TND</span>
-            <span>Restant : 3 850 TND</span>
-          </div>
-        </div>
-        <div class="cc-meta">
-          <div class="cc-meta-item"><div class="ccm-lbl">Durée</div><div class="ccm-val">24 mois</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Mensualité</div><div class="ccm-val">310 TND</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Taux</div><div class="ccm-val">9.2%</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Fin</div><div class="ccm-val">Jan 2026</div></div>
-        </div>
-      </div>
-      <div class="cc-footer">
-        <span class="badge b-actif">Actif</span>
-        <div style="display:flex;gap:.5rem;">
-          <button class="btn btn-outline btn-xs">Détails</button>
-          <button class="btn btn-primary btn-xs">Payer</button>
-        </div>
-      </div>
-    </div>
+      <div class="rl-body">
+        <div class="rl-grid">
+          <label class="rl-field">
+            <span>Montant demande (TND)</span>
+            <input class="form-input" type="number" [value]="montantDemandeNet" readonly>
+          </label>
 
-    <div class="credit-card">
-      <div class="cc-top">
-        <div class="cc-type">Crédit Immobilier</div>
-        <div class="cc-amount">85 000 TND</div>
-        <div class="cc-ref">#CR-2025-043 · Appartement Ariana</div>
-        <div class="cc-tag cc-tag-review">En étude</div>
-      </div>
-      <div class="cc-body">
-        <div class="cc-progress">
-          <div style="display:flex;justify-content:space-between;font-size:.73rem;color:var(--g500);margin-bottom:.35rem;">
-            <span>Dossier</span><span style="font-weight:700;color:var(--blue)">Analyse BCT</span>
-          </div>
-          <div class="cc-progress-track">
-            <div class="cc-progress-fill" style="--w:60%;background:linear-gradient(90deg,var(--blue),var(--chart2))"></div>
-          </div>
-          <div class="cc-progress-labels">
-            <span>Soumis : 26 Fév 2026</span>
-            <span>Délai : 7-15 jours</span>
-          </div>
+          <label class="rl-field">
+            <span>Apport personnel (TND)</span>
+            <input
+              class="form-input"
+              type="number"
+              min="0"
+              [max]="montantTotalCredit"
+              [(ngModel)]="editForm.apportPersonnel"
+              (ngModelChange)="onApportPersonnelChange()"
+            >
+          </label>
+
+          <label class="rl-field">
+            <span>Duree (mois)</span>
+            <input
+              class="form-input"
+              type="number"
+              min="12"
+              max="60"
+              [(ngModel)]="editForm.dureeMois"
+              (ngModelChange)="recalculateMensualite()"
+            >
+            <small>Min 12 mois · Max 60 mois</small>
+          </label>
+
+          <label class="rl-field">
+            <span>Mensualite estimee (TND)</span>
+            <input class="form-input" type="number" [value]="editForm.mensualiteEstimee" readonly>
+          </label>
         </div>
-        <div class="cc-meta">
-          <div class="cc-meta-item"><div class="ccm-lbl">Durée</div><div class="ccm-val">180 mois</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Mensualité est.</div><div class="ccm-val">~880 TND</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Taux est.</div><div class="ccm-val">6.8%</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Agent</div><div class="ccm-val">Khaled M.</div></div>
-        </div>
+
+        <div class="rl-msg ok" *ngIf="submitSuccess">{{ submitSuccess }}</div>
+        <div class="rl-msg err" *ngIf="submitError">{{ submitError }}</div>
       </div>
-      <div class="cc-footer">
-        <span class="badge b-review">En étude</span>
-        <button class="btn btn-outline btn-xs">Suivi dossier</button>
+
+      <div class="rl-actions">
+        <button class="btn btn-danger" [disabled]="submitting" (click)="cancelRequestLoan()">Annuler la demande</button>
+        <button class="btn btn-primary" [disabled]="submitting" (click)="validateModification()">
+          {{ submitting ? 'En cours...' : 'Valider modification' }}
+        </button>
       </div>
     </div>
   </div>
 </div>
+

@@ -1,3 +1,12 @@
+/*import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class Credit {
+
+}*/
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -12,6 +21,7 @@ import {
   providedIn: 'root',
 })
 export class Credit {
+
   private apiUrl = 'http://localhost:8081/api/credit/request-loans';
 
   constructor(private http: HttpClient) {}
@@ -28,13 +38,8 @@ export class Credit {
     return this.http.get<PageResponse<RequestLoanDto>>(this.apiUrl, { params });
   }
 
-  getRequestLoansByUserId(
-    userId: number,
-    page: number = 0,
-    size: number = 20,
-  ): Observable<PageResponse<RequestLoanDto> | RequestLoanDto> {
-    // Backend expects userId as query param on the collection URL, not /request-loans/{id}.
-    return this.getRequestLoans(page, size, userId) as Observable<PageResponse<RequestLoanDto> | RequestLoanDto>;
+  getRequestLoansByUserId(userId: number, page: number = 0, size: number = 20): Observable<PageResponse<RequestLoanDto>> {
+    return this.getRequestLoans(page, size, userId);
   }
 
   createRequestLoan(payload: CreateRequestLoanPayload): Observable<RequestLoanDto> {

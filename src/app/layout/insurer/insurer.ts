@@ -1,5 +1,7 @@
 import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 interface InsuranceOffer {
   id: number;
@@ -34,9 +36,10 @@ interface CatalogItem {
 
 @Component({
   selector: 'app-insurer',
-  standalone: false,
+  standalone: true,
   templateUrl: './insurer.html',
   styleUrl: './insurer.css',
+  imports: [CommonModule, FormsModule],
   encapsulation: ViewEncapsulation.None,
 })
 export class InsurerLayout implements OnInit, OnDestroy {

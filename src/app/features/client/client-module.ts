@@ -10,11 +10,12 @@ import { ClientInsurance } from './insurance/insurance';
 import { ClientWallet } from './wallet/wallet';
 import { ClientScore } from './score/score';
 import { ClientDocuments } from './documents/documents';
+import { ClientEvents } from './events/events';
 
 @NgModule({
   declarations: [
     ClientDashboard, ClientCredits, ClientRepayments, ClientVehicles,
-    ClientInsurance, ClientWallet, ClientScore, ClientDocuments,
+    ClientEvents, ClientInsurance, ClientWallet, ClientScore, ClientDocuments,
   ],
   imports: [CommonModule, FormsModule, ClientRoutingModule],
 })

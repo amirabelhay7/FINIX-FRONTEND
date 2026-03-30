@@ -682,8 +682,8 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
 /* ================================================================
    MODAL
    ================================================================ */
-.bk-modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.5); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeIn .2s ease; }
-.bk-modal { background: var(--card-bg); border-radius: var(--r16); box-shadow: 0 25px 60px rgba(0,0,0,.18); width: 90%; max-width: 640px; max-height: 90vh; overflow-y: auto; animation: slideUp .25s var(--ease); border: 1px solid var(--card-border); }
+.bk-modal-overlay { position: fixed; inset: 0; background: rgba(255,255,255,.95); backdrop-filter: none; z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeIn .2s ease; }
+.bk-modal { background: #fff; border-radius: var(--r16); box-shadow: 0 25px 60px rgba(0,0,0,.18); width: 90%; max-width: 640px; max-height: 90vh; overflow-y: auto; animation: slideUp .25s var(--ease); border: 1px solid var(--card-border); }
 .bk-modal-header { display: flex; align-items: center; gap: 1rem; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--g100); }
 .bk-modal-title { font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 800; color: var(--g900); }
 .bk-modal-sub { font-size: .775rem; color: var(--g400); margin-top: .15rem; }

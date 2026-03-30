@@ -1,0 +1,80 @@
+<div class="page-body">
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Mes événements</div>
+      <div class="ph-title">Evenements</div>
+      <div class="ph-desc">Liste des événements disponibles</div>
+    </div>
+    <div class="ph-actions">
+      <button class="btn btn-outline" (click)="loadEvents()">Actualiser</button>
+    </div>
+  </div>
+
+  <div class="panel s2">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot"></span>Liste des événements</div>
+    </div>
+
+    <div class="panel-body" *ngIf="loading">Chargement des événements...</div>
+    <div class="panel-body" *ngIf="error">{{ error }}</div>
+
+    <div class="tbl-wrap" *ngIf="!loading && events.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Ville</th>
+            <th>Date début</th>
+            <th>Date fin</th>
+            <th>Statut</th>
+            <th>Participants</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ev of events" style="cursor:pointer;" (click)="openEventDetails(ev)">
+            <td>
+{{ev.idEvent}}
+            </td>
+            <td>
+              <div class="td-primary">{{ ev.title }}</div>
+              <div class="td-sub">{{ ev.address || '-' }}</div>
+            </td>
+            <td>{{ ev.city || '-' }}</td>
+            <td>{{ ev.startDate ? (ev.startDate | date:'short') : '-' }}</td>
+            <td>{{ ev.endDate ? (ev.endDate | date:'short') : '-' }}</td>
+            <td><span class="badge b-blue">{{ ev.status || '-' }}</span></td>
+            <td>{{ ev.currentParticipants ?? 0 }} / {{ ev.maxParticipants ?? 0 }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel-body" *ngIf="!loading && events.length === 0 && !error">
+      No events...
+    </div>
+  </div>
+
+  <div class="ev-overlay" *ngIf="showDetailsModal" (click)="closeEventDetails()">
+    <div class="ev-modal" (click)="$event.stopPropagation()">
+      <div class="ev-head">
+        <div>
+          <div class="ev-title">{{ selectedEvent?.title }}</div>
+          <div class="ev-sub">{{ selectedEvent?.city }} · {{ selectedEvent?.address || '-' }}</div>
+        </div>
+        <button class="btn btn-outline btn-xs" (click)="closeEventDetails()">Fermer</button>
+      </div>
+
+      <div class="ev-body">
+        <div class="ev-desc">{{ selectedEvent?.description || 'Aucune description.' }}</div>
+        <div class="rl-msg ok" *ngIf="participateSuccess">{{ participateSuccess }}</div>
+        <div class="rl-msg err" *ngIf="participateError">{{ participateError }}</div>
+      </div>
+
+      <div class="ev-actions">
+        <button class="btn btn-primary" [disabled]="participating" (click)="participate()">
+          {{ participating ? 'En cours...' : 'Participer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -7,7 +7,7 @@
   <div class="tb-divider"></div>
   <div class="tb-sub">Institution de Microfinance · Agréée BCT</div>
   <div class="tb-right">
-    
+
     <button class="tb-btn">🔔<span class="notif-dot"></span></button>
     <button class="tb-btn">⚙️</button>
     <button class="tb-theme-toggle" (click)="toggleTheme()" title="Changer le thème">
@@ -56,7 +56,13 @@
   <div class="nav-actions">
     <div class="search-wrap">
       <span>🔍</span>
-      <input type="text" placeholder="Rechercher...">
+      <input
+        type="text"
+        placeholder="Rechercher…"
+        [value]="creditsSearchQuery"
+        (input)="onCreditsSearchInput($event)"
+        title="Par défaut: demandes PENDING. Saisissez un statut pour filtrer."
+      >
     </div>
     <button class="btn-new">+ Nouvelle demande</button>
   </div>

@@ -1,0 +1,52 @@
+.ev-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ev-modal {
+  width: min(680px, 92vw);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.ev-head,
+.ev-actions {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ev-actions {
+  border-bottom: 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.ev-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.ev-sub {
+  font-size: 0.82rem;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.ev-body {
+  padding: 14px 16px;
+}
+
+.ev-desc {
+  white-space: pre-wrap;
+  color: #111827;
+  line-height: 1.45;
+}

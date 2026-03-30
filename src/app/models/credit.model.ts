@@ -31,14 +31,12 @@ export interface ActiveContractSummary {
   contractRoute: string;
 }
 
-/** Option for duration select. */
 export interface CreditDurationOption {
   value: number;
   label: string;
   selected?: boolean;
 }
 
-/** Upcoming payment row for active contract. */
 export interface UpcomingPaymentRow {
   date: string;
   subtitle: string;
@@ -46,7 +44,6 @@ export interface UpcomingPaymentRow {
   isNext: boolean;
 }
 
-/** Application pipeline step. */
 export interface ApplicationStep {
   title: string;
   subtitle: string;
@@ -59,14 +56,72 @@ export interface ApplicationStep {
   linkLabel?: string;
 }
 
-/** Contract term key-value. */
 export interface ContractTermItem {
   label: string;
   value: string;
 }
 
-/** Document row for contract detail. */
 export interface ContractDocumentRow {
   title: string;
   uploadedAt: string;
+}
+
+/* ===== BACKEND REQUEST LOAN MODELS ===== */
+
+export interface RequestLoanDto {
+  idDemande: number;
+  montantDemande: number;
+  apportPersonnel: number;
+  dureeMois: number;
+  mensualiteEstimee: number;
+  objectifCredit: string;
+  dateCreation: string;
+  dateSoumission: string;
+  dateDecision: string;
+  statutDemande: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CONDITIONAL';
+  userId?: number;
+  vehiculeId?: number;
+
+  // "Joined" fields returned by the backend.
+  // Your API returns: user.firstName/lastName and vehicle.marque/modele/prixTnd.
+  user?: { firstName: string; lastName: string; email?: string };
+
+  vehicle?: { marque: string; modele: string; prixTnd: number };
+
+  // Backward-compatible optional aliases (in case some endpoints use different naming).
+  userEmail?: string;
+  vehicule?: { marque: string; modele: string; prix_tnd: number };
+  // Flat alternatives (in case backend sends them without nesting)
+  vehiculeMarque?: string;
+  vehiculeModele?: string;
+  vehiculePrixTnd?: number;
+  prix_tnd?: number;
+  marque?: string;
+  modele?: string;
+  prixTnd?: number;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+
+export interface CreateRequestLoanPayload {
+  montantDemande: number;
+  apportPersonnel: number;
+  dureeMois: number;
+  mensualiteEstimee: number;
+  objectifCredit: string;
+  statutDemande: 'PENDING';
+  userId: number;
+  vehiculeId: number;
+  dateCreation?: string;
+}
+
+/** Corps optionnel pour POST approve / reject (si le backend accepte une note). */
+export interface RequestLoanDecisionPayload {
+  note?: string;
 }

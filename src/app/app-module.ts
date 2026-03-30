@@ -5,10 +5,10 @@ import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
-import { SharedModule } from './shared/shared-module';
+import { AuthModule } from './features/auth/auth-module';
 import { AgentLayout } from './layout/agent/agent';
 import { SellerLayout } from './layout/seller/seller';
-import { InsurerLayout } from './layout/insurer/insurer';
+import { SharedModule } from './shared/shared-module';
 import { SidebarComponent } from './layout/backoffice/components/sidebar/sidebar';
 import { TopbarComponent } from './layout/backoffice/components/topbar/topbar.component';
 import { BackofficeComponent } from './layout/backoffice/backoffice.component';
@@ -20,17 +20,19 @@ import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized
     App,
     AgentLayout,
     SellerLayout,
-    InsurerLayout,
     SidebarComponent,
     BackofficeComponent,
     TopbarComponent,
     UnauthorizedComponent,
+
+
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    SharedModule,
+    SharedModule
+
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
@@ -38,4 +40,4 @@ import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized
   ],
   bootstrap: [App]
 })
-export class AppModule {}
+export class AppModule { }

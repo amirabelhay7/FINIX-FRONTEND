@@ -1,4 +1,5 @@
 <div class="page-body">
+  <div class="veh-toast" *ngIf="toastMessage" role="status" aria-live="polite">{{ toastMessage }}</div>
   <div class="ph s1">
     <div>
       <div class="ph-eyebrow">Mes Véhicules</div>
@@ -75,42 +76,93 @@
     </div>
     <div class="panel-body">
       <div class="catalog-grid">
-        <div class="cat-card">
-          <div class="cat-img">🚗</div>
+        <div class="cat-card" *ngFor="let v of catalogVehicles">
+          <div class="cat-img">{{ v.emoji }}</div>
           <div class="cat-body">
-            <div class="cat-name">Toyota Yaris Cross</div>
-            <div class="cat-sub">SUV · Hybride · 2024</div>
-            <div class="cat-price">52 900 TND <small>ou 1 100 TND/mois</small></div>
+            <div class="cat-name">{{ v.marque }} {{ v.modele }}</div>
+            <div class="cat-sub">{{ v.subtitle }}</div>
+            <div class="cat-price">
+              {{ v.prixTnd }} TND
+              <small>ou {{ (v.prixTnd / maxDureeMois) | number:'1.0-0' }} TND/mois</small>
+            </div>
           </div>
           <div class="cat-foot">
-            <button class="btn btn-outline btn-xs" style="flex:1">Simuler</button>
-            <button class="btn btn-primary btn-xs" style="flex:1">Acheter</button>
+            <button class="btn btn-outline btn-xs" style="flex:1" (click)="openRequestLoanModal(v)">Simuler</button>
+            <button class="btn btn-primary btn-xs" style="flex:1" (click)="openRequestLoanModal(v)">Acheter</button>
           </div>
         </div>
-        <div class="cat-card">
-          <div class="cat-img">🚙</div>
-          <div class="cat-body">
-            <div class="cat-name">Kia Sportage</div>
-            <div class="cat-sub">SUV · Diesel · 2024</div>
-            <div class="cat-price">68 500 TND <small>ou 1 420 TND/mois</small></div>
-          </div>
-          <div class="cat-foot">
-            <button class="btn btn-outline btn-xs" style="flex:1">Simuler</button>
-            <button class="btn btn-primary btn-xs" style="flex:1">Acheter</button>
-          </div>
-        </div>
-        <div class="cat-card">
-          <div class="cat-img">🏎️</div>
-          <div class="cat-body">
-            <div class="cat-name">Volkswagen Golf</div>
-            <div class="cat-sub">Berline · Essence · 2023</div>
-            <div class="cat-price">58 000 TND <small>ou 1 200 TND/mois</small></div>
-          </div>
-          <div class="cat-foot">
-            <button class="btn btn-outline btn-xs" style="flex:1">Simuler</button>
-            <button class="btn btn-primary btn-xs" style="flex:1">Acheter</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="rl-overlay" *ngIf="showRequestLoanModal" (click)="closeRequestLoanModal()">
+    <div class="rl-modal" (click)="$event.stopPropagation()">
+      <div class="rl-head">
+        <div>
+          <div class="rl-title">Nouvelle demande de credit</div>
+          <div class="rl-sub">
+            {{ selectedVehicle?.marque }} {{ selectedVehicle?.modele }} · {{ selectedVehicle?.prixTnd }} TND
           </div>
         </div>
+        <button class="btn btn-outline btn-xs" (click)="closeRequestLoanModal()">Fermer</button>
+      </div>
+
+      <div class="rl-body">
+        <div class="rl-grid">
+          <label class="rl-field">
+            <span>Montant demande (TND)</span>
+            <input class="form-input" type="number" [(ngModel)]="requestForm.montantDemande" readonly>
+          </label>
+
+          <label class="rl-field rl-full">
+            <span>Apport personnel</span>
+            <label style="display:flex; align-items:center; gap:8px;">
+              <input
+                type="checkbox"
+                [(ngModel)]="useApportPersonnel"
+                (ngModelChange)="onUseApportPersonnelChange($event)"
+              />
+              <span>Utiliser un apport</span>
+            </label>
+          </label>
+
+          <label class="rl-field" *ngIf="useApportPersonnel">
+            <span>Apport personnel (TND)</span>
+            <input
+              class="form-input"
+              type="number"
+              [max]="requestForm.montantDemande"
+              [(ngModel)]="requestForm.apportPersonnel"
+              (ngModelChange)="recalculateMensualite()"
+            >
+          </label>
+
+          <label class="rl-field">
+            <span>Duree (mois)</span>
+            <input class="form-input" type="number" [min]="minDureeMois" [max]="maxDureeMois" [(ngModel)]="requestForm.dureeMois" (ngModelChange)="recalculateMensualite()">
+            <small>Min {{ minDureeMois }} mois · Max {{ maxDureeMois }} mois</small>
+          </label>
+
+          <label class="rl-field">
+            <span>Mensualite estimee (TND)</span>
+            <input class="form-input" type="number" [value]="requestForm.mensualiteEstimee" readonly>
+          </label>
+
+          <label class="rl-field rl-full">
+            <span>Objectif</span>
+            <input class="form-input" type="text" [(ngModel)]="requestForm.objectifCredit">
+          </label>
+        </div>
+
+        <div class="rl-msg ok" *ngIf="submitSuccess">{{ submitSuccess }}</div>
+        <div class="rl-msg err" *ngIf="submitError">{{ submitError }}</div>
+      </div>
+
+      <div class="rl-actions">
+        <button class="btn btn-outline" (click)="closeRequestLoanModal()">Annuler</button>
+        <button class="btn btn-primary" [disabled]="isSubmitting" (click)="submitRequestLoan()">
+          {{ isSubmitting ? 'Envoi...' : 'Passer demande' }}
+        </button>
       </div>
     </div>
   </div>
