@@ -119,6 +119,7 @@ export interface CreateRequestLoanPayload {
   userId: number;
   vehiculeId: number;
   dateCreation?: string;
+
 }
 
 /** Corps optionnel pour POST approve / reject (si le backend accepte une note). */
