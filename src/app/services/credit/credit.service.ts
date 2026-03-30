@@ -75,10 +75,11 @@ export interface PaymentHistoryResponseDto {
 
 @Injectable({ providedIn: 'root' })
 export class Credit {
-  private readonly API         = 'http://localhost:8081/api/loans';
-  private readonly PAY_API     = 'http://localhost:8081/api/payments';
-  private readonly HISTORY_API = 'http://localhost:8081/api/payment-history';
-  private readonly STRIPE_API  = 'http://localhost:8081/api/stripe';
+  private readonly API          = 'http://localhost:8081/api/loans';
+  private readonly PAY_API      = 'http://localhost:8081/api/payments';
+  private readonly HISTORY_API  = 'http://localhost:8081/api/payment-history';
+  private readonly STRIPE_API   = 'http://localhost:8081/api/stripe';
+  private readonly SCHEDULE_API = 'http://localhost:8081/api/schedule-repayment';
 
   constructor(private http: HttpClient) {}
 
@@ -116,4 +117,19 @@ export class Credit {
   createStripePaymentIntent(dto: StripePaymentIntentRequestDto): Observable<StripePaymentIntentResponseDto> {
     return this.http.post<StripePaymentIntentResponseDto>(`${this.STRIPE_API}/create-payment-intent`, dto);
   }
+
+  getInstallments(loanContractId: number): Observable<InstallmentDto[]> {
+    return this.http.get<InstallmentDto[]>(`${this.SCHEDULE_API}/installments/${loanContractId}`);
+  }
+}
+
+export interface InstallmentDto {
+  id: number;
+  installmentNumber: number;
+  dueDate: string;   // 'YYYY-MM-DD'
+  amountDue: number;
+  principalPart: number;
+  interestPart: number;
+  remainingBalance: number;
+  status: string;    // 'PENDING' | 'PAID' | 'OVERDUE'
 }

@@ -14,14 +14,14 @@ export class Frontoffice implements OnInit, OnDestroy {
   currentTheme: 'light' | 'dark' = 'dark';
 
   navTabs = [
-    { label: 'Dashboard', icon: '🏠', route: '/client/dashboard' },
-    { label: 'My Credits', icon: '💳', route: '/client/credits' },
-    { label: 'Repayments', icon: '💸', route: '/client/repayments', badge: '1', badgeClass: 'warn' },
-    { label: 'Vehicles', icon: '🚗', route: '/client/vehicles' },
-    { label: 'Insurance', icon: '🛡️', route: '/client/insurance' },
-    { label: 'Wallet', icon: '👛', route: '/client/wallet' },
-    { label: 'My Score', icon: '📊', route: '/client/score' },
-    { label: 'Documents', icon: '📄', route: '/client/documents' }
+    { label: 'Dashboard', icon: '', route: '/client/dashboard' },
+    { label: 'My Credits', icon: '', route: '/client/credits' },
+    { label: 'Repayments', icon: '', route: '/client/repayments'},
+    { label: 'Vehicles', icon: '', route: '/client/vehicles' },
+    { label: 'Insurance', icon: '', route: '/client/insurance' },
+    { label: 'Wallet', icon: '', route: '/client/wallet' },
+    { label: 'My Score', icon: '', route: '/client/score' },
+    { label: 'Documents', icon: '', route: '/client/documents' }
   ];
 
   showUserDropdown = false;
