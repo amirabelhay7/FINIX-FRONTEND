@@ -78,6 +78,15 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     return list;
   }
 
+  /* ── Grace Period Requests ── */
+  graceRequests: any[] = [];
+  graceRequestsLoading = false;
+  graceFilterStatus = '';
+  graceActionLoading: number | null = null;
+  graceRejectId: number | null = null;
+  graceRejectReason = '';
+  graceDetailRequest: any = null;
+
   constructor(private renderer: Renderer2, private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   logout(): void {
@@ -119,6 +128,9 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     }
     if (page === 'repayments') {
       this.loadAdminPayments();
+    }
+    if (page === 'grace-requests') {
+      this.loadGraceRequests();
     }
   }
 
@@ -964,5 +976,77 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       },
       error: (err) => console.error('[Admin] status change error:', err),
     });
+  }
+
+  /* ── Grace Period Requests Methods ── */
+  loadGraceRequests(): void {
+    this.graceRequestsLoading = true;
+    const url = this.graceFilterStatus
+      ? `${this.API}/grace-period-requests/status/${this.graceFilterStatus}`
+      : `${this.API}/grace-period-requests`;
+    this.http.get<any[]>(url).pipe(
+      finalize(() => { this.graceRequestsLoading = false; this.cdr.detectChanges(); })
+    ).subscribe({
+      next: (res) => { this.graceRequests = Array.isArray(res) ? res : []; },
+      error: () => { this.graceRequests = []; },
+    });
+  }
+
+  onGraceFilterChange(status: string): void {
+    this.graceFilterStatus = status;
+    this.loadGraceRequests();
+  }
+
+  approveGraceRequest(id: number): void {
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    this.graceActionLoading = id;
+    this.http.put<any>(`${this.API}/grace-period-requests/${id}/approve`, {
+      reviewedById: user.userId
+    }).pipe(
+      finalize(() => { this.graceActionLoading = null; this.cdr.detectChanges(); })
+    ).subscribe({
+      next: () => this.loadGraceRequests(),
+      error: (err) => alert(err.error?.message || 'Error approving request'),
+    });
+  }
+
+  openRejectModal(id: number): void {
+    this.graceRejectId = id;
+    this.graceRejectReason = '';
+  }
+
+  confirmRejectGraceRequest(): void {
+    if (this.graceRejectId === null) return;
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    this.graceActionLoading = this.graceRejectId;
+    this.http.put<any>(`${this.API}/grace-period-requests/${this.graceRejectId}/reject`, {
+      reviewedById: user.userId,
+      rejectionReason: this.graceRejectReason
+    }).pipe(
+      finalize(() => { this.graceActionLoading = null; this.graceRejectId = null; this.cdr.detectChanges(); })
+    ).subscribe({
+      next: () => this.loadGraceRequests(),
+      error: (err) => alert(err.error?.message || 'Error rejecting request'),
+    });
+  }
+
+  openGraceDetail(req: any): void {
+    this.graceDetailRequest = req;
+  }
+
+  closeGraceDetail(): void {
+    this.graceDetailRequest = null;
+  }
+
+  get pendingGraceCount(): number {
+    return this.graceRequests.filter((r: any) => r.status === 'PENDING').length;
+  }
+
+  get approvedGraceCount(): number {
+    return this.graceRequests.filter((r: any) => r.status === 'APPROVED').length;
+  }
+
+  get rejectedGraceCount(): number {
+    return this.graceRequests.filter((r: any) => r.status === 'REJECTED').length;
   }
 }

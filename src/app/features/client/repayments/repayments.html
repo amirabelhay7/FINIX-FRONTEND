@@ -186,6 +186,10 @@
             <button class="tc-nav" (click)="prevCalMonth()">‹</button>
             <div class="tc-title">{{ monthNames[calViewMonth] }} {{ calViewYear }}</div>
             <button class="tc-nav" (click)="nextCalMonth()">›</button>
+            <button class="tc-goto" (click)="goToNextDue()" title="Go to next due installment">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Next due
+            </button>
             <button class="tc-close" (click)="calExpanded = false">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <line x1="18" y1="6" x2="6" y2="18"/>
@@ -193,10 +197,27 @@
               </svg>
             </button>
           </div>
+
+          <!-- Monthly summary -->
+          <div class="tc-month-summary">
+            <ng-container *ngIf="calMonthSummary.dueRow; else noInstallmentThisMonth">
+              <span class="tc-ms-installment">
+                Installment #{{ calMonthSummary.dueRow.num }} — {{ calMonthSummary.dueRow.mensualite | number:'1.2-2' }} TND
+                <span class="tc-ms-badge" [class.tc-ms-paid]="calMonthSummary.isPaid" [class.tc-ms-pending]="!calMonthSummary.isPaid">
+                  {{ calMonthSummary.isPaid ? '✓ Paid' : 'Pending' }}
+                </span>
+              </span>
+              <span class="tc-ms-due">Due: {{ calMonthSummary.dueRow.date }}</span>
+            </ng-container>
+            <ng-template #noInstallmentThisMonth>
+              <span class="tc-ms-none">No installment due this month</span>
+            </ng-template>
+          </div>
+
           <div class="tc-weekdays">
             <div *ngFor="let wd of weekDays" class="tc-wd">{{ wd }}</div>
           </div>
-          <div class="tc-grid">
+          <div class="tc-grid" (mouseleave)="activeTooltip = null">
             <ng-container *ngFor="let week of getCalGrid()">
               <div
                 *ngFor="let cell of week"
@@ -208,10 +229,15 @@
                 [class.tc-due-today]="cell.status === 'due-today'"
                 [class.tc-future-due]="cell.status === 'future-due'"
                 [class.tc-past-unpaid]="cell.status === 'past-unpaid'"
-                [class.tc-tzone]="cell.status === 'tolerance-zone'"
+                [class.tc-paid-due]="cell.status === 'paid-due'"
+                (mouseenter)="activeTooltip = cell.tooltip || null"
               >{{ cell.day }}</div>
             </ng-container>
           </div>
+
+          <!-- Tooltip -->
+          <div class="tc-tooltip" *ngIf="activeTooltip" style="white-space: pre-line">{{ activeTooltip }}</div>
+
           <div class="tc-legend">
             <span class="tcl-item"><span class="tcl-dot tcd-green"></span>On Time</span>
             <span class="tcl-item"><span class="tcl-dot tcd-orange"></span>Tolerance</span>
@@ -219,9 +245,72 @@
             <span class="tcl-item"><span class="tcl-dot tcd-blue"></span>Due Today</span>
             <span class="tcl-item"><span class="tcl-dot tcd-future"></span>Future Due</span>
             <span class="tcl-item"><span class="tcl-dot tcd-past"></span>Past Unpaid</span>
+            <span class="tcl-item"><span class="tcl-dot tcd-paid-due"></span>Due (paid)</span>
           </div>
         </ng-container>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Grace Period Request Button ── -->
+  <div class="s3-grace" *ngIf="!isLoading && contract && !currentInstallmentPaid">
+    <div class="grace-banner">
+      <div class="grace-banner-left">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <div>
+          <div class="grace-banner-title">Need more time?</div>
+          <div class="grace-banner-desc">Request a grace period to delay your next payment</div>
+        </div>
+      </div>
+      <button
+        class="btn-grace-request"
+        (click)="openGraceModal()"
+        [disabled]="hasPendingGraceRequest"
+      >
+        <ng-container *ngIf="hasPendingGraceRequest">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Request Pending
+        </ng-container>
+        <ng-container *ngIf="!hasPendingGraceRequest">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Request Grace Period
+        </ng-container>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── My Grace Period Requests ── -->
+  <div class="s3-grace-list" *ngIf="myGraceRequests.length > 0">
+    <div class="section-header">
+      <span class="ptdot" style="background:#f59e0b"></span>
+      <span class="section-title-text">My Grace Period Requests</span>
+    </div>
+    <div class="grace-requests-grid">
+      <div class="grace-req-card" *ngFor="let req of myGraceRequests"
+        [class.grace-pending]="req.status === 'PENDING'"
+        [class.grace-approved]="req.status === 'APPROVED'"
+        [class.grace-rejected]="req.status === 'REJECTED'">
+        <div class="grace-req-top">
+          <span class="grace-req-badge"
+            [class.b-pending]="req.status === 'PENDING'"
+            [class.b-paid]="req.status === 'APPROVED'"
+            [class.b-late]="req.status === 'REJECTED'">
+            {{ req.status }}
+          </span>
+          <span class="grace-req-date">{{ req.createdAt | date:'dd MMM yyyy' }}</span>
+        </div>
+        <div class="grace-req-days">{{ req.requestedGraceDays }} days — Installment #{{ req.installmentNumber }} — {{ req.numberOfAffectedInstallments }} installment(s) affected</div>
+        <div class="grace-req-reason">{{ req.reason }}</div>
+        <div class="grace-req-docs" *ngIf="req.documents && req.documents.length > 0">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          {{ req.documents.length }} document(s)
+        </div>
+        <div class="grace-req-rejection" *ngIf="req.status === 'REJECTED' && req.rejectionReason">
+          <strong>Reason:</strong> {{ req.rejectionReason }}
+        </div>
       </div>
     </div>
   </div>
@@ -237,7 +326,7 @@
           Amortization Table
         </button>
       </div>
-      <button class="btn btn-ghost btn-sm" *ngIf="activeTab === 'amortization'">
+      <button class="btn btn-ghost btn-sm" *ngIf="contract" (click)="exportPdf()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
@@ -292,7 +381,7 @@
       <div *ngIf="contract" class="amort-summary">
         <div class="amort-kpi">
           <div class="amort-kpi-label">Capital borrowed</div>
-          <div class="amort-kpi-val">{{ contract.montantTotalRembourse | number:'1.0-0' }} TND</div>
+          <div class="amort-kpi-val">{{ contract.montantCredit | number:'1.0-0' }} TND</div>
         </div>
         <div class="amort-kpi">
           <div class="amort-kpi-label">Installment</div>
@@ -487,6 +576,148 @@
         </div>
         <div class="stripe-success-title">Payment confirmed</div>
         <div class="stripe-success-sub">Your installment has been successfully recorded.</div>
+      </div>
+    </ng-container>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     Modal — Grace Period Request
+     ════════════════════════════════════════════════════ -->
+<div class="stripe-overlay" *ngIf="graceModalOpen" (click)="closeGraceModal()">
+  <div class="stripe-modal grace-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="stripe-modal-head">
+      <div class="stripe-modal-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Grace Period Request
+      </div>
+      <button class="stripe-modal-close" (click)="closeGraceModal()" [disabled]="graceLoading">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Success state -->
+    <ng-container *ngIf="graceSuccess">
+      <div class="stripe-success-body">
+        <div class="stripe-success-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="stripe-success-title">Request submitted</div>
+        <div class="stripe-success-sub">Your grace period request has been sent for review.</div>
+      </div>
+    </ng-container>
+
+    <!-- Form -->
+    <ng-container *ngIf="!graceSuccess">
+      <div class="grace-form">
+        <!-- Installment picker -->
+        <div class="grace-field">
+          <label class="grace-label">Select the installment</label>
+          <select class="grace-input" [(ngModel)]="graceSelectedInstallmentId">
+            <option [ngValue]="null" disabled>-- Choose an installment --</option>
+            <option *ngFor="let row of unpaidInstallments" [ngValue]="row.num">
+              Installment #{{ row.num }} — {{ row.date }} ({{ row.mensualite | number:'1.2-2' }} TND)
+            </option>
+          </select>
+        </div>
+
+        <!-- Grace days -->
+        <div class="grace-field">
+          <label class="grace-label">Number of grace days</label>
+          <input
+            type="number"
+            class="grace-input"
+            [(ngModel)]="graceRequestedDays"
+            min="1" max="15"
+            placeholder="5"
+          />
+          <span class="grace-hint">Maximum 15 days</span>
+        </div>
+
+        <!-- Number of affected installments -->
+        <div class="grace-field">
+          <label class="grace-label">Number of installments to delay</label>
+          <input
+            type="number"
+            class="grace-input"
+            [(ngModel)]="graceAffectedCount"
+            min="1" [max]="maxAffectedInstallments"
+          />
+          <span class="grace-hint">Max {{ maxAffectedInstallments }} (remaining unpaid from selected)</span>
+        </div>
+
+        <!-- Reason -->
+        <div class="grace-field">
+          <label class="grace-label">Reason for request</label>
+          <textarea
+            class="grace-textarea"
+            [(ngModel)]="graceReason"
+            rows="4"
+            maxlength="2000"
+            placeholder="Explain why you need a grace period..."
+          ></textarea>
+          <span class="grace-hint">{{ graceReason.length }} / 2000</span>
+        </div>
+
+        <!-- File upload -->
+        <div class="grace-field">
+          <label class="grace-label">Supporting documents (optional)</label>
+          <div class="grace-upload-zone" (click)="fileInput.click()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span>Click to upload PDF or images</span>
+          </div>
+          <input
+            #fileInput
+            type="file"
+            multiple
+            accept=".pdf,.jpg,.jpeg,.png,.gif,.webp"
+            style="display:none"
+            (change)="onGraceFilesChange($event)"
+          />
+          <div class="grace-file-list" *ngIf="graceFiles.length > 0">
+            <div class="grace-file-item" *ngFor="let f of graceFiles; let i = index">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="grace-file-name">{{ f.name }}</span>
+              <button class="grace-file-remove" (click)="removeGraceFile(i)">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div class="stripe-err-msg" *ngIf="graceError" style="margin-bottom:.5rem">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          {{ graceError }}
+        </div>
+
+        <!-- Actions -->
+        <div class="grace-actions">
+          <button class="stripe-cancel-btn" (click)="closeGraceModal()">Cancel</button>
+          <button class="btn-grace-submit" (click)="submitGraceRequest()" [disabled]="graceLoading">
+            <ng-container *ngIf="graceLoading">
+              <span class="pay-spinner"></span> Submitting...
+            </ng-container>
+            <ng-container *ngIf="!graceLoading">
+              Submit Request
+            </ng-container>
+          </button>
+        </div>
       </div>
     </ng-container>
 

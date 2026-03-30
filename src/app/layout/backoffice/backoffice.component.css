@@ -967,3 +967,137 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
 .pay-filter-count {
   font-size: .72rem; color: var(--g400); white-space: nowrap; margin-left: auto;
 }
+
+/* ════════════════════════════════════════════════════════
+   GRACE PERIOD REQUESTS PAGE
+   ════════════════════════════════════════════════════════ */
+
+.gpr-filter-select {
+  padding: .4rem .7rem;
+  border-radius: 8px;
+  border: 1px solid var(--g200, #e2e8f0);
+  background: var(--bg, #fff);
+  color: var(--text, #1e293b);
+  font-size: .8rem;
+  outline: none;
+}
+
+.gpr-reason-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .78rem;
+  color: var(--muted, #64748b);
+}
+
+.gpr-doc-count {
+  cursor: pointer;
+  color: var(--blue, #3b82f6);
+  font-size: .78rem;
+  text-decoration: underline;
+}
+.gpr-doc-count:hover { color: #60a5fa; }
+
+.gpr-actions { display: flex; gap: .4rem; }
+
+.gpr-badge-pending { background: #fef3c7 !important; color: #92400e !important; }
+.gpr-badge-approved { background: #dcfce7 !important; color: #166534 !important; }
+.gpr-badge-rejected { background: #fef2f2 !important; color: #991b1b !important; }
+
+[data-theme="dark"] .gpr-badge-pending { background: rgba(245,158,11,.15) !important; color: #fbbf24 !important; }
+[data-theme="dark"] .gpr-badge-approved { background: rgba(34,197,94,.15) !important; color: #4ade80 !important; }
+[data-theme="dark"] .gpr-badge-rejected { background: rgba(239,68,68,.15) !important; color: #f87171 !important; }
+
+.gpr-btn-approve-bo {
+  background: #dcfce7; color: #166534; border: none;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.gpr-btn-approve-bo:hover:not(:disabled) { background: #bbf7d0; }
+
+.gpr-btn-reject-bo {
+  background: #fef2f2; color: #991b1b; border: none;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.gpr-btn-reject-bo:hover:not(:disabled) { background: #fecaca; }
+
+[data-theme="dark"] .gpr-btn-approve-bo { background: rgba(34,197,94,.15); color: #4ade80; }
+[data-theme="dark"] .gpr-btn-approve-bo:hover:not(:disabled) { background: rgba(34,197,94,.25); }
+[data-theme="dark"] .gpr-btn-reject-bo { background: rgba(239,68,68,.15); color: #f87171; }
+[data-theme="dark"] .gpr-btn-reject-bo:hover:not(:disabled) { background: rgba(239,68,68,.25); }
+
+/* Overlay / Modals */
+.gpr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.gpr-modal-bo {
+  background: var(--bg, #fff);
+  border: 1px solid var(--g200, #e2e8f0);
+  border-radius: 14px;
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.15);
+}
+
+[data-theme="dark"] .gpr-modal-bo {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 20px 60px rgba(0,0,0,.4);
+}
+
+.gpr-modal-title {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--text, #1e293b);
+  margin-bottom: .75rem;
+}
+
+.gpr-modal-label {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--text, #1e293b);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.gpr-modal-textarea {
+  width: 100%;
+  padding: .55rem .75rem;
+  border-radius: 8px;
+  border: 1px solid var(--g200, #e2e8f0);
+  background: var(--bg, #fff);
+  color: var(--text, #1e293b);
+  font-size: .82rem;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+}
+
+[data-theme="dark"] .gpr-modal-textarea {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+.gpr-modal-actions {
+  display: flex;
+  gap: .5rem;
+  justify-content: flex-end;
+  margin-top: .75rem;
+}
+
+.gpr-detail-row-bo {
+  font-size: .82rem;
+  color: var(--text, #1e293b);
+  margin-bottom: .5rem;
+  line-height: 1.5;
+}

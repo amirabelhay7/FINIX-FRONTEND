@@ -53,10 +53,10 @@ export class InsurerLayout implements OnInit, OnDestroy {
   showAddCatalogModal = false;
 
   stats = [
-    { label: 'Polices actives', value: '248', icon: '🛡️', trend: '+12 ce mois', trendClass: 'up' },
-    { label: 'Sinistres en cours', value: '17', icon: '⚠️', trend: '-3 vs mois dernier', trendClass: 'up' },
-    { label: 'Renouvellements', value: '34', icon: '🔄', trend: '+8 ce mois', trendClass: 'up' },
-    { label: 'Primes collectées', value: '1.2M', suffix: 'TND', icon: '💰', trend: '+15.4%', trendClass: 'up' },
+    { label: 'Active Policies', value: '248', icon: '', trend: '+12 ce mois', trendClass: 'up' },
+    { label: 'Sinistres en cours', value: '17', icon: '', trend: '-3 vs mois dernier', trendClass: 'up' },
+    { label: 'Renouvellements', value: '34', icon: '', trend: '+8 ce mois', trendClass: 'up' },
+    { label: 'Primes collectées', value: '1.2M', suffix: 'TND', icon: '', trend: '+15.4%', trendClass: 'up' },
   ];
 
   offers: InsuranceOffer[] = [

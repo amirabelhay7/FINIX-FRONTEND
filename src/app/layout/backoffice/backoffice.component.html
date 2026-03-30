@@ -1010,6 +1010,182 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════════
+         PAGE : GRACE PERIOD REQUESTS
+         ═══════════════════════════════════════════════════════ -->
+    <div class="page" [class.active]="selectedPage === 'grace-requests'" id="page-grace-requests">
+      <div class="ph s1">
+        <div>
+          <div class="ph-eyebrow">Management</div>
+          <div class="ph-title">Grace Period Requests</div>
+          <div class="ph-desc">Review and process client grace period requests</div>
+        </div>
+        <div class="ph-actions">
+          <select class="gpr-filter-select" [ngModel]="graceFilterStatus" (ngModelChange)="onGraceFilterChange($event)">
+            <option value="">All Requests</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- KPI cards -->
+      <div class="kpi-row s2">
+        <div class="kpi" style="--kc: var(--warning)">
+          <div class="kpi-top">
+            <div class="kpi-label">Total Requests</div>
+          </div>
+          <div class="kpi-val">{{ graceRequests.length }}</div>
+        </div>
+        <div class="kpi" style="--kc: #f59e0b">
+          <div class="kpi-top">
+            <div class="kpi-label">Pending</div>
+          </div>
+          <div class="kpi-val" style="color:#f59e0b">{{ pendingGraceCount }}</div>
+        </div>
+        <div class="kpi" style="--kc: var(--success)">
+          <div class="kpi-top">
+            <div class="kpi-label">Approved</div>
+          </div>
+          <div class="kpi-val" style="color:var(--success)">{{ approvedGraceCount }}</div>
+        </div>
+        <div class="kpi" style="--kc: var(--danger)">
+          <div class="kpi-top">
+            <div class="kpi-label">Rejected</div>
+          </div>
+          <div class="kpi-val" style="color:var(--danger)">{{ rejectedGraceCount }}</div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="graceRequestsLoading" style="text-align:center;padding:2rem;color:var(--muted)">
+        Loading grace period requests...
+      </div>
+
+      <!-- Table -->
+      <div class="tbl-wrap" *ngIf="!graceRequestsLoading">
+        <table>
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Contract</th>
+              <th>Installment</th>
+              <th>Days</th>
+              <th>Affected</th>
+              <th>Reason</th>
+              <th>Date</th>
+              <th>Docs</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="graceRequests.length === 0">
+              <td colspan="10" style="text-align:center;padding:2rem;color:var(--muted)">No grace period requests found.</td>
+            </tr>
+            <tr *ngFor="let req of graceRequests">
+              <td>
+                <div class="td-primary">{{ req.clientFirstName }} {{ req.clientLastName }}</div>
+                <div class="td-sub">CIN {{ req.clientCin || '—' }}</div>
+              </td>
+              <td><span class="td-ref">{{ req.numeroContrat || '—' }}</span></td>
+              <td>
+                <div class="td-primary">#{{ req.installmentNumber }}</div>
+                <div class="td-sub">{{ req.installmentDueDate | date:'dd/MM/yyyy' }}</div>
+              </td>
+              <td><strong>{{ req.requestedGraceDays }}d</strong></td>
+              <td><strong>{{ req.numberOfAffectedInstallments }}</strong></td>
+              <td>
+                <div class="gpr-reason-cell" title="{{ req.reason }}">{{ req.reason }}</div>
+              </td>
+              <td>{{ req.createdAt | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <span class="gpr-doc-count" *ngIf="req.documents?.length" (click)="openGraceDetail(req)">
+                  {{ req.documents.length }} file(s)
+                </span>
+                <span *ngIf="!req.documents?.length" style="color:var(--muted)">—</span>
+              </td>
+              <td>
+                <span class="badge"
+                  [class.gpr-badge-pending]="req.status === 'PENDING'"
+                  [class.gpr-badge-approved]="req.status === 'APPROVED'"
+                  [class.gpr-badge-rejected]="req.status === 'REJECTED'">
+                  {{ req.status }}
+                </span>
+              </td>
+              <td>
+                <div class="gpr-actions" *ngIf="req.status === 'PENDING'">
+                  <button class="btn btn-sm gpr-btn-approve-bo"
+                    (click)="approveGraceRequest(req.id)"
+                    [disabled]="graceActionLoading === req.id">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    Approve
+                  </button>
+                  <button class="btn btn-sm gpr-btn-reject-bo"
+                    (click)="openRejectModal(req.id)"
+                    [disabled]="graceActionLoading === req.id">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Reject
+                  </button>
+                </div>
+                <div *ngIf="req.status !== 'PENDING'" style="color:var(--muted);font-size:.75rem">
+                  {{ req.reviewerFirstName }} {{ req.reviewerLastName }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Reject modal -->
+      <div class="gpr-overlay" *ngIf="graceRejectId !== null" (click)="graceRejectId = null">
+        <div class="gpr-modal-bo" (click)="$event.stopPropagation()">
+          <div class="gpr-modal-title">Reject Grace Period Request</div>
+          <label class="gpr-modal-label">Reason for rejection (optional)</label>
+          <textarea class="gpr-modal-textarea" [(ngModel)]="graceRejectReason" rows="3" placeholder="Provide a reason..."></textarea>
+          <div class="gpr-modal-actions">
+            <button class="btn btn-outline btn-sm" (click)="graceRejectId = null">Cancel</button>
+            <button class="btn btn-sm gpr-btn-reject-bo" (click)="confirmRejectGraceRequest()" [disabled]="graceActionLoading !== null">
+              Confirm Rejection
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail modal (documents) -->
+      <div class="gpr-overlay" *ngIf="graceDetailRequest" (click)="closeGraceDetail()">
+        <div class="gpr-modal-bo" (click)="$event.stopPropagation()" style="max-width:500px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+            <div class="gpr-modal-title" style="margin:0">Request Details</div>
+            <button style="background:none;border:none;cursor:pointer;color:var(--muted)" (click)="closeGraceDetail()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="gpr-detail-row-bo"><strong>Client:</strong> {{ graceDetailRequest.clientFirstName }} {{ graceDetailRequest.clientLastName }} (CIN: {{ graceDetailRequest.clientCin }})</div>
+          <div class="gpr-detail-row-bo"><strong>Contract:</strong> {{ graceDetailRequest.numeroContrat }}</div>
+          <div class="gpr-detail-row-bo"><strong>Installment:</strong> #{{ graceDetailRequest.installmentNumber }} — due {{ graceDetailRequest.installmentDueDate | date:'dd/MM/yyyy' }}</div>
+          <div class="gpr-detail-row-bo"><strong>Grace Days:</strong> {{ graceDetailRequest.requestedGraceDays }}</div>
+          <div class="gpr-detail-row-bo"><strong>Affected Installments:</strong> {{ graceDetailRequest.numberOfAffectedInstallments }}</div>
+          <div class="gpr-detail-row-bo"><strong>Reason:</strong> {{ graceDetailRequest.reason }}</div>
+          <div class="gpr-detail-row-bo"><strong>Date:</strong> {{ graceDetailRequest.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+          <div class="gpr-detail-row-bo" *ngIf="graceDetailRequest.rejectionReason"><strong>Rejection Reason:</strong> {{ graceDetailRequest.rejectionReason }}</div>
+          <div class="gpr-detail-row-bo" *ngIf="graceDetailRequest.documents?.length > 0">
+            <strong>Documents:</strong>
+            <div style="margin-top:.4rem">
+              <a *ngFor="let doc of graceDetailRequest.documents"
+                style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--blue);text-decoration:none;padding:4px 0"
+                [href]="'http://localhost:8081' + doc.fileUrl"
+                target="_blank">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                {{ doc.fileName }}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
          PAGE : VÉHICULES
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'vehicles'" id="page-vehicles">
