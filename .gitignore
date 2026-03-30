@@ -45,6 +45,7 @@ lerna-debug.log*
 .settings/
 *.sublime-workspace
 *.sublime-project
+.cursor/
 
 # Visual Studio Code (ignore all, then allow shared config)
 .vscode/*
@@ -79,6 +80,6 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# ============ Optional: local / tooling ============
-# Uncomment if you don't want to share Cursor project data
-# .cursor/
+# ============ Documentation files ============
+*.md
+!README.md
