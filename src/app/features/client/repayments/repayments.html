@@ -383,29 +383,76 @@
 
     <!-- Payment History -->
     <div class="tbl-wrap" *ngIf="activeTab === 'history'">
+
+      <!-- Search + sort toolbar -->
+      <div class="history-toolbar" *ngIf="paymentHistory.length > 0">
+        <div class="history-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="date"
+            class="history-search-input"
+            [(ngModel)]="historySearchDate"
+            (ngModelChange)="onHistorySearch()"
+          />
+          <button class="history-search-clear" *ngIf="historySearchDate" (click)="historySearchDate = ''; onHistorySearch()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <span class="history-count">{{ filteredHistory.length }} result{{ filteredHistory.length !== 1 ? 's' : '' }}</span>
+      </div>
+
       <div *ngIf="historyLoading" class="tbl-loading">Loading payment history…</div>
       <table *ngIf="!historyLoading">
         <thead>
           <tr>
             <th>Reference</th>
-            <th>Installment</th>
+            <th class="th-sortable" (click)="toggleHistorySort()">
+              Installment
+              <svg class="th-sort-icon" [class.th-sort-asc]="historySortDir === 'asc'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </th>
             <th>Amount</th>
+            <th>Penalty</th>
             <th>Payment Date</th>
             <th>Method</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="paymentHistory.length === 0">
-            <td colspan="6" class="td-empty">No payments made.</td>
+          <tr *ngIf="filteredHistory.length === 0">
+            <td colspan="7" class="td-empty">{{ paymentHistory.length === 0 ? 'No payments made.' : 'No results for this date.' }}</td>
           </tr>
-          <tr *ngFor="let p of paymentHistory">
+          <tr *ngFor="let p of pagedHistory">
             <td><span class="td-ref">#PAY-{{ p.id }}</span></td>
             <td>
               <div class="td-primary">Installment #{{ p.installmentNumber }}</div>
-              <div class="td-sub" *ngIf="p.numeroContrat">{{ p.numeroContrat }}</div>
+              <div class="td-sub">{{ p.dueDate | date:'dd MMM yyyy' }}</div>
             </td>
             <td><span class="td-amount">{{ p.amountPaid | number:'1.2-2' }} TND</span></td>
+            <td>
+              <ng-container *ngIf="getAnyPenaltyForInstallment(p.installmentNumber) as pen; else noPen">
+                <div class="td-penalty-wrap">
+                  <span class="badge-penalty-tier"
+                    [class.tier-1]="pen.penaltyTier === 'TIER_1'"
+                    [class.tier-2]="pen.penaltyTier === 'TIER_2'"
+                    [class.tier-3]="pen.penaltyTier === 'TIER_3'">
+                    {{ pen.tierLabel }}
+                  </span>
+                  <span class="td-penalty-amount">{{ pen.totalPenalty | number:'1.2-2' }} TND</span>
+                  <span class="td-penalty-detail">{{ pen.daysOverdue }}d late</span>
+                  <span class="badge-penalty-status"
+                    [class.bps-paid]="pen.status === 'PAID'"
+                    [class.bps-applied]="pen.status === 'APPLIED'"
+                    [class.bps-waived]="pen.status === 'WAIVED'">
+                    {{ pen.status === 'WAIVED' ? 'Waived' : pen.status === 'PAID' ? 'Paid' : 'Applied' }}
+                  </span>
+                </div>
+              </ng-container>
+              <ng-template #noPen>
+                <span class="td-no-penalty">—</span>
+              </ng-template>
+            </td>
             <td>{{ p.paymentDate | date:'dd MMM yyyy' }}</td>
             <td>{{ p.paymentMethod }}</td>
             <td>
@@ -419,6 +466,23 @@
           </tr>
         </tbody>
       </table>
+      <!-- Pagination History -->
+      <div class="pagination" *ngIf="paymentHistory.length > historyPageSize">
+        <button class="pg-btn" (click)="goHistoryPage(historyPage - 1)" [disabled]="historyPage === 1">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button
+          *ngFor="let pg of historyPages"
+          class="pg-num"
+          [class.pg-active]="pg === historyPage"
+          (click)="goHistoryPage(pg)">
+          {{ pg }}
+        </button>
+        <button class="pg-btn" (click)="goHistoryPage(historyPage + 1)" [disabled]="historyPage === historyTotalPages">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <span class="pg-info">{{ historyPage }} / {{ historyTotalPages }}</span>
+      </div>
     </div>
 
     <!-- Tableau d'amortissement -->
@@ -463,7 +527,7 @@
           </thead>
           <tbody>
             <tr
-              *ngFor="let row of amortizationRows"
+              *ngFor="let row of pagedAmortization"
               [class.row-paid]="isRowPaid(row.num)"
             >
               <td><span class="td-ref">#{{ row.num }}</span></td>
@@ -487,6 +551,23 @@
             </tr>
           </tbody>
         </table>
+        <!-- Pagination Amortization -->
+        <div class="pagination" *ngIf="amortizationRows.length > amortPageSize">
+          <button class="pg-btn" (click)="goAmortPage(amortPage - 1)" [disabled]="amortPage === 1">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button
+            *ngFor="let pg of amortPages"
+            class="pg-num"
+            [class.pg-active]="pg === amortPage"
+            (click)="goAmortPage(pg)">
+            {{ pg }}
+          </button>
+          <button class="pg-btn" (click)="goAmortPage(amortPage + 1)" [disabled]="amortPage === amortTotalPages">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <span class="pg-info">{{ amortPage }} / {{ amortTotalPages }}</span>
+        </div>
       </div>
     </div>
 
@@ -573,15 +654,41 @@
 
     <!-- ─── Étape 3 : Formulaire carte ─── -->
     <ng-container *ngIf="stripeStep === 'card'">
+
+      <!-- 3D Credit Card — Z-axis rotation -->
+      <div class="credit-card-scene">
+        <div class="credit-card">
+          <div class="credit-card-front">
+            <div class="cc-chip">
+              <svg width="36" height="28" viewBox="0 0 36 28"><rect x="0" y="0" width="36" height="28" rx="4" fill="#d4af37" opacity=".85"/><rect x="4" y="6" width="12" height="16" rx="2" fill="none" stroke="#b8860b" stroke-width="1.2"/><line x1="10" y1="6" x2="10" y2="22" stroke="#b8860b" stroke-width="1"/><line x1="4" y1="14" x2="16" y2="14" stroke="#b8860b" stroke-width="1"/></svg>
+            </div>
+            <div class="cc-contactless">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-linecap="round"><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M6 13a9 9 0 0 1 12 0"/><path d="M3.5 9.5a13 13 0 0 1 17 0"/></svg>
+            </div>
+            <div class="cc-number">•••• •••• •••• ••••</div>
+            <div class="cc-bottom">
+              <div class="cc-holder">
+                <div class="cc-holder-label">CARD HOLDER</div>
+                <div class="cc-holder-name">YOUR NAME</div>
+              </div>
+              <div class="cc-expiry">
+                <div class="cc-expiry-label">EXPIRES</div>
+                <div class="cc-expiry-val">MM/YY</div>
+              </div>
+            </div>
+            <div class="cc-brand">
+              <span class="cc-brand-visa">VISA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="stripe-field-label">Bank Card Information</div>
 
-      <div id="stripe-card-element" class="stripe-card-el">
-        <ng-container *ngIf="!stripeReady">
-          <div class="stripe-card-loading">
-            <span class="pay-spinner"></span> Loading form...
-          </div>
-        </ng-container>
+      <div class="stripe-card-loading" *ngIf="!stripeReady">
+        <span class="pay-spinner"></span> Loading form...
       </div>
+      <div id="stripe-card-element" class="stripe-card-el" [class.stripe-card-hidden]="!stripeReady"></div>
 
       <div class="stripe-err-msg" *ngIf="stripeError">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -610,7 +717,6 @@
         <div class="stripe-cards">
           <span class="card-chip visa">VISA</span>
           <span class="card-chip mc">MC</span>
-          
         </div>
         <div class="stripe-powered-by">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -685,28 +791,45 @@
           </select>
         </div>
 
-        <!-- Grace days -->
+        <!-- Grace days — spinning counter -->
         <div class="grace-field">
           <label class="grace-label">Number of grace days</label>
-          <input
-            type="number"
-            class="grace-input"
-            [(ngModel)]="graceRequestedDays"
-            min="1" max="15"
-            placeholder="5"
-          />
-          <span class="grace-hint">Maximum 15 days</span>
+          <div class="spin-counter">
+            <button class="spin-btn spin-btn-minus" (click)="decrementGraceDays()" [disabled]="graceRequestedDays <= 1" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="spin-display">
+              <div class="spin-value" [class.spin-bounce]="graceRequestedDays">{{ graceRequestedDays }}</div>
+              <div class="spin-label">days</div>
+            </div>
+            <button class="spin-btn spin-btn-plus" (click)="incrementGraceDays()" [disabled]="graceRequestedDays >= 15" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="spin-track">
+            <div class="spin-track-fill" [style.width.%]="(graceRequestedDays / 15) * 100"></div>
+          </div>
+          <span class="grace-hint">Between 1 and 15 days</span>
         </div>
 
-        <!-- Number of affected installments -->
+        <!-- Number of affected installments — spinning counter -->
         <div class="grace-field">
           <label class="grace-label">Number of installments to delay</label>
-          <input
-            type="number"
-            class="grace-input"
-            [(ngModel)]="graceAffectedCount"
-            min="1" [max]="maxAffectedInstallments"
-          />
+          <div class="spin-counter">
+            <button class="spin-btn spin-btn-minus" (click)="decrementAffectedCount()" [disabled]="graceAffectedCount <= 1" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="spin-display">
+              <div class="spin-value" [class.spin-bounce]="graceAffectedCount">{{ graceAffectedCount }}</div>
+              <div class="spin-label">installment{{ graceAffectedCount > 1 ? 's' : '' }}</div>
+            </div>
+            <button class="spin-btn spin-btn-plus" (click)="incrementAffectedCount()" [disabled]="graceAffectedCount >= maxAffectedInstallments" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="spin-track">
+            <div class="spin-track-fill" [style.width.%]="maxAffectedInstallments > 0 ? (graceAffectedCount / maxAffectedInstallments) * 100 : 0"></div>
+          </div>
           <span class="grace-hint">Max {{ maxAffectedInstallments }} (remaining unpaid from selected)</span>
         </div>
 
