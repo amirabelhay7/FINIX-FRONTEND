@@ -106,13 +106,50 @@
           </div>
         </div>
 
+        <!-- Penalty alert -->
+        <div class="ticket-penalty" *ngIf="getPenaltyForInstallment(currentInstallment.num) as penalty">
+          <div class="ticket-penalty-bar"></div>
+          <div class="ticket-penalty-body">
+            <div class="ticket-penalty-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              <span class="ticket-penalty-title">Late payment penalty</span>
+              <span class="ticket-penalty-tier"
+                [class.tier-1]="penalty.penaltyTier === 'TIER_1'"
+                [class.tier-2]="penalty.penaltyTier === 'TIER_2'"
+                [class.tier-3]="penalty.penaltyTier === 'TIER_3'">
+                {{ penalty.tierLabel }}
+              </span>
+            </div>
+            <div class="ticket-penalty-details">
+              <span>{{ penalty.daysOverdue }} days overdue</span>
+              <span class="tpd-sep"></span>
+              <span>Penalty: {{ penalty.penaltyAmount | number:'1.2-2' }} TND</span>
+              <span class="tpd-sep"></span>
+              <span>Collection fee: {{ penalty.relanceFee | number:'1.2-2' }} TND</span>
+            </div>
+            <div class="ticket-penalty-total">
+              Total penalty: <strong>{{ penalty.totalPenalty | number:'1.2-2' }} TND</strong>
+              <span class="ticket-penalty-cap">(capped at {{ penalty.cappedAt | number:'1.2-2' }} TND)</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Divider -->
         <div class="ticket-divider"></div>
 
         <!-- Right: amount + action -->
         <div class="ticket-action">
           <div class="ticket-amount-wrap">
-            <div class="ticket-amount">{{ currentInstallment.mensualite | number:'1.2-2' }}</div>
+            <ng-container *ngIf="getPenaltyForInstallment(currentInstallment.num); else noPenaltyAmount">
+              <div class="ticket-amount-old">{{ currentInstallment.mensualite | number:'1.2-2' }} TND</div>
+              <div class="ticket-amount ticket-amount-penalty">{{ currentTotalDue | number:'1.2-2' }}</div>
+            </ng-container>
+            <ng-template #noPenaltyAmount>
+              <div class="ticket-amount">{{ currentInstallment.mensualite | number:'1.2-2' }}</div>
+            </ng-template>
             <div class="ticket-currency">TND</div>
           </div>
 
@@ -208,6 +245,14 @@
                 </span>
               </span>
               <span class="tc-ms-due">Due: {{ calMonthSummary.dueRow.date }}</span>
+              <!-- Penalty indicator in calendar -->
+              <span class="tc-ms-penalty" *ngIf="getPenaltyForInstallment(calMonthSummary.dueRow.num) as penalty">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Penalty: {{ penalty.totalPenalty | number:'1.2-2' }} TND — {{ penalty.tierLabel }} ({{ penalty.daysOverdue }}d late)
+              </span>
             </ng-container>
             <ng-template #noInstallmentThisMonth>
               <span class="tc-ms-none">No installment due this month</span>
@@ -430,9 +475,13 @@
                 <span
                   class="badge"
                   [class.b-paid]="isRowPaid(row.num)"
-                  [class.b-pending]="!isRowPaid(row.num)"
+                  [class.b-pending]="!isRowPaid(row.num) && !getPenaltyForInstallment(row.num)"
+                  [class.b-late]="!isRowPaid(row.num) && getPenaltyForInstallment(row.num)"
                 >
-                  {{ isRowPaid(row.num) ? 'Paid' : 'Pending' }}
+                  {{ isRowPaid(row.num) ? 'Paid' : (getPenaltyForInstallment(row.num) ? 'Overdue' : 'Pending') }}
+                </span>
+                <span class="badge-penalty-mini" *ngIf="getPenaltyForInstallment(row.num) as p">
+                  +{{ p.totalPenalty | number:'1.2-2' }} TND
                 </span>
               </td>
             </tr>
@@ -472,6 +521,9 @@
         {{ currentInstallment?.mensualite | number:'1.2-2' }}
         <span class="stripe-recap-currency">TND</span>
       </div>
+      <div class="stripe-recap-penalty" *ngIf="currentInstallment && getPenaltyForInstallment(currentInstallment.num) as penalty">
+        + {{ penalty.totalPenalty | number:'1.2-2' }} TND penalty ({{ penalty.tierLabel }})
+      </div>
       <div class="stripe-recap-date">Due Date: {{ currentInstallment?.date }}</div>
     </div>
 
@@ -487,8 +539,11 @@
         </div>
         <p class="stripe-confirm-text">
           Do you want to confirm the payment of<br>
-          <strong>{{ currentInstallment?.mensualite | number:'1.2-2' }} TND</strong>
+          <strong>{{ currentTotalDue | number:'1.2-2' }} TND</strong>
           for the installment <strong>#{{ currentInstallment?.num }}</strong> ?
+          <span class="stripe-confirm-penalty" *ngIf="currentInstallment && getPenaltyForInstallment(currentInstallment.num) as penalty">
+            <br>({{ currentInstallment?.mensualite | number:'1.2-2' }} TND + {{ penalty.totalPenalty | number:'1.2-2' }} TND penalty)
+          </span>
         </p>
         <div *ngIf="stripeError" class="stripe-err-msg" style="margin:0 0 .5rem">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -547,7 +602,7 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
-          Confirm — {{ currentInstallment?.mensualite | number:'1.2-2' }} TND
+          Confirm — {{ currentTotalDue | number:'1.2-2' }} TND
         </ng-container>
       </button>
 

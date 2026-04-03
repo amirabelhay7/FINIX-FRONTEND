@@ -1853,3 +1853,184 @@
   background: rgba(245,158,11,.15);
   color: #fbbf24;
 }
+
+/* ════════════════════════════════════════════════════════
+   PENALTY STYLES — Ticket, Calendar, Amortization
+   ════════════════════════════════════════════════════════ */
+
+/* ── Penalty alert inside ticket ── */
+.ticket-penalty {
+  margin: 0 1.5rem;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(239,68,68,.2);
+  background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%);
+  margin-bottom: 1rem;
+}
+
+:host-context([data-theme="dark"]) .ticket-penalty {
+  background: linear-gradient(135deg, rgba(239,68,68,.08) 0%, rgba(239,68,68,.03) 100%);
+  border-color: rgba(239,68,68,.2);
+}
+
+.ticket-penalty-bar {
+  height: 3px;
+  background: linear-gradient(90deg, #ef4444, #f97316);
+}
+
+.ticket-penalty-body {
+  padding: .75rem 1rem;
+}
+
+.ticket-penalty-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.ticket-penalty-title {
+  font-size: .78rem;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+:host-context([data-theme="dark"]) .ticket-penalty-title {
+  color: #f87171;
+}
+
+.ticket-penalty-tier {
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-left: auto;
+}
+
+.tier-1 { background: #fef3c3; color: #92400e; }
+.tier-2 { background: #fed7aa; color: #9a3412; }
+.tier-3 { background: #fecaca; color: #991b1b; }
+
+:host-context([data-theme="dark"]) .tier-1 { background: rgba(245,158,11,.15); color: #fbbf24; }
+:host-context([data-theme="dark"]) .tier-2 { background: rgba(249,115,22,.15); color: #fb923c; }
+:host-context([data-theme="dark"]) .tier-3 { background: rgba(239,68,68,.15); color: #f87171; }
+
+.ticket-penalty-details {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .74rem;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+:host-context([data-theme="dark"]) .ticket-penalty-details { color: #8BA4BD; }
+
+.tpd-sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  flex-shrink: 0;
+}
+
+:host-context([data-theme="dark"]) .tpd-sep { background: #334155; }
+
+.ticket-penalty-total {
+  margin-top: 6px;
+  font-size: .8rem;
+  color: #dc2626;
+}
+
+:host-context([data-theme="dark"]) .ticket-penalty-total { color: #f87171; }
+
+.ticket-penalty-total strong {
+  font-weight: 800;
+}
+
+.ticket-penalty-cap {
+  font-size: .68rem;
+  color: #94a3b8;
+  margin-left: 4px;
+}
+
+/* ── Ticket amount with penalty ── */
+.ticket-amount-old {
+  font-size: .82rem;
+  color: #94a3b8;
+  text-decoration: line-through;
+  margin-bottom: 2px;
+}
+
+:host-context([data-theme="dark"]) .ticket-amount-old { color: #5A7A9B; }
+
+.ticket-amount-penalty {
+  color: #dc2626 !important;
+}
+
+:host-context([data-theme="dark"]) .ticket-amount-penalty { color: #f87171 !important; }
+
+/* ── Stripe modal penalty line ── */
+.stripe-recap-penalty {
+  font-size: .78rem;
+  font-weight: 600;
+  color: #ef4444;
+  margin-top: 4px;
+}
+
+.stripe-confirm-penalty {
+  font-size: .82rem;
+  color: #ef4444;
+  font-weight: 600;
+}
+
+:host-context([data-theme="dark"]) .stripe-recap-penalty { color: #f87171; }
+
+/* ── Calendar month summary penalty ── */
+.tc-ms-penalty {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .72rem;
+  font-weight: 600;
+  color: #ef4444;
+  margin-top: 4px;
+}
+
+:host-context([data-theme="dark"]) .tc-ms-penalty { color: #f87171; }
+
+/* ── Amortization table penalty mini badge ── */
+.badge-penalty-mini {
+  display: inline-block;
+  font-size: .62rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid rgba(239,68,68,.2);
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+:host-context([data-theme="dark"]) .badge-penalty-mini {
+  background: rgba(239,68,68,.1);
+  color: #f87171;
+  border-color: rgba(239,68,68,.2);
+}
+
+/* ── Late badge (overdue) ── */
+.b-late {
+  background: rgba(239,68,68,.1);
+  color: #dc2626;
+  border: 1px solid rgba(239,68,68,.25);
+  padding: 3px 9px;
+}
+
+:host-context([data-theme="dark"]) .b-late {
+  background: rgba(239,68,68,.12);
+  color: #f87171;
+  border-color: rgba(239,68,68,.2);
+}
