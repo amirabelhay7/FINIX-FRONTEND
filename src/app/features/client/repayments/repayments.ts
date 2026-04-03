@@ -68,6 +68,16 @@ export class ClientRepayments implements OnInit {
   paymentHistory: PaymentHistoryResponseDto[] = [];
   historyLoading = false;
 
+  // Pagination
+  historyPage = 1;
+  historyPageSize = 5;
+  amortPage = 1;
+  amortPageSize = 8;
+
+  // Sort & search — history
+  historySortDir: 'asc' | 'desc' = 'desc';
+  historySearchDate = '';
+
   // Penalties
   penalties: PenaltyDto[] = [];
 
@@ -83,6 +93,7 @@ export class ClientRepayments implements OnInit {
   private stripeInstance: StripeInstance | null = null;
   private stripeCardElement: StripeElement | null = null;
   private stripeClientSecret: string | null = null;
+  private mountRetries = 0;
   // ──────────────────────────────────────────────────────
 
   readonly monthNames = [
@@ -209,6 +220,11 @@ export class ClientRepayments implements OnInit {
     return this.penalties.find(p => p.installmentNumber === num && p.status === 'APPLIED') ?? null;
   }
 
+  /** Get any penalty (APPLIED, PAID, WAIVED) for a given installment number */
+  getAnyPenaltyForInstallment(num: number): PenaltyDto | null {
+    return this.penalties.find(p => p.installmentNumber === num) ?? null;
+  }
+
   /** Total amount due for current installment (mensualite + penalty) */
   get currentTotalDue(): number {
     if (!this.currentInstallment) return 0;
@@ -278,6 +294,61 @@ export class ClientRepayments implements OnInit {
     return this.monthNames[date.getMonth()];
   }
 
+  // ── Filtered + sorted + paged history ──────────────────
+  get filteredHistory(): PaymentHistoryResponseDto[] {
+    let data = [...this.paymentHistory];
+
+    // Search by due date
+    if (this.historySearchDate) {
+      data = data.filter(p => p.dueDate && p.dueDate.startsWith(this.historySearchDate));
+    }
+
+    // Sort by due date
+    data.sort((a, b) => {
+      const da = new Date(a.dueDate).getTime();
+      const db = new Date(b.dueDate).getTime();
+      return this.historySortDir === 'asc' ? da - db : db - da;
+    });
+
+    return data;
+  }
+
+  get historyTotalPages(): number {
+    return Math.ceil(this.filteredHistory.length / this.historyPageSize) || 1;
+  }
+  get pagedHistory(): PaymentHistoryResponseDto[] {
+    const start = (this.historyPage - 1) * this.historyPageSize;
+    return this.filteredHistory.slice(start, start + this.historyPageSize);
+  }
+  get historyPages(): number[] {
+    return Array.from({ length: this.historyTotalPages }, (_, i) => i + 1);
+  }
+  goHistoryPage(page: number): void {
+    if (page >= 1 && page <= this.historyTotalPages) this.historyPage = page;
+  }
+  toggleHistorySort(): void {
+    this.historySortDir = this.historySortDir === 'asc' ? 'desc' : 'asc';
+    this.historyPage = 1;
+  }
+  onHistorySearch(): void {
+    this.historyPage = 1;
+  }
+
+  // ── Pagination — Amortization ─────────────────────────
+  get amortTotalPages(): number {
+    return Math.ceil(this.amortizationRows.length / this.amortPageSize) || 1;
+  }
+  get pagedAmortization(): AmortizationRow[] {
+    const start = (this.amortPage - 1) * this.amortPageSize;
+    return this.amortizationRows.slice(start, start + this.amortPageSize);
+  }
+  get amortPages(): number[] {
+    return Array.from({ length: this.amortTotalPages }, (_, i) => i + 1);
+  }
+  goAmortPage(page: number): void {
+    if (page >= 1 && page <= this.amortTotalPages) this.amortPage = page;
+  }
+
   // ── Ouverture modal → étape confirmation ─────────────
   openStripeModal(): void {
     if (!this.currentInstallment) return;
@@ -288,6 +359,7 @@ export class ClientRepayments implements OnInit {
     this.stripeLoadingIntent  = false;
     this.stripePaymentLoading = false;
     this.stripeClientSecret   = null;
+    this.mountRetries         = 0;
     this.stripeModalOpen      = true;
     this.cdr.detectChanges();
   }
@@ -331,11 +403,13 @@ export class ClientRepayments implements OnInit {
           this.stripeInstance = Stripe(res.publishableKey);
         }
         this.cdr.detectChanges();
-        setTimeout(() => this.mountCardElement(), 120);
+        // Wait for Angular to render the 'card' step DOM, then mount
+        setTimeout(() => this.mountCardElement(), 300);
       },
-      error: () => {
+      error: (err) => {
+        console.error('[Stripe] PaymentIntent error:', err);
         this.stripeLoadingIntent = false;
-        this.stripeError = 'Impossible d\'initialiser le paiement. Réessayez.';
+        this.stripeError = 'Unable to initialize payment. Please try again.';
         this.stripeStep  = 'confirm';
         this.cdr.detectChanges();
       },
@@ -344,40 +418,68 @@ export class ClientRepayments implements OnInit {
 
   // ── Montage du CardElement ────────────────────────────
   private mountCardElement(): void {
-    if (!this.stripeInstance) return;
-    const container = document.getElementById('stripe-card-element');
-    if (!container) return;
+    if (!this.stripeInstance) {
+      console.error('[Stripe] No Stripe instance');
+      this.stripeError = 'Payment service unavailable. Please reload the page.';
+      this.cdr.detectChanges();
+      return;
+    }
 
-    // Détruire l'ancien si existant
+    const container = document.getElementById('stripe-card-element');
+    if (!container) {
+      if (this.mountRetries < 10) {
+        this.mountRetries++;
+        console.warn(`[Stripe] Container not found, retry ${this.mountRetries}/10`);
+        setTimeout(() => this.mountCardElement(), 300);
+      } else {
+        console.error('[Stripe] Container not found after 10 retries');
+        this.stripeError = 'Unable to load payment form. Please close and try again.';
+        this.cdr.detectChanges();
+      }
+      return;
+    }
+
+    this.mountRetries = 0;
+
+    // Destroy previous element if any
     if (this.stripeCardElement) {
-      this.stripeCardElement.destroy();
+      try { this.stripeCardElement.destroy(); } catch (_) {}
       this.stripeCardElement = null;
     }
 
-    const elements = this.stripeInstance.elements();
-    this.stripeCardElement = elements.create('card', {
-      hidePostalCode: true,
-      style: {
-        base: {
-          fontSize: '15px',
-          fontFamily: '"Plus Jakarta Sans", sans-serif',
-          color: '#1e293b',
-          '::placeholder': { color: '#94a3b8' },
-          iconColor: '#3b82f6',
-        },
-        invalid: { color: '#ef4444', iconColor: '#ef4444' },
-      },
-    });
+    // Clear container content before Stripe mounts
+    container.innerHTML = '';
 
-    this.stripeCardElement.mount('#stripe-card-element');
-    this.stripeCardElement.on('ready', () => {
-      this.stripeReady = true;
+    try {
+      const elements = this.stripeInstance.elements();
+      this.stripeCardElement = elements.create('card', {
+        hidePostalCode: true,
+        style: {
+          base: {
+            fontSize: '15px',
+            fontFamily: '"Plus Jakarta Sans", sans-serif',
+            color: '#1e293b',
+            '::placeholder': { color: '#94a3b8' },
+            iconColor: '#3b82f6',
+          },
+          invalid: { color: '#ef4444', iconColor: '#ef4444' },
+        },
+      });
+
+      this.stripeCardElement.mount(container);
+      this.stripeCardElement.on('ready', () => {
+        this.stripeReady = true;
+        this.cdr.detectChanges();
+      });
+      this.stripeCardElement.on('change', (e: any) => {
+        this.stripeError = e.error?.message ?? null;
+        this.cdr.detectChanges();
+      });
+    } catch (err) {
+      console.error('[Stripe] Mount error:', err);
+      this.stripeError = 'Payment form failed to load. Please try again.';
       this.cdr.detectChanges();
-    });
-    this.stripeCardElement.on('change', (e) => {
-      this.stripeError = e.error?.message ?? null;
-      this.cdr.detectChanges();
-    });
+    }
   }
 
   // ── Confirmation du paiement ──────────────────────────
@@ -457,7 +559,6 @@ export class ClientRepayments implements OnInit {
       this.stripeCardElement = null;
     }
     const justPaid            = this.stripePaymentSuccess;
-    this.stripeInstance       = null;
     this.stripeModalOpen      = false;
     this.stripePaymentSuccess = false;
     this.stripeError          = null;
@@ -713,6 +814,20 @@ export class ClientRepayments implements OnInit {
     return this.myGraceRequests.some(r => r.status === 'PENDING');
   }
 
+  // ── Spinning counter helpers ──────────────────────────
+  incrementGraceDays(): void {
+    if (this.graceRequestedDays < 15) this.graceRequestedDays++;
+  }
+  decrementGraceDays(): void {
+    if (this.graceRequestedDays > 1) this.graceRequestedDays--;
+  }
+  incrementAffectedCount(): void {
+    if (this.graceAffectedCount < this.maxAffectedInstallments) this.graceAffectedCount++;
+  }
+  decrementAffectedCount(): void {
+    if (this.graceAffectedCount > 1) this.graceAffectedCount--;
+  }
+
   // ── Export PDF ────────────────────────────────────────
   exportPdf(): void {
     if (!this.contract) return;
@@ -734,17 +849,22 @@ export class ClientRepayments implements OnInit {
     }).join('');
 
     const histRows = this.paymentHistory.length === 0
-      ? '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:1rem">No payments recorded.</td></tr>'
+      ? '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:1rem">No payments recorded.</td></tr>'
       : this.paymentHistory.map(p => {
           const t = this.getPaymentTiming(p);
           const tLabel = t === 'ontime' ? 'On Time' : t === 'tolerance' ? 'Tolerance' : 'Late';
           const tColor = t === 'ontime' ? '#16a34a' : t === 'tolerance' ? '#f59e0b' : '#ef4444';
           const payDate = p.paymentDate ? new Date(p.paymentDate).toLocaleDateString('fr-FR') : '—';
+          const pen = this.getAnyPenaltyForInstallment(p.installmentNumber);
+          const penCell = pen
+            ? `<span style="font-size:11px;font-weight:600;color:#dc2626">${pen.totalPenalty.toFixed(2)} TND</span><br><small style="color:#94a3b8">${pen.tierLabel} · ${pen.daysOverdue}d · ${pen.status}</small>`
+            : '<span style="color:#94a3b8">—</span>';
           return `
             <tr>
               <td>#PAY-${p.id}</td>
               <td>Installment #${p.installmentNumber}<br><small style="color:#94a3b8">${p.numeroContrat ?? ''}</small></td>
               <td>${Number(p.amountPaid).toFixed(2)} TND</td>
+              <td>${penCell}</td>
               <td>${payDate}</td>
               <td>${p.paymentMethod ?? '—'}</td>
               <td style="color:${tColor};font-weight:600">${tLabel}</td>
@@ -795,7 +915,7 @@ export class ClientRepayments implements OnInit {
 
   <h2>Payment History</h2>
   <table>
-    <thead><tr><th>Reference</th><th>Installment</th><th>Amount</th><th>Payment Date</th><th>Method</th><th>Timing</th></tr></thead>
+    <thead><tr><th>Reference</th><th>Installment</th><th>Amount</th><th>Penalty</th><th>Payment Date</th><th>Method</th><th>Timing</th></tr></thead>
     <tbody>${histRows}</tbody>
   </table>
 
