@@ -12,7 +12,6 @@ export interface LoanContractDto {
   datePremiereEcheance: string;
   firstPaymentDate: string;
   gracePeriodDays: number;
-  penaltyRatePerDay: number;
   monthlyPayment?: number;
 }
 
@@ -80,6 +79,7 @@ export class Credit {
   private readonly HISTORY_API  = 'http://localhost:8081/api/payment-history';
   private readonly STRIPE_API   = 'http://localhost:8081/api/stripe';
   private readonly SCHEDULE_API = 'http://localhost:8081/api/schedule-repayment';
+  private readonly PENALTY_API  = 'http://localhost:8081/api/penalties';
 
   constructor(private http: HttpClient) {}
 
@@ -121,6 +121,10 @@ export class Credit {
   getInstallments(loanContractId: number): Observable<InstallmentDto[]> {
     return this.http.get<InstallmentDto[]>(`${this.SCHEDULE_API}/installments/${loanContractId}`);
   }
+
+  getPenaltiesByContract(loanContractId: number): Observable<PenaltyDto[]> {
+    return this.http.get<PenaltyDto[]>(`${this.PENALTY_API}/by-contract/${loanContractId}`);
+  }
 }
 
 export interface InstallmentDto {
@@ -132,4 +136,26 @@ export interface InstallmentDto {
   interestPart: number;
   remainingBalance: number;
   status: string;    // 'PENDING' | 'PAID' | 'OVERDUE'
+}
+
+export interface PenaltyDto {
+  id: number;
+  installmentId: number;
+  installmentNumber: number;
+  installmentDueDate: string;
+  installmentAmountDue: number;
+  penaltyTier: string;       // 'TIER_1' | 'TIER_2' | 'TIER_3'
+  tierLabel: string;          // 'Retard leger' | 'Retard modere' | 'Retard grave'
+  daysOverdue: number;
+  penaltyRate: number;
+  penaltyAmount: number;
+  relanceFee: number;
+  totalPenalty: number;
+  cappedAt: number;
+  status: string;             // 'APPLIED' | 'PAID' | 'WAIVED'
+  appliedDate: string;
+  paidDate: string | null;
+  waivedByName: string | null;
+  waivedAt: string | null;
+  waivedReason: string | null;
 }

@@ -4,6 +4,7 @@ import {
   InstallmentDto,
   LoanContractDto,
   PaymentHistoryResponseDto,
+  PenaltyDto,
   StripePaymentIntentRequestDto,
 } from '../../../services/credit/credit.service';
 import { AuthService } from '../../../services/auth/auth.service';
@@ -67,6 +68,9 @@ export class ClientRepayments implements OnInit {
   paymentHistory: PaymentHistoryResponseDto[] = [];
   historyLoading = false;
 
+  // Penalties
+  penalties: PenaltyDto[] = [];
+
   // ── Modal Stripe ──────────────────────────────────────
   stripeModalOpen       = false;
   stripeLoadingIntent   = false;   // création du PaymentIntent
@@ -118,6 +122,7 @@ export class ClientRepayments implements OnInit {
             this.isLoading = false;
             this.findCurrentInstallment();
             this.loadPaymentHistory();
+            this.loadPenalties();
             this.loadMyGraceRequests();
             this.cdr.detectChanges();
           },
@@ -186,6 +191,29 @@ export class ClientRepayments implements OnInit {
       },
       error: () => { this.historyLoading = false; this.cdr.detectChanges(); },
     });
+  }
+
+  private loadPenalties(): void {
+    if (!this.contract) return;
+    this.creditService.getPenaltiesByContract(this.contract.id).subscribe({
+      next: (p) => {
+        this.penalties = p;
+        this.cdr.detectChanges();
+      },
+      error: () => {},
+    });
+  }
+
+  /** Get the active (APPLIED) penalty for a given installment number, or null */
+  getPenaltyForInstallment(num: number): PenaltyDto | null {
+    return this.penalties.find(p => p.installmentNumber === num && p.status === 'APPLIED') ?? null;
+  }
+
+  /** Total amount due for current installment (mensualite + penalty) */
+  get currentTotalDue(): number {
+    if (!this.currentInstallment) return 0;
+    const penalty = this.getPenaltyForInstallment(this.currentInstallment.num);
+    return this.currentInstallment.mensualite + (penalty ? penalty.totalPenalty : 0);
   }
 
   private checkCurrentInstallmentPaid(): void {
@@ -278,14 +306,20 @@ export class ClientRepayments implements OnInit {
     const d = this.currentInstallment.dateObj;
     const dueDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
+    const totalAmount = this.currentTotalDue;
+    const penalty = this.getPenaltyForInstallment(this.currentInstallment.num);
+    const desc = penalty
+      ? `Mensualité #${this.currentInstallment.num} + penalty ${penalty.tierLabel} — ${this.contract.numeroContrat ?? ''}`
+      : `Mensualité #${this.currentInstallment.num} — ${this.contract.numeroContrat ?? ''}`;
+
     const req: StripePaymentIntentRequestDto = {
-      amount:            Math.round(this.currentInstallment.mensualite * 100),
+      amount:            Math.round(totalAmount * 100),
       currency:          'eur',
       installmentNumber: this.currentInstallment.num,
       userId,
       loanContractId:    this.contract.id,
       dueDate,
-      description:       `Mensualité #${this.currentInstallment.num} — ${this.contract.numeroContrat ?? ''}`,
+      description:       desc,
     };
 
     this.creditService.createStripePaymentIntent(req).subscribe({
@@ -384,7 +418,7 @@ export class ClientRepayments implements OnInit {
       loanContractId:    this.contract.id,
       installmentNumber: this.currentInstallment.num,
       dueDate,
-      amountPaid:        this.currentInstallment.mensualite,
+      amountPaid:        this.currentTotalDue,
     }).subscribe({
       next: () => {
         this.currentInstallmentPaid = true;
