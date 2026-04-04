@@ -1226,6 +1226,149 @@
       </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════
+     PAGE : PILOTAGE FINANCIER — DASHBOARD
+     ═══════════════════════════════════════════════════════ -->
+<div class="page" [class.active]="selectedPage === 'financial-steering'" id="page-financial-steering">
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Pilotage Financier</div>
+      <div class="ph-title">Tableau de bord financier</div>
+      <div class="ph-desc">Analyse du portefeuille · Détection des risques · Recommandations</div>
+    </div>
+  </div>
+
+  <div *ngIf="steeringLoading" style="text-align:center;padding:3rem;color:var(--g400);">Chargement...</div>
+  <div *ngIf="steeringError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:1.5rem;color:var(--danger);font-weight:600;">
+    ⚠ Erreur lors du chargement. Vérifiez que le backend est démarré.
+  </div>
+
+  <ng-container *ngIf="!steeringLoading && !steeringError && steeringDashboard">
+
+    <!-- Alerte globale -->
+    <div style="padding:14px 20px;border-radius:10px;font-weight:600;font-size:.95rem;"
+         [style.background]="steeringDashboard.defaultAlert ? 'rgba(239,68,68,.1)' : 'rgba(16,185,129,.1)'"
+         [style.borderLeft]="steeringDashboard.defaultAlert ? '4px solid var(--danger)' : '4px solid var(--success)'"
+         [style.color]="steeringDashboard.defaultAlert ? 'var(--danger)' : 'var(--success)'">
+      {{ steeringDashboard.alertMessage }}
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row s2">
+      <div class="kpi" style="--kc:var(--success);">
+        <div class="kpi-top"><div class="kpi-ico" style="background:rgba(16,185,129,.12);">📥</div></div>
+        <div class="kpi-val" style="font-size:1.5rem;">{{ steeringDashboard.totalInflow | number:'1.0-0' }} <small style="font-size:1rem;">TND</small></div>
+        <div class="kpi-lbl">Total INFLOW</div>
+      </div>
+      <div class="kpi" style="--kc:var(--danger);">
+        <div class="kpi-top"><div class="kpi-ico" style="background:rgba(239,68,68,.12);">📤</div></div>
+        <div class="kpi-val" style="font-size:1.5rem;">{{ steeringDashboard.totalOutflow | number:'1.0-0' }} <small style="font-size:1rem;">TND</small></div>
+        <div class="kpi-lbl">Total OUTFLOW</div>
+      </div>
+      <div class="kpi" style="--kc:var(--warning);">
+        <div class="kpi-top"><div class="kpi-ico" style="background:rgba(245,158,11,.12);">⚠️</div></div>
+        <div class="kpi-val" [style.color]="getSteeringTauxColor(steeringDashboard.globalDefaultRate)">{{ steeringDashboard.globalDefaultRate }}%</div>
+        <div class="kpi-lbl">Taux de défaut global</div>
+      </div>
+      <div class="kpi" style="--kc:var(--blue);">
+        <div class="kpi-top"><div class="kpi-ico" style="background:rgba(59,130,246,.12);">📈</div></div>
+        <div class="kpi-val" [style.color]="steeringDashboard.rendement >= 0 ? 'var(--success)' : 'var(--danger)'">{{ steeringDashboard.rendement }}%</div>
+        <div class="kpi-lbl">Rendement</div>
+      </div>
+    </div>
+
+    <!-- Évolution mensuelle -->
+    <div class="panel s3">
+      <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Évolution du taux de défaut — Histoire financière</div></div>
+      <div class="panel-body">
+        <div *ngFor="let m of steeringDashboard.monthlyEvolution" style="margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:.375rem;">
+            <span style="font-weight:700;color:var(--g700);">{{ m.month }}</span>
+            <span style="font-weight:700;" [style.color]="getSteeringTauxColor(m.tauxDefaut)">{{ m.tauxDefaut }}% défaut</span>
+          </div>
+          <div style="background:var(--g100);border-radius:99px;height:10px;overflow:hidden;margin-bottom:.25rem;">
+            <div [style.width]="getSteeringBarWidth(m.tauxDefaut)"
+                 [style.background]="getSteeringTauxColor(m.tauxDefaut)"
+                 style="height:100%;border-radius:99px;transition:width .5s;"></div>
+          </div>
+          <div style="font-size:.775rem;color:var(--g400);">{{ m.enRetard }} contrats en retard sur {{ m.total }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analyse par segment -->
+    <div class="panel s4">
+      <div class="panel-head">
+        <div class="panel-title"><span class="ptdot"></span>Analyse par segment</div>
+        <div style="display:flex;align-items:center;gap:.75rem;margin-left:auto;">
+          <span style="font-size:.8rem;color:var(--g400);">Mois :</span>
+          <select class="form-input" style="width:160px;padding:.3rem .7rem;font-size:.8rem;"
+                  [(ngModel)]="steeringSelectedMonth" (ngModelChange)="onSteeringMonthChange()">
+            <option *ngFor="let m of steeringMonths" [value]="m.value">{{ m.label }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div style="display:flex;gap:.5rem;margin-bottom:1.25rem;">
+          <button class="btn" [ngClass]="steeringActiveTab === 'salary' ? 'btn-primary' : 'btn-outline'" style="font-size:.8rem;" (click)="steeringActiveTab = 'salary'">Par Salaire</button>
+          <button class="btn" [ngClass]="steeringActiveTab === 'region' ? 'btn-primary' : 'btn-outline'" style="font-size:.8rem;" (click)="steeringActiveTab = 'region'">Par Région</button>
+          <button class="btn" [ngClass]="steeringActiveTab === 'risk' ? 'btn-primary' : 'btn-outline'" style="font-size:.8rem;" (click)="steeringActiveTab = 'risk'">Indicateurs de Risque</button>
+        </div>
+
+        <!-- Salaire -->
+        <div *ngIf="steeringActiveTab === 'salary'">
+          <div *ngFor="let s of steeringSalarySegments" style="padding:1rem;border:1px solid var(--g200);border-radius:10px;margin-bottom:.75rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+              <span style="font-weight:700;color:var(--g700);font-size:.9rem;">{{ s.segment }}</span>
+              <span style="font-weight:800;font-size:1.1rem;" [style.color]="getSteeringTauxColor(s.tauxDefaut)">{{ s.tauxDefaut }}%</span>
+            </div>
+            <div style="background:var(--g100);border-radius:99px;height:8px;overflow:hidden;margin-bottom:.5rem;">
+              <div [style.width]="getSteeringBarWidth(s.tauxDefaut)" [style.background]="getSteeringTauxColor(s.tauxDefaut)" style="height:100%;border-radius:99px;"></div>
+            </div>
+            <div style="font-size:.775rem;color:var(--g400);margin-bottom:.5rem;">{{ s.enRetard }} en retard / {{ s.total }} total</div>
+            <div style="font-size:.8rem;color:var(--g600);background:var(--g50);padding:.5rem .75rem;border-radius:6px;border-left:3px solid var(--g300);">{{ s.recommendation }}</div>
+          </div>
+        </div>
+
+        <!-- Région -->
+        <div *ngIf="steeringActiveTab === 'region'">
+          <div *ngFor="let s of steeringRegionSegments" style="padding:1rem;border:1px solid var(--g200);border-radius:10px;margin-bottom:.75rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+              <span style="font-weight:700;color:var(--g700);font-size:.9rem;">{{ s.segment }}</span>
+              <span style="font-weight:800;font-size:1.1rem;" [style.color]="getSteeringTauxColor(s.tauxDefaut)">{{ s.tauxDefaut }}%</span>
+            </div>
+            <div style="background:var(--g100);border-radius:99px;height:8px;overflow:hidden;margin-bottom:.5rem;">
+              <div [style.width]="getSteeringBarWidth(s.tauxDefaut)" [style.background]="getSteeringTauxColor(s.tauxDefaut)" style="height:100%;border-radius:99px;"></div>
+            </div>
+            <div style="font-size:.775rem;color:var(--g400);margin-bottom:.5rem;">{{ s.enRetard }} en retard / {{ s.total }} total</div>
+            <div style="font-size:.8rem;color:var(--g600);background:var(--g50);padding:.5rem .75rem;border-radius:6px;border-left:3px solid var(--g300);">{{ s.recommendation }}</div>
+          </div>
+        </div>
+
+        <!-- Risque -->
+        <div *ngIf="steeringActiveTab === 'risk'">
+          <div *ngFor="let r of steeringRiskIndicators" style="padding:1rem;border:1px solid var(--g200);border-radius:10px;margin-bottom:.75rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+              <span style="font-weight:800;color:var(--g900);font-size:1rem;">{{ r.month }}</span>
+              <span class="badge" [ngClass]="getSteeringStatusClass(r.status)">{{ r.status }}</span>
+            </div>
+            <div style="display:flex;gap:1.5rem;margin-bottom:.75rem;font-size:.85rem;flex-wrap:wrap;">
+              <div><span style="color:var(--g400);">Montant à risque : </span><strong>{{ r.atRiskAmount | number:'1.0-0' }} TND</strong></div>
+              <div><span style="color:var(--g400);">% Risque : </span><strong [style.color]="getSteeringTauxColor(r.riskPercentage)">{{ r.riskPercentage }}%</strong></div>
+              <div><span style="color:var(--g400);">Retard moyen : </span><strong>{{ r.avgDelayDays }} jours</strong></div>
+            </div>
+            <div style="font-size:.825rem;color:var(--g500);font-style:italic;margin-bottom:.5rem;">{{ r.constat }}</div>
+            <div style="font-size:.8rem;color:var(--g600);background:var(--g50);padding:.5rem .75rem;border-radius:6px;border-left:3px solid var(--g300);margin-bottom:.5rem;">{{ r.recommendation }}</div>
+            <div style="font-size:.775rem;color:var(--g500);background:var(--g50);padding:.5rem .75rem;border-radius:6px;"><strong>Procédure :</strong> {{ r.procedure }}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+</div>
+
 
     <!-- ═══════════════════════════════════════════════════════
          MODAL — DÉCISION DOSSIER

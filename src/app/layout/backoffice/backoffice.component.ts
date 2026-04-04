@@ -12,6 +12,7 @@ import { CashMovementService, CashMovement } from '../../services/steering/cash-
 import { CampaignSegmentLinkService } from '../../services/marketing/campaign-segment-link.service';
 import { CampaignCreditLinkService } from '../../services/marketing/campaign-credit-link.service';
 import { CampaignCreditLink } from '../../models/marketing.model';
+import { DashboardService, FinancialSteeringDashboard, DefaultRateSegmentDTO, RiskIndicatorDTO } from '../../services/steering/dashboard.service';
 
 interface PipelineCard {
   name: string;
@@ -126,6 +127,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     private campaignSegmentLinkService: CampaignSegmentLinkService,
     private campaignCreditLinkService: CampaignCreditLinkService,
     private cashMovementService: CashMovementService,
+    private dashboardService: DashboardService,
   ) {}
 
   ngOnInit(): void {
@@ -167,16 +169,19 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   }
 
   onPageChange(page: string) {
-    this.selectedPage = page;
-    if (page === 'users') {
-      this.usersTab = 'users';
-      this.loadUsers();
-      this.loadLogs();
-    }
-    if (page === 'clients') {
-      this.loadClients();
-    }
+  this.selectedPage = page;
+  if (page === 'users') {
+    this.usersTab = 'users';
+    this.loadUsers();
+    this.loadLogs();
   }
+  if (page === 'clients') {
+    this.loadClients();
+  }
+  if (page === 'financial-steering') {
+    this.loadSteeringDashboard();
+  }
+}
 
   switchUsersTab(tab: 'users' | 'logs'): void {
     this.usersTab = tab;
@@ -463,6 +468,20 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   selectedTreasuryId: number | null = null;
   movements: CashMovement[] = [];
   showMovementForm = false;
+  /* ── Financial Steering Dashboard ── */
+  steeringDashboard: FinancialSteeringDashboard | null = null;
+  steeringLoading = false;
+  steeringError = false;
+  steeringSelectedMonth = '2025-01';
+  steeringActiveTab: 'salary' | 'region' | 'risk' = 'salary';
+  steeringSalarySegments: DefaultRateSegmentDTO[] = [];
+  steeringRegionSegments: DefaultRateSegmentDTO[] = [];
+  steeringRiskIndicators: RiskIndicatorDTO[] = [];
+  steeringMonths = [
+    { value: '2025-01', label: 'Janvier 2025' },
+    { value: '2025-03', label: 'Mars 2025' },
+    { value: '2025-05', label: 'Mai 2025' }
+  ];
   movementError = '';
   movementForm: any = {
     treasuryAccountId: null, movementDirection: 'INFLOW',
@@ -563,7 +582,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.simulationError = '';
   }
 
-  
+
   saveSimulation() {
     if (this.savingSimulation) return;
     this.savingSimulation = true;
@@ -845,4 +864,50 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   requestMoreInfo() { console.log("More info requested", this.decisionNote); }
   goCredits() { console.log('Navigate credits'); }
   toggleConfig(key: string): void { if (this.notificationsConfig && key in this.notificationsConfig) this.notificationsConfig[key] = !this.notificationsConfig[key]; }
+
+
+  loadSteeringDashboard(): void {
+  this.steeringLoading = true;
+  this.steeringError = false;
+  this.dashboardService.getFullDashboard().subscribe({
+    next: (data) => {
+      this.steeringDashboard = data;
+      this.steeringSalarySegments = data.defaultBySalary;
+      this.steeringRegionSegments = data.defaultByRegion;
+      this.steeringRiskIndicators = data.riskIndicators;
+      this.steeringLoading = false;
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.steeringError = true;
+      this.steeringLoading = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+onSteeringMonthChange(): void {
+  this.dashboardService.getDefaultRateBySalary(this.steeringSelectedMonth).subscribe(
+    data => { this.steeringSalarySegments = data; this.cdr.detectChanges(); }
+  );
+  this.dashboardService.getDefaultRateByRegion(this.steeringSelectedMonth).subscribe(
+    data => { this.steeringRegionSegments = data; this.cdr.detectChanges(); }
+  );
+}
+
+getSteeringStatusClass(status: string): string {
+  if (status === 'CRITICAL') return 'b-danger';
+  if (status === 'WARNING') return 'b-review';
+  return 'b-actif';
+}
+
+getSteeringTauxColor(taux: number): string {
+  if (taux >= 40) return 'var(--danger)';
+  if (taux >= 20) return 'var(--warning)';
+  return 'var(--success)';
+}
+
+getSteeringBarWidth(taux: number): string {
+  return Math.min(taux, 100) + '%';
+}
 }

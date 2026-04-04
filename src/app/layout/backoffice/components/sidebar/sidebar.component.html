@@ -47,7 +47,7 @@
         </svg>
       </div>
       Alertes & Notifs
-      
+
     </button>
 
     <!-- Gestion -->
@@ -65,7 +65,7 @@
         </svg>
       </div>
       Clients
-      
+
     </button>
 
     <button
@@ -79,7 +79,7 @@
         </svg>
       </div>
       Crédits & Dossiers
-      
+
     </button>
 
     <button
@@ -133,7 +133,7 @@
         </svg>
       </div>
       Risque & Score
-      
+
     </button>
 
     <button
@@ -182,6 +182,17 @@
 <!-- Pilotage Financier -->
 <div class="sb-section">Pilotage Financier</div>
 
+<button
+  class="sb-item"
+  [ngClass]="{ 'active': currentPage === 'financial-steering' }"
+  (click)="switchPage('financial-steering')">
+  <div class="sb-ico">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+    </svg>
+  </div>
+  Tableau de bord
+</button>
 <button
   class="sb-item"
   [ngClass]="{ 'active': currentPage === 'indicators' }"
