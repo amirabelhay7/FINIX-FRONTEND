@@ -1,0 +1,85 @@
+<div class="charts-container">
+
+  <div class="charts-header">
+    <div>
+      <div class="charts-eyebrow">Financial Steering</div>
+      <div class="charts-title">Visual Dashboard</div>
+      <div class="charts-desc">Portfolio analysis · Risk detection · Trends</div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="charts-loading">Loading charts...</div>
+  <div *ngIf="error" class="charts-error">⚠ Error loading data. Check backend connection.</div>
+
+  <ng-container *ngIf="!loading && !error && dashboard">
+
+    <!-- KPI Summary -->
+    <div class="kpi-summary">
+      <div class="kpi-box green">
+        <div class="kpi-box-label">Total INFLOW</div>
+        <div class="kpi-box-value">{{ dashboard.totalInflow | number:'1.0-0' }} TND</div>
+      </div>
+      <div class="kpi-box red">
+        <div class="kpi-box-label">Total OUTFLOW</div>
+        <div class="kpi-box-value">{{ dashboard.totalOutflow | number:'1.0-0' }} TND</div>
+      </div>
+      <div class="kpi-box" [class.orange]="dashboard.globalDefaultRate >= 20" [class.green]="dashboard.globalDefaultRate < 20">
+        <div class="kpi-box-label">Global Default Rate</div>
+        <div class="kpi-box-value">{{ dashboard.globalDefaultRate }}%</div>
+      </div>
+      <div class="kpi-box" [class.red]="dashboard.rendement < 0" [class.green]="dashboard.rendement >= 0">
+        <div class="kpi-box-label">Yield</div>
+        <div class="kpi-box-value">{{ dashboard.rendement }}%</div>
+      </div>
+    </div>
+
+    <!-- Alert Banner -->
+    <div class="alert-banner" [class.alert-danger]="dashboard.defaultAlert" [class.alert-ok]="!dashboard.defaultAlert">
+      {{ dashboard.alertMessage }}
+    </div>
+
+    <!-- Row 1: Line + Bar -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <canvas #defaultRateChart></canvas>
+      </div>
+      <div class="chart-card">
+        <canvas #cashFlowChart></canvas>
+      </div>
+    </div>
+
+    <!-- Row 2: Horizontal bar -->
+    <div class="charts-row single">
+      <div class="chart-card wide">
+        <canvas #riskChart></canvas>
+      </div>
+    </div>
+
+    <!-- Row 3: Two Donuts -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <canvas #salaryPieChart></canvas>
+      </div>
+      <div class="chart-card">
+        <canvas #regionPieChart></canvas>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="reco-section">
+      <div class="reco-title">🎯 Key Recommendations</div>
+      <div class="reco-grid">
+        <div *ngFor="let r of dashboard.riskIndicators" class="reco-card"
+             [class.reco-critical]="r.status === 'CRITICAL'"
+             [class.reco-warning]="r.status === 'WARNING'"
+             [class.reco-normal]="r.status === 'NORMAL'">
+          <div class="reco-month">{{ r.month }} — <span>{{ r.status }}</span></div>
+          <div class="reco-constat">{{ r.constat }}</div>
+          <div class="reco-text">{{ r.recommendation }}</div>
+          <div class="reco-procedure">📋 {{ r.procedure }}</div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

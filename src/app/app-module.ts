@@ -1,4 +1,4 @@
-import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -15,6 +15,7 @@ import { TopbarComponent } from './layout/backoffice/components/topbar/topbar.co
 import { BackofficeComponent } from './layout/backoffice/backoffice.component';
 import { authInterceptor } from './services/auth/auth.interceptor';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
+import { SteeringModule } from './features/steering/steering.module';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized
     FormsModule,
     SharedModule,
     AuthModule,
+    SteeringModule,
   ],
   providers: [
     provideHttpClient(withInterceptors([authInterceptor])),

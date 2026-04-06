@@ -74,6 +74,10 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   /* ── Marketing ── */
   campaigns: MarketingCampaign[] = [];
+  campaignPage = 0;
+  campaignPageSize = 5;
+  campaignTotalPages = 0;
+  pagedCampaigns: MarketingCampaign[] = [];
   segments: CustomerSegment[] = [];
   segmentsWithCampaigns: SegmentWithCampaignsDTO[] = [];
   indicators: FinancialIndicator[] = [];
@@ -180,6 +184,9 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   }
   if (page === 'financial-steering') {
     this.loadSteeringDashboard();
+  }
+  if (page === 'financial-steering-charts') {
+  // pas besoin de charger, le composant charge seul
   }
 }
 
@@ -490,8 +497,44 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   // ── Load methods ──
   loadCampaigns(): void {
-    this.campaignService.getAll().subscribe({ next: data => this.campaigns = data, error: err => console.error('Campaigns error', err) });
+  this.campaignService.getAll().subscribe({
+    next: data => {
+      this.campaigns = data;
+      this.campaignPage = 0;
+      this.updatePagedCampaigns();
+    },
+    error: err => console.error('Campaigns error', err)
+  });
+}
+
+updatePagedCampaigns(): void {
+  const start = this.campaignPage * this.campaignPageSize;
+  this.pagedCampaigns = this.campaigns.slice(start, start + this.campaignPageSize);
+  this.campaignTotalPages = Math.ceil(this.campaigns.length / this.campaignPageSize);
+}
+
+campaignNextPage(): void {
+  if (this.campaignPage < this.campaignTotalPages - 1) {
+    this.campaignPage++;
+    this.updatePagedCampaigns();
   }
+}
+
+campaignPrevPage(): void {
+  if (this.campaignPage > 0) {
+    this.campaignPage--;
+    this.updatePagedCampaigns();
+  }
+}
+
+campaignGoToPage(page: number): void {
+  this.campaignPage = page;
+  this.updatePagedCampaigns();
+}
+
+get campaignPages(): number[] {
+  return Array.from({ length: this.campaignTotalPages }, (_, i) => i);
+}
 
   loadSegments(): void {
     this.segmentService.getAll().subscribe({ next: data => this.segments = data, error: err => console.error('Segments error', err) });
