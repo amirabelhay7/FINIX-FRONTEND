@@ -1,0 +1,81 @@
+<div class="adv-container">
+
+  <div class="adv-header">
+    <div class="adv-eyebrow">Financial Steering — Advanced Analytics</div>
+    <div class="adv-title">Performance Indicators</div>
+    <div class="adv-desc">Yield · Gain Rate · Client Growth · Sharpe Ratio</div>
+  </div>
+
+  <div *ngIf="loading" class="adv-loading">Loading indicators...</div>
+  <div *ngIf="error"   class="adv-error">⚠ Failed to load advanced indicators. Check backend.</div>
+
+  <ng-container *ngIf="!loading && !error && data">
+
+    <!-- ── 1. YIELD ─────────────────────────────────────────────────── -->
+    <div class="adv-section">
+      <div class="adv-section-title">📈 Yield — Gain / Funds</div>
+      <div class="adv-chart-card">
+        <canvas #yieldChart></canvas>
+      </div>
+      <div class="adv-interpretation" [class.interp-success]="data.yieldInterpretation.includes('Excellent')"
+                                       [class.interp-warning]="data.yieldInterpretation.includes('Moderate')"
+                                       [class.interp-danger]="data.yieldInterpretation.includes('Low')">
+        <span class="interp-icon">💡</span>
+        <span>{{ data.yieldInterpretation }}</span>
+      </div>
+    </div>
+
+    <!-- ── 2. GAIN RATE ─────────────────────────────────────────────── -->
+    <div class="adv-section">
+      <div class="adv-section-title">💰 Gain Rate — Monthly Profitability</div>
+      <div class="adv-chart-card">
+        <canvas #gainRateChart></canvas>
+      </div>
+      <div class="adv-interpretation" [class.interp-success]="data.gainRateInterpretation.includes('improving')"
+                                       [class.interp-warning]="data.gainRateInterpretation.includes('stable')"
+                                       [class.interp-danger]="data.gainRateInterpretation.includes('declining')">
+        <span class="interp-icon">💡</span>
+        <span>{{ data.gainRateInterpretation }}</span>
+      </div>
+    </div>
+
+    <!-- ── 3. CLIENT GROWTH ─────────────────────────────────────────── -->
+    <div class="adv-section">
+      <div class="adv-section-title">👥 Client Growth — Acquisition Strategy</div>
+      <div class="adv-chart-card">
+        <canvas #clientGrowthChart></canvas>
+      </div>
+      <div class="adv-interpretation" [class.interp-success]="data.clientGrowthInterpretation.includes('Strong')"
+                                       [class.interp-warning]="data.clientGrowthInterpretation.includes('Moderate')"
+                                       [class.interp-danger]="data.clientGrowthInterpretation.includes('shrinking')">
+        <span class="interp-icon">💡</span>
+        <span>{{ data.clientGrowthInterpretation }}</span>
+      </div>
+    </div>
+
+    <!-- ── 4. SHARPE RATIO ──────────────────────────────────────────── -->
+    <div class="adv-section">
+      <div class="adv-section-title">⚖️ Sharpe Ratio — Risk-Adjusted Return</div>
+      <div class="sharpe-card">
+        <div class="sharpe-formula">Sharpe = Mean(Yield) / σ(Yield)</div>
+        <div class="sharpe-value" [style.color]="getSharpeColor()">
+          {{ data.sharpeRatio | number:'1.2-2' }}
+        </div>
+        <div class="sharpe-badge"
+             [class.badge-success]="data.sharpeRatio > 1.5"
+             [class.badge-warning]="data.sharpeRatio > 0.8 && data.sharpeRatio <= 1.5"
+             [class.badge-danger]="data.sharpeRatio <= 0.8">
+          {{ data.sharpeRatio > 1.5 ? 'EXCELLENT' : data.sharpeRatio > 0.8 ? 'ACCEPTABLE' : 'POOR' }}
+        </div>
+      </div>
+      <div class="adv-interpretation"
+           [class.interp-success]="data.sharpeInterpretation.includes('Strong')"
+           [class.interp-warning]="data.sharpeInterpretation.includes('Acceptable')"
+           [class.interp-danger]="data.sharpeInterpretation.includes('Poor')">
+        <span class="interp-icon">💡</span>
+        <span>{{ data.sharpeInterpretation }}</span>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

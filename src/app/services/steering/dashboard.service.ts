@@ -44,6 +44,19 @@ export interface FinancialSteeringDashboard {
   defaultBySalary: DefaultRateSegmentDTO[];
   defaultByRegion: DefaultRateSegmentDTO[];
 }
+  // ─── Nouvelle interface ────────────────────────────────────────────────────
+export interface AdvancedIndicatorsDTO {
+  months: string[];
+  yieldRates: number[];
+  yieldInterpretation: string;
+  gainRates: number[];
+  gainRateInterpretation: string;
+  clientCounts: number[];
+  clientGrowthRates: number[];
+  clientGrowthInterpretation: string;
+  sharpeRatio: number;
+  sharpeInterpretation: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -70,4 +83,9 @@ export class DashboardService {
   getRiskIndicators(): Observable<RiskIndicatorDTO[]> {
     return this.http.get<RiskIndicatorDTO[]>(`${this.url}/risk-indicators`);
   }
+
+  getAdvancedIndicators(): Observable<AdvancedIndicatorsDTO> {
+    return this.http.get<AdvancedIndicatorsDTO>(`${this.url}/advanced-indicators`);
+  }
+
 }

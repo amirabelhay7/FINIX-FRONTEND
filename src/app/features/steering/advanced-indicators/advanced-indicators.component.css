@@ -1,0 +1,34 @@
+.adv-container { padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+.adv-eyebrow   { font-size: .75rem; font-weight: 700; color: var(--g400); text-transform: uppercase; letter-spacing: .08em; }
+.adv-title     { font-size: 1.75rem; font-weight: 800; color: var(--g900); font-family: 'Sora', sans-serif; }
+.adv-desc      { font-size: .875rem; color: var(--g400); margin-top: .25rem; }
+.adv-loading, .adv-error { text-align: center; padding: 3rem; color: var(--g400); font-size: .9rem; }
+.adv-error     { color: var(--danger); font-weight: 600; }
+
+.adv-section        { display: flex; flex-direction: column; gap: .875rem; }
+.adv-section-title  { font-size: 1rem; font-weight: 700; color: var(--g800); padding-bottom: .5rem; border-bottom: 2px solid var(--g100); }
+.adv-chart-card     { background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 1.25rem; }
+
+/* Interpretation cards */
+.adv-interpretation {
+  display: flex; align-items: flex-start; gap: .75rem;
+  padding: .875rem 1.125rem; border-radius: 10px;
+  font-size: .875rem; font-weight: 500; line-height: 1.5;
+}
+.interp-icon    { font-size: 1.1rem; flex-shrink: 0; margin-top: .1rem; }
+.interp-success { background: rgba(16,185,129,.08);  border-left: 4px solid #10B981; color: #065f46; }
+.interp-warning { background: rgba(245,158,11,.08);  border-left: 4px solid #F59E0B; color: #92400e; }
+.interp-danger  { background: rgba(239,68,68,.08);   border-left: 4px solid #EF4444; color: #991b1b; }
+
+/* Sharpe Ratio card */
+.sharpe-card {
+  display: flex; flex-direction: column; align-items: center; gap: .75rem;
+  background: #fff; border: 1px solid var(--g200); border-radius: 12px;
+  padding: 2rem; text-align: center;
+}
+.sharpe-formula { font-size: .8rem; color: var(--g400); font-family: monospace; background: var(--g50); padding: .25rem .75rem; border-radius: 6px; }
+.sharpe-value   { font-size: 3.5rem; font-weight: 900; font-family: 'Sora', sans-serif; }
+.sharpe-badge   { font-size: .75rem; font-weight: 800; padding: .35rem 1rem; border-radius: 99px; letter-spacing: .06em; }
+.badge-success  { background: rgba(16,185,129,.15); color: #065f46; }
+.badge-warning  { background: rgba(245,158,11,.15); color: #92400e; }
+.badge-danger   { background: rgba(239,68,68,.15);  color: #991b1b; }

@@ -14,6 +14,7 @@ import { CampaignCreditLinkService } from '../../services/marketing/campaign-cre
 import { CampaignCreditLink } from '../../models/marketing.model';
 import { DashboardService, FinancialSteeringDashboard, DefaultRateSegmentDTO, RiskIndicatorDTO } from '../../services/steering/dashboard.service';
 
+
 interface PipelineCard {
   name: string;
   ref: string;
@@ -118,7 +119,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   clients: any[] = [];
   clientsLoading = false;
 
- constructor(
+  constructor(
     private renderer: Renderer2,
     private router: Router,
     private http: HttpClient,
@@ -134,22 +135,22 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     private dashboardService: DashboardService,
   ) {}
 
+  // ─────────────────────────────────────────────────────────────
+  // FIX: suppression du second campaignService.getAll() en double.
+  // loadCampaigns() appelle déjà getAll() puis loadSegmentsWithCampaigns().
+  // ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
+    console.log('>>> BackofficeComponent ngOnInit <<<', new Date().getTime());
+    console.trace();
     const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
     this.currentTheme = saved || 'light';
     this.applyTheme();
-    this.loadCampaigns();
+    this.loadCampaigns();      // charge campaigns + déclenche loadSegmentsWithCampaigns()
     this.loadSegments();
     this.loadIndicators();
     this.loadTreasuryAccounts();
     this.loadSimulations();
-    this.campaignService.getAll().subscribe({
-      next: data => {
-        this.campaigns = data;
-        this.loadSegmentsWithCampaigns();
-      },
-      error: err => console.error('Campaigns error', err)
-    });
+    // ← le second campaignService.getAll().subscribe() a été supprimé ici
   }
 
   ngOnDestroy(): void {
@@ -173,22 +174,19 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   }
 
   onPageChange(page: string) {
-  this.selectedPage = page;
-  if (page === 'users') {
-    this.usersTab = 'users';
-    this.loadUsers();
-    this.loadLogs();
+    this.selectedPage = page;
+    if (page === 'users') {
+      this.usersTab = 'users';
+      this.loadUsers();
+      this.loadLogs();
+    }
+    if (page === 'clients') {
+      this.loadClients();
+    }
+    if (page === 'financial-steering') {
+      this.loadSteeringDashboard();
+    }
   }
-  if (page === 'clients') {
-    this.loadClients();
-  }
-  if (page === 'financial-steering') {
-    this.loadSteeringDashboard();
-  }
-  if (page === 'financial-steering-charts') {
-  // pas besoin de charger, le composant charge seul
-  }
-}
 
   switchUsersTab(tab: 'users' | 'logs'): void {
     this.usersTab = tab;
@@ -223,9 +221,9 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     action.subscribe({
       next: () => { this.loadCampaigns(); this.closeCampaignModal(); },
       error: err => {
-        if (err.status === 409) this.campaignError = 'Ce nom de campagne existe déjà.';
-        else if (err.status === 400) this.campaignError = err.error?.message || 'Données invalides.';
-        else this.campaignError = 'Une erreur est survenue. Réessayez.';
+        if (err.status === 409) this.campaignError = 'A campaign with this name already exists.';
+        else if (err.status === 400) this.campaignError = err.error?.message || 'Invalid data.';
+        else this.campaignError = 'An error occurred. Please try again.';
       }
     });
   }
@@ -263,9 +261,9 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       this.segmentService.update(this.editingSegmentId, this.segmentForm).subscribe({
         next: () => { this.loadSegments(); this.loadSegmentsWithCampaigns(); this.closeSegmentModal(); },
         error: err => {
-          if (err.status === 409) this.segmentError = 'Ce nom de segment existe déjà.';
-          else if (err.status === 400) this.segmentError = err.error?.message || 'Données invalides.';
-          else this.segmentError = 'Une erreur est survenue.';
+          if (err.status === 409) this.segmentError = 'A segment with this name already exists.';
+          else if (err.status === 400) this.segmentError = err.error?.message || 'Invalid data.';
+          else this.segmentError = 'An error occurred.';
         }
       });
     } else {
@@ -282,9 +280,9 @@ export class BackofficeComponent implements OnInit, OnDestroy {
           this.loadSegmentsWithCampaigns();
         },
         error: err => {
-          if (err.status === 409) this.segmentError = 'Ce nom de segment existe déjà.';
-          else if (err.status === 400) this.segmentError = err.error?.message || 'Données invalides.';
-          else this.segmentError = 'Une erreur est survenue.';
+          if (err.status === 409) this.segmentError = 'A segment with this name already exists.';
+          else if (err.status === 400) this.segmentError = err.error?.message || 'Invalid data.';
+          else this.segmentError = 'An error occurred.';
         }
       });
     }
@@ -299,6 +297,22 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         this.loadSegmentsWithCampaigns();
       },
       error: err => console.error('Delete segment error', err)
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // FIX: loadCampaigns déclenche maintenant loadSegmentsWithCampaigns()
+  // après avoir reçu les données — plus de double appel getAll().
+  // ─────────────────────────────────────────────────────────────
+  loadCampaigns(): void {
+    this.campaignService.getAll().subscribe({
+      next: data => {
+        this.campaigns = data;
+        this.campaignPage = 0;
+        this.updatePagedCampaigns();
+        this.loadSegmentsWithCampaigns(); // déclenché ici, une seule fois
+      },
+      error: err => console.error('Campaigns error', err)
     });
   }
 
@@ -328,6 +342,39 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       },
       error: (err) => console.error('Error loading segments', err)
     });
+  }
+
+  updatePagedCampaigns(): void {
+    const start = this.campaignPage * this.campaignPageSize;
+    this.pagedCampaigns = this.campaigns.slice(start, start + this.campaignPageSize);
+    this.campaignTotalPages = Math.ceil(this.campaigns.length / this.campaignPageSize);
+  }
+
+  campaignNextPage(): void {
+    if (this.campaignPage < this.campaignTotalPages - 1) {
+      this.campaignPage++;
+      this.updatePagedCampaigns();
+    }
+  }
+
+  campaignPrevPage(): void {
+    if (this.campaignPage > 0) {
+      this.campaignPage--;
+      this.updatePagedCampaigns();
+    }
+  }
+
+  campaignGoToPage(page: number): void {
+    this.campaignPage = page;
+    this.updatePagedCampaigns();
+  }
+
+  get campaignPages(): number[] {
+    return Array.from({ length: this.campaignTotalPages }, (_, i) => i);
+  }
+
+  loadSegments(): void {
+    this.segmentService.getAll().subscribe({ next: data => this.segments = data, error: err => console.error('Segments error', err) });
   }
 
   // ── Segment Assignment ──
@@ -421,9 +468,9 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         });
       },
       error: err => {
-        if (err.status === 409) this.creditLinkError = 'Ce crédit est déjà lié à une campagne.';
-        else if (err.status === 400) this.creditLinkError = err.error?.message || 'Données invalides.';
-        else this.creditLinkError = 'Une erreur est survenue.';
+        if (err.status === 409) this.creditLinkError = 'This credit is already linked to a campaign.';
+        else if (err.status === 400) this.creditLinkError = err.error?.message || 'Invalid data.';
+        else this.creditLinkError = 'An error occurred.';
       }
     });
   }
@@ -444,7 +491,6 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   }
 
   // ── Steering ──
- /* ── Steering ── */
   savingIndicator = false;
   savingTreasury = false;
   savingSimulation = false;
@@ -475,6 +521,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   selectedTreasuryId: number | null = null;
   movements: CashMovement[] = [];
   showMovementForm = false;
+
   /* ── Financial Steering Dashboard ── */
   steeringDashboard: FinancialSteeringDashboard | null = null;
   steeringLoading = false;
@@ -485,9 +532,9 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   steeringRegionSegments: DefaultRateSegmentDTO[] = [];
   steeringRiskIndicators: RiskIndicatorDTO[] = [];
   steeringMonths = [
-    { value: '2025-01', label: 'Janvier 2025' },
-    { value: '2025-03', label: 'Mars 2025' },
-    { value: '2025-05', label: 'Mai 2025' }
+    { value: '2025-01', label: 'January 2025' },
+    { value: '2025-03', label: 'March 2025' },
+    { value: '2025-05', label: 'May 2025' }
   ];
   movementError = '';
   movementForm: any = {
@@ -495,51 +542,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     description: '', amount: null
   };
 
-  // ── Load methods ──
-  loadCampaigns(): void {
-  this.campaignService.getAll().subscribe({
-    next: data => {
-      this.campaigns = data;
-      this.campaignPage = 0;
-      this.updatePagedCampaigns();
-    },
-    error: err => console.error('Campaigns error', err)
-  });
-}
-
-updatePagedCampaigns(): void {
-  const start = this.campaignPage * this.campaignPageSize;
-  this.pagedCampaigns = this.campaigns.slice(start, start + this.campaignPageSize);
-  this.campaignTotalPages = Math.ceil(this.campaigns.length / this.campaignPageSize);
-}
-
-campaignNextPage(): void {
-  if (this.campaignPage < this.campaignTotalPages - 1) {
-    this.campaignPage++;
-    this.updatePagedCampaigns();
-  }
-}
-
-campaignPrevPage(): void {
-  if (this.campaignPage > 0) {
-    this.campaignPage--;
-    this.updatePagedCampaigns();
-  }
-}
-
-campaignGoToPage(page: number): void {
-  this.campaignPage = page;
-  this.updatePagedCampaigns();
-}
-
-get campaignPages(): number[] {
-  return Array.from({ length: this.campaignTotalPages }, (_, i) => i);
-}
-
-  loadSegments(): void {
-    this.segmentService.getAll().subscribe({ next: data => this.segments = data, error: err => console.error('Segments error', err) });
-  }
-  // ── Indicateur ──
+  // ── Indicator ──
   openIndicatorForm() {
     this.indicatorForm = { name: '', referenceIndicator: '', value: null, warningThreshold: null, criticalThreshold: null };
     this.indicatorError = '';
@@ -551,21 +554,20 @@ get campaignPages(): number[] {
     this.indicatorError = '';
   }
 
-
   saveIndicator() {
     if (this.savingIndicator) return;
     this.savingIndicator = true;
     this.indicatorService.add(this.indicatorForm).subscribe({
       next: () => { this.loadIndicators(); this.closeIndicatorForm(); this.savingIndicator = false; },
       error: err => {
-        if (err.status === 400) this.indicatorError = err.error?.message || JSON.stringify(err.error?.errors) || 'Données invalides.';
-        else this.indicatorError = 'Une erreur est survenue.';
+        if (err.status === 400) this.indicatorError = err.error?.message || JSON.stringify(err.error?.errors) || 'Invalid data.';
+        else this.indicatorError = 'An error occurred.';
         this.savingIndicator = false;
       }
     });
   }
 
-  // ── Trésorerie ──
+  // ── Treasury ──
   openTreasuryForm() {
     this.treasuryForm = { name: '', type: 'MAIN', initialBalance: null, currentBalance: null, currency: 'TND' };
     this.editingTreasuryId = null;
@@ -586,7 +588,6 @@ get campaignPages(): number[] {
     this.editingTreasuryId = null;
   }
 
-
   saveTreasury() {
     if (this.savingTreasury) return;
     this.savingTreasury = true;
@@ -594,8 +595,8 @@ get campaignPages(): number[] {
       this.treasuryService.update(this.editingTreasuryId, this.treasuryUpdateForm).subscribe({
         next: () => { this.loadTreasuryAccounts(); this.closeTreasuryForm(); this.savingTreasury = false; },
         error: err => {
-          if (err.status === 400) this.treasuryError = err.error?.message || 'Données invalides.';
-          else this.treasuryError = 'Une erreur est survenue.';
+          if (err.status === 400) this.treasuryError = err.error?.message || 'Invalid data.';
+          else this.treasuryError = 'An error occurred.';
           this.savingTreasury = false;
         }
       });
@@ -604,9 +605,9 @@ get campaignPages(): number[] {
       this.treasuryService.add(this.treasuryForm).subscribe({
         next: () => { this.loadTreasuryAccounts(); this.closeTreasuryForm(); this.savingTreasury = false; },
         error: err => {
-          if (err.status === 400) this.treasuryError = err.error?.message || 'Données invalides.';
-          else if (err.status === 409) this.treasuryError = 'Un compte de ce type et cette devise existe déjà.';
-          else this.treasuryError = 'Une erreur est survenue.';
+          if (err.status === 400) this.treasuryError = err.error?.message || 'Invalid data.';
+          else if (err.status === 409) this.treasuryError = 'An account of this type and currency already exists.';
+          else this.treasuryError = 'An error occurred.';
           this.savingTreasury = false;
         }
       });
@@ -625,21 +626,20 @@ get campaignPages(): number[] {
     this.simulationError = '';
   }
 
-
   saveSimulation() {
     if (this.savingSimulation) return;
     this.savingSimulation = true;
     this.simulationService.add(this.simulationForm).subscribe({
       next: () => { this.loadSimulations(); this.closeSimulationForm(); this.savingSimulation = false; },
       error: err => {
-        if (err.status === 400) this.simulationError = err.error?.message || 'Données invalides.';
-        else this.simulationError = 'Une erreur est survenue.';
+        if (err.status === 400) this.simulationError = err.error?.message || 'Invalid data.';
+        else this.simulationError = 'An error occurred.';
         this.savingSimulation = false;
       }
     });
   }
 
-  // ── Mouvements ──
+  // ── Movements ──
   viewMovements(id: any) {
     this.selectedTreasuryId = id;
     this.showMovementsPanel = true;
@@ -677,8 +677,8 @@ get campaignPages(): number[] {
         });
       },
       error: err => {
-        if (err.status === 400) this.movementError = err.error?.message || 'Données invalides.';
-        else this.movementError = 'Une erreur est survenue.';
+        if (err.status === 400) this.movementError = err.error?.message || 'Invalid data.';
+        else this.movementError = 'An error occurred.';
       }
     });
   }
@@ -695,7 +695,7 @@ get campaignPages(): number[] {
     this.simulationService.getAll().subscribe({ next: data => this.simulations = data, error: err => console.error('Simulations error', err) });
   }
 
-  // ── Clients API (Emna) ──
+  // ── Clients API ──
   loadClients(): void {
     this.clientsLoading = true;
     this.http.get<any[]>(`${this.API}/users`).subscribe({
@@ -714,7 +714,7 @@ get campaignPages(): number[] {
     });
   }
 
-  // ── Logs API (Emna) ──
+  // ── Logs API ──
   loadLogs(): void {
     this.logsLoading = true;
     this.http.get<any[]>(`${this.API}/users/logs`).subscribe({
@@ -723,7 +723,7 @@ get campaignPages(): number[] {
     });
   }
 
-  // ── Users API (Emna) ──
+  // ── Users API ──
   loadUsers(): void {
     this.usersLoading = true;
     this.http.get<any[]>(`${this.API}/users`).subscribe({
@@ -754,8 +754,8 @@ get campaignPages(): number[] {
 
   submitUser(): void {
     this.addUserError = '';
-    if (!this.newUser.firstName || !this.newUser.lastName || !this.newUser.email) { this.addUserError = 'Veuillez remplir tous les champs obligatoires.'; return; }
-    if (!this.editingUserId && !this.newUser.password) { this.addUserError = 'Le mot de passe est obligatoire pour un nouveau compte.'; return; }
+    if (!this.newUser.firstName || !this.newUser.lastName || !this.newUser.email) { this.addUserError = 'Please fill in all required fields.'; return; }
+    if (!this.editingUserId && !this.newUser.password) { this.addUserError = 'Password is required for a new account.'; return; }
     this.addUserLoading = true;
     if (this.editingUserId) {
       const payload: any = { firstName: this.newUser.firstName, lastName: this.newUser.lastName, email: this.newUser.email, phoneNumber: this.newUser.phoneNumber ? Number(this.newUser.phoneNumber) : null, address: this.newUser.address || null, city: this.newUser.city || null, role: this.newUser.role };
@@ -764,7 +764,7 @@ get campaignPages(): number[] {
       else if (this.newUser.role === 'INSURER') { payload.insurerName = this.newUser.insurerName; payload.insurerEmail = this.newUser.insurerEmail; }
       this.http.put(`${this.API}/users/${this.editingUserId}`, payload).subscribe({
         next: () => { this.addUserLoading = false; this.showUserModal = false; this.cdr.detectChanges(); this.loadUsers(); },
-        error: (err: any) => { this.addUserLoading = false; this.addUserError = err.error?.message || 'Erreur lors de la mise à jour.'; this.cdr.detectChanges(); }
+        error: (err: any) => { this.addUserLoading = false; this.addUserError = err.error?.message || 'Error updating user.'; this.cdr.detectChanges(); }
       });
     } else {
       const payload: any = { firstName: this.newUser.firstName, lastName: this.newUser.lastName, email: this.newUser.email, password: this.newUser.password, role: this.newUser.role, phoneNumber: this.newUser.phoneNumber ? Number(this.newUser.phoneNumber) : null };
@@ -772,7 +772,7 @@ get campaignPages(): number[] {
       else if (this.newUser.role === 'INSURER') { payload.insurerName = this.newUser.insurerName; payload.insurerEmail = this.newUser.insurerEmail; }
       this.http.post(`${this.API}/auth/register`, payload).subscribe({
         next: () => { this.addUserLoading = false; this.showUserModal = false; this.cdr.detectChanges(); this.loadUsers(); },
-        error: (err: any) => { this.addUserLoading = false; this.addUserError = err.error?.message || err.message || 'Erreur lors de la création.'; this.cdr.detectChanges(); }
+        error: (err: any) => { this.addUserLoading = false; this.addUserError = err.error?.message || err.message || 'Error creating user.'; this.cdr.detectChanges(); }
       });
     }
   }
@@ -790,58 +790,58 @@ get campaignPages(): number[] {
 
   // ── Static data ──
   dossiers = [
-    { ref: '#CR-2025-043', initials: 'BM', client: 'Bilel Mrabet', clientSince: 'Client depuis 2021', type: 'Immobilier', amount: '85 000 TND', score: '742', scoreColor: '#2ECC71', status: 'En analyse', statusClass: 'b-review' },
-    { ref: '#CR-2025-051', initials: 'LB', client: 'Leila Bourguiba', clientSince: 'Client depuis 2023', type: 'Automobile', amount: '32 500 TND', score: '610', scoreColor: '#F39C12', status: 'En analyse', statusClass: 'b-review' },
-    { ref: '#CR-2025-059', initials: 'KH', client: 'Karim Hadj', clientSince: 'Nouveau client', type: 'Consommation', amount: '8 000 TND', score: '520', scoreColor: '#E74C3C', status: 'En attente', statusClass: 'b-pending' }
+    { ref: '#CR-2025-043', initials: 'BM', client: 'Bilel Mrabet', clientSince: 'Client since 2021', type: 'Real estate', amount: '85,000 TND', score: '742', scoreColor: '#2ECC71', status: 'Under review', statusClass: 'b-review' },
+    { ref: '#CR-2025-051', initials: 'LB', client: 'Leila Bourguiba', clientSince: 'Client since 2023', type: 'Car loan', amount: '32,500 TND', score: '610', scoreColor: '#F39C12', status: 'Under review', statusClass: 'b-review' },
+    { ref: '#CR-2025-059', initials: 'KH', client: 'Karim Hadj', clientSince: 'New client', type: 'Consumption', amount: '8,000 TND', score: '520', scoreColor: '#E74C3C', status: 'Pending', statusClass: 'b-pending' }
   ];
 
   activities = [
-    { title: "Remboursement reçu — <b>Bilel Mrabet</b>", meta: "Il y a 4 min · Virement · #PAY-2026-028", value: "850 TND", color: "text-success", dotColor: "var(--success)" },
-    { title: "Nouveau dossier soumis — <b>Karim Hadj</b>", meta: "Il y a 18 min · Consommation", value: "8 000 TND", color: "", dotColor: "var(--blue)" },
-    { title: "Impayé détecté — <b>Farouk Ben Ali</b>", meta: "Il y a 1h · #CR-2024-018 · J+3", value: "310 TND", color: "text-danger", dotColor: "var(--danger)" },
-    { title: "Assurance renouvelée — <b>Amira Selmi</b>", meta: "Il y a 2h · STAR · Toyota Corolla", value: "1 200 TND", color: "text-success", dotColor: "var(--success)" }
+    { title: "Payment received — <b>Bilel Mrabet</b>", meta: "4 min ago · Transfer · #PAY-2026-028", value: "850 TND", color: "text-success", dotColor: "var(--success)" },
+    { title: "New file submitted — <b>Karim Hadj</b>", meta: "18 min ago · Consumption", value: "8,000 TND", color: "", dotColor: "var(--blue)" },
+    { title: "Default detected — <b>Farouk Ben Ali</b>", meta: "1h ago · #CR-2024-018 · D+3", value: "310 TND", color: "text-danger", dotColor: "var(--danger)" },
+    { title: "Insurance renewed — <b>Amira Selmi</b>", meta: "2h ago · STAR · Toyota Corolla", value: "1,200 TND", color: "text-success", dotColor: "var(--success)" }
   ];
 
   topAgents = [
-    { rank: 1, initials: "SA", name: "Sami Allani", desc: "18 dossiers approuvés", score: "98%", scoreClass: "text-success" },
-    { rank: 2, initials: "RK", name: "Rania Khelifi", desc: "14 dossiers approuvés", score: "91%", scoreClass: "text-warning" },
-    { rank: 3, initials: "MN", name: "Mohamed Naifar", desc: "11 dossiers approuvés", score: "87%", scoreClass: "text-blue" }
+    { rank: 1, initials: "SA", name: "Sami Allani", desc: "18 approved files", score: "98%", scoreClass: "text-success" },
+    { rank: 2, initials: "RK", name: "Rania Khelifi", desc: "14 approved files", score: "91%", scoreClass: "text-warning" },
+    { rank: 3, initials: "MN", name: "Mohamed Naifar", desc: "11 approved files", score: "87%", scoreClass: "text-blue" }
   ];
 
-  chartBars = [55,70,85,60,75,90,65,80,70,95,88,100];
+  chartBars = [55, 70, 85, 60, 75, 90, 65, 80, 70, 95, 88, 100];
 
   creditDistribution = [
-    { name:"Automobile", value:20, pct:"42%", color:"#3B82F6" },
-    { name:"Immobilier", value:12, pct:"26%", color:"#06B6D4" },
-    { name:"Consommation", value:10, pct:"21%", color:"#8B5CF6" },
-    { name:"Autres", value:5, pct:"11%", color:"#CBD5E1" }
+    { name: "Car loan", value: 20, pct: "42%", color: "#3B82F6" },
+    { name: "Real estate", value: 12, pct: "26%", color: "#06B6D4" },
+    { name: "Consumption", value: 10, pct: "21%", color: "#8B5CF6" },
+    { name: "Other", value: 5, pct: "11%", color: "#CBD5E1" }
   ];
 
   delinquencies = [
-    { initials: "FB", name: "Farouk Ben Ali", city: "Tunis", phone: "+216 20 111 222", dossier: "#CR-2024-018", product: "Consommation · 24 mois", amount: "310 TND", delay: "J+3", risk: "Modéré", sms: "1 SMS · 0 appel" },
-    { initials: "HG", name: "Hanen Gharbi", city: "Sfax", phone: "+216 24 333 444", dossier: "#CR-2023-092", product: "Automobile · 60 mois", amount: "890 TND", delay: "J+14", risk: "Élevé", sms: "3 SMS · 2 appels" }
+    { initials: "FB", name: "Farouk Ben Ali", city: "Tunis", phone: "+216 20 111 222", dossier: "#CR-2024-018", product: "Consumption · 24 months", amount: "310 TND", delay: "D+3", risk: "Moderate", sms: "1 SMS · 0 call" },
+    { initials: "HG", name: "Hanen Gharbi", city: "Sfax", phone: "+216 24 333 444", dossier: "#CR-2023-092", product: "Car loan · 60 months", amount: "890 TND", delay: "D+14", risk: "High", sms: "3 SMS · 2 calls" }
   ];
 
   pipelineColumns: PipelineColumn[] = [
-    { title: "New", class: "ph-new", count: 8, cards: [{ name: "Karim Hadj", ref: "#CR-2025-059", amount: "8 000 TND", type: "Consumption" }, { name: "Marwa Ferchichi", ref: "#CR-2025-062", amount: "15 000 TND", type: "Car loan" }, { name: "Nizar Jlassi", ref: "#CR-2025-064", amount: "6 500 TND", type: "Consumption" }] },
-    { title: "Analysis", class: "ph-analysis", count: 12, cards: [{ name: "Bilel Mrabet", ref: "#CR-2025-043", amount: "85 000 TND", type: "Real estate · 48h+", warn: true }, { name: "Leila Bourguiba", ref: "#CR-2025-051", amount: "32 500 TND", type: "Car loan · 48h+", warn: true }, { name: "Sonia Karray", ref: "#CR-2025-055", amount: "12 000 TND", type: "Consumption" }] }
+    { title: "New", class: "ph-new", count: 8, cards: [{ name: "Karim Hadj", ref: "#CR-2025-059", amount: "8,000 TND", type: "Consumption" }, { name: "Marwa Ferchichi", ref: "#CR-2025-062", amount: "15,000 TND", type: "Car loan" }, { name: "Nizar Jlassi", ref: "#CR-2025-064", amount: "6,500 TND", type: "Consumption" }] },
+    { title: "Analysis", class: "ph-analysis", count: 12, cards: [{ name: "Bilel Mrabet", ref: "#CR-2025-043", amount: "85,000 TND", type: "Real estate · 48h+", warn: true }, { name: "Leila Bourguiba", ref: "#CR-2025-051", amount: "32,500 TND", type: "Car loan · 48h+", warn: true }, { name: "Sonia Karray", ref: "#CR-2025-055", amount: "12,000 TND", type: "Consumption" }] }
   ];
 
   analysisFiles = [
-    { ref: "#CR-2025-043", initials: "BM", name: "Bilel Mrabet", clientInfo: "Loyal client · 5 years", type: "Real estate", amount: "85 000 TND", duration: "180 months", score: 742, debtRatio: 28, seniority: "5 years", recommendation: "Favorable" },
-    { ref: "#CR-2025-051", initials: "LB", name: "Leila Bourguiba", clientInfo: "Client · 2 years", type: "Car loan", amount: "32 500 TND", duration: "60 months", score: 610, debtRatio: 41, seniority: "2 years", recommendation: "To analyze" }
+    { ref: "#CR-2025-043", initials: "BM", name: "Bilel Mrabet", clientInfo: "Loyal client · 5 years", type: "Real estate", amount: "85,000 TND", duration: "180 months", score: 742, debtRatio: 28, seniority: "5 years", recommendation: "Favorable" },
+    { ref: "#CR-2025-051", initials: "LB", name: "Leila Bourguiba", clientInfo: "Client · 2 years", type: "Car loan", amount: "32,500 TND", duration: "60 months", score: 610, debtRatio: 41, seniority: "2 years", recommendation: "To analyze" }
   ];
 
   payments = [
-    { ref: "#PAY-2026-028", client: "Bilel Mrabet", file: "#CR-2024-001", fileType: "Auto Loan", amount: "260 TND", date: "28 Feb 2026", mode: "Transfer", status: "Paid", agent: "Auto" },
+    { ref: "#PAY-2026-028", client: "Bilel Mrabet", file: "#CR-2024-001", fileType: "Car loan", amount: "260 TND", date: "28 Feb 2026", mode: "Transfer", status: "Paid", agent: "Auto" },
     { ref: "#PAY-2026-027", client: "Bilel Mrabet", file: "#CR-2024-018", fileType: "Consumption", amount: "310 TND", date: "28 Feb 2026", mode: "Direct Debit", status: "Paid", agent: "Auto" },
     { ref: "#PAY-2026-024", client: "Amira Selmi", file: "#CR-2024-015", fileType: "Consumption", amount: "420 TND", date: "25 Feb 2026", mode: "Cash", status: "Paid", agent: "Sami A." },
-    { ref: "#PAY-2026-019", client: "Farouk Ben Ali", file: "#CR-2024-018", fileType: "Consumption", amount: "310 TND", date: "J+3", mode: "", status: "Pending", agent: "Rania K." }
+    { ref: "#PAY-2026-019", client: "Farouk Ben Ali", file: "#CR-2024-018", fileType: "Consumption", amount: "310 TND", date: "D+3", mode: "", status: "Pending", agent: "Rania K." }
   ];
 
   riskAlerts = [
-    { initials: "FB", name: "Farouk Ben Ali", score: 468, motif: "Overdue J+3", encours: "7,800 TND", actionLabel: "Process", badgeClass: "b-danger" },
-    { initials: "HG", name: "Hanen Gharbi", score: 412, motif: "Overdue J+14", encours: "12,400 TND", actionLabel: "Legal", badgeClass: "b-danger" },
+    { initials: "FB", name: "Farouk Ben Ali", score: 468, motif: "Overdue D+3", encours: "7,800 TND", actionLabel: "Process", badgeClass: "b-danger" },
+    { initials: "HG", name: "Hanen Gharbi", score: 412, motif: "Overdue D+14", encours: "12,400 TND", actionLabel: "Legal", badgeClass: "b-danger" },
     { initials: "RK", name: "Ridha Khelil", score: 538, motif: "Debt ratio 58%", encours: "19,200 TND", actionLabel: "Analyze", badgeClass: "b-review" }
   ];
 
@@ -854,16 +854,16 @@ get campaignPages(): number[] {
   ];
 
   notificationsCritical = [
-    { title: "Critical overdue — Hanen Gharbi — J+14", meta: "2 hours ago · #CR-2023-092 · 890 TND · Action required", type: "danger" },
+    { title: "Critical overdue — Hanen Gharbi — D+14", meta: "2 hours ago · #CR-2023-092 · 890 TND · Action required", type: "danger" },
     { title: "File waiting > 48h — #CR-2025-043 — Bilel Mrabet", meta: "3 hours ago · Real estate · 85,000 TND · Decision required", type: "warning" },
-    { title: "Insurance expired — Toyota Corolla — Bilel Mrabet", meta: "5 hours ago · STAR-2025-048291 · Expire in 2 days", type: "danger" }
+    { title: "Insurance expired — Toyota Corolla — Bilel Mrabet", meta: "5 hours ago · STAR-2025-048291 · Expires in 2 days", type: "danger" }
   ];
 
   notificationsRecent = [
     { title: "Payment received — Bilel Mrabet — 850 TND", meta: "4 min ago · Bank transfer · #PAY-2026-028", color: "success" },
     { title: "New file submitted — Karim Hadj", meta: "18 min ago · Consumption · 8,000 TND", color: "blue" },
     { title: "New client registered — Marwa Ferchichi", meta: "3 hours ago · Web channel · Sfax · KYC pending", color: "purple" },
-    { title: "File approved — Amira Selmi — #CR-2025-037", meta: "Yesterday 16:42 · Automobile · 45,000 TND", color: "success" },
+    { title: "File approved — Amira Selmi — #CR-2025-037", meta: "Yesterday 16:42 · Car loan · 45,000 TND", color: "success" },
     { title: "Monthly report January 2026 available", meta: "Yesterday 08:00 · Auto generated", color: "blue" }
   ];
 
@@ -874,15 +874,15 @@ get campaignPages(): number[] {
   ];
 
   vehicles = [
-    { plate: "267 TN 2022", name: "Toyota Corolla", desc: "Auto · Petrol · 2022", owner: "Bilel Mrabet", credit: "#CR-2024-001", value: "42 000 TND", km: "32 450 km", insurance: "⚠ 2 days", status: "Insured", statusClass: "b-review" },
-    { plate: "158 TN 2019", name: "Kia Picanto", desc: "Manual · Petrol · 2019", owner: "Bilel Mrabet", credit: "Settled ✓", value: "18 500 TND", km: "78 200 km", insurance: "106 days", status: "Insured", statusClass: "b-actif" },
-    { plate: "445 TN 2021", name: "Volkswagen Golf", desc: "Auto · Diesel · 2021", owner: "Amira Selmi", credit: "#CR-2024-015", value: "58 000 TND", km: "41 200 km", insurance: "210 days", status: "Insured", statusClass: "b-actif" }
+    { plate: "267 TN 2022", name: "Toyota Corolla", desc: "Auto · Petrol · 2022", owner: "Bilel Mrabet", credit: "#CR-2024-001", value: "42,000 TND", km: "32,450 km", insurance: "⚠ 2 days", status: "Insured", statusClass: "b-review" },
+    { plate: "158 TN 2019", name: "Kia Picanto", desc: "Manual · Petrol · 2019", owner: "Bilel Mrabet", credit: "Settled ✓", value: "18,500 TND", km: "78,200 km", insurance: "106 days", status: "Insured", statusClass: "b-actif" },
+    { plate: "445 TN 2021", name: "Volkswagen Golf", desc: "Auto · Diesel · 2021", owner: "Amira Selmi", credit: "#CR-2024-015", value: "58,000 TND", km: "41,200 km", insurance: "210 days", status: "Insured", statusClass: "b-actif" }
   ];
 
   insuranceContracts = [
-    { number: "STAR-2025-048291", client: "Bilel Mrabet", vehicle: "Toyota Corolla 2022", insurer: "STAR Assurance", type: "All Risks", premium: "1 200 TND", expiry: "28 Feb 2026", delay: "⚠ 2 days", delayClass: "b-danger", actions: ["Renew", "View"] },
+    { number: "STAR-2025-048291", client: "Bilel Mrabet", vehicle: "Toyota Corolla 2022", insurer: "STAR Assurance", type: "All Risks", premium: "1,200 TND", expiry: "28 Feb 2026", delay: "⚠ 2 days", delayClass: "b-danger", actions: ["Renew", "View"] },
     { number: "GAT-2024-019384", client: "Sonia Karray", vehicle: "Renault Clio 2020", insurer: "GAT Assurance", type: "Third Party Extended", premium: "640 TND", expiry: "10 Mar 2026", delay: "⚠ 10 days", delayClass: "b-review", actions: ["Renew", "View"] },
-    { number: "MAGHREBIA-018742", client: "Hadi Jouini", vehicle: "Peugeot 208 2023", insurer: "Maghrebia", type: "All Risks", premium: "1 100 TND", expiry: "25 Mar 2026", delay: "25 days", delayClass: "b-pending", actions: ["Prepare", "View"] }
+    { number: "MAGHREBIA-018742", client: "Hadi Jouini", vehicle: "Peugeot 208 2023", insurer: "Maghrebia", type: "All Risks", premium: "1,100 TND", expiry: "25 Mar 2026", delay: "25 days", delayClass: "b-pending", actions: ["Prepare", "View"] }
   ];
 
   settingsUsers = [
@@ -894,8 +894,8 @@ get campaignPages(): number[] {
   notificationsConfig: any = { overdueSms: true, renewalReminder: true, monthlyReport: true, fileAlert: true, autoScoring: false };
 
   dossier = {
-    reference: '#CR-2025-043', status: 'In analysis', submittedDate: '26/02/2026',
-    client: { name: 'Bilel Mrabet', cin: '08 123 456', phone: '+216 20 123 456', email: 'bilel.mrabt@email.com' }
+    reference: '#CR-2025-043', status: 'Under review', submittedDate: '26/02/2026',
+    client: { name: 'Bilel Mrabet', cin: '08 123 456', phone: '+216 20 123 456', email: 'bilel.mrabet@email.com' }
   };
 
   selectedFile: any;
@@ -908,49 +908,48 @@ get campaignPages(): number[] {
   goCredits() { console.log('Navigate credits'); }
   toggleConfig(key: string): void { if (this.notificationsConfig && key in this.notificationsConfig) this.notificationsConfig[key] = !this.notificationsConfig[key]; }
 
-
   loadSteeringDashboard(): void {
-  this.steeringLoading = true;
-  this.steeringError = false;
-  this.dashboardService.getFullDashboard().subscribe({
-    next: (data) => {
-      this.steeringDashboard = data;
-      this.steeringSalarySegments = data.defaultBySalary;
-      this.steeringRegionSegments = data.defaultByRegion;
-      this.steeringRiskIndicators = data.riskIndicators;
-      this.steeringLoading = false;
-      this.cdr.detectChanges();
-    },
-    error: () => {
-      this.steeringError = true;
-      this.steeringLoading = false;
-      this.cdr.detectChanges();
-    }
-  });
-}
+    this.steeringLoading = true;
+    this.steeringError = false;
+    this.dashboardService.getFullDashboard().subscribe({
+      next: (data) => {
+        this.steeringDashboard = data;
+        this.steeringSalarySegments = data.defaultBySalary;
+        this.steeringRegionSegments = data.defaultByRegion;
+        this.steeringRiskIndicators = data.riskIndicators;
+        this.steeringLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.steeringError = true;
+        this.steeringLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
-onSteeringMonthChange(): void {
-  this.dashboardService.getDefaultRateBySalary(this.steeringSelectedMonth).subscribe(
-    data => { this.steeringSalarySegments = data; this.cdr.detectChanges(); }
-  );
-  this.dashboardService.getDefaultRateByRegion(this.steeringSelectedMonth).subscribe(
-    data => { this.steeringRegionSegments = data; this.cdr.detectChanges(); }
-  );
-}
+  onSteeringMonthChange(): void {
+    this.dashboardService.getDefaultRateBySalary(this.steeringSelectedMonth).subscribe(
+      data => { this.steeringSalarySegments = data; this.cdr.detectChanges(); }
+    );
+    this.dashboardService.getDefaultRateByRegion(this.steeringSelectedMonth).subscribe(
+      data => { this.steeringRegionSegments = data; this.cdr.detectChanges(); }
+    );
+  }
 
-getSteeringStatusClass(status: string): string {
-  if (status === 'CRITICAL') return 'b-danger';
-  if (status === 'WARNING') return 'b-review';
-  return 'b-actif';
-}
+  getSteeringStatusClass(status: string): string {
+    if (status === 'CRITICAL') return 'b-danger';
+    if (status === 'WARNING') return 'b-review';
+    return 'b-actif';
+  }
 
-getSteeringTauxColor(taux: number): string {
-  if (taux >= 40) return 'var(--danger)';
-  if (taux >= 20) return 'var(--warning)';
-  return 'var(--success)';
-}
+  getSteeringTauxColor(taux: number): string {
+    if (taux >= 40) return 'var(--danger)';
+    if (taux >= 20) return 'var(--warning)';
+    return 'var(--success)';
+  }
 
-getSteeringBarWidth(taux: number): string {
-  return Math.min(taux, 100) + '%';
-}
+  getSteeringBarWidth(taux: number): string {
+    return Math.min(taux, 100) + '%';
+  }
 }

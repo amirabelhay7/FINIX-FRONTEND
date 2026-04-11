@@ -7,10 +7,10 @@ import { FinancialSteeringChartsComponent } from './financial-steering-charts/fi
   imports: [
     CommonModule,
     FormsModule,
-    FinancialSteeringChartsComponent
+    FinancialSteeringChartsComponent,
   ],
   exports: [
-    FinancialSteeringChartsComponent
+    FinancialSteeringChartsComponent,
   ],
   providers: [DecimalPipe]
 })

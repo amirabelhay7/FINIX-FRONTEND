@@ -16,6 +16,7 @@ import { BackofficeComponent } from './layout/backoffice/backoffice.component';
 import { authInterceptor } from './services/auth/auth.interceptor';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 import { SteeringModule } from './features/steering/steering.module';
+import { AdvancedIndicatorsComponent } from './features/steering/advanced-indicators/advanced-indicators.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { SteeringModule } from './features/steering/steering.module';
     SharedModule,
     AuthModule,
     SteeringModule,
+    AdvancedIndicatorsComponent,
   ],
   providers: [
     provideHttpClient(withInterceptors([authInterceptor])),
