@@ -1023,6 +1023,20 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════════
+     PAGE : CONCENTRATION RISK ANALYZER — HHI
+     ═══════════════════════════════════════════════════════ -->
+    <div class="page" [class.active]="selectedPage === 'hhi-analyzer'" id="page-hhi-analyzer">
+      <div class="ph s1">
+        <div>
+          <div class="ph-eyebrow">Financial Steering</div>
+          <div class="ph-title">Concentration Risk Analyzer</div>
+          <div class="ph-desc">Herfindahl–Hirschman Index — portfolio structure diagnosis</div>
+        </div>
+      </div>
+      <app-hhi-analyzer></app-hhi-analyzer>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
          PAGE : TREASURY ACCOUNTS
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'treasury'" id="page-treasury">

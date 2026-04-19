@@ -174,18 +174,22 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   }
 
   onPageChange(page: string) {
-    this.selectedPage = page;
-    if (page === 'users') {
-      this.usersTab = 'users';
-      this.loadUsers();
-      this.loadLogs();
-    }
-    if (page === 'clients') {
-      this.loadClients();
-    }
-    if (page === 'financial-steering') {
-      this.loadSteeringDashboard();
-    }
+  this.selectedPage = page;
+  if (page === 'users') {
+    this.usersTab = 'users';
+    this.loadUsers();
+    this.loadLogs();
+  }
+  if (page === 'clients') {
+    this.loadClients();
+  }
+  if (page === 'financial-steering') {
+    this.loadSteeringDashboard();
+  }
+
+}
+  switchPage(page: string): void {
+  this.onPageChange(page);
   }
 
   switchUsersTab(tab: 'users' | 'logs'): void {

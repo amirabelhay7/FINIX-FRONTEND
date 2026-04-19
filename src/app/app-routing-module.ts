@@ -7,6 +7,7 @@ import { SellerLayout } from './layout/seller/seller';
 import { InsurerLayout } from './layout/insurer/insurer';
 import { roleGuard } from './core/guards/auth-guard';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
+import { HhiAnalyzerComponent } from './layout/backoffice/components/hhi-analyzer/hhi-analyzer.component';
 
 const routes: Routes = [
   {
@@ -24,6 +25,7 @@ const routes: Routes = [
       },
     ],
   },
+  { path: 'hhi-analyzer', component: HhiAnalyzerComponent },
   { path: 'vendeur', redirectTo: 'seller', pathMatch: 'full' },
   { path: 'vendeur/vendeur', redirectTo: 'seller', pathMatch: 'full' },
   {

@@ -17,6 +17,7 @@ import { authInterceptor } from './services/auth/auth.interceptor';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 import { SteeringModule } from './features/steering/steering.module';
 import { AdvancedIndicatorsComponent } from './features/steering/advanced-indicators/advanced-indicators.component';
+import { HhiAnalyzerComponent } from './layout/backoffice/components/hhi-analyzer/hhi-analyzer.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { AdvancedIndicatorsComponent } from './features/steering/advanced-indica
     TopbarComponent,
     UnauthorizedComponent,
     BackofficeComponent,
+
   ],
   imports: [
     BrowserModule,
@@ -38,6 +40,7 @@ import { AdvancedIndicatorsComponent } from './features/steering/advanced-indica
     AuthModule,
     SteeringModule,
     AdvancedIndicatorsComponent,
+    HhiAnalyzerComponent,
   ],
   providers: [
     provideHttpClient(withInterceptors([authInterceptor])),
