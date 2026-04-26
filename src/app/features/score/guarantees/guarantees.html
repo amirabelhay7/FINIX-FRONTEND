@@ -1,0 +1,142 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">My Guarantees</h1>
+            <p class="text-gray-500 text-sm font-medium">Social trust system - give and receive score guarantees</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <div class="flex items-center bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm text-xs space-x-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                <span class="font-medium text-gray-500">{{ getTotalReceivedPoints() + getTotalGivenPoints() }} Total Points</span>
+            </div>
+            <button class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md flex items-center" (click)="createGuarantee()">
+                <span class="material-symbols-outlined mr-2 text-[18px]">add</span>Create Guarantee
+            </button>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="border-b border-gray-200">
+        <nav class="flex space-x-8">
+            <button class="py-4 px-1 border-b-2 border-transparent font-medium text-sm text-[#135bec] hover:text-[#135bec] transition-colors" 
+                    [class.border-b-blue-500]="selectedTab === 'received'" (click)="selectTab('received')">
+                <span class="flex items-center space-x-2">
+                    <span class="material-symbols-outlined">download</span>
+                    Received ({{ receivedGuarantees.length }})
+                </span>
+            </button>
+            <button class="py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors" 
+                    [class.border-b-blue-500]="selectedTab === 'given'" (click)="selectTab('given')">
+                <span class="flex items-center space-x-2">
+                    <span class="material-symbols-outlined">upload</span>
+                    Given ({{ givenGuarantees.length }})
+                </span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Received Guarantees -->
+    <div class="space-y-6" *ngIf="selectedTab === 'received'">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-green-500 text-[20px]">download</span>
+                Received Guarantees
+            </h3>
+            <p class="text-sm text-gray-500">{{ getTotalReceivedPoints() }} points from {{ receivedGuarantees.length }} guarantees</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden group hover:shadow-md transition-all" 
+                 *ngFor="let guarantee of receivedGuarantees" (click)="viewGuaranteeDetail(guarantee)">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-900 text-lg mb-2">{{ guarantee.guarantorName }}</h4>
+                            <p class="text-sm text-gray-600 mb-1">Guarantor Score: {{ guarantee.guarantorScore }}</p>
+                            <p class="text-sm text-gray-500 mb-3">{{ guarantee.reason }}</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-black text-green-600">+{{ guarantee.pointsOffered }}</div>
+                            <div class="text-xs text-gray-400">points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-xs pt-3 border-t border-gray-100">
+                        <div>
+                            <p class="text-gray-500">Created {{ guarantee.createdAt }}</p>
+                            <p class="text-gray-500">Expires {{ guarantee.expiresAt }}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 bg-green-100 text-green-600 rounded-full">ACTIVE</span>
+                            <span class="text-green-600">Accepted {{ guarantee.acceptedAt }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Given Guarantees -->
+    <div class="space-y-6" *ngIf="selectedTab === 'given'">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-blue-500 text-[20px]">upload</span>
+                Given Guarantees
+            </h3>
+            <p class="text-sm text-gray-500">{{ getTotalGivenPoints() }} points from {{ givenGuarantees.length }} guarantees</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden group hover:shadow-md transition-all" 
+                 *ngFor="let guarantee of givenGuarantees" (click)="viewGuaranteeDetail(guarantee)">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-900 text-lg mb-2">{{ guarantee.beneficiaryName }}</h4>
+                            <p class="text-sm text-gray-600 mb-1">{{ guarantee.reason }}</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-black text-orange-600">-{{ guarantee.pointsOffered }}</div>
+                            <div class="text-xs text-gray-400">points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-xs pt-3 border-t border-gray-100">
+                        <div>
+                            <p class="text-gray-500">Created {{ guarantee.createdAt }}</p>
+                            <p class="text-gray-500">Expires {{ guarantee.expiresAt }}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 bg-{{ guarantee.status === 'ACTIVE' ? 'green' : 'yellow' }}-100 text-{{ guarantee.status === 'ACTIVE' ? 'green' : 'yellow' }}-600 rounded-full">
+                                {{ guarantee.status }}
+                            </span>
+                            <span class="text-{{ guarantee.status === 'ACTIVE' ? 'green' : 'yellow' }}-600">
+                                {{ guarantee.isAccepted ? 'Accepted ' + guarantee.acceptedAt : 'Pending' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="text-center py-12" *ngIf="selectedTab === 'received' && receivedGuarantees.length === 0">
+        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-gray-400 text-[32px]">handshake</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">No received guarantees</h3>
+        <p class="text-gray-500 text-sm">When other users trust you, they can offer guarantees that boost your score.</p>
+    </div>
+
+    <div class="text-center py-12" *ngIf="selectedTab === 'given' && givenGuarantees.length === 0">
+        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-gray-400 text-[32px]">volunteer_activism</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">No given guarantees</h3>
+        <p class="text-gray-500 text-sm">Help others by offering guarantees based on your credit score.</p>
+    </div>
+
+</div>

@@ -1,0 +1,286 @@
+<div class="page-body">
+  <div class="veh-toast" *ngIf="toastMessage" role="status" aria-live="polite">{{ toastMessage }}</div>
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Mes Véhicules</div>
+      <div class="ph-title">Parc automobile</div>
+      <div class="ph-desc">2 véhicules enregistrés · Tous assurés</div>
+    </div>
+    <div class="ph-actions">
+      <button class="btn btn-outline">🔍 Catalogue</button>
+      <button class="btn btn-primary">+ Ajouter un véhicule</button>
+    </div>
+  </div>
+
+  <div class="vehicle-grid s2">
+    <div class="vehicle-card">
+      <div class="vc-header">
+        <div>
+          <div class="vc-make">Toyota Corolla</div>
+          <div class="vc-model">Automatique · Essence</div>
+        </div>
+        <div class="vc-year">2022</div>
+      </div>
+      <div class="vc-body">
+        <div class="vc-grid">
+          <div class="vc-item"><div class="vi-lbl">Immatriculation</div><div class="vi-val">267 TN 2022</div></div>
+          <div class="vc-item"><div class="vi-lbl">Couleur</div><div class="vi-val">Blanc nacré</div></div>
+          <div class="vc-item"><div class="vi-lbl">Kilométrage</div><div class="vi-val">32 450 km</div></div>
+          <div class="vc-item"><div class="vi-lbl">Assurance</div><div class="vi-val" style="color:var(--success)">✓ Active</div></div>
+          <div class="vc-item"><div class="vi-lbl">Crédit lié</div><div class="vi-val">#CR-2024-001</div></div>
+          <div class="vc-item"><div class="vi-lbl">Valeur actuelle</div><div class="vi-val">42 000 TND</div></div>
+        </div>
+      </div>
+      <div class="vc-footer">
+        <span class="badge b-insured">🛡️ Assuré</span>
+        <div style="display:flex;gap:.5rem;">
+          <button class="btn btn-outline btn-xs">Documents</button>
+          <button class="btn btn-primary btn-xs">Détails</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="vehicle-card">
+      <div class="vc-header" style="background:var(--fx-vehicle-grad);">
+        <div>
+          <div class="vc-make">Kia Picanto</div>
+          <div class="vc-model">Manuelle · Essence</div>
+        </div>
+        <div class="vc-year">2019</div>
+      </div>
+      <div class="vc-body">
+        <div class="vc-grid">
+          <div class="vc-item"><div class="vi-lbl">Immatriculation</div><div class="vi-val">158 TN 2019</div></div>
+          <div class="vc-item"><div class="vi-lbl">Couleur</div><div class="vi-val">Gris métallisé</div></div>
+          <div class="vc-item"><div class="vi-lbl">Kilométrage</div><div class="vi-val">78 200 km</div></div>
+          <div class="vc-item"><div class="vi-lbl">Assurance</div><div class="vi-val" style="color:var(--success)">✓ Active</div></div>
+          <div class="vc-item"><div class="vi-lbl">Crédit lié</div><div class="vi-val">Soldé ✓</div></div>
+          <div class="vc-item"><div class="vi-lbl">Valeur actuelle</div><div class="vi-val">18 500 TND</div></div>
+        </div>
+      </div>
+      <div class="vc-footer">
+        <span class="badge b-insured">🛡️ Assuré</span>
+        <div style="display:flex;gap:.5rem;">
+          <button class="btn btn-outline btn-xs">Documents</button>
+          <button class="btn btn-primary btn-xs">Détails</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Catalog preview -->
+  <div class="panel s3">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot"></span>Catalogue — Véhicules disponibles à l'achat</div>
+      <button class="btn btn-ghost btn-sm">Voir tout le catalogue →</button>
+    </div>
+    <div class="panel-body">
+      <div class="catalog-grid">
+        <div class="cat-card" *ngFor="let v of catalogVehicles">
+          <div class="cat-img">{{ v.emoji }}</div>
+          <div class="cat-body">
+            <div class="cat-name">{{ v.marque }} {{ v.modele }}</div>
+            <div class="cat-sub">{{ v.subtitle }}</div>
+            <div class="cat-price">
+              {{ v.prixTnd }} TND
+              <small>ou {{ (v.prixTnd / maxDureeMois) | number:'1.0-0' }} TND/mois</small>
+            </div>
+          </div>
+          <div class="cat-foot">
+            <button class="btn btn-outline btn-xs" style="flex:1" (click)="openRequestLoanModal(v)">Simuler</button>
+            <button class="btn btn-primary btn-xs" style="flex:1" (click)="openRequestLoanModal(v)">Acheter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rl-overlay" *ngIf="showRequestLoanModal" (click)="closeRequestLoanModal()">
+    <div class="rl-modal" (click)="$event.stopPropagation()">
+      <div class="rl-head">
+        <div>
+          <div class="rl-title">Formulaire de demande de crédit voiture</div>
+          <div class="rl-sub">
+            {{ selectedVehicle?.marque }} {{ selectedVehicle?.modele }} · {{ selectedVehicle?.prixTnd }} TND · Réf {{ selectedVehicle?.reference }}
+          </div>
+        </div>
+        <button class="btn btn-outline btn-xs" (click)="closeRequestLoanModal()">Fermer</button>
+      </div>
+
+      <div class="rl-body">
+        <section class="rl-section">
+          <h4>1. Informations personnelles du demandeur</h4>
+          <div class="rl-grid">
+            <label class="rl-field rl-full">
+              <span>Nom complet</span>
+              <input class="form-input" type="text" [(ngModel)]="requestForm.fullName" />
+            </label>
+            <label class="rl-field">
+              <span>Date de naissance</span>
+              <input class="form-input" type="date" [(ngModel)]="requestForm.dateOfBirth" />
+            </label>
+            <label class="rl-field">
+              <span>Numéro CIN</span>
+              <input class="form-input" type="text" [(ngModel)]="requestForm.cinNumber" />
+            </label>
+            <label class="rl-field rl-full">
+              <span>Adresse</span>
+              <input class="form-input" type="text" [(ngModel)]="requestForm.address" />
+            </label>
+            <label class="rl-field">
+              <span>Téléphone</span>
+              <input class="form-input" type="text" [(ngModel)]="requestForm.phone" />
+            </label>
+            <label class="rl-field">
+              <span>Email</span>
+              <input class="form-input" type="email" [(ngModel)]="requestForm.email" />
+            </label>
+            <label class="rl-field">
+              <span>Situation familiale</span>
+              <select class="form-input" [(ngModel)]="requestForm.maritalStatus">
+                <option *ngFor="let option of maritalStatusOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </label>
+            <label class="rl-field">
+              <span>Type d’emploi</span>
+              <select class="form-input" [(ngModel)]="requestForm.employmentType">
+                <option *ngFor="let option of employmentOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </label>
+            <label class="rl-field rl-full">
+              <span>Revenu mensuel estimé (TND)</span>
+              <input class="form-input" type="number" min="0" [(ngModel)]="requestForm.estimatedMonthlyIncome" />
+            </label>
+          </div>
+        </section>
+
+        <section class="rl-section">
+          <h4>2. Informations du crédit demandé</h4>
+          <div class="rl-grid">
+            <label class="rl-field">
+              <span>Montant demandé (TND)</span>
+              <input class="form-input" type="number" [(ngModel)]="requestForm.montantDemande" readonly />
+            </label>
+            <label class="rl-field">
+              <span>Apport personnel (TND)</span>
+              <input
+                class="form-input"
+                type="number"
+                min="0"
+                [disabled]="!useApportPersonnel"
+                [(ngModel)]="requestForm.apportPersonnel"
+                (ngModelChange)="recalculateMensualite()"
+              />
+            </label>
+            <label class="rl-field rl-full check-line">
+              <input type="checkbox" [(ngModel)]="useApportPersonnel" (ngModelChange)="onUseApportPersonnelChange($event)" />
+              <span>Utiliser un apport personnel</span>
+            </label>
+            <label class="rl-field">
+              <span>Durée du crédit</span>
+              <select class="form-input" [(ngModel)]="requestForm.dureeMois" (ngModelChange)="recalculateMensualite()">
+                <option *ngFor="let option of dureeOptions" [ngValue]="option">{{ option }} mois</option>
+              </select>
+            </label>
+            <label class="rl-field">
+              <span>Mensualité estimée (TND)</span>
+              <input class="form-input" type="number" [value]="requestForm.mensualiteEstimee" readonly />
+            </label>
+            <label class="rl-field">
+              <span>Objectif du crédit</span>
+              <input class="form-input" type="text" [(ngModel)]="requestForm.objectifCredit" readonly />
+            </label>
+            <label class="rl-field">
+              <span>Type de remboursement souhaité</span>
+              <select class="form-input" [(ngModel)]="requestForm.repaymentType">
+                <option *ngFor="let option of repaymentTypeOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </label>
+            <label class="rl-field rl-full check-line">
+              <input type="checkbox" [(ngModel)]="requestForm.demandePeriodeGrace" />
+              <span>Demande de période de grâce</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="rl-section">
+          <h4>3. Véhicule sélectionné (automatique)</h4>
+          <div class="vehicle-auto-grid">
+            <div><strong>Marque:</strong> {{ selectedVehicle?.marque }}</div>
+            <div><strong>Modèle:</strong> {{ selectedVehicle?.modele }}</div>
+            <div><strong>Année:</strong> {{ selectedVehicle?.annee }}</div>
+            <div><strong>Prix du véhicule:</strong> {{ selectedVehicle?.prixTnd }} TND</div>
+            <div><strong>Vendeur:</strong> {{ selectedVehicle?.vendeur }}</div>
+            <div><strong>État:</strong> {{ selectedVehicle?.etat }}</div>
+            <div class="rl-full"><strong>Référence:</strong> {{ selectedVehicle?.reference }}</div>
+          </div>
+        </section>
+
+        <section class="rl-section">
+          <h4>4. Documents à téléverser</h4>
+          <div class="rl-grid">
+            <label class="rl-field">
+              <span>Carte d’identité nationale (CIN)</span>
+              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('cinDoc', $event)" />
+            </label>
+            <label class="rl-field">
+              <span>Fiche de paie récente</span>
+              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('payslipDoc', $event)" />
+            </label>
+            <label class="rl-field">
+              <span>Relevé bancaire des 3 derniers mois</span>
+              <input type="file" accept=".pdf" (change)="onSingleFileSelected('bankStatementDoc', $event)" />
+            </label>
+            <label class="rl-field">
+              <span>Attestation de travail / preuve d’activité</span>
+              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('workProofDoc', $event)" />
+            </label>
+            <label class="rl-field">
+              <span>Justificatif de domicile</span>
+              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('addressProofDoc', $event)" />
+            </label>
+            <label class="rl-field">
+              <span>Autres documents facultatifs</span>
+              <input type="file" multiple accept=".pdf,image/*" (change)="onOptionalFilesSelected($event)" />
+            </label>
+            <div class="rl-full optional-docs" *ngIf="uploadState.optionalDocs.length > 0">
+              <div class="doc-chip" *ngFor="let doc of uploadState.optionalDocs; let i = index">
+                {{ doc.name }}
+                <button type="button" (click)="removeOptionalDoc(i)">×</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="rl-section">
+          <h4>5. Vérification et consentement</h4>
+          <div class="consent-list">
+            <label class="check-line"><input type="checkbox" [(ngModel)]="requestForm.infoAccuracyConfirmed" /> Confirmation de l’exactitude des informations</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="requestForm.documentsCheckAuthorized" /> Autorisation de vérification des documents</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="requestForm.termsAccepted" /> Acceptation des conditions générales</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="requestForm.personalDataConsent" /> Consentement au traitement des données personnelles</label>
+          </div>
+        </section>
+
+        <div class="rl-summary-card">
+          <div><strong>Montant financé:</strong> {{ requestForm.montantDemande | number:'1.0-0' }} TND</div>
+          <div><strong>Durée:</strong> {{ requestForm.dureeMois }} mois</div>
+          <div><strong>Mensualité estimée:</strong> {{ requestForm.mensualiteEstimee | number:'1.0-2' }} TND</div>
+        </div>
+
+        <div class="rl-msg ok" *ngIf="submitSuccess">{{ submitSuccess }}</div>
+        <div class="rl-msg err" *ngIf="submitError">{{ submitError }}</div>
+      </div>
+
+      <div class="rl-actions">
+        <button class="btn btn-outline" (click)="closeRequestLoanModal()">Annuler</button>
+        <button class="btn btn-outline" [disabled]="isSavingDraft || isSubmitting" (click)="saveDraft()">
+          {{ isSavingDraft ? 'Sauvegarde...' : 'Enregistrer comme brouillon' }}
+        </button>
+        <button class="btn btn-primary" [disabled]="isSubmitting || !canSubmit" (click)="submitRequestLoan()">
+          {{ isSubmitting ? 'Envoi...' : 'Soumettre la demande' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

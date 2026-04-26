@@ -1,0 +1,766 @@
+<link
+  href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+  rel="stylesheet"
+/>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<nav class="cfm-rail">
+  <!-- Brand -->
+  <div class="cfm-brand">
+    <div class="cfm-logo">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#fff"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+      </svg>
+    </div>
+    <div>
+      <div class="cfm-brand-name">FIN<span>'IX</span></div>
+      <div class="cfm-brand-sub"></div>
+    </div>
+  </div>
+
+  <!-- Admin badge -->
+  <div class="cfm-admin-chip">
+    <div class="cfm-chip-dot"></div>
+    <span>Agent</span>
+  </div>
+
+  <!-- Navigation -->
+  <div class="cfm-nav">
+    <ng-container *ngFor="let section of navSections">
+      <div class="cfm-section">{{ section }}</div>
+      <button
+        *ngFor="let item of navBySection(section)"
+        class="cfm-nav-item"
+        [class.active]="selectedPage === item.page"
+        (click)="switchPage(item.page)"
+      >
+        <span class="cfm-nav-ico">
+          <svg
+            *ngIf="item.icon === 'grid'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'trending-up'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+            <polyline points="17 6 23 6 23 12" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'folder'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'dollar'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'users'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'truck'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="1" y="3" width="15" height="13" rx="2" />
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+            <circle cx="5.5" cy="18.5" r="2.5" />
+            <circle cx="18.5" cy="18.5" r="2.5" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'alert-triangle'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+            />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'file-text'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'shield'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'bell'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'settings'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+            />
+          </svg>
+        </span>
+        {{ item.label }}
+        <span
+          *ngIf="item.badge"
+          class="cfm-nav-badge"
+          [class.danger]="item.badgeType === 'danger'"
+          >{{ item.badge }}</span
+        >
+      </button>
+    </ng-container>
+  </div>
+
+  <!-- User footer -->
+  <div class="cfm-rail-footer">
+    <div class="cfm-user" (click)="showUserMenu = !showUserMenu">
+      <div class="cfm-user-avatar">SA</div>
+      <div class="cfm-user-info">
+        <div class="cfm-user-name">Sami Allani</div>
+        <div class="cfm-user-role">Super Admin · Tunis</div>
+      </div>
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        style="opacity: 0.3; margin-left: auto"
+      >
+        <circle cx="12" cy="5" r="1" />
+        <circle cx="12" cy="12" r="1" />
+        <circle cx="12" cy="19" r="1" />
+      </svg>
+    </div>
+    <div class="cfm-user-dropdown" *ngIf="showUserMenu">
+      <button (click)="logout()">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        Déconnexion
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════ MAIN WRAP ═══════════ -->
+<div class="cfm-main-wrap">
+  <!-- ── TOPBAR ── -->
+  <header class="cfm-topbar">
+    <div class="cfm-tb-left">
+      <span class="cfm-tb-brand"></span>
+      <span class="cfm-tb-label"></span>
+    </div>
+    <div class="cfm-tb-center">
+      <div class="cfm-tb-search">
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input type="text" placeholder="Dossier, client, référence…" />
+      </div>
+      <div class="cfm-tb-status">
+        <div class="cfm-status-dot"></div>
+        Système opérationnel
+      </div>
+      <div class="cfm-tb-time">{{ currentTime }}</div>
+    </div>
+    <div class="cfm-tb-right">
+      <div class="cfm-tb-agency">
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        Agence Tunis Central
+      </div>
+      <!-- Theme toggle -->
+      <button
+        class="cfm-tb-icon"
+        (click)="toggleTheme()"
+        [title]="currentTheme === 'dark' ? 'Mode clair' : 'Mode sombre'"
+      >
+        <svg
+          *ngIf="currentTheme === 'dark'"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="5" />
+          <line x1="12" y1="1" x2="12" y2="3" />
+          <line x1="12" y1="21" x2="12" y2="23" />
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+          <line x1="1" y1="12" x2="3" y2="12" />
+          <line x1="21" y1="12" x2="23" y2="12" />
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+        </svg>
+        <svg
+          *ngIf="currentTheme === 'light'"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      </button>
+      <button class="cfm-tb-icon">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+        <span class="cfm-tb-notif-dot"></span>
+      </button>
+      <button class="cfm-tb-icon">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── TICKER BAND ── -->
+  <div class="cfm-ticker">
+    <span class="cfm-ticker-label">FLUX DIRECT</span>
+    <div class="cfm-ticker-track">
+      <div class="cfm-ticker-scroll">
+        <span class="cfm-ticker-item" *ngFor="let t of tickerItems">
+          <span class="cfm-ticker-ref">{{ t.ref }}</span>
+          {{ t.client }}
+          <span class="cfm-ticker-amount" [class.positive]="t.amount.startsWith('+')">{{
+            t.amount
+          }}</span>
+          <span class="cfm-ticker-type" [ngClass]="'cfm-tt-' + t.typeClass">{{ t.type }}</span>
+        </span>
+        <!-- Duplicate for seamless scroll -->
+        <span class="cfm-ticker-item" *ngFor="let t of tickerItems">
+          <span class="cfm-ticker-ref">{{ t.ref }}</span>
+          {{ t.client }}
+          <span class="cfm-ticker-amount" [class.positive]="t.amount.startsWith('+')">{{
+            t.amount
+          }}</span>
+          <span class="cfm-ticker-type" [ngClass]="'cfm-tt-' + t.typeClass">{{ t.type }}</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CMD BAR ── -->
+  <div class="cfm-cmd-bar">
+    <button class="cfm-cmd-btn cfm-cmd-primary">+ Nouveau dossier</button>
+    <button class="cfm-cmd-btn">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+      Exporter
+    </button>
+    <button class="cfm-cmd-btn">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="8.5" cy="7" r="4" />
+        <line x1="20" y1="8" x2="20" y2="14" />
+        <line x1="23" y1="11" x2="17" y2="11" />
+      </svg>
+      Ajouter client
+    </button>
+    <button class="cfm-cmd-btn">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+      </svg>
+      Filtrer
+    </button>
+    <button class="cfm-cmd-btn">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+      </svg>
+      Rapport rapide
+    </button>
+    <button class="cfm-cmd-btn cfm-cmd-alert">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+        />
+      </svg>
+      Alertes risque
+      <span class="cfm-cmd-badge">3</span>
+    </button>
+  </div>
+
+  <!-- ── CONTENT ── -->
+  <div class="cfm-content">
+    <ng-container *ngIf="selectedPage === 'dashboard'">
+      <!-- Alert bar -->
+      <div class="cfm-alert-bar">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#F59E0B"
+          stroke-width="2"
+        >
+          <path
+            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+          />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        <span
+          >3 dossiers en attente de décision depuis plus de 72h —
+          <strong>action requise</strong></span
+        >
+        <button class="cfm-alert-action">Traiter maintenant</button>
+      </div>
+
+      <!-- Page header -->
+      <div class="cfm-page-head">
+        <div>
+          <div class="cfm-ph-eyebrow">CAPITAL FLOW MONITOR</div>
+          <div class="cfm-ph-title">
+            Vue d'ensemble <span class="cfm-ph-grad">opérationnelle</span>
+          </div>
+          <div class="cfm-ph-desc">Actualisé il y a 2 min · Période : Mars 2026</div>
+        </div>
+        <div class="cfm-ph-actions">
+          <button class="cfm-btn cfm-btn-outline">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            Mars 2026
+          </button>
+          <button class="cfm-btn cfm-btn-primary">+ Nouveau dossier</button>
+        </div>
+      </div>
+
+      <!-- ═══ BENTO GRID — 4 KPI CARDS ═══ -->
+      <div class="cfm-bento">
+        <!-- Card 1: Capital Décaissé -->
+        <div class="cfm-card cfm-card-lg">
+          <div class="cfm-card-label">
+            <span class="cfm-card-dot" style="background: #3b82f6"></span> CAPITAL DÉCAISSÉ
+          </div>
+          <div class="cfm-card-val">
+            <span class="cfm-card-prefix">TND</span> 2.47<span class="cfm-card-unit">M</span>
+          </div>
+          <div class="cfm-card-trend cfm-trend-up">▲ +14.2% ce mois</div>
+          <div class="cfm-mini-chart">
+            <div
+              class="cfm-bar"
+              *ngFor="let b of chartBars; let last = last"
+              [style.height.%]="b"
+              [class.cfm-bar-accent]="last"
+            ></div>
+          </div>
+          <div class="cfm-card-foot">
+            Objectif mensuel : <strong>2.8M TND</strong> · Atteinte : <strong>88%</strong>
+          </div>
+        </div>
+
+        <!-- Card 2: Remboursements Reçus -->
+        <div class="cfm-card cfm-card-lg">
+          <div class="cfm-card-label">
+            <span class="cfm-card-dot" style="background: #10b981"></span> REMBOURSEMENTS REÇUS
+          </div>
+          <div class="cfm-card-val">
+            <span class="cfm-card-prefix" style="color: #10b981">TND</span> 892<span
+              class="cfm-card-unit"
+              >K</span
+            >
+          </div>
+          <div
+            class="cfm-card-trend cfm-trend-up"
+            style="background: rgba(16, 185, 129, 0.1); color: #059669"
+          >
+            ▲ +8.5% vs dernier mois
+          </div>
+          <div class="cfm-progress-bar">
+            <div class="cfm-progress-fill" style="width: 71%; background: #10b981"></div>
+          </div>
+          <div class="cfm-progress-labels"><span>0</span><span>71%</span><span>1.25M</span></div>
+          <div class="cfm-card-foot">
+            Taux recouvrement : <strong>97.2%</strong> · Retards : <strong>12</strong>
+          </div>
+        </div>
+
+        <!-- Card 3: Score Risque -->
+        <div class="cfm-card cfm-card-lg">
+          <div class="cfm-card-label">
+            <span class="cfm-card-dot" style="background: #f59e0b"></span> SCORE RISQUE PORTEFEUILLE
+          </div>
+          <div class="cfm-score-ring">
+            <svg viewBox="0 0 80 80" width="80" height="80">
+              <circle
+                cx="40"
+                cy="40"
+                r="34"
+                fill="none"
+                stroke="var(--fx-border)"
+                stroke-width="6"
+              />
+              <circle
+                cx="40"
+                cy="40"
+                r="34"
+                fill="none"
+                stroke="#10B981"
+                stroke-width="6"
+                stroke-dasharray="214"
+                stroke-dashoffset="20"
+                stroke-linecap="round"
+                transform="rotate(-90 40 40)"
+              />
+            </svg>
+            <div class="cfm-score-center">
+              <div class="cfm-score-grade">A+</div>
+              <div class="cfm-score-pts">742 pts</div>
+            </div>
+          </div>
+          <div class="cfm-score-label">Risque Global</div>
+          <div
+            class="cfm-card-trend cfm-trend-up"
+            style="background: rgba(16, 185, 129, 0.1); color: #059669"
+          >
+            ▲ Stable · Classe I
+          </div>
+          <div class="cfm-card-foot">
+            Portefeuille : <strong>1 248 dossiers</strong> · Défauts : <strong>0.8%</strong>
+          </div>
+        </div>
+
+        <!-- Card 4: Dossiers Actifs -->
+        <div class="cfm-card cfm-card-lg">
+          <div class="cfm-card-label">
+            <span class="cfm-card-dot" style="background: #8b5cf6"></span> DOSSIERS ACTIFS
+          </div>
+          <div class="cfm-card-val cfm-card-val-xl">247</div>
+          <div class="cfm-card-trend cfm-trend-neutral">→ +18 cette semaine</div>
+          <div class="cfm-dossier-grid">
+            <div class="cfm-dg-item">
+              <div class="cfm-dg-label">EN ANALYSE</div>
+              <div class="cfm-dg-val" style="color: #f59e0b">34</div>
+            </div>
+            <div class="cfm-dg-item">
+              <div class="cfm-dg-label">ACCORDÉS</div>
+              <div class="cfm-dg-val" style="color: #10b981">189</div>
+            </div>
+            <div class="cfm-dg-item">
+              <div class="cfm-dg-label">REFUSÉS</div>
+              <div class="cfm-dg-val" style="color: #ef4444">24</div>
+            </div>
+            <div class="cfm-dg-item">
+              <div class="cfm-dg-label">EN ATTENTE</div>
+              <div class="cfm-dg-val" style="color: #3b82f6">12</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ BOTTOM ROW: Chart + Radar ═══ -->
+      <div class="cfm-bottom-row">
+        <!-- Chart panel -->
+        <div class="cfm-card cfm-chart-panel">
+          <div class="cfm-card-head-row">
+            <div>
+              <div class="cfm-card-head-icon">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--fx-blue)"
+                  stroke-width="2"
+                >
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                </svg>
+              </div>
+              <span class="cfm-card-head-title">Évolution volume crédits</span>
+              <span class="cfm-card-head-sub">12 derniers mois · N-1</span>
+            </div>
+            <div class="cfm-period-pills">
+              <button class="cfm-pill">3M</button>
+              <button class="cfm-pill">6M</button>
+              <button class="cfm-pill active">1A</button>
+            </div>
+          </div>
+          <div class="cfm-chart-legends">
+            <span
+              ><span class="cfm-legend-dot" style="background: var(--fx-blue)"></span> 2026</span
+            >
+            <span
+              ><span class="cfm-legend-dot" style="background: var(--fx-txt-4)"></span> 2025</span
+            >
+            <span style="margin-left: auto"
+              >Pic : <strong>387K</strong> · Moy : <strong>241K</strong></span
+            >
+          </div>
+          <div class="cfm-chart-area">
+            <div class="cfm-chart-bars">
+              <div
+                class="cfm-chart-bar"
+                *ngFor="let b of chartBars; let i = index; let last = last"
+              >
+                <div
+                  class="cfm-chart-bar-bg"
+                  [style.height.%]="b * 0.5"
+                  style="background: var(--fx-txt-4); opacity: 0.2"
+                ></div>
+                <div class="cfm-chart-bar-fg" [style.height.%]="b" [class.accent]="last"></div>
+                <div class="cfm-chart-month">{{ chartMonths[i] }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Radar Risque -->
+        <div class="cfm-card cfm-radar-panel">
+          <div class="cfm-card-head-row">
+            <div>
+              <div class="cfm-card-head-icon" style="background: rgba(239, 68, 68, 0.1)">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#EF4444"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  />
+                </svg>
+              </div>
+              <span class="cfm-card-head-title">Radar Risque</span>
+              <span class="cfm-card-head-sub">Dossiers à surveiller</span>
+            </div>
+            <button class="cfm-btn cfm-btn-ghost">Tout voir →</button>
+          </div>
+          <div class="cfm-risk-list">
+            <div class="cfm-risk-item" *ngFor="let r of riskClients">
+              <div
+                class="cfm-risk-avatar"
+                [style.background]="r.color + '18'"
+                [style.color]="r.color"
+              >
+                {{ r.initials }}
+              </div>
+              <div class="cfm-risk-info">
+                <div class="cfm-risk-name">{{ r.name }}</div>
+                <div class="cfm-risk-detail">{{ r.detail }}</div>
+              </div>
+              <div class="cfm-risk-bar-wrap">
+                <div class="cfm-risk-bar">
+                  <div
+                    class="cfm-risk-bar-fill"
+                    [style.width.%]="r.pct"
+                    [style.background]="r.color"
+                  ></div>
+                </div>
+              </div>
+              <div class="cfm-risk-pct">{{ r.pct }}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Placeholder for other pages -->
+    <ng-container *ngIf="selectedPage !== 'dashboard'">
+      <div class="cfm-page-head">
+        <div>
+          <div class="cfm-ph-eyebrow">CAPITAL FLOW MONITOR</div>
+          <div class="cfm-ph-title" style="text-transform: capitalize">{{ selectedPage }}</div>
+          <div class="cfm-ph-desc">
+            Contenu de la page {{ selectedPage }} en cours de développement.
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer class="cfm-footer">
+    <span>FIN'IX Capital Monitor</span>
+    <span>Back-Office · Agence Tunis Central</span>
+    <span>v2.4.1 · build 2026.03</span>
+  </footer>
+</div>

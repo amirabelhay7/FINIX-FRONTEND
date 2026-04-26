@@ -1,0 +1,94 @@
+.unauth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 20px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.unauth-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 48px 40px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.unauth-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #FEF2F2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  border: 2px solid rgba(220, 38, 38, 0.15);
+}
+
+.unauth-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 16px;
+}
+
+.unauth-message {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0 0 32px;
+}
+
+.unauth-message strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.unauth-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.unauth-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 0.925rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.unauth-btn.primary {
+  background: #1F6FEA;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(31, 111, 234, 0.3);
+}
+
+.unauth-btn.primary:hover {
+  background: #1a5fd4;
+  box-shadow: 0 6px 20px rgba(31, 111, 234, 0.4);
+  transform: translateY(-1px);
+}
+
+.unauth-btn.secondary {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.unauth-btn.secondary:hover {
+  background: #e2e8f0;
+  color: #475569;
+}

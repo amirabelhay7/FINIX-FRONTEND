@@ -1,0 +1,307 @@
+<div class="page-body">
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Mes demandes</div>
+      <div class="ph-title">Mes Request Loans</div>
+      <div class="ph-desc">Demandes liees a mon compte client</div>
+    </div>
+    <div class="ph-actions">
+      <button class="btn btn-outline draft-toggle-btn" [class.active]="showDrafts" (click)="toggleDraftsPanel()">
+        {{ showDrafts ? 'Masquer brouillons' : 'Mes brouillons' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="panel s2 panel-animated panel-enter">
+    <div class="panel-body" *ngIf="loading">Chargement des demandes...</div>
+    <div class="panel-body" *ngIf="error">{{ error }}</div>
+
+    <div class="tbl-wrap" *ngIf="!loading && myLoans.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Montant</th>
+            <th>Apport</th>
+            <th>Duree</th>
+            <th>Mensualite</th>
+            <th>Objectif</th>
+            <th>Statut</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let loan of paginatedLoans"
+            [style.cursor]="loan.statutDemande === 'PENDING' ? 'pointer' : 'default'"
+            [ngClass]="getRowClass(loan.statutDemande)"
+            (click)="openEditModal(loan)"
+          >
+            <td>{{ loan.montantDemande }} TND</td>
+            <td>{{ loan.apportPersonnel }} TND</td>
+            <td>{{ loan.dureeMois }} mois</td>
+            <td>{{ loan.mensualiteEstimee }} TND</td>
+            <td>{{ loan.objectifCredit || '-' }}</td>
+            <td>
+              <span [ngClass]="getBadgeClass(loan.statutDemande)">
+                {{ loan.statutDemande }}
+              </span>
+            </td>
+            <td>{{ formatDate(loan.dateCreation || loan.dateSoumission || loan.dateDecision) }}</td>
+            <td>
+              <button
+                *ngIf="loan.statutDemande === 'PENDING'"
+                class="btn btn-danger btn-xs"
+                (click)="deletePendingFromList(loan, $event)"
+              >
+                Supprimer
+              </button>
+              <span *ngIf="loan.statutDemande !== 'PENDING'">-</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-wrap" *ngIf="!loading && myLoans.length > 0">
+      <div class="pagination-meta">
+        <span>{{ myLoans.length }} demandes</span>
+        <label>
+          <span>Par page</span>
+          <select [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
+          </select>
+        </label>
+      </div>
+      <div class="pagination-controls">
+        <button class="btn btn-outline btn-xs" [disabled]="currentPage === 1" (click)="previousPage()">Precedent</button>
+        <button
+          class="btn btn-outline btn-xs"
+          *ngFor="let page of pageNumbers"
+          [class.active-page]="page === currentPage"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+        <button class="btn btn-outline btn-xs" [disabled]="currentPage === totalPages" (click)="nextPage()">Suivant</button>
+      </div>
+    </div>
+
+    <div class="panel-body" *ngIf="!loading && myLoans.length === 0 && !error">
+      {{ emptyCreditsMessage }}
+    </div>
+  </div>
+
+  <div class="drafts-overlay" [class.open]="showDrafts" [attr.aria-hidden]="!showDrafts">
+    <div class="drafts-backdrop" (click)="toggleDraftsPanel()"></div>
+    <div class="panel s2 drafts-floating-panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="ptdot"></span>Brouillons locaux</div>
+        <button class="btn btn-outline btn-xs" (click)="toggleDraftsPanel()">Masquer</button>
+      </div>
+      <div class="panel-body" *ngIf="drafts.length === 0">
+        Aucun brouillon local trouve.
+      </div>
+      <div class="tbl-wrap" *ngIf="drafts.length > 0">
+        <table>
+          <thead>
+          <tr>
+            <th>Vehicule ID</th>
+            <th>Nom</th>
+            <th>Montant</th>
+            <th>Duree</th>
+            <th>Docs</th>
+            <th>Sauvegarde le</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let d of drafts">
+            <td>{{ d.vehicleId }}</td>
+            <td>{{ d.fullName }}</td>
+            <td>{{ d.amount }} TND</td>
+            <td>{{ d.duration }} mois</td>
+            <td>{{ d.docsCount }}</td>
+            <td>{{ formatDate(d.savedAt) }}</td>
+            <td>
+              <a class="btn btn-outline btn-xs" routerLink="/client/vehicles">Ouvrir</a>
+              <button class="btn btn-danger btn-xs" (click)="removeDraft(d.vehicleId)">Supprimer</button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="rl-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="rl-modal" (click)="$event.stopPropagation()">
+      <div class="rl-head">
+        <div>
+          <div class="rl-title">Modification demande #{{ selectedLoan?.idDemande }}</div>
+          <div class="rl-sub">Modification autorisee uniquement pour les demandes PENDING</div>
+        </div>
+        <button class="btn btn-outline btn-xs" (click)="closeEditModal()">Fermer</button>
+      </div>
+
+      <div class="rl-body">
+        <section class="edit-section">
+          <h4>1. Informations personnelles du demandeur</h4>
+          <div class="rl-grid">
+            <label class="rl-field rl-full">
+              <span>Nom complet</span>
+              <input class="form-input" type="text" [(ngModel)]="editForm.fullName">
+            </label>
+            <label class="rl-field">
+              <span>Date de naissance</span>
+              <input class="form-input" type="date" [(ngModel)]="editForm.dateOfBirth">
+            </label>
+            <label class="rl-field">
+              <span>Numero CIN</span>
+              <input class="form-input" type="text" [(ngModel)]="editForm.cinNumber">
+            </label>
+            <label class="rl-field rl-full">
+              <span>Adresse</span>
+              <input class="form-input" type="text" [(ngModel)]="editForm.address">
+            </label>
+            <label class="rl-field">
+              <span>Telephone</span>
+              <input class="form-input" type="text" [(ngModel)]="editForm.phone">
+            </label>
+            <label class="rl-field">
+              <span>Email</span>
+              <input class="form-input" type="email" [(ngModel)]="editForm.email">
+            </label>
+            <label class="rl-field">
+              <span>Situation familiale</span>
+              <select class="form-input" [(ngModel)]="editForm.maritalStatus">
+                <option *ngFor="let option of maritalStatusOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </label>
+            <label class="rl-field">
+              <span>Type d'emploi</span>
+              <select class="form-input" [(ngModel)]="editForm.employmentType">
+                <option *ngFor="let option of employmentOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </label>
+            <label class="rl-field rl-full">
+              <span>Revenu mensuel estime (TND)</span>
+              <input class="form-input" type="number" min="0" [(ngModel)]="editForm.estimatedMonthlyIncome">
+            </label>
+          </div>
+        </section>
+
+        <section class="edit-section">
+          <h4>2. Informations du credit demande</h4>
+          <div class="rl-grid">
+            <label class="rl-field">
+              <span>Montant demande (TND)</span>
+              <input class="form-input" type="number" [value]="montantDemandeNet" readonly>
+            </label>
+            <label class="rl-field">
+              <span>Apport personnel (TND)</span>
+              <input class="form-input" type="number" min="0" [max]="montantTotalCredit" [(ngModel)]="editForm.apportPersonnel" (ngModelChange)="onApportPersonnelChange()">
+            </label>
+            <label class="rl-field">
+              <span>Duree du credit</span>
+              <select class="form-input" [(ngModel)]="editForm.dureeMois" (ngModelChange)="recalculateMensualite()">
+                <option *ngFor="let option of dureeOptions" [ngValue]="option">{{ option }} mois</option>
+              </select>
+            </label>
+            <label class="rl-field">
+              <span>Mensualite estimee (TND)</span>
+              <input class="form-input" type="number" [value]="editForm.mensualiteEstimee" readonly>
+            </label>
+            <label class="rl-field">
+              <span>Objectif du credit</span>
+              <input class="form-input" type="text" [(ngModel)]="editForm.objectifCredit" readonly>
+            </label>
+            <label class="rl-field">
+              <span>Type de remboursement souhaite</span>
+              <select class="form-input" [(ngModel)]="editForm.repaymentType">
+                <option *ngFor="let option of repaymentTypeOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </label>
+            <label class="rl-field rl-full check-line">
+              <input type="checkbox" [(ngModel)]="editForm.demandePeriodeGrace">
+              <span>Demande de periode de grace</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="edit-section">
+          <h4>3. Vehicule selectionne</h4>
+          <div class="vehicle-auto-grid">
+            <div><strong>Marque:</strong> {{ selectedVehicleInfo.marque }}</div>
+            <div><strong>Modele:</strong> {{ selectedVehicleInfo.modele }}</div>
+            <div><strong>Prix du vehicule:</strong> {{ selectedVehicleInfo.prixTnd }} TND</div>
+            <div class="rl-full"><strong>Reference:</strong> {{ selectedVehicleInfo.reference }}</div>
+          </div>
+        </section>
+
+        <section class="edit-section">
+          <h4>4. Documents a televerser</h4>
+          <div class="rl-grid">
+            <label class="rl-field">
+              <span>Carte d'identite nationale (CIN)</span>
+              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('cinDoc', $event)">
+            </label>
+            <label class="rl-field">
+              <span>Fiche de paie recente</span>
+              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('payslipDoc', $event)">
+            </label>
+            <label class="rl-field">
+              <span>Releve bancaire des 3 derniers mois</span>
+              <input type="file" accept=".pdf" (change)="onSingleFileSelected('bankStatementDoc', $event)">
+            </label>
+            <label class="rl-field">
+              <span>Attestation de travail / preuve d'activite</span>
+              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('workProofDoc', $event)">
+            </label>
+            <label class="rl-field">
+              <span>Justificatif de domicile</span>
+              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('addressProofDoc', $event)">
+            </label>
+            <label class="rl-field">
+              <span>Autres documents facultatifs</span>
+              <input type="file" multiple accept=".pdf,image/*" (change)="onOptionalFilesSelected($event)">
+            </label>
+            <div class="rl-full optional-docs" *ngIf="editUploadState.optionalDocs.length > 0">
+              <div class="doc-chip" *ngFor="let doc of editUploadState.optionalDocs; let i = index">
+                {{ doc.name }}
+                <button type="button" (click)="removeOptionalDoc(i)">×</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="edit-section">
+          <h4>5. Verification et consentement</h4>
+          <div class="consent-list">
+            <label class="check-line"><input type="checkbox" [(ngModel)]="editForm.infoAccuracyConfirmed"> Confirmation de l'exactitude des informations</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="editForm.documentsCheckAuthorized"> Autorisation de verification des documents</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="editForm.termsAccepted"> Acceptation des conditions generales</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="editForm.personalDataConsent"> Consentement au traitement des donnees personnelles</label>
+          </div>
+        </section>
+
+        <div class="edit-summary-card">
+          <div><strong>Montant total:</strong> {{ montantTotalCredit | number:'1.0-2' }} TND</div>
+          <div><strong>Apport:</strong> {{ editForm.apportPersonnel | number:'1.0-2' }} TND</div>
+          <div><strong>Net finance:</strong> {{ montantDemandeNet | number:'1.0-2' }} TND</div>
+          <div><strong>Duree:</strong> {{ editForm.dureeMois }} mois</div>
+        </div>
+
+        <div class="rl-msg ok" *ngIf="submitSuccess">{{ submitSuccess }}</div>
+        <div class="rl-msg err" *ngIf="submitError">{{ submitError }}</div>
+      </div>
+
+      <div class="rl-actions">
+        <button class="btn btn-primary" [disabled]="submitting" (click)="validateModification()">
+          {{ submitting ? 'Mise a jour...' : 'Mettre a jour' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

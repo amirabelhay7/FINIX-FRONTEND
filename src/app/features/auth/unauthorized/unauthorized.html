@@ -1,0 +1,40 @@
+<div class="unauth-container">
+  <div class="unauth-card">
+    <div class="unauth-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#DC2626"
+        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+      </svg>
+    </div>
+
+    <h1 class="unauth-title">Accès non autorisé</h1>
+
+    <p class="unauth-message">
+      Vous n'avez pas l'autorisation d'accéder à cette interface.
+      Votre rôle actuel est <strong>{{ roleLabel }}</strong>.
+      Veuillez accéder à l'espace correspondant à votre compte.
+    </p>
+
+    <div class="unauth-actions">
+      <button class="unauth-btn primary" (click)="goToMySpace()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Accéder à mon espace {{ roleLabel }}
+      </button>
+
+      <button class="unauth-btn secondary" (click)="logout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Se déconnecter
+      </button>
+    </div>
+  </div>
+</div>
