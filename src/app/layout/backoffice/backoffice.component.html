@@ -1357,7 +1357,7 @@
             <div style="display:flex;align-items:center;gap:.75rem;margin-left:auto;">
               <span style="font-size:.8rem;color:var(--g400);">Month:</span>
               <select class="form-input" style="width:160px;padding:.3rem .7rem;font-size:.8rem;"
-                      [(ngModel)]="steeringSelectedMonth" (ngModelChange)="onSteeringMonthChange()">
+                      [(ngModel)]="steeringSelectedMonth" (ngModelChange)="onSteeringMonthChange($event)">
                 <option *ngFor="let m of steeringMonths" [value]="m.value">{{ m.label }}</option>
               </select>
             </div>
@@ -1419,6 +1419,70 @@
 
           </div>
         </div>
+
+        <!-- [ML ADDED] ML Prediction Card -->
+      <div class="ml-pred-card" *ngIf="mlPrediction && !mlLoading">
+
+        <!-- Header -->
+        <div class="ml-pred-header">
+          <div>
+            <div class="ml-pred-title">ML Prediction — Default Rate</div>
+            <div class="ml-pred-subtitle">Target month: {{ mlPrediction.targetMonth }}</div>
+          </div>
+          <span class="badge" [ngClass]="getMlAlertClass(mlPrediction.alertLevel)">
+            {{ mlPrediction.alertLevel }}
+          </span>
+        </div>
+
+        <!-- Main value -->
+        <div class="ml-pred-value-row">
+          <span class="ml-pred-value" [ngClass]="getMlAlertClass(mlPrediction.alertLevel)">
+            {{ mlPrediction.predictedRatePct | number:'1.1-1' }}%
+          </span>
+          <span class="ml-pred-interval">
+            ± {{ (mlPrediction.confidenceInterval * 100) | number:'1.1-1' }}%
+          </span>
+        </div>
+
+        <!-- Contributions -->
+        <div class="ml-contrib-section">
+          <div class="ml-contrib-title">Key Contributing Factors</div>
+          <div *ngFor="let c of getMlContributions()" class="ml-contrib-row">
+            <span class="ml-contrib-label">{{ c.label }}</span>
+            <div class="ml-bar-track">
+              <div class="ml-bar-fill"
+                  [style.width.%]="(Math.abs(c.value) / getMlMaxContrib()) * 100"
+                  [ngClass]="c.value > 0 ? 'ml-bar-risk' : 'ml-bar-safe'">
+              </div>
+            </div>
+            <span class="ml-contrib-val" [ngClass]="c.value > 0 ? 'ml-text-risk' : 'ml-text-safe'">
+              {{ c.value > 0 ? '+' : '' }}{{ c.value | number:'1.3-3' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="ml-pred-footer">
+          <div class="ml-meta">
+            <span class="ml-meta-label">Analyzed month</span>
+            <span class="ml-meta-val">{{ steeringSelectedMonth }}</span>
+          </div>
+          <div class="ml-meta">
+            <span class="ml-meta-label">Model</span>
+            <span class="ml-meta-val">Ridge Regression</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      <div class="ml-pred-card ml-loading" *ngIf="mlLoading">
+        Loading ML prediction...
+      </div>
+
+      <!-- Error state -->
+      <div class="ml-pred-card ml-error" *ngIf="mlError && !mlLoading">
+        ML service unavailable. Make sure Flask is running on port 5001.
+      </div>
 
       </ng-container>
     </div>

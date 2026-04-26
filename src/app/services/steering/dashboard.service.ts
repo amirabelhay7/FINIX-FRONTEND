@@ -57,6 +57,15 @@ export interface AdvancedIndicatorsDTO {
   sharpeRatio: number;
   sharpeInterpretation: string;
 }
+// [ML ADDED] interface
+export interface MLPrediction {
+  predictedRate: number;
+  predictedRatePct: number;
+  confidenceInterval: number;
+  alertLevel: 'SAFE' | 'WARNING' | 'CRITICAL' | 'UNAVAILABLE';
+  contributions: { [key: string]: number };
+  targetMonth: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -87,5 +96,14 @@ export class DashboardService {
   getAdvancedIndicators(): Observable<AdvancedIndicatorsDTO> {
     return this.http.get<AdvancedIndicatorsDTO>(`${this.url}/advanced-indicators`);
   }
+
+  // [ML ADDED] method
+  getPrediction(month: string): Observable<MLPrediction> {
+  return this.http.get<MLPrediction>(`${this.url}/prediction`, {
+    params: { month }
+  });
+}
+
+
 
 }

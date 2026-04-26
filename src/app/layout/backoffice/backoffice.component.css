@@ -867,3 +867,80 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
   align-items: center !important;
   justify-content: center !important;
   animation: fadeIn .2s ease; }
+
+  /* [ML ADDED] Prediction card */
+.ml-pred-card {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-top: 16px;
+}
+.ml-pred-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.ml-pred-title { font-size: 15px; font-weight: 600; }
+.ml-pred-subtitle { font-size: 12px; color: var(--text-muted, #6b7280); margin-top: 2px; }
+
+.ml-pred-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.ml-pred-value { font-size: 42px; font-weight: 300; line-height: 1; }
+.ml-pred-value.b-actif  { color: var(--success, #16a34a); }
+.ml-pred-value.b-review { color: var(--warning, #d97706); }
+.ml-pred-value.b-danger { color: var(--danger, #dc2626); }
+.ml-pred-interval { font-size: 13px; color: var(--text-muted, #6b7280); }
+
+.ml-contrib-section { margin-bottom: 18px; }
+.ml-contrib-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted, #6b7280);
+  margin-bottom: 10px;
+}
+.ml-contrib-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+.ml-contrib-label { width: 170px; font-size: 13px; flex-shrink: 0; }
+.ml-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--border-color, #e5e7eb);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.ml-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+.ml-bar-risk { background: #ef4444; }
+.ml-bar-safe { background: #22c55e; }
+.ml-contrib-val { font-size: 12px; width: 58px; text-align: right; font-family: monospace; }
+.ml-text-risk { color: #dc2626; }
+.ml-text-safe { color: #16a34a; }
+
+.ml-pred-footer {
+  display: flex;
+  gap: 24px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+.ml-meta { display: flex; flex-direction: column; gap: 2px; }
+.ml-meta-label { font-size: 11px; color: var(--text-muted, #6b7280); text-transform: uppercase; letter-spacing: 0.5px; }
+.ml-meta-val { font-size: 14px; font-weight: 600; }
+
+.ml-loading { color: var(--text-muted, #6b7280); font-size: 13px; text-align: center; padding: 30px; }
+.ml-error { background: #fef2f2; border-color: #fecaca; color: #991b1b; font-size: 13px; }

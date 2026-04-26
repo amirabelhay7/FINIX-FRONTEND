@@ -12,8 +12,8 @@ import { CashMovementService, CashMovement } from '../../services/steering/cash-
 import { CampaignSegmentLinkService } from '../../services/marketing/campaign-segment-link.service';
 import { CampaignCreditLinkService } from '../../services/marketing/campaign-credit-link.service';
 import { CampaignCreditLink } from '../../models/marketing.model';
-import { DashboardService, FinancialSteeringDashboard, DefaultRateSegmentDTO, RiskIndicatorDTO } from '../../services/steering/dashboard.service';
-
+// [ML ADDED] MLPrediction added to the existing import — no duplicate import
+import { DashboardService, FinancialSteeringDashboard, DefaultRateSegmentDTO, RiskIndicatorDTO, MLPrediction } from '../../services/steering/dashboard.service';
 
 interface PipelineCard {
   name: string;
@@ -135,22 +135,17 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     private dashboardService: DashboardService,
   ) {}
 
-  // ─────────────────────────────────────────────────────────────
-  // FIX: suppression du second campaignService.getAll() en double.
-  // loadCampaigns() appelle déjà getAll() puis loadSegmentsWithCampaigns().
-  // ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
     console.log('>>> BackofficeComponent ngOnInit <<<', new Date().getTime());
     console.trace();
     const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
     this.currentTheme = saved || 'light';
     this.applyTheme();
-    this.loadCampaigns();      // charge campaigns + déclenche loadSegmentsWithCampaigns()
+    this.loadCampaigns();
     this.loadSegments();
     this.loadIndicators();
     this.loadTreasuryAccounts();
     this.loadSimulations();
-    // ← le second campaignService.getAll().subscribe() a été supprimé ici
   }
 
   ngOnDestroy(): void {
@@ -174,22 +169,22 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   }
 
   onPageChange(page: string) {
-  this.selectedPage = page;
-  if (page === 'users') {
-    this.usersTab = 'users';
-    this.loadUsers();
-    this.loadLogs();
-  }
-  if (page === 'clients') {
-    this.loadClients();
-  }
-  if (page === 'financial-steering') {
-    this.loadSteeringDashboard();
+    this.selectedPage = page;
+    if (page === 'users') {
+      this.usersTab = 'users';
+      this.loadUsers();
+      this.loadLogs();
+    }
+    if (page === 'clients') {
+      this.loadClients();
+    }
+    if (page === 'financial-steering') {
+      this.loadSteeringDashboard();
+    }
   }
 
-}
   switchPage(page: string): void {
-  this.onPageChange(page);
+    this.onPageChange(page);
   }
 
   switchUsersTab(tab: 'users' | 'logs'): void {
@@ -304,17 +299,13 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // FIX: loadCampaigns déclenche maintenant loadSegmentsWithCampaigns()
-  // après avoir reçu les données — plus de double appel getAll().
-  // ─────────────────────────────────────────────────────────────
   loadCampaigns(): void {
     this.campaignService.getAll().subscribe({
       next: data => {
         this.campaigns = data;
         this.campaignPage = 0;
         this.updatePagedCampaigns();
-        this.loadSegmentsWithCampaigns(); // déclenché ici, une seule fois
+        this.loadSegmentsWithCampaigns();
       },
       error: err => console.error('Campaigns error', err)
     });
@@ -536,15 +527,29 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   steeringRegionSegments: DefaultRateSegmentDTO[] = [];
   steeringRiskIndicators: RiskIndicatorDTO[] = [];
   steeringMonths = [
-    { value: '2025-01', label: 'January 2025' },
-    { value: '2025-03', label: 'March 2025' },
-    { value: '2025-05', label: 'May 2025' }
-  ];
+  { value: '2025-01', label: 'January 2025' },
+  { value: '2025-03', label: 'March 2025' },
+  { value: '2025-05', label: 'May 2025' },
+  { value: '2025-06', label: 'June 2025' },
+  { value: '2025-07', label: 'July 2025' },
+  { value: '2025-08', label: 'August 2025' },
+  { value: '2025-09', label: 'September 2025' },
+  { value: '2025-10', label: 'October 2025' },
+  { value: '2025-11', label: 'November 2025' },
+  { value: '2025-12', label: 'December 2025' }
+];
   movementError = '';
   movementForm: any = {
     treasuryAccountId: null, movementDirection: 'INFLOW',
     description: '', amount: null
   };
+
+  // [ML ADDED] ML prediction properties
+  mlPrediction: MLPrediction | null = null;
+  mlLoading = false;
+  mlError = false;
+  // [ML ADDED] needed to use Math.abs() in the HTML template
+  protected Math = Math;
 
   // ── Indicator ──
   openIndicatorForm() {
@@ -751,9 +756,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   }
 
   closeUserModal(): void { this.showUserModal = false; }
-
   openViewUser(user: any): void { this.viewUser = user; this.showViewUserModal = true; }
-
   closeViewUser(): void { this.showViewUserModal = false; }
 
   submitUser(): void {
@@ -922,6 +925,8 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         this.steeringRegionSegments = data.defaultByRegion;
         this.steeringRiskIndicators = data.riskIndicators;
         this.steeringLoading = false;
+        // [ML ADDED] load ML prediction after dashboard data is ready
+        this.loadMlPrediction(this.steeringSelectedMonth);
         this.cdr.detectChanges();
       },
       error: () => {
@@ -932,14 +937,19 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSteeringMonthChange(): void {
-    this.dashboardService.getDefaultRateBySalary(this.steeringSelectedMonth).subscribe(
-      data => { this.steeringSalarySegments = data; this.cdr.detectChanges(); }
-    );
-    this.dashboardService.getDefaultRateByRegion(this.steeringSelectedMonth).subscribe(
-      data => { this.steeringRegionSegments = data; this.cdr.detectChanges(); }
-    );
-  }
+  
+onSteeringMonthChange(month: string): void {
+  console.log('[Dashboard] Month changed to:', month);
+  this.steeringSelectedMonth = month; // force la valeur explicitement
+
+  this.dashboardService.getDefaultRateBySalary(month).subscribe(
+    data => { this.steeringSalarySegments = data; this.cdr.detectChanges(); }
+  );
+  this.dashboardService.getDefaultRateByRegion(month).subscribe(
+    data => { this.steeringRegionSegments = data; this.cdr.detectChanges(); }
+  );
+  this.loadMlPrediction(month);
+}
 
   getSteeringStatusClass(status: string): string {
     if (status === 'CRITICAL') return 'b-danger';
@@ -955,5 +965,60 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   getSteeringBarWidth(taux: number): string {
     return Math.min(taux, 100) + '%';
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // [ML ADDED] — All methods below are new — do not touch above
+  // ─────────────────────────────────────────────────────────────
+
+  /** Calls Spring Boot GET /api/dashboard/prediction?month=... */
+  loadMlPrediction(month: string): void {
+    this.mlLoading = true;
+    this.mlError = false;
+    this.dashboardService.getPrediction(month).subscribe({
+      next: (data) => {
+        this.mlPrediction = data;
+        this.mlLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.mlError = true;
+        this.mlLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  /** Maps alertLevel string to existing badge CSS class */
+  getMlAlertClass(level: string): string {
+    const map: { [k: string]: string } = {
+      SAFE:        'b-actif',
+      WARNING:     'b-review',
+      CRITICAL:    'b-danger',
+      UNAVAILABLE: 'b-pending'
+    };
+    return map[level] || 'b-pending';
+  }
+
+  /** Returns contributions sorted by absolute value (most impactful first) */
+  getMlContributions(): { label: string; value: number }[] {
+    if (!this.mlPrediction?.contributions) return [];
+    // Human-readable labels for each feature key coming from Flask
+    const labels: { [k: string]: string } = {
+      prev_default_rate:  'Previous Default Rate',
+      sfax_concentration: 'Sfax Concentration',
+      low_salary_share:   'Low Salary Share',
+      avg_delay_days:     'Avg Delay Days',
+      contract_volume:    'Contract Volume'
+    };
+    return Object.entries(this.mlPrediction.contributions)
+      .map(([k, v]) => ({ label: labels[k] || k, value: v as number }))
+      .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  }
+
+  /** Returns the largest absolute contribution — used to scale bar widths to 100% */
+  getMlMaxContrib(): number {
+    const c = this.getMlContributions();
+    return c.length ? Math.max(...c.map(x => Math.abs(x.value))) : 1;
   }
 }

@@ -1,6 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { HhiService } from '../../../../services/steering/hhi.service';
 import { HHIResult, SimulatorRequest } from '../../../../models/hhi.model';
 
@@ -11,7 +13,7 @@ import { HHIResult, SimulatorRequest } from '../../../../models/hhi.model';
   templateUrl: './hhi-analyzer.component.html',
   styleUrls: ['./hhi-analyzer.component.scss']
 })
-export class HhiAnalyzerComponent implements OnInit {
+export class HhiAnalyzerComponent implements OnInit, OnDestroy {
 
   result: HHIResult | null = null;
   loading = true;
@@ -32,72 +34,53 @@ export class HhiAnalyzerComponent implements OnInit {
     'ABOVE_1500': '> 1500 DT'
   };
 
-  constructor(
-    private hhiService: HhiService,
-    private zone: NgZone
-  ) {}
+  private sliderChange$ = new Subject<void>();
+
+  constructor(private hhiService: HhiService) {}
 
   ngOnInit(): void {
     this.hhiService.getAnalysis().subscribe({
       next: (data: HHIResult) => {
-        this.zone.run(() => {
-          this.result  = data;
-          this.loading = false;
-          data.regionalSegments.forEach(s =>
-            this.regionalShares[s.label] = Math.round(s.share * 100));
-          data.salarySegments.forEach(s =>
-            this.salaryShares[s.label] = Math.round(s.share * 100));
-        });
+        this.result  = data;
+        this.loading = false;
+        data.regionalSegments.forEach(s =>
+          this.regionalShares[s.label] = Math.round(s.share * 100));
+        data.salarySegments.forEach(s =>
+          this.salaryShares[s.label] = Math.round(s.share * 100));
       },
-      error: () => {
-        this.zone.run(() => { this.loading = false; });
-      }
+      error: () => { this.loading = false; }
     });
+
+    this.sliderChange$.pipe(
+      debounceTime(800)
+    ).subscribe(() => this.triggerSimulation());
+  }
+
+  ngOnDestroy(): void {
+    this.sliderChange$.complete();
   }
 
   onSliderChange(): void {
     this.normalize(this.regionalShares, this.regionalKeys);
     this.normalize(this.salaryShares, this.salaryKeys);
+    this.simulating = true;
+    this.sliderChange$.next();
   }
 
-  runSimulation(): void {
-    this.simulating = true;
+  // public so template can call it if needed, but currently auto-triggered
+  triggerSimulation(): void {
     const req: SimulatorRequest = {
       regionalShares: { ...this.regionalShares },
       salaryShares:   { ...this.salaryShares }
     };
     this.hhiService.simulate(req).subscribe({
       next: (data: HHIResult) => {
-        this.zone.run(() => {
-          this.result     = data;
-          this.simulating = false;
-        });
+        this.result     = data;
+        this.simulating = false;
       },
       error: (err) => {
         console.error('Simulation error:', err);
-        this.zone.run(() => { this.simulating = false; });
-      }
-    });
-  }
-
-  resetToReal(): void {
-    this.zone.run(() => {
-      this.loading = true;
-      this.result  = null;
-    });
-    this.hhiService.getAnalysis().subscribe({
-      next: (data: HHIResult) => {
-        this.zone.run(() => {
-          this.result  = data;
-          this.loading = false;
-          data.regionalSegments.forEach(s =>
-            this.regionalShares[s.label] = Math.round(s.share * 100));
-          data.salarySegments.forEach(s =>
-            this.salaryShares[s.label] = Math.round(s.share * 100));
-        });
-      },
-      error: () => {
-        this.zone.run(() => { this.loading = false; });
+        this.simulating = false;
       }
     });
   }
