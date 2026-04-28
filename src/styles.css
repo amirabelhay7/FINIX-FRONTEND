@@ -885,3 +885,12 @@ td { padding:.75rem 1rem; font-size:.8375rem; color:var(--g700); vertical-align:
 .doc-meta { font-size:.73rem; color:var(--g400); }
 .doc-size { font-size:.69rem; color:var(--g400); }
 .doc-actions { display:flex; gap:.5rem; }
+
+/* ── Suppress Google Translate toolbar ─────────────────────────── */
+.skiptranslate,
+.goog-te-banner-frame,
+#goog-gt-tt,
+.goog-te-balloon-frame { display: none !important; }
+body { top: 0 !important; }
+.goog-te-gadget { font-size: 0 !important; }
+.goog-te-gadget img { display: none !important; }

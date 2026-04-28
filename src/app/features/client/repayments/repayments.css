@@ -2507,10 +2507,14 @@
 .tier-1 { background: #fef3c3; color: #92400e; }
 .tier-2 { background: #fed7aa; color: #9a3412; }
 .tier-3 { background: #fecaca; color: #991b1b; }
+.tier-4 { background: #ffe4e6; color: #9f1239; }
+.tier-5 { background: #4c0519; color: #fda4af; }
 
 :host-context([data-theme="dark"]) .tier-1 { background: rgba(245,158,11,.15); color: #fbbf24; }
 :host-context([data-theme="dark"]) .tier-2 { background: rgba(249,115,22,.15); color: #fb923c; }
 :host-context([data-theme="dark"]) .tier-3 { background: rgba(239,68,68,.15); color: #f87171; }
+:host-context([data-theme="dark"]) .tier-4 { background: rgba(190,18,60,.25);  color: #fb7185; }
+:host-context([data-theme="dark"]) .tier-5 { background: rgba(76,5,25,.6);     color: #fda4af; }
 
 .ticket-penalty-details {
   display: flex;
@@ -2634,6 +2638,8 @@
 .badge-penalty-tier.tier-1 { background: #fef9c3; color: #a16207; border: 1px solid rgba(234,179,8,.3); }
 .badge-penalty-tier.tier-2 { background: #ffedd5; color: #c2410c; border: 1px solid rgba(249,115,22,.3); }
 .badge-penalty-tier.tier-3 { background: #fee2e2; color: #b91c1c; border: 1px solid rgba(239,68,68,.3); }
+.badge-penalty-tier.tier-4 { background: #ffe4e6; color: #9f1239; border: 1px solid rgba(190,18,60,.3); }
+.badge-penalty-tier.tier-5 { background: #4c0519; color: #fda4af; border: 1px solid rgba(253,164,175,.2); }
 
 .td-penalty-amount {
   font-size: .78rem;
@@ -2665,9 +2671,11 @@
   font-size: .82rem;
 }
 
-:host-context([data-theme="dark"]) .badge-penalty-tier.tier-1 { background: rgba(234,179,8,.12); color: #fbbf24; border-color: rgba(234,179,8,.25); }
+:host-context([data-theme="dark"]) .badge-penalty-tier.tier-1 { background: rgba(234,179,8,.12);  color: #fbbf24; border-color: rgba(234,179,8,.25); }
 :host-context([data-theme="dark"]) .badge-penalty-tier.tier-2 { background: rgba(249,115,22,.12); color: #fb923c; border-color: rgba(249,115,22,.25); }
-:host-context([data-theme="dark"]) .badge-penalty-tier.tier-3 { background: rgba(239,68,68,.12); color: #f87171; border-color: rgba(239,68,68,.25); }
+:host-context([data-theme="dark"]) .badge-penalty-tier.tier-3 { background: rgba(239,68,68,.12);  color: #f87171; border-color: rgba(239,68,68,.25); }
+:host-context([data-theme="dark"]) .badge-penalty-tier.tier-4 { background: rgba(190,18,60,.2);   color: #fb7185; border-color: rgba(190,18,60,.3); }
+:host-context([data-theme="dark"]) .badge-penalty-tier.tier-5 { background: rgba(76,5,25,.7);     color: #fda4af; border-color: rgba(253,164,175,.15); }
 :host-context([data-theme="dark"]) .td-penalty-amount { color: #f87171; }
 :host-context([data-theme="dark"]) .bps-paid    { background: rgba(22,163,74,.12); color: #4ade80; }
 :host-context([data-theme="dark"]) .bps-applied { background: rgba(239,68,68,.12); color: #f87171; }

@@ -119,7 +119,9 @@
               <span class="ticket-penalty-tier"
                 [class.tier-1]="penalty.penaltyTier === 'TIER_1'"
                 [class.tier-2]="penalty.penaltyTier === 'TIER_2'"
-                [class.tier-3]="penalty.penaltyTier === 'TIER_3'">
+                [class.tier-3]="penalty.penaltyTier === 'TIER_3'"
+                [class.tier-4]="penalty.penaltyTier === 'TIER_4'"
+                [class.tier-5]="penalty.penaltyTier === 'TIER_5'">
                 {{ penalty.tierLabel }}
               </span>
             </div>
@@ -361,7 +363,7 @@
   </div>
 
   <!-- ── Tabbed Panel ── -->
-  <div class="panel s4">
+  <div class="panel s4" style="margin-top:32px">
     <div class="panel-head">
       <div class="tab-bar">
         <button class="tab-btn" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
@@ -369,6 +371,12 @@
         </button>
         <button class="tab-btn" [class.active]="activeTab === 'amortization'" (click)="activeTab = 'amortization'">
           Amortization Table
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'delinquency'"
+          (click)="activeTab = 'delinquency'"
+          [style.color]="delinquencyCase ? '#ef4444' : ''"
+          [style.fontWeight]="delinquencyCase ? '700' : ''">
+          {{ delinquencyCase ? '⚠ Delinquency' : 'Delinquency' }}
         </button>
       </div>
       <button class="btn btn-ghost btn-sm" *ngIf="contract" (click)="exportPdf()">
@@ -412,8 +420,9 @@
               Installment
               <svg class="th-sort-icon" [class.th-sort-asc]="historySortDir === 'asc'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </th>
-            <th>Amount</th>
+            <th>Base Amount</th>
             <th>Penalty</th>
+            <th>Total Paid</th>
             <th>Payment Date</th>
             <th>Method</th>
             <th>Status</th>
@@ -421,7 +430,7 @@
         </thead>
         <tbody>
           <tr *ngIf="filteredHistory.length === 0">
-            <td colspan="7" class="td-empty">{{ paymentHistory.length === 0 ? 'No payments made.' : 'No results for this date.' }}</td>
+            <td colspan="8" class="td-empty">{{ paymentHistory.length === 0 ? 'No payments made.' : 'No results for this date.' }}</td>
           </tr>
           <tr *ngFor="let p of pagedHistory">
             <td><span class="td-ref">#PAY-{{ p.id }}</span></td>
@@ -429,14 +438,16 @@
               <div class="td-primary">Installment #{{ p.installmentNumber }}</div>
               <div class="td-sub">{{ p.dueDate | date:'dd MMM yyyy' }}</div>
             </td>
-            <td><span class="td-amount">{{ p.amountPaid | number:'1.2-2' }} TND</span></td>
+            <td><span class="td-amount">{{ getBaseInstallmentAmount(p.installmentNumber) | number:'1.2-2' }} TND</span></td>
             <td>
               <ng-container *ngIf="getAnyPenaltyForInstallment(p.installmentNumber) as pen; else noPen">
                 <div class="td-penalty-wrap">
                   <span class="badge-penalty-tier"
                     [class.tier-1]="pen.penaltyTier === 'TIER_1'"
                     [class.tier-2]="pen.penaltyTier === 'TIER_2'"
-                    [class.tier-3]="pen.penaltyTier === 'TIER_3'">
+                    [class.tier-3]="pen.penaltyTier === 'TIER_3'"
+                    [class.tier-4]="pen.penaltyTier === 'TIER_4'"
+                    [class.tier-5]="pen.penaltyTier === 'TIER_5'">
                     {{ pen.tierLabel }}
                   </span>
                   <span class="td-penalty-amount">{{ pen.totalPenalty | number:'1.2-2' }} TND</span>
@@ -451,6 +462,22 @@
               </ng-container>
               <ng-template #noPen>
                 <span class="td-no-penalty">—</span>
+              </ng-template>
+            </td>
+            <td>
+              <ng-container *ngIf="getAnyPenaltyForInstallment(p.installmentNumber) as pen; else noTotalPen">
+                <div style="display:flex;flex-direction:column;gap:2px">
+                  <div style="font-size:.72rem;color:var(--g400)">
+                    {{ getBaseInstallmentAmount(p.installmentNumber) | number:'1.2-2' }}
+                    <span style="color:var(--danger)"> + {{ pen.totalPenalty | number:'1.2-2' }}</span>
+                  </div>
+                  <span class="td-amount" style="color:var(--danger);font-weight:800">
+                    {{ getTotalPaid(p.installmentNumber) | number:'1.2-2' }} TND
+                  </span>
+                </div>
+              </ng-container>
+              <ng-template #noTotalPen>
+                <span class="td-amount">{{ getBaseInstallmentAmount(p.installmentNumber) | number:'1.2-2' }} TND</span>
               </ng-template>
             </td>
             <td>{{ p.paymentDate | date:'dd MMM yyyy' }}</td>
@@ -521,6 +548,7 @@
               <th>Date</th>
               <th>Installment</th>
               <th>Interests</th>
+              <th>Repaid Capital</th>
               <th>Remaining Capital</th>
               <th>Status</th>
             </tr>
@@ -534,15 +562,16 @@
               <td>{{ row.date }}</td>
               <td><span class="td-amount">{{ row.mensualite | number:'1.2-2' }} TND</span></td>
               <td class="td-interest">{{ row.interet | number:'1.2-2' }} TND</td>
+              <td><span class="td-amount">{{ row.capital | number:'1.2-2' }} TND</span></td>
               <td><span class="td-amount">{{ row.restant | number:'1.2-2' }} TND</span></td>
               <td>
                 <span
                   class="badge"
-                  [class.b-paid]="isRowPaid(row.num)"
-                  [class.b-pending]="!isRowPaid(row.num) && !getPenaltyForInstallment(row.num)"
-                  [class.b-late]="!isRowPaid(row.num) && getPenaltyForInstallment(row.num)"
+                  [class.b-paid]="row.status === 'PAID'"
+                  [class.b-pending]="row.status === 'PENDING'"
+                  [class.b-late]="row.status === 'OVERDUE'"
                 >
-                  {{ isRowPaid(row.num) ? 'Paid' : (getPenaltyForInstallment(row.num) ? 'Overdue' : 'Pending') }}
+                  {{ row.status === 'PAID' ? 'Paid' : (row.status === 'OVERDUE' ? 'Overdue' : 'Pending') }}
                 </span>
                 <span class="badge-penalty-mini" *ngIf="getPenaltyForInstallment(row.num) as p">
                   +{{ p.totalPenalty | number:'1.2-2' }} TND
@@ -571,12 +600,86 @@
       </div>
     </div>
 
+    <!-- ── Onglet Délinquance ── -->
+    <div *ngIf="activeTab === 'delinquency'" style="padding:48px 24px 24px 24px;margin-top:16px">
+
+      <div *ngIf="delinquencyLoading" style="text-align:center;padding:2rem;opacity:.5">Loading…</div>
+
+      <!-- Aucun dossier -->
+      <div *ngIf="!delinquencyLoading && !delinquencyCase"
+           style="display:flex;align-items:center;gap:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:20px">
+        <span class="material-symbols-outlined" style="color:#22c55e;font-size:32px">check_circle</span>
+        <div>
+          <div style="font-weight:800;font-size:1rem;color:#15803d">No overdue payments — you re up to date!</div>
+          <div style="font-size:.85rem;color:#166534;margin-top:2px">All your repayments have been successfully recorded.</div>
+        </div>
+      </div>
+
+      <!-- Dossier actif -->
+      <ng-container *ngIf="!delinquencyLoading && delinquencyCase">
+
+        <div style="border-radius:14px;padding:18px 20px;display:flex;gap:14px;align-items:flex-start;margin-bottom:20px"
+             [style.background]="delinquencyCase.riskLevel === 'CRITICAL' ? '#fef2f2' : '#fff7ed'"
+             [style.border]="'1px solid ' + (delinquencyCase.riskLevel === 'CRITICAL' ? '#fecaca' : '#fed7aa')">
+          <span class="material-symbols-outlined" style="font-size:26px" [style.color]="delinquencyRiskColor">warning</span>
+          <div>
+            <div style="font-weight:800;font-size:.95rem">Delinquency Case Opened</div>
+            <div style="font-size:.83rem;margin-top:2px">
+              You have overdue installments for <strong>{{ delinquencyCase.maxDaysOverdue }} days</strong>.
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px">
+          <div class="cs-stat" style="border-radius:12px;padding:16px">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g400);margin-bottom:4px">Total Overdue</div>
+            <div style="font-size:1.4rem;font-weight:800;color:#ef4444">{{ delinquencyCase.totalOverdueAmount | number:'1.2-2' }} TND</div>
+          </div>
+          <div class="cs-stat" style="border-radius:12px;padding:16px">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g400);margin-bottom:4px">Penalties</div>
+            <div style="font-size:1.4rem;font-weight:800;color:#f97316">{{ delinquencyCase.totalPenaltyAmount | number:'1.2-2' }} TND</div>
+          </div>
+          <div class="cs-stat" style="border-radius:12px;padding:16px">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g400);margin-bottom:4px">Overdue Installments</div>
+            <div style="font-size:1.4rem;font-weight:800">{{ delinquencyCase.overdueInstallmentsCount }}</div>
+          </div>
+          <div class="cs-stat" style="border-radius:12px;padding:16px">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g400);margin-bottom:4px">Max Delay</div>
+            <div style="font-size:1.4rem;font-weight:800" [style.color]="delinquencyRiskColor">{{ delinquencyCase.maxDaysOverdue }}j</div>
+          </div>
+        </div>
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;font-size:.85rem;line-height:2">
+          <div><b>Phase :</b> {{ delinquencyCase.category }}</div>
+          <div><b>Status :</b> {{ delinquencyCase.status }}</div>
+          <div><b>Opened on :</b> {{ delinquencyCase.openedDate | date:'dd/MM/yyyy' }}</div>
+          <div *ngIf="delinquencyCase.closedDate"><b>Closed on :</b> {{ delinquencyCase.closedDate | date:'dd/MM/yyyy' }}</div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
+          <div>
+            <div style="font-weight:700;font-size:.9rem">Régularize your situation</div>
+            <div style="font-size:.78rem;color:var(--g500);margin-top:2px">Pay your installments to close this case.</div>
+          </div>
+          <button class="btn-grace-submit" style="white-space:nowrap" (click)="activeTab = 'amortization'">Pay now</button>
+        </div>
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:.82rem;color:var(--g500);line-height:1.7">
+          <div style="font-weight:700;color:var(--text);margin-bottom:6px">What happens next?</div>
+          <div>• After <b>30d</b> : case opened (Friendly phase)</div>
+          <div>• After <b>60d</b> : pre-legal phase</div>
+          <div>• After <b>90d</b> : legal procedure</div>
+          <div style="color:#135bec;font-weight:600;margin-top:4px">Penalties capped at 10% of the due amount.</div>
+        </div>
+      </ng-container>
+    </div>
+
   </div>
 </div>
 
 <!-- ════════════════════════════════════════════════════
      Modal Stripe — Paiement sécurisé par carte
-     ════════════════════════════════════════════════════ -->
+     ══════════════════════════════════════════════════ -->
 <div class="stripe-overlay" *ngIf="stripeModalOpen" (click)="closeStripeModal()">
   <div class="stripe-modal" (click)="$event.stopPropagation()">
 

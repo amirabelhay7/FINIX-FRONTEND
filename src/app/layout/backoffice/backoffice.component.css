@@ -919,33 +919,111 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
   font-size: .82rem; color: #ef4444;
 }
 
-/* ── Admin payment table — full width, no h-scroll ── */
+/* ── Admin payment table wrapper — horizontal scroll on small screens ── */
+.admin-pay-tbl-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--g100);
+  margin-top: 4px;
+}
+
 .admin-pay-tbl {
-  width: 100%; border-collapse: collapse; font-size: .8rem; table-layout: fixed;
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: collapse;
+  font-size: .8rem;
 }
 .admin-pay-tbl thead th {
-  padding: .55rem .6rem; font-size: .68rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .04em;
-  color: var(--g400); text-align: left;
-  background: var(--g50); border-bottom: 1px solid var(--g200);
+  padding: .6rem .75rem;
+  font-size: .67rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--g400);
+  text-align: left;
+  background: var(--g50);
+  border-bottom: 2px solid var(--g200);
+  white-space: nowrap;
 }
-.admin-pay-tbl tbody tr { border-bottom: 1px solid var(--g100); transition: background .15s; }
+.admin-pay-tbl tbody tr {
+  border-bottom: 1px solid var(--g100);
+  transition: background .15s;
+}
+.admin-pay-tbl tbody tr:last-child { border-bottom: none; }
 .admin-pay-tbl tbody tr:hover { background: var(--g50); }
 .admin-pay-tbl tbody td {
-  padding: .5rem .6rem; vertical-align: middle;
-  overflow: hidden; text-overflow: ellipsis;
+  padding: .55rem .75rem;
+  vertical-align: middle;
 }
-/* Column widths */
-.admin-pay-tbl th:nth-child(1) { width: 50px; }   /* Réf */
-.admin-pay-tbl th:nth-child(2) { width: 15%; }     /* Client */
-.admin-pay-tbl th:nth-child(3) { width: 9%; }      /* Contrat */
-.admin-pay-tbl th:nth-child(4) { width: 45px; }    /* Mens */
-.admin-pay-tbl th:nth-child(5) { width: 10%; }     /* Montant */
-.admin-pay-tbl th:nth-child(6) { width: 10%; }     /* Date */
-.admin-pay-tbl th:nth-child(7) { width: 8%; }      /* Mode */
-.admin-pay-tbl th:nth-child(8) { width: 8%; }      /* Statut */
-.admin-pay-tbl th:nth-child(9) { width: 13%; }     /* Agent */
-.admin-pay-tbl th:nth-child(10) { width: 100px; }  /* Action */
+/* Column widths — 12 columns */
+.admin-pay-tbl th:nth-child(1)  { width: 52px;  }  /* Ref */
+.admin-pay-tbl th:nth-child(2)  { width: 13%;   }  /* Client */
+.admin-pay-tbl th:nth-child(3)  { width: 10%;   }  /* Contract */
+.admin-pay-tbl th:nth-child(4)  { width: 52px;  }  /* Installment */
+.admin-pay-tbl th:nth-child(5)  { width: 9%;    }  /* Base Amount */
+.admin-pay-tbl th:nth-child(6)  { width: 11%;   }  /* Penalty */
+.admin-pay-tbl th:nth-child(7)  { width: 10%;   }  /* Total Paid */
+.admin-pay-tbl th:nth-child(8)  { width: 9%;    }  /* Payment Date */
+.admin-pay-tbl th:nth-child(9)  { width: 8%;    }  /* Mode */
+.admin-pay-tbl th:nth-child(10) { width: 7%;    }  /* Status */
+.admin-pay-tbl th:nth-child(11) { width: 11%;   }  /* Agent */
+.admin-pay-tbl th:nth-child(12) { width: 90px;  }  /* Action */
+
+/* ── Pagination ── */
+.ap-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  padding: .85rem 1rem;
+  border-top: 1px solid var(--g100);
+  flex-wrap: wrap;
+}
+.pg-btn, .pg-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 .6rem;
+  border-radius: 8px;
+  border: 1px solid var(--g200);
+  background: var(--card);
+  color: var(--g700);
+  font-size: .8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  line-height: 1;
+}
+.pg-btn:hover:not(:disabled), .pg-num:hover {
+  background: var(--g100);
+  border-color: var(--g300);
+}
+.pg-btn:disabled {
+  opacity: .35;
+  cursor: default;
+}
+.pg-num.pg-active {
+  background: var(--blue, #3b82f6);
+  border-color: var(--blue, #3b82f6);
+  color: #fff;
+  font-weight: 700;
+}
+.pg-ellipsis {
+  min-width: 28px;
+  text-align: center;
+  color: var(--g400);
+  font-size: .85rem;
+  cursor: default;
+  user-select: none;
+}
+.pg-info {
+  font-size: .72rem;
+  color: var(--g400);
+  white-space: nowrap;
+  margin-left: .5rem;
+}
 
 /* ── Filters bar ── */
 .pay-filters {
@@ -1101,3 +1179,94 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
   margin-bottom: .5rem;
   line-height: 1.5;
 }
+
+/* ── Dashboard loading shimmer ── */
+.loading-shimmer .kpi {
+  opacity: 0.6;
+  animation: shimmer-pulse 1.4s ease-in-out infinite;
+}
+@keyframes shimmer-pulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 0.35; }
+}
+
+/* ── Repayment Health Bar ─────────────────────────────────────────── */
+.rhb {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--r12);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--sh-sm);
+  flex-wrap: wrap;
+}
+
+.rhb-title {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--g400);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  white-space: nowrap;
+  padding-right: 1.25rem;
+  border-right: 1px solid var(--g200);
+  flex-shrink: 0;
+}
+
+.rhb-metrics {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.rhb-metric {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .35rem .9rem;
+  flex: 1;
+  min-width: 130px;
+}
+
+.rhb-ico {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rhb-val {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: .15rem;
+  color: var(--g900);
+}
+.rhb-val.success { color: #10B981; }
+.rhb-val.warning { color: #F59E0B; }
+.rhb-val.danger  { color: #EF4444; }
+
+.rhb-lbl {
+  font-size: .7rem;
+  color: var(--g400);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.rhb-sep {
+  width: 1px;
+  height: 38px;
+  background: var(--g100);
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .rhb-sep { background: var(--g700, #334155); }
+[data-theme="dark"] .rhb-title { border-right-color: var(--g700, #334155); }

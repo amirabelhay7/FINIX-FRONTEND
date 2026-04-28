@@ -12,6 +12,7 @@ import {
   GracePeriodRequestService,
   GracePeriodRequestResponseDto,
 } from '../../../services/grace-period-request/grace-period-request.service';
+import { DelinquencyService, DelinquencyCaseDto } from '../../../services/delinquency/delinquency.service';
 
 // Stripe.js est chargé via CDN dans index.html
 declare const Stripe: (key: string) => StripeInstance;
@@ -44,6 +45,7 @@ export interface AmortizationRow {
   restant: number;
   penalite: string | null;
   penaliteMontant: number;
+  status: string;     // 'PENDING' | 'PAID' | 'OVERDUE' — issu directement de la BD
 }
 
 @Component({
@@ -53,7 +55,7 @@ export interface AmortizationRow {
   styleUrl: './repayments.css',
 })
 export class ClientRepayments implements OnInit {
-  activeTab: 'history' | 'amortization' = 'history';
+  activeTab: 'history' | 'amortization' | 'delinquency' = 'history';
 
   contract: LoanContractDto | null = null;
   amortizationRows: AmortizationRow[] = [];
@@ -102,6 +104,11 @@ export class ClientRepayments implements OnInit {
   ];
 
 
+  // ── Délinquance ──────────────────────────────────────
+  delinquencyCase: DelinquencyCaseDto | null = null;
+  delinquencyLoading = false;
+  delinquencyError = '';
+
   // ── Grace Period Request ───────────────────────────────
   graceModalOpen = false;
   graceReason = '';
@@ -120,6 +127,7 @@ export class ClientRepayments implements OnInit {
     private authService: AuthService,
     private gracePeriodService: GracePeriodRequestService,
     private cdr: ChangeDetectorRef,
+    private delinquencyService: DelinquencyService,
   ) {}
 
   ngOnInit(): void {
@@ -135,6 +143,7 @@ export class ClientRepayments implements OnInit {
             this.loadPaymentHistory();
             this.loadPenalties();
             this.loadMyGraceRequests();
+            this.loadDelinquencyStatus();
             this.cdr.detectChanges();
           },
           error: () => {
@@ -163,6 +172,7 @@ export class ClientRepayments implements OnInit {
         restant:         Number(inst.remainingBalance),
         penalite:        null,
         penaliteMontant: 0,
+        status:          inst.status,
       };
     });
   }
@@ -206,12 +216,20 @@ export class ClientRepayments implements OnInit {
 
   private loadPenalties(): void {
     if (!this.contract) return;
-    this.creditService.getPenaltiesByContract(this.contract.id).subscribe({
+    // On déclenche d'abord le calcul pour les mensualités overdue,
+    // puis on recharge la liste à jour depuis la DB.
+    this.creditService.applyPenaltiesForContract(this.contract.id).subscribe({
       next: (p) => {
         this.penalties = p;
         this.cdr.detectChanges();
       },
-      error: () => {},
+      error: () => {
+        // En cas d'erreur (ex: pas de mensualités overdue), on lit quand même ce qui est en DB
+        this.creditService.getPenaltiesByContract(this.contract!.id).subscribe({
+          next: (p) => { this.penalties = p; this.cdr.detectChanges(); },
+          error: () => {},
+        });
+      },
     });
   }
 
@@ -223,6 +241,18 @@ export class ClientRepayments implements OnInit {
   /** Get any penalty (APPLIED, PAID, WAIVED) for a given installment number */
   getAnyPenaltyForInstallment(num: number): PenaltyDto | null {
     return this.penalties.find(p => p.installmentNumber === num) ?? null;
+  }
+
+  /** Montant de base de la mensualité (sans pénalité) */
+  getBaseInstallmentAmount(num: number): number {
+    return this.amortizationRows.find(r => r.num === num)?.mensualite ?? 0;
+  }
+
+  /** Total réel payé = mensualité + pénalité */
+  getTotalPaid(num: number): number {
+    const base = this.getBaseInstallmentAmount(num);
+    const penalty = this.getAnyPenaltyForInstallment(num)?.totalPenalty ?? 0;
+    return base + Number(penalty);
   }
 
   /** Total amount due for current installment (mensualite + penalty) */
@@ -714,6 +744,25 @@ export class ClientRepayments implements OnInit {
     });
   }
 
+  loadDelinquencyStatus(): void {
+    const userId = this.authService.getPayload()?.userId;
+    if (!userId) return;
+    this.delinquencyLoading = true;
+    this.delinquencyService.getCasesByClient(userId).subscribe({
+      next: (cases) => {
+        this.delinquencyCase = cases.find(c => c.status !== 'CLOSED' && c.status !== 'RECOVERED') ?? null;
+        this.delinquencyLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.delinquencyLoading = false; this.cdr.detectChanges(); }
+    });
+  }
+
+  get delinquencyRiskColor(): string {
+    const m: Record<string,string> = { LOW:'#22c55e', MODERATE:'#f59e0b', HIGH:'#f97316', CRITICAL:'#ef4444' };
+    return m[this.delinquencyCase?.riskLevel ?? ''] ?? '#6b7280';
+  }
+
   get unpaidInstallments(): AmortizationRow[] {
     return this.amortizationRows.filter(r => !this.isRowPaid(r.num));
   }
@@ -835,16 +884,20 @@ export class ClientRepayments implements OnInit {
     const c = this.contract;
 
     const amortRows = this.amortizationRows.map(r => {
-      const paid = this.isRowPaid(r.num);
+      const isPaid    = r.status === 'PAID';
+      const isOverdue = r.status === 'OVERDUE';
+      const bg     = isPaid ? '#f0fdf4;' : (isOverdue ? 'background:#fef2f2;' : '');
+      const label  = isPaid ? 'Paid' : (isOverdue ? 'Overdue' : 'Pending');
+      const color  = isPaid ? '#16a34a' : (isOverdue ? '#dc2626' : '#64748b');
       return `
-        <tr style="${paid ? 'background:#f0fdf4;' : ''}">
+        <tr style="${bg}">
           <td>#${r.num}</td>
           <td>${r.date}</td>
           <td>${r.mensualite.toFixed(2)} TND</td>
           <td>${r.interet.toFixed(2)} TND</td>
           <td>${r.capital.toFixed(2)} TND</td>
           <td>${r.restant.toFixed(2)} TND</td>
-          <td style="color:${paid ? '#16a34a' : '#64748b'};font-weight:600">${paid ? 'Paid' : 'Pending'}</td>
+          <td style="color:${color};font-weight:600">${label}</td>
         </tr>`;
     }).join('');
 
