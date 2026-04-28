@@ -125,6 +125,14 @@ export class Credit {
   getPenaltiesByContract(loanContractId: number): Observable<PenaltyDto[]> {
     return this.http.get<PenaltyDto[]>(`${this.PENALTY_API}/by-contract/${loanContractId}`);
   }
+
+  applyPenaltiesForContract(loanContractId: number): Observable<PenaltyDto[]> {
+    return this.http.post<PenaltyDto[]>(`${this.PENALTY_API}/apply-by-contract/${loanContractId}`, {});
+  }
+
+  applyAllPenalties(): Observable<string> {
+    return this.http.post(`${this.PENALTY_API}/apply-all`, {}, { responseType: 'text' });
+  }
 }
 
 export interface InstallmentDto {

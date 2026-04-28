@@ -1,7 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../../services/auth/auth.service';
+import {
+  DelinquencyService,
+  DelinquencyCaseDto,
+} from '../../../services/delinquency/delinquency.service';
 
 /**
- * ViewModel: delinquency (MVVM).
+ * ViewModel: delinquency — vue client (MVVM).
+ * Affiche le dossier de délinquance du client connecté s'il en a un.
  */
 @Component({
   selector: 'app-delinquency',
@@ -9,13 +15,67 @@ import { Component } from '@angular/core';
   templateUrl: './delinquency.html',
   styleUrl: './delinquency.css',
 })
-export class Delinquency {
-  readonly pageTitle = 'Delinquency';
-  readonly pageSubtitle = 'Overdue payments and recovery status.';
+export class Delinquency implements OnInit {
   readonly scheduleRoute = '/repayment/schedule';
-  readonly scheduleLabel = 'Go to schedule';
-  readonly noOverdueTitle = 'No overdue payments';
-  readonly noOverdueText = "You're up to date. Next payment due Mar 15, 2025.";
-  readonly faqTitle = 'What happens if I miss a payment?';
-  readonly faqText = "We'll send reminders before and after the due date. Late payments may affect your score and attract penalties. Contact us if you're facing difficulty.";
+
+  loading = true;
+  error = '';
+
+  /** Dossier actif du client (null = aucun dossier = client à jour) */
+  activeCase: DelinquencyCaseDto | null = null;
+
+  constructor(
+    private authService: AuthService,
+    private delinquencyService: DelinquencyService,
+  ) {}
+
+  ngOnInit(): void {
+    const userId = this.authService.getPayload()?.userId;
+    if (!userId) { this.loading = false; return; }
+
+    this.delinquencyService.getCasesByClient(userId).subscribe({
+      next: (cases) => {
+        // Prendre le premier dossier non-clôturé, s'il existe
+        this.activeCase = cases.find(c => c.status !== 'CLOSED' && c.status !== 'RECOVERED') ?? null;
+        this.loading = false;
+      },
+      error: () => {
+        this.error = 'Impossible de charger les informations de votre dossier.';
+        this.loading = false;
+      }
+    });
+  }
+
+  get categoryLabel(): string {
+    const map: Record<string, string> = {
+      FRIENDLY: 'Phase amiable',
+      PRE_LEGAL: 'Phase pré-légale',
+      LEGAL: 'Phase juridique',
+      WRITTEN_OFF: 'Passé en pertes',
+    };
+    return map[this.activeCase?.category ?? ''] ?? this.activeCase?.category ?? '';
+  }
+
+  get riskLabel(): string {
+    const map: Record<string, string> = {
+      LOW: 'Faible', MODERATE: 'Modéré', HIGH: 'Élevé', CRITICAL: 'Critique',
+    };
+    return map[this.activeCase?.riskLevel ?? ''] ?? '';
+  }
+
+  get riskColor(): string {
+    const map: Record<string, string> = {
+      LOW: '#22c55e', MODERATE: '#f59e0b', HIGH: '#f97316', CRITICAL: '#ef4444',
+    };
+    return map[this.activeCase?.riskLevel ?? ''] ?? '#6b7280';
+  }
+
+  get statusLabel(): string {
+    const map: Record<string, string> = {
+      NEW: 'Nouveau', CONTACTED: 'Contacté', IN_PROGRESS: 'En cours',
+      PLAN_ACTIVE: 'Plan de paiement actif', LEGAL: 'Procédure juridique',
+      RECOVERED: 'Régularisé', CLOSED: 'Clôturé',
+    };
+    return map[this.activeCase?.status ?? ''] ?? '';
+  }
 }

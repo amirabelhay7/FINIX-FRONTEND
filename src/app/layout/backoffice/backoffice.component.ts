@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { finalize } from 'rxjs/operators';
+import { Credit } from '../../services/credit/credit.service';
 
 interface PipelineCard {
   name: string;
@@ -49,45 +49,25 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   logsLoading = false;
   usersTab: 'users' | 'logs' = 'users';
 
-  /* ── Admin payments ── */
-  adminPayments: any[] = [];
-  adminPaymentsLoading = false;
-  statusOptions = ['PAID', 'PENDING', 'CANCELLED', 'DONE'];
-  paymentFilter = '';
-  paymentStatusFilter = '';
-  paymentMethodFilter = '';
+  /* ── Dashboard KPIs ── */
+  dash = {
+    activeClients: 0,
+    totalOutstanding: 0,
+    activeContracts: 0,
+    collectedThisMonth: 0,
+    openDelinquencyCases: 0,
+    totalOverdueAmount: 0,
+    pendingGraceRequests: 0,
+    clientsWithPenalties: 0,
+    totalPenaltyAmount: 0,
+    dueThisMonth: 0,
+    pendingInstallmentsCount: 0,
+    recoveryRate: 0,
+    defaultRate: 0,
+  };
+  dashLoading = false;
 
-  get filteredPayments(): any[] {
-    let list = this.adminPayments;
-    const q = this.paymentFilter.trim().toLowerCase();
-    if (q) {
-      list = list.filter((p: any) =>
-        (p.clientFirstName + ' ' + p.clientLastName).toLowerCase().includes(q)
-        || (p.clientCin || '').toLowerCase().includes(q)
-        || (p.numeroContrat || '').toLowerCase().includes(q)
-        || (p.agentFirstName + ' ' + p.agentLastName).toLowerCase().includes(q)
-        || ('#' + p.id).includes(q)
-      );
-    }
-    if (this.paymentStatusFilter) {
-      list = list.filter((p: any) => p.paymentStatus === this.paymentStatusFilter);
-    }
-    if (this.paymentMethodFilter) {
-      list = list.filter((p: any) => p.paymentMethod === this.paymentMethodFilter);
-    }
-    return list;
-  }
-
-  /* ── Grace Period Requests ── */
-  graceRequests: any[] = [];
-  graceRequestsLoading = false;
-  graceFilterStatus = '';
-  graceActionLoading: number | null = null;
-  graceRejectId: number | null = null;
-  graceRejectReason = '';
-  graceDetailRequest: any = null;
-
-  constructor(private renderer: Renderer2, private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
+  constructor(private renderer: Renderer2, private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef, private creditService: Credit) {}
 
   logout(): void {
     localStorage.removeItem('finix_access_token');
@@ -99,7 +79,40 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
     this.currentTheme = saved || 'light';
     this.applyTheme();
-    this.loadAdminPayments();
+
+    const savedPage = sessionStorage.getItem('finix_page');
+    if (savedPage) this.selectedPage = savedPage;
+
+    this.loadDashboardKpi();
+  }
+
+  loadDashboardKpi(): void {
+    this.dashLoading = true;
+    this.http.get<any>(`${this.API}/dashboard/kpi`).subscribe({
+      next: (res) => {
+        this.dash = {
+          activeClients:          Number(res.activeClients ?? 0),
+          totalOutstanding:       Number(res.totalOutstanding ?? 0),
+          activeContracts:        Number(res.activeContracts ?? 0),
+          collectedThisMonth:     Number(res.collectedThisMonth ?? 0),
+          openDelinquencyCases:   Number(res.openDelinquencyCases ?? 0),
+          totalOverdueAmount:     Number(res.totalOverdueAmount ?? 0),
+          pendingGraceRequests:   Number(res.pendingGraceRequests ?? 0),
+          clientsWithPenalties:   Number(res.clientsWithPenalties ?? 0),
+          totalPenaltyAmount:     Number(res.totalPenaltyAmount ?? 0),
+          dueThisMonth:           Number(res.dueThisMonth ?? 0),
+          pendingInstallmentsCount: Number(res.pendingInstallmentsCount ?? 0),
+          recoveryRate:           Number(res.recoveryRate ?? 0),
+          defaultRate:            Number(res.defaultRate ?? 0),
+        };
+        this.dashLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('[Dashboard] KPI error:', err);
+        this.dashLoading = false;
+      }
+    });
   }
 
   toggleTheme(): void {
@@ -116,8 +129,13 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.renderer.setAttribute(document.documentElement, 'data-theme', this.currentTheme);
   }
 
-  onPageChange(page: string) {
+  navigateTo(page: string) {
     this.selectedPage = page;
+    sessionStorage.setItem('finix_page', page);
+  }
+
+  onPageChange(page: string) {
+    this.navigateTo(page);
     if (page === 'users') {
       this.usersTab = 'users';
       this.loadUsers();
@@ -125,12 +143,6 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     }
     if (page === 'clients') {
       this.loadClients();
-    }
-    if (page === 'repayments') {
-      this.loadAdminPayments();
-    }
-    if (page === 'grace-requests') {
-      this.loadGraceRequests();
     }
   }
 
@@ -612,6 +624,10 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
 
 
+  goToBusinessRules() {
+    this.navigateTo('penalty-tiers');
+  }
+
   goCredits() {
     console.log('Navigate credits');
   }
@@ -861,192 +877,4 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     return ((user.firstName?.[0] || '') + (user.lastName?.[0] || '')).toUpperCase();
   }
 
-  /* ── Admin Payment Form ── */
-  showAdminPayModal = false;
-  adminCinSearch = '';
-  adminClientResults: any[] = [];
-  adminSelectedClient: any = null;
-  adminNextInstallment: any = null;
-  adminInstLoading = false;
-  adminInstError = '';
-  adminPayLoading = false;
-  adminPayError = '';
-  adminPaySuccess = false;
-  adminLastPayment: any = null;
-
-  openAdminPayModal(): void {
-    this.showAdminPayModal = true;
-    this.resetAdminPayForm();
-  }
-
-  closeAdminPayModal(): void {
-    this.showAdminPayModal = false;
-  }
-
-  resetAdminPayForm(): void {
-    this.adminCinSearch = '';
-    this.adminClientResults = [];
-    this.adminSelectedClient = null;
-    this.adminNextInstallment = null;
-    this.adminInstLoading = false;
-    this.adminInstError = '';
-    this.adminPayError = '';
-    this.adminPaySuccess = false;
-    this.adminLastPayment = null;
-  }
-
-  onAdminCinInput(event: Event): void {
-    this.adminCinSearch = (event.target as HTMLInputElement).value;
-    this.searchAdminCin();
-  }
-
-  searchAdminCin(): void {
-    const q = this.adminCinSearch.trim();
-    if (q.length < 1) { this.adminClientResults = []; return; }
-    this.adminInstError = '';
-    this.http.get<any[]>(`${this.API}/users/search?q=${encodeURIComponent(q)}`).subscribe({
-      next: (res) => {
-        this.adminClientResults = res;
-        if (res.length === 1 && res[0].cin?.toString().toLowerCase() === q.toLowerCase()) {
-          this.selectAdminClient(res[0]);
-        }
-        this.cdr.detectChanges();
-      },
-      error: () => { this.adminClientResults = []; }
-    });
-  }
-
-  selectAdminClient(c: any): void {
-    this.adminSelectedClient = c;
-    this.adminClientResults = [];
-    this.adminCinSearch = '';
-    this.adminPaySuccess = false;
-    this.adminPayError = '';
-    this.adminInstError = '';
-    this.adminNextInstallment = null;
-    this.adminInstLoading = true;
-    this.http.get<any>(`${this.API}/payment-history/next-installment/by-user/${c.id}`).subscribe({
-      next: (res) => { this.adminInstLoading = false; this.adminNextInstallment = res; this.cdr.detectChanges(); },
-      error: (err) => {
-        this.adminInstLoading = false;
-        this.adminInstError = err?.error?.error || 'Aucune mensualité en attente pour ce client.';
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  submitAdminPayment(): void {
-    if (!this.adminSelectedClient) return;
-    this.adminPayLoading = true;
-    this.adminPayError = '';
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    const body = { userId: this.adminSelectedClient.id, adminId: currentUser.userId || null };
-    this.http.post<any>(`${this.API}/payment-history/record-admin`, body).pipe(
-      finalize(() => { this.adminPayLoading = false; this.cdr.detectChanges(); })
-    ).subscribe({
-      next: (res) => {
-        this.adminPaySuccess = true;
-        this.adminLastPayment = res;
-        this.adminNextInstallment = null;
-        this.loadAdminPayments();
-      },
-      error: (err) => {
-        this.adminPayError = err?.error?.error || err?.message || 'Erreur lors du paiement.';
-      }
-    });
-  }
-
-  /* ── Admin Payments API ── */
-  loadAdminPayments(): void {
-    this.adminPaymentsLoading = true;
-    this.http.get<any[]>(`${this.API}/payment-history/admin/all`).pipe(
-      finalize(() => { this.adminPaymentsLoading = false; this.cdr.detectChanges(); })
-    ).subscribe({
-      next: (res) => { this.adminPayments = Array.isArray(res) ? res : []; },
-      error: (err) => { console.error('[Admin] payments error:', err); this.adminPayments = []; },
-    });
-  }
-
-  changePaymentStatus(paymentId: number, newStatus: string): void {
-    this.http.put<any>(`${this.API}/payment-history/admin/${paymentId}/status`, { status: newStatus }).subscribe({
-      next: (updated) => {
-        const idx = this.adminPayments.findIndex((p: any) => p.id === paymentId);
-        if (idx !== -1) this.adminPayments[idx] = updated;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('[Admin] status change error:', err),
-    });
-  }
-
-  /* ── Grace Period Requests Methods ── */
-  loadGraceRequests(): void {
-    this.graceRequestsLoading = true;
-    const url = this.graceFilterStatus
-      ? `${this.API}/grace-period-requests/status/${this.graceFilterStatus}`
-      : `${this.API}/grace-period-requests`;
-    this.http.get<any[]>(url).pipe(
-      finalize(() => { this.graceRequestsLoading = false; this.cdr.detectChanges(); })
-    ).subscribe({
-      next: (res) => { this.graceRequests = Array.isArray(res) ? res : []; },
-      error: () => { this.graceRequests = []; },
-    });
-  }
-
-  onGraceFilterChange(status: string): void {
-    this.graceFilterStatus = status;
-    this.loadGraceRequests();
-  }
-
-  approveGraceRequest(id: number): void {
-    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    this.graceActionLoading = id;
-    this.http.put<any>(`${this.API}/grace-period-requests/${id}/approve`, {
-      reviewedById: user.userId
-    }).pipe(
-      finalize(() => { this.graceActionLoading = null; this.cdr.detectChanges(); })
-    ).subscribe({
-      next: () => this.loadGraceRequests(),
-      error: (err) => alert(err.error?.message || 'Error approving request'),
-    });
-  }
-
-  openRejectModal(id: number): void {
-    this.graceRejectId = id;
-    this.graceRejectReason = '';
-  }
-
-  confirmRejectGraceRequest(): void {
-    if (this.graceRejectId === null) return;
-    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    this.graceActionLoading = this.graceRejectId;
-    this.http.put<any>(`${this.API}/grace-period-requests/${this.graceRejectId}/reject`, {
-      reviewedById: user.userId,
-      rejectionReason: this.graceRejectReason
-    }).pipe(
-      finalize(() => { this.graceActionLoading = null; this.graceRejectId = null; this.cdr.detectChanges(); })
-    ).subscribe({
-      next: () => this.loadGraceRequests(),
-      error: (err) => alert(err.error?.message || 'Error rejecting request'),
-    });
-  }
-
-  openGraceDetail(req: any): void {
-    this.graceDetailRequest = req;
-  }
-
-  closeGraceDetail(): void {
-    this.graceDetailRequest = null;
-  }
-
-  get pendingGraceCount(): number {
-    return this.graceRequests.filter((r: any) => r.status === 'PENDING').length;
-  }
-
-  get approvedGraceCount(): number {
-    return this.graceRequests.filter((r: any) => r.status === 'APPROVED').length;
-  }
-
-  get rejectedGraceCount(): number {
-    return this.graceRequests.filter((r: any) => r.status === 'REJECTED').length;
-  }
 }

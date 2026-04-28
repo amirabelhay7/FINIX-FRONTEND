@@ -27,6 +27,8 @@ export class LoginClient implements OnDestroy {
   regTerms = false;
 
   otpDigits: string[] = ['', '', '', '', '', ''];
+  private otpBusy = false;
+  trackByIndex = (i: number) => i;
   otpCountdown = '01:30';
   otpSeconds = 90;
   otpTimerRef: any = null;
@@ -211,29 +213,49 @@ export class LoginClient implements OnDestroy {
     });
   }
 
+  onOtpInput(index: number, event: Event) {
+    if (this.otpBusy) return;
+    this.otpBusy = true;
+
+    const input = event.target as HTMLInputElement;
+    const digits = input.value.replace(/\D/g, '');
+    const digit = digits.slice(-1);
+
+    this.otpDigits[index] = digit;
+    input.value = digit;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      if (digit && index < 5) {
+        const inputs = input.closest('.otp-wrap')?.querySelectorAll('input');
+        const next = inputs?.[index + 1] as HTMLInputElement | undefined;
+        if (next) {
+          next.value = this.otpDigits[index + 1] || '';
+          next.focus();
+          next.select();
+        }
+      }
+      this.otpBusy = false;
+    }, 0);
+  }
+
   onOtpKey(index: number, event: KeyboardEvent) {
+    if (event.key !== 'Backspace') return;
     event.preventDefault();
+
     const input = event.target as HTMLInputElement;
     const inputs = input.closest('.otp-wrap')?.querySelectorAll('input');
 
-    if (event.key === 'Backspace') {
+    if (this.otpDigits[index]) {
       this.otpDigits[index] = '';
       input.value = '';
-      if (index > 0 && inputs) {
-        (inputs[index - 1] as HTMLInputElement).focus();
-      }
-      this.cdr.detectChanges();
-      return;
+    } else if (index > 0 && inputs) {
+      this.otpDigits[index - 1] = '';
+      const prev = inputs[index - 1] as HTMLInputElement;
+      prev.value = '';
+      prev.focus();
     }
-
-    if (/^\d$/.test(event.key)) {
-      this.otpDigits[index] = event.key;
-      input.value = event.key;
-      if (index < 5 && inputs) {
-        (inputs[index + 1] as HTMLInputElement).focus();
-      }
-      this.cdr.detectChanges();
-    }
+    this.cdr.detectChanges();
   }
 
   get otpComplete(): boolean {

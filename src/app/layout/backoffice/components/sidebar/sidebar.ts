@@ -1,6 +1,5 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 
-
 @Component({
   selector: 'app-sidebar',
   standalone: false,
@@ -14,6 +13,8 @@ export class SidebarComponent implements OnInit {
   currentPage = 'dashboard';
   adminName = 'Admin';
   adminInitials = 'A';
+
+  constructor() {}
 
   ngOnInit(): void {
     try {
@@ -35,4 +36,5 @@ export class SidebarComponent implements OnInit {
     this.currentPage = page;
     this.pageChanged.emit(page);
   }
+
 }

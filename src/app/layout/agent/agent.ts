@@ -2,6 +2,12 @@ import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetec
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
+import {
+  DelinquencyService,
+  DelinquencyCaseDto,
+  RecoveryActionDto,
+  CreateRecoveryActionDto,
+} from '../../services/delinquency/delinquency.service';
 
 @Component({
   selector: 'app-agent',
@@ -14,6 +20,11 @@ export class AgentLayout implements OnInit, OnDestroy {
   currentTheme: 'light' | 'dark' = 'dark';
   selectedPage = 'dashboard';
   showUserMenu = false;
+
+  agentFirstName = '';
+  agentLastName  = '';
+  agentInitials  = 'AG';
+  agentRole      = 'Agent IMF';
 
   private readonly API = 'http://localhost:8081/api';
 
@@ -46,17 +57,57 @@ export class AgentLayout implements OnInit, OnDestroy {
   graceRejectReason = '';
   graceDetailRequest: any = null;
 
+  // ── Dossiers de délinquance (agent) ──
+  dossiers: DelinquencyCaseDto[] = [];
+  dossiersLoading = false;
+  dossiersError = '';
+  selectedDossier: DelinquencyCaseDto | null = null;
+  dossierActions: RecoveryActionDto[] = [];
+  dossierActionsLoading = false;
+
+  // Formulaire action de recouvrement
+  showActionForm = false;
+  actionForm: CreateRecoveryActionDto = {
+    delinquencyCaseId: 0, actionType: '', result: '', description: '',
+    nextActionNote: '', nextActionDate: '',
+  };
+  savingAction = false;
+  actionFormError = '';
+
+  readonly actionTypeOptions = [
+    'PHONE_CALL','SMS','EMAIL','HOME_VISIT','WORK_VISIT',
+    'DEMAND_LETTER','NEGOTIATION','PAYMENT_PLAN',
+    'VEHICLE_LOCATION','VEHICLE_SEIZURE','LEGAL_ACTION',
+  ];
+  readonly resultOptions = [
+    'CONTACTED','NOT_CONTACTED','PROMISE_MADE','PAYMENT_RECEIVED',
+    'REFUSED','NO_ANSWER','WRONG_ADDRESS','VEHICLE_FOUND','NEGOTIATED','ESCALATED',
+  ];
+
   constructor(
     private renderer: Renderer2,
     private router: Router,
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
+    private delinquencyService: DelinquencyService,
   ) {}
 
   ngOnInit(): void {
     const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
     this.currentTheme = saved || 'dark';
     this.applyTheme();
+    this.loadAgentProfile();
+    if (this.selectedPage === 'dossiers') this.loadDossiers();
+  }
+
+  private loadAgentProfile(): void {
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const fullName: string = user.name || user.firstName || '';
+    const parts = fullName.trim().split(' ');
+    this.agentFirstName = parts[0] || 'Agent';
+    this.agentLastName  = parts.slice(1).join(' ');
+    this.agentInitials  = ((this.agentFirstName[0] || '') + (this.agentLastName[0] || '')).toUpperCase() || 'AG';
+    this.agentRole      = user.role ? (user.role as string).replace(/_/g, ' ') : 'Agent IMF';
   }
 
   ngOnDestroy(): void {
@@ -73,6 +124,131 @@ export class AgentLayout implements OnInit, OnDestroy {
     this.selectedPage = page;
     if (page === 'remboursements') this.loadAgentHistory();
     if (page === 'grace-requests') this.loadGraceRequests();
+    if (page === 'delinquency') this.loadDossiers();
+  }
+
+  // ── Dossiers de délinquance ──────────────────────────────────────────
+
+  loadDossiers(): void {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const agentId = currentUser.userId;
+    if (!agentId) return;
+
+    this.dossiersLoading = true;
+    this.dossiersError = '';
+    this.selectedDossier = null;
+
+    this.delinquencyService.getCasesByAgent(agentId).subscribe({
+      next: (data) => {
+        this.dossiers = data;
+        this.dossiersLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.dossiersError = 'Erreur de chargement des dossiers.';
+        this.dossiersLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  openDossier(dossier: DelinquencyCaseDto): void {
+    this.selectedDossier = dossier;
+    this.showActionForm = false;
+    this.dossierActionsLoading = true;
+    this.delinquencyService.getActionsByCase(dossier.id).subscribe({
+      next: (actions) => {
+        this.dossierActions = actions;
+        this.dossierActionsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.dossierActionsLoading = false; }
+    });
+  }
+
+  backToDossierList(): void {
+    this.selectedDossier = null;
+    this.showActionForm = false;
+  }
+
+  openActionForm(): void {
+    this.actionForm = {
+      delinquencyCaseId: this.selectedDossier!.id,
+      actionType: '', result: '', description: '',
+      nextActionNote: '', nextActionDate: '',
+    };
+    this.actionFormError = '';
+    this.showActionForm = true;
+  }
+
+  submitAction(): void {
+    if (!this.actionForm.actionType || !this.actionForm.result || !this.actionForm.description) {
+      this.actionFormError = 'Type, résultat et description sont obligatoires.';
+      return;
+    }
+    this.savingAction = true;
+    this.delinquencyService.createAction(this.actionForm).subscribe({
+      next: (action) => {
+        this.dossierActions.unshift(action);
+        this.showActionForm = false;
+        this.savingAction = false;
+        // Rafraîchir le dossier (statut peut avoir changé NEW→CONTACTED)
+        this.delinquencyService.getCaseById(this.selectedDossier!.id).subscribe({
+          next: (updated) => { this.selectedDossier = updated; this.cdr.detectChanges(); }
+        });
+      },
+      error: () => { this.actionFormError = 'Erreur enregistrement.'; this.savingAction = false; }
+    });
+  }
+
+  // Helpers affichage dossiers
+  dossierRiskClass(risk: string): string {
+    const map: Record<string, string> = {
+      LOW: 'text-green-600', MODERATE: 'text-amber-600',
+      HIGH: 'text-orange-600', CRITICAL: 'text-red-600',
+    };
+    return map[risk] ?? 'text-gray-500';
+  }
+
+  dossierRiskBg(risk: string): string {
+    const map: Record<string, string> = {
+      LOW: 'bg-green-50', MODERATE: 'bg-amber-50',
+      HIGH: 'bg-orange-50', CRITICAL: 'bg-red-50',
+    };
+    return map[risk] ?? 'bg-gray-50';
+  }
+
+  dossierStatusLabel(status: string): string {
+    const map: Record<string, string> = {
+      NEW: 'Nouveau', CONTACTED: 'Contacté', IN_PROGRESS: 'En cours',
+      PLAN_ACTIVE: 'Plan actif', RECOVERED: 'Récupéré', CLOSED: 'Clôturé',
+    };
+    return map[status] ?? status;
+  }
+
+  actionIconName(type: string): string {
+    const map: Record<string, string> = {
+      PHONE_CALL: 'call', SMS: 'sms', EMAIL: 'mail',
+      HOME_VISIT: 'home', WORK_VISIT: 'business',
+      DEMAND_LETTER: 'description', NEGOTIATION: 'handshake',
+      PAYMENT_PLAN: 'event_available', VEHICLE_LOCATION: 'location_on',
+      VEHICLE_SEIZURE: 'gavel', LEGAL_ACTION: 'account_balance',
+    };
+    return map[type] ?? 'task';
+  }
+
+  countByRisk(risk: string): number {
+    return this.dossiers.filter(d => d.riskLevel === risk).length;
+  }
+
+  actionResultClass(result: string): string {
+    const map: Record<string, string> = {
+      PAYMENT_RECEIVED: 'text-green-600', PROMISE_MADE: 'text-blue-600',
+      CONTACTED: 'text-teal-600', REFUSED: 'text-red-600',
+      NO_ANSWER: 'text-gray-400', NOT_CONTACTED: 'text-gray-400',
+      ESCALATED: 'text-orange-600',
+    };
+    return map[result] ?? 'text-gray-500';
   }
 
   loadAgentHistory(): void {
@@ -85,11 +261,9 @@ export class AgentLayout implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: (res) => {
-        console.log('[History] response:', res);
         this.agentHistory = Array.isArray(res) ? res : [];
       },
       error: (err) => {
-        console.error('[History] error:', err?.status, err?.error);
         this.historyError = 'Erreur ' + (err?.status || '') + ' — ' + (err?.error?.message || err?.message || 'impossible de charger l\'historique');
       },
     });
@@ -128,6 +302,7 @@ export class AgentLayout implements OnInit, OnDestroy {
   },
 
   { page: 'remboursements', label: 'Repayments', section: 'OPERATIONS', icon: 'TND' },
+  { page: 'delinquency', label: 'Delinquency Cases', section: 'OPERATIONS', icon: 'warning' },
   { page: 'grace-requests', label: 'Grace Requests', section: 'OPERATIONS', icon: 'clock' },
 
   { page: 'clients', label: 'Clients', section: 'OPERATIONS', icon: 'users' },
@@ -198,13 +373,16 @@ export class AgentLayout implements OnInit, OnDestroy {
     this.nextInstallment = null;
     this.installmentLoading = true;
 
-    this.http.get<any>(`${this.API}/payment-history/next-installment/by-user/${c.id}`).subscribe({
-      next: (res) => {
+    this.http.get<any>(`${this.API}/payment-history/next-installment/by-user/${c.id}`).pipe(
+      finalize(() => {
         this.installmentLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (res) => {
         this.nextInstallment = res;
       },
       error: (err) => {
-        this.installmentLoading = false;
         console.error('Next installment error:', err?.status, err?.error);
         this.installmentError = err?.error?.error || err?.error?.message || 'Aucune mensualité en attente pour ce client.';
       },
@@ -337,18 +515,18 @@ export class AgentLayout implements OnInit, OnDestroy {
 
   chartBars = [35, 42, 55, 48, 38, 52, 60, 45, 58, 72, 65, 85];
   chartMonths = [
-    'Mar',
-    'Avr',
-    'Mai',
-    'Jun',
-    'Jul',
-    'Aoû',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Déc',
-    'Jan',
-    'Fév',
+    'Mar', 
+    'Apr', 
+    'May', 
+    'Jun', 
+    'Jul', 
+    'Aug', 
+    'Sep', 
+    'Oct', 
+    'Nov', 
+    'Dec', 
+    'Jan', 
+    'Feb'  
   ];
 
   riskClients = [

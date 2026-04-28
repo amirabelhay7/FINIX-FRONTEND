@@ -1291,26 +1291,76 @@
   border-color: #e2e8f0;
 }
 
+[data-theme="light"] .gpr-kpi-val { color: #0f172a; }
+[data-theme="light"] .gpr-kpi-label { color: #64748b; }
+
 [data-theme="light"] .gpr-table-wrap {
   background: #fff;
   border-color: #e2e8f0;
 }
 
-[data-theme="light"] .gpr-table th { border-color: #e2e8f0; }
-[data-theme="light"] .gpr-table td { border-color: #f1f5f9; }
+[data-theme="light"] .gpr-table th {
+  background: #f8fafc;
+  color: #64748b;
+  border-color: #e2e8f0;
+}
 
-[data-theme="light"] .gpr-badge-pending { background: #fef3c7; color: #92400e; }
+[data-theme="light"] .gpr-table td {
+  color: #1e293b;
+  border-color: #f1f5f9;
+}
+
+[data-theme="light"] .gpr-table tr:hover td { background: #f8fafc; }
+
+[data-theme="light"] .gpr-client-name { color: #0f172a; }
+[data-theme="light"] .gpr-client-cin  { color: #64748b; }
+[data-theme="light"] .gpr-ref         { color: #334155; background: #f1f5f9; }
+[data-theme="light"] .gpr-reason-cell { color: #334155; }
+
+[data-theme="light"] .gpr-badge-pending  { background: #fef3c7; color: #92400e; }
 [data-theme="light"] .gpr-badge-approved { background: #dcfce7; color: #166534; }
 [data-theme="light"] .gpr-badge-rejected { background: #fef2f2; color: #991b1b; }
 
+/* Action buttons — lisibles en light */
+[data-theme="light"] .gpr-btn-approve {
+  background: rgba(22,163,74,.12);
+  color: #15803d;
+}
+[data-theme="light"] .gpr-btn-approve:hover:not(:disabled) { background: rgba(22,163,74,.22); }
+
+[data-theme="light"] .gpr-btn-reject {
+  background: rgba(220,38,38,.1);
+  color: #b91c1c;
+}
+[data-theme="light"] .gpr-btn-reject:hover:not(:disabled) { background: rgba(220,38,38,.2); }
+
+[data-theme="light"] .gpr-btn-cancel {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Modals */
 [data-theme="light"] .gpr-reject-modal,
 [data-theme="light"] .gpr-detail-modal {
   background: #fff;
   border-color: #e2e8f0;
+  color: #1e293b;
 }
+
+[data-theme="light"] .gpr-reject-title,
+[data-theme="light"] .gpr-detail-title { color: #0f172a; }
+
+[data-theme="light"] .gpr-reject-label { color: #475569; }
 
 [data-theme="light"] .gpr-reject-textarea {
   background: #f8fafc;
   border-color: #e2e8f0;
   color: #1e293b;
 }
+
+[data-theme="light"] .gpr-detail-row { color: #334155; }
+[data-theme="light"] .gpr-detail-close { color: #64748b; }
+[data-theme="light"] .gpr-detail-close:hover { background: #f1f5f9; color: #0f172a; }
+
+[data-theme="light"] .gpr-doc-link { color: #2563eb; }
+[data-theme="light"] .gpr-doc-count { color: #2563eb; }

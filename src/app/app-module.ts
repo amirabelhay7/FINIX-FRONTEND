@@ -13,6 +13,8 @@ import { TopbarComponent } from './layout/backoffice/components/topbar/topbar.co
 import { BackofficeComponent } from './layout/backoffice/backoffice.component';
 import { authInterceptor } from './services/auth/auth.interceptor';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
+import { PenaltyTiers } from './features/admin/repayments-admin/penalty-tiers/penalty-tiers';
+import { RepaymentBackofficeComponent } from './layout/backoffice/repayment-backoffice/repayment-backoffice.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +26,8 @@ import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized
     BackofficeComponent,
     TopbarComponent,
     UnauthorizedComponent,
+    PenaltyTiers,
+    RepaymentBackofficeComponent,
   ],
   imports: [
     BrowserModule,
