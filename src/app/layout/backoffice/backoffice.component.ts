@@ -72,6 +72,7 @@ interface AnalysisFileItem {
   styleUrls: ['./backoffice.component.css']
 })
 export class BackofficeComponent implements OnInit, OnDestroy {
+  readonly weekDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
   selectedPage = 'dashboard';
   currentTheme: 'light' | 'dark' = 'dark';
   hover = false;
@@ -88,13 +89,29 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   decisionError = '';
 
   showEventModal = false;
+  showAddressMapModal = false;
   isCreatingEvent = false;
+  isEditingEvent = false;
+  editingEventId: number | null = null;
   eventCreateError = '';
   eventCreateSuccess = '';
-  hasRegistrationFee = false;
+  mapPickerError = '';
+  mapSearchQuery = '';
+  selectedMapAddress = '';
+  selectedMapLat: number | null = null;
+  selectedMapLng: number | null = null;
+  selectedMapLocation: { lat: number; lon: number; display_name: string } | null = null;
+  private leafletLib: any = null;
+  private addressMap: any = null;
+  private addressMarker: any = null;
   events: EventDto[] = [];
   eventsLoading = false;
   eventsError = '';
+  eventsSearchTerm = '';
+  eventsStatusFilter = 'ALL';
+  eventsPage = 1;
+  eventsPageSize = 6;
+  expandedEventId: number | null = null;
 
   eventForm = {
     title: '',
@@ -107,10 +124,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     registrationDeadline: '',
     maxParticipants: 0,
     currentParticipants: 0,
-    paidEvent: false,
-    registrationFee: 0,
     imageUrl: '',
-    externalUrl: '',
     status: 'PUBLISHED',
     publicEvent: true,
     userId: 0,
@@ -148,18 +162,150 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   loadEvents(page = 0, size = 1000): void {
     this.eventsLoading = true;
     this.eventsError = '';
-    this.events = [];
     this.eventService
       .getEvents(page, size)
       .pipe(finalize(() => (this.eventsLoading = false)))
       .subscribe({
         next: (response: EventPageResponse) => {
           this.events = Array.isArray(response?.content) ? response.content : [];
+          this.eventsPage = 1;
+          this.expandedEventId = null;
         },
         error: () => {
           this.eventsError = 'Impossible de charger les événements.';
         },
       });
+  }
+
+  get filteredEvents(): EventDto[] {
+    const q = this.eventsSearchTerm.trim().toLowerCase();
+    return this.events.filter((ev) => {
+      const matchesSearch =
+        !q ||
+        (ev.title || '').toLowerCase().includes(q) ||
+        (ev.city || '').toLowerCase().includes(q) ||
+        (ev.address || '').toLowerCase().includes(q);
+      const matchesStatus =
+        this.eventsStatusFilter === 'ALL' || (ev.status || '').toUpperCase() === this.eventsStatusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }
+
+  get totalEventPages(): number {
+    return Math.max(1, Math.ceil(this.filteredEvents.length / this.eventsPageSize));
+  }
+
+  get paginatedEvents(): EventDto[] {
+    const start = (this.eventsPage - 1) * this.eventsPageSize;
+    return this.filteredEvents.slice(start, start + this.eventsPageSize);
+  }
+
+  onEventsFilterChange(): void {
+    this.eventsPage = 1;
+    this.expandedEventId = null;
+  }
+
+  goToEventsPage(page: number): void {
+    this.eventsPage = Math.min(Math.max(1, page), this.totalEventPages);
+    this.expandedEventId = null;
+  }
+
+  get eventPaginationPages(): number[] {
+    const total = this.totalEventPages;
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const current = this.eventsPage;
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, start + 4);
+    const pages: number[] = [];
+    for (let i = start; i <= end; i += 1) pages.push(i);
+    return pages;
+  }
+
+  toggleEventExpand(eventId?: number): void {
+    if (!eventId) {
+      return;
+    }
+    this.expandedEventId = this.expandedEventId === eventId ? null : eventId;
+  }
+
+  trackByEventId(index: number, ev: EventDto): number | string {
+    return ev.idEvent ?? `event-${index}`;
+  }
+
+  getCategoryLabel(ev: EventDto): string {
+    return 'Event Public';
+  }
+
+  getEventDateTimeLabel(ev: EventDto): string {
+    if (!ev.startDate || !ev.endDate) {
+      return 'Date non définie';
+    }
+    const start = new Date(ev.startDate);
+    const end = new Date(ev.endDate);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return 'Date non définie';
+    }
+    const date = start.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase();
+    const startTime = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const endTime = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    return `${date} · ${startTime} - ${endTime} CST`;
+  }
+
+  isEventDayActive(ev: EventDto, dayIndex: number): boolean {
+    if (!ev.startDate || !ev.endDate) {
+      return false;
+    }
+    const start = new Date(ev.startDate);
+    const end = new Date(ev.endDate);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return false;
+    }
+    const map = [6, 0, 1, 2, 3, 4, 5]; // MON..SUN -> JS day index
+    const targetDay = map[dayIndex];
+    for (const cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
+      if (cursor.getDay() === targetDay) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  getEventLocations(ev: EventDto): string[] {
+    const locations = new Set<string>();
+    if (ev.city) locations.add(ev.city);
+    if (ev.address) {
+      ev.address.split(',').map((part) => part.trim()).filter(Boolean).forEach((part) => locations.add(part));
+    }
+    return Array.from(locations).slice(0, 3);
+  }
+
+  getEventMetricValue(ev: EventDto, metric: 'inscrits' | 'capacite' | 'restants'): number {
+    const inscrits = Math.max(0, ev.currentParticipants ?? 0);
+    const capacity = Math.max(0, ev.maxParticipants ?? 0);
+    const restants = Math.max(0, capacity - inscrits);
+    if (metric === 'inscrits') return inscrits;
+    if (metric === 'capacite') return capacity;
+    return restants;
+  }
+
+  getEventMetricPct(ev: EventDto, metric: 'inscrits' | 'capacite' | 'restants'): number {
+    const capacity = Math.max(1, ev.maxParticipants ?? 0);
+    return Math.min(100, Math.round((this.getEventMetricValue(ev, metric) / capacity) * 100));
+  }
+
+  getEventFillStat(ev: EventDto): string {
+    const pct = this.getEventMetricPct(ev, 'inscrits');
+    return `${pct}% rempli`;
+  }
+
+  getEventStatusClass(status?: string): string {
+    const s = (status || '').toUpperCase();
+    if (s === 'PUBLISHED') return 'published';
+    if (s === 'DRAFT') return 'draft';
+    if (s === 'CANCELLED') return 'cancelled';
+    return 'default';
   }
 
   loadRequestLoans(): void {
@@ -713,11 +859,42 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   openCreateEventModal(): void {
     this.resetEventForm();
+    this.isEditingEvent = false;
+    this.editingEventId = null;
+    this.showEventModal = true;
+  }
+
+  openEditEventModal(ev: EventDto): void {
+    if (!this.canEditEvent(ev) || !ev.idEvent) {
+      return;
+    }
+    this.eventCreateError = '';
+    this.eventCreateSuccess = '';
+    this.isEditingEvent = true;
+    this.editingEventId = ev.idEvent;
+    this.eventForm = {
+      title: ev.title || '',
+      description: ev.description || '',
+      rules: ev.rules || '',
+      city: ev.city || '',
+      address: ev.address || '',
+      startDate: this.toDateTimeLocal(ev.startDate),
+      endDate: this.toDateTimeLocal(ev.endDate),
+      registrationDeadline: this.toDateTimeLocal(ev.registrationDeadline),
+      maxParticipants: ev.maxParticipants ?? 0,
+      currentParticipants: ev.currentParticipants ?? 0,
+      imageUrl: ev.imageUrl || ev.image || '',
+      status: ev.status || 'PUBLISHED',
+      publicEvent: ev.publicEvent ?? true,
+      userId: ev.userId || this.getConnectedUserId() || 0,
+    };
     this.showEventModal = true;
   }
 
   closeCreateEventModal(resetMessages = true): void {
     this.showEventModal = false;
+    this.isEditingEvent = false;
+    this.editingEventId = null;
     if (resetMessages) {
       this.eventCreateError = '';
       this.eventCreateSuccess = '';
@@ -725,24 +902,125 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.isCreatingEvent = false;
   }
 
-  onPaidEventToggle(checked: boolean): void {
-    this.eventForm.paidEvent = checked;
-    if (!checked) {
-      this.hasRegistrationFee = false;
-      this.eventForm.registrationFee = 0;
+  openAddressMapPicker(): void {
+    this.mapPickerError = '';
+    this.mapSearchQuery = '';
+    this.selectedMapAddress = this.eventForm.address || '';
+    this.selectedMapLocation = null;
+    this.showAddressMapModal = true;
+    // Initialize only after modal is visible in the DOM.
+    setTimeout(() => {
+      if (this.showAddressMapModal) this.initAddressMap();
+    }, 200);
+  }
+
+  closeAddressMapPicker(): void {
+    this.showAddressMapModal = false;
+  }
+
+  async confirmAddressFromMap(): Promise<void> {
+    if (!this.selectedMapLocation || !this.selectedMapAddress.trim()) {
+      this.mapPickerError = 'Choisissez un point sur la carte.';
+      return;
+    }
+    // Emit selected address payload to parent form state.
+    this.eventForm.address = this.selectedMapAddress.trim();
+    this.showAddressMapModal = false;
+  }
+
+  async searchAddressOnMap(): Promise<void> {
+    const query = this.mapSearchQuery.trim();
+    if (!query) {
+      this.mapPickerError = 'Entrez une adresse à rechercher.';
+      return;
+    }
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`
+      );
+      const data = await res.json();
+      const first = Array.isArray(data) ? data[0] : null;
+      if (!first) {
+        this.mapPickerError = 'Aucun résultat trouvé.';
+        return;
+      }
+      const lat = Number(first.lat);
+      const lon = Number(first.lon);
+      if (Number.isNaN(lat) || Number.isNaN(lon)) {
+        this.mapPickerError = 'Coordonnées invalides.';
+        return;
+      }
+      this.placeOrMoveMarker(lat, lon);
+      this.addressMap?.setView([lat, lon], 13);
+      await this.reverseGeocodeAddress(lat, lon);
+    } catch {
+      this.mapPickerError = 'Recherche impossible pour le moment.';
     }
   }
 
-  onRegistrationFeeToggle(checked: boolean): void {
-    this.hasRegistrationFee = checked;
-    if (checked) {
-      this.eventForm.paidEvent = true;
-      if (!this.eventForm.registrationFee) {
-        this.eventForm.registrationFee = 1;
-      }
+  private async initAddressMap(): Promise<void> {
+    const mapContainerId = 'event-address-map';
+    const el = document.getElementById(mapContainerId);
+    if (!el) {
+      this.mapPickerError = 'Carte indisponible.';
+      return;
+    }
+
+    const L = await import('leaflet');
+    this.leafletLib = L;
+    if (this.addressMap) {
+      this.addressMap.remove();
+      this.addressMap = null;
+      this.addressMarker = null;
+    }
+
+    this.addressMap = L.map(mapContainerId).setView([36.8065, 10.1815], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(this.addressMap);
+
+    this.addressMap.on('click', async (e: any) => {
+      const { lat, lng } = e.latlng;
+      this.placeOrMoveMarker(lat, lng);
+      await this.reverseGeocodeAddress(lat, lng);
+    });
+
+    // Required delayed tile fix after modal open.
+    setTimeout(() => this.addressMap?.invalidateSize(), 200);
+  }
+
+  private placeOrMoveMarker(lat: number, lng: number): void {
+    this.selectedMapLat = lat;
+    this.selectedMapLng = lng;
+    if (this.addressMarker) {
+      this.addressMarker.setLatLng([lat, lng]);
     } else {
-      this.eventForm.registrationFee = 0;
-      this.eventForm.paidEvent = false;
+      if (!this.leafletLib) return;
+      this.addressMarker = this.leafletLib.marker([lat, lng]).addTo(this.addressMap);
+    }
+  }
+
+  private async reverseGeocodeAddress(lat: number, lng: number): Promise<void> {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+      const data = await res.json();
+      this.selectedMapAddress = data?.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      this.selectedMapLocation = {
+        lat,
+        lon: lng,
+        display_name: this.selectedMapAddress,
+      };
+      this.mapPickerError = '';
+    } catch {
+      this.selectedMapAddress = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      this.selectedMapLocation = {
+        lat,
+        lon: lng,
+        display_name: this.selectedMapAddress,
+      };
+      this.mapPickerError = "Adresse non trouvée automatiquement, coordonnées conservées.";
     }
   }
 
@@ -769,14 +1047,22 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       registrationDeadline: this.eventForm.registrationDeadline,
       maxParticipants: Number(this.eventForm.maxParticipants) || 0,
       currentParticipants: 0,
-      paidEvent: this.eventForm.paidEvent,
-      registrationFee: this.hasRegistrationFee ? Number(this.eventForm.registrationFee) || 0 : 0,
       imageUrl: this.eventForm.imageUrl.trim(),
-      externalUrl: this.eventForm.externalUrl.trim(),
       status: this.eventForm.status || 'PUBLISHED',
       publicEvent: this.eventForm.publicEvent,
       userId,
     };
+
+    const duplicateTitleExists = this.events.some((ev) => {
+      const sameTitle = (ev.title || '').trim().toLowerCase() === payload.title.toLowerCase();
+      const isDifferentEvent = !this.isEditingEvent || ev.idEvent !== this.editingEventId;
+      return sameTitle && isDifferentEvent;
+    });
+    if (duplicateTitleExists) {
+      this.isCreatingEvent = false;
+      this.eventCreateError = `Un autre événement existe déjà avec le titre « ${payload.title} ».`;
+      return;
+    }
 
     if (!payload.title || !payload.city || !payload.address || !payload.startDate || !payload.endDate) {
       this.isCreatingEvent = false;
@@ -784,12 +1070,39 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.eventService
-      .createEvent(payload)
+    const startDate = new Date(payload.startDate);
+    const endDate = new Date(payload.endDate);
+    const registrationDeadline = payload.registrationDeadline ? new Date(payload.registrationDeadline) : null;
+
+    if (!Number.isNaN(startDate.getTime()) && !Number.isNaN(endDate.getTime()) && endDate <= startDate) {
+      this.isCreatingEvent = false;
+      this.eventCreateError = 'La date de fin doit être postérieure à la date de début.';
+      return;
+    }
+
+    if (
+      registrationDeadline &&
+      !Number.isNaN(registrationDeadline.getTime()) &&
+      !Number.isNaN(endDate.getTime()) &&
+      registrationDeadline > endDate
+    ) {
+      this.isCreatingEvent = false;
+      this.eventCreateError = 'La date limite d’inscription doit être antérieure ou égale à la date de fin.';
+      return;
+    }
+
+    const request$ =
+      this.isEditingEvent && this.editingEventId
+        ? this.eventService.updateEvent(this.editingEventId, payload)
+        : this.eventService.createEvent(payload);
+
+    request$
       .pipe(finalize(() => (this.isCreatingEvent = false)))
       .subscribe({
         next: () => {
-          this.eventCreateSuccess = 'Evenement créé avec succès.';
+          this.eventCreateSuccess = this.isEditingEvent
+            ? 'Evenement modifié avec succès.'
+            : 'Evenement créé avec succès.';
           this.closeCreateEventModal(false);
           this.loadEvents();
         },
@@ -798,13 +1111,12 @@ export class BackofficeComponent implements OnInit, OnDestroy {
             this.eventCreateError = 'Accès refusé par le backend pour la création d’événement.';
             return;
           }
-          this.eventCreateError = err?.error?.message || "Echec de la création de l'evenement.";
+          this.eventCreateError = err?.error?.message || err?.message || "Echec de la création de l'evenement.";
         },
       });
   }
 
   private resetEventForm(): void {
-    this.hasRegistrationFee = false;
     this.eventCreateError = '';
     this.eventCreateSuccess = '';
     this.eventForm = {
@@ -818,14 +1130,30 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       registrationDeadline: '',
       maxParticipants: 0,
       currentParticipants: 0,
-      paidEvent: false,
-      registrationFee: 0,
       imageUrl: '',
-      externalUrl: '',
       status: 'PUBLISHED',
       publicEvent: true,
       userId: this.getConnectedUserId() || 0,
     };
+  }
+
+  canEditEvent(ev: EventDto): boolean {
+    if (!ev.startDate) return false;
+    const start = new Date(ev.startDate);
+    if (Number.isNaN(start.getTime())) return false;
+    return start.getTime() > Date.now();
+  }
+
+  private toDateTimeLocal(value?: string): string {
+    if (!value) return '';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    const y = d.getFullYear();
+    const m = `${d.getMonth() + 1}`.padStart(2, '0');
+    const day = `${d.getDate()}`.padStart(2, '0');
+    const hh = `${d.getHours()}`.padStart(2, '0');
+    const mm = `${d.getMinutes()}`.padStart(2, '0');
+    return `${y}-${m}-${day}T${hh}:${mm}`;
   }
 
   private getConnectedUserId(): number | null {

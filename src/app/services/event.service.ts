@@ -14,10 +14,7 @@ export interface CreateEventPayload {
   registrationDeadline: string;
   maxParticipants: number;
   currentParticipants: number;
-  paidEvent: boolean;
-  registrationFee: number;
   imageUrl: string;
-  externalUrl: string;
   status: string;
   publicEvent: boolean;
   userId: number;
@@ -35,10 +32,8 @@ export interface EventDto {
   registrationDeadline?: string;
   maxParticipants?: number;
   currentParticipants?: number;
-  paidEvent?: boolean;
-  registrationFee?: number;
+  image?: string;
   imageUrl?: string;
-  externalUrl?: string;
   status?: string;
   publicEvent?: boolean;
   userId?: number;
@@ -56,6 +51,24 @@ export interface CreateEventRegistrationPayload {
   eventId: number;
   userId: number;
   status: 'PENDING';
+}
+
+export interface EventRegistrationDto {
+  idRegistration?: number;
+  eventId?: number;
+  userId?: number;
+  status?: string;
+  registeredAt?: string;
+  registrationCode?: string;
+  checkedInAt?: string;
+}
+
+export interface EventRegistrationPageResponse {
+  content: EventRegistrationDto[];
+  totalElements?: number;
+  totalPages?: number;
+  size?: number;
+  number?: number;
 }
 
 @Injectable({
@@ -84,6 +97,14 @@ export class EventService {
     );
   }
 
+  getEventRegistrations(page = 0, size = 1000): Observable<EventRegistrationPageResponse> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<EventRegistrationPageResponse>(this.registrationApiUrl, { params }).pipe(
+      tap(response => console.log('✅ Fetched event registrations:', response)),
+      catchError(this.handleError)
+    );
+  }
+
   createEvent(payload: CreateEventPayload): Observable<unknown> {
     return this.http.post(this.createEventUrl, payload).pipe(
       tap(response => console.log('✅ Created event:', response)),
@@ -91,23 +112,25 @@ export class EventService {
     );
   }
 
+  updateEvent(eventId: number, payload: CreateEventPayload): Observable<unknown> {
+    return this.http.put(`${this.createEventUrl}/${eventId}`, payload).pipe(
+      tap(response => console.log('✅ Updated event:', response)),
+      catchError(this.handleError)
+    );
+  }
+
   private handleError(error: HttpErrorResponse) {
-    let errorMessage = 'An error occurred with events service';
-    
     if (error.error instanceof ErrorEvent) {
-      // Client-side error
-      errorMessage = `Error: ${error.error.message}`;
       console.error('❌ Event service client error:', error.error);
     } else {
-      // Server-side error
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
       console.error('❌ Event service server error:', {
         status: error.status,
         message: error.message,
-        body: error.error
+        body: error.error,
       });
     }
-    
-    return throwError(() => new Error(errorMessage));
+
+    // Preserve HttpErrorResponse so UI can read status and backend message.
+    return throwError(() => error);
   }
 }

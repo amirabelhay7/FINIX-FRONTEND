@@ -159,7 +159,7 @@ export interface CreateRequestLoanPayload {
   nombreDocumentsOptionnels?: number;
   statutDemande: 'DRAFT' | 'PENDING';
   userId: number;
-  vehiculeId: number;
+  vehiculeId?: number;
   dateCreation?: string;
 
 }
@@ -167,4 +167,16 @@ export interface CreateRequestLoanPayload {
 /** Corps optionnel pour POST approve / reject (si le backend accepte une note). */
 export interface RequestLoanDecisionPayload {
   note?: string;
+}
+
+export interface LoanDocumentDto {
+  idDocument: number;
+  typeDocument: string;
+  nomFichier: string;
+  urlFichier: string;
+  formatFichier: 'PDF' | 'JPG' | 'PNG';
+  dateUpload: string;
+  statutVerification: 'PENDING' | 'APPROVED' | 'REJECTED';
+  methodeVerification: 'AUTOMATIC' | 'MANUAL';
+  requestLoanId: number;
 }

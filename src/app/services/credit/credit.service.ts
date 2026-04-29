@@ -3,6 +3,7 @@ import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http'
 import { Observable, catchError, throwError, tap } from 'rxjs';
 import {
   CreateRequestLoanPayload,
+  LoanDocumentDto,
   PageResponse,
   RequestLoanDecisionPayload,
   RequestLoanDto,
@@ -58,6 +59,40 @@ export class Credit {
     return this.http.delete<void>(`${this.apiUrl}/${idDemande}`).pipe(
       tap(() => console.log('✅ Deleted request loan:', idDemande)),
       catchError(this.handleError)
+    );
+  }
+
+  uploadLoanDocument(requestLoanId: number, typeDocument: string, file: File): Observable<LoanDocumentDto> {
+    const formData = new FormData();
+    formData.append('requestLoanId', String(requestLoanId));
+    formData.append('typeDocument', typeDocument);
+    formData.append('file', file);
+    return this.http.post<LoanDocumentDto>(`${this.apiUrl.replace('/request-loans', '/loan-documents')}/upload`, formData).pipe(
+      tap(response => console.log('✅ Uploaded loan document:', response)),
+      catchError(this.handleError)
+    );
+  }
+
+  getLoanDocuments(page: number = 0, size: number = 200): Observable<PageResponse<LoanDocumentDto>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+    return this.http.get<PageResponse<LoanDocumentDto>>(
+      `${this.apiUrl.replace('/request-loans', '/loan-documents')}`,
+      { params },
+    ).pipe(
+      tap(response => console.log('✅ Fetched loan documents:', response)),
+      catchError(this.handleError),
+    );
+  }
+
+  downloadLoanDocument(documentId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl.replace('/request-loans', '/loan-documents')}/${documentId}/file`,
+      { responseType: 'blob' },
+    ).pipe(
+      tap(() => console.log('✅ Downloaded loan document:', documentId)),
+      catchError(this.handleError),
     );
   }
 

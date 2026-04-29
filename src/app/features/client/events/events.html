@@ -2,51 +2,55 @@
   <div class="ph s1">
     <div>
       <div class="ph-eyebrow">Mes événements</div>
-      <div class="ph-title">Evenements</div>
-      <div class="ph-desc">Liste des événements disponibles</div>
-    </div>
-    <div class="ph-actions">
-      <button class="btn btn-outline" (click)="loadEvents()">Actualiser</button>
+      <div class="ph-title">Événements disponibles</div>
+      <div class="ph-desc">Découvrez et rejoignez les événements FIN'IX</div>
     </div>
   </div>
 
   <div class="panel s2">
     <div class="panel-head">
-      <div class="panel-title"><span class="ptdot"></span>Liste des événements</div>
+      <div class="panel-title"><span class="ptdot"></span>Calendrier des événements</div>
     </div>
 
     <div class="panel-body" *ngIf="loading">Chargement des événements...</div>
     <div class="panel-body" *ngIf="error">{{ error }}</div>
 
-    <div class="tbl-wrap" *ngIf="!loading && events.length > 0">
-      <table>
-        <thead>
-          <tr>
-            <th>Titre</th>
-            <th>Ville</th>
-            <th>Date début</th>
-            <th>Date fin</th>
-            <th>Statut</th>
-            <th>Participants</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let ev of events" style="cursor:pointer;" (click)="openEventDetails(ev)">
-            <td>
-{{ev.idEvent}}
-            </td>
-            <td>
-              <div class="td-primary">{{ ev.title }}</div>
-              <div class="td-sub">{{ ev.address || '-' }}</div>
-            </td>
-            <td>{{ ev.city || '-' }}</td>
-            <td>{{ formatDate(ev.startDate) }}</td>
-            <td>{{ formatDate(ev.endDate) }}</td>
-            <td><span class="badge b-blue">{{ ev.status || '-' }}</span></td>
-            <td>{{ ev.currentParticipants ?? 0 }} / {{ ev.maxParticipants ?? 0 }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="events-grid-wrap" *ngIf="!loading && events.length > 0">
+      <article class="event-card" *ngFor="let ev of paginatedEvents; let i = index" (click)="openEventDetails(ev)">
+        <div class="event-cover">
+          <img [src]="getEventImage(ev, i)" [alt]="ev.title || 'event'" />
+          <span class="event-participated-tag" *ngIf="hasParticipated(ev)">Participated</span>
+        </div>
+        <div class="event-content">
+          <div class="event-meta">
+            <span class="event-tag">{{ formatStatus(ev.status) }}</span>
+            <span class="event-date">{{ formatCardDate(ev.startDate) }}</span>
+          </div>
+          <h4 class="event-title">{{ ev.title }}</h4>
+          <div class="event-sub">{{ ev.city || '-' }} · {{ ev.address || '-' }}</div>
+          <div class="event-foot">
+            <span>{{ ev.currentParticipants ?? 0 }} participants</span>
+            <button class="btn btn-outline btn-xs" (click)="openEventDetails(ev); $event.stopPropagation()">Open</button>
+          </div>
+        </div>
+      </article>
+
+      <div class="events-pagination">
+        <button class="btn btn-outline btn-sm" [disabled]="eventsPage === 1" (click)="goToPage(eventsPage - 1)">
+          Prev
+        </button>
+        <button
+          class="btn btn-sm"
+          *ngFor="let p of paginationPages"
+          [ngClass]="eventsPage === p ? 'btn-primary' : 'btn-outline'"
+          (click)="goToPage(p)"
+        >
+          {{ p }}
+        </button>
+        <button class="btn btn-outline btn-sm" [disabled]="eventsPage === totalPages" (click)="goToPage(eventsPage + 1)">
+          Next
+        </button>
+      </div>
     </div>
 
     <div class="panel-body" *ngIf="!loading && events.length === 0 && !error">
@@ -56,24 +60,69 @@
 
   <div class="ev-overlay" *ngIf="showDetailsModal" (click)="closeEventDetails()">
     <div class="ev-modal" (click)="$event.stopPropagation()">
-      <div class="ev-head">
-        <div>
-          <div class="ev-title">{{ selectedEvent?.title }}</div>
-          <div class="ev-sub">{{ selectedEvent?.city }} · {{ selectedEvent?.address || '-' }}</div>
+      <div class="ev-hero" *ngIf="getSelectedEventImage() as heroImage">
+        <img class="ev-hero-img" [src]="heroImage" [alt]="selectedEvent?.title || 'event'" />
+        <div class="ev-hero-overlay"></div>
+        <div class="ev-hero-content">
+          <div class="ev-title">{{ selectedEvent?.title || 'Événement' }}</div>
+          <div class="ev-sub">{{ selectedEvent?.city || '-' }} · {{ selectedEvent?.address || '-' }} · #{{ selectedEvent?.idEvent }}</div>
         </div>
-        <button class="btn btn-outline btn-xs" (click)="closeEventDetails()">Fermer</button>
+        <button class="ev-close-btn" (click)="closeEventDetails()" aria-label="Fermer">✕</button>
+      </div>
+
+      <div class="ev-hero ev-hero-placeholder" *ngIf="!getSelectedEventImage()" [ngStyle]="getSelectedEventPlaceholderStyle()">
+        <div class="ev-hero-overlay"></div>
+        <div class="ev-hero-icon">📅</div>
+        <div class="ev-hero-content">
+          <div class="ev-title">{{ selectedEvent?.title || 'Événement' }}</div>
+          <div class="ev-sub">{{ selectedEvent?.city || '-' }} · {{ selectedEvent?.address || '-' }} · #{{ selectedEvent?.idEvent }}</div>
+        </div>
+        <button class="ev-close-btn" (click)="closeEventDetails()" aria-label="Fermer">✕</button>
       </div>
 
       <div class="ev-body">
-        <div class="ev-desc">{{ selectedEvent?.description || 'Aucune description.' }}</div>
+        <div class="ev-top-badges">
+          <span [ngClass]="getStatusBadgeClass(selectedEvent?.status)">{{ formatStatus(selectedEvent?.status) }}</span>
+          <span class="ev-chip">{{ selectedEvent?.currentParticipants ?? 0 }} / {{ selectedEvent?.maxParticipants ?? 0 }} participants</span>
+          <span class="ev-chip ev-chip-price">{{ selectedIsPaid ? 'Payant' : 'Gratuit' }}</span>
+        </div>
+
+        <div class="ev-cards-grid">
+          <div class="ev-mini-card">
+            <div class="ev-mini-label">📅 Date</div>
+            <div><strong>Début:</strong> {{ formatModalDate(selectedEvent?.startDate) }}</div>
+            <div><strong>Fin:</strong> {{ formatModalDate(selectedEvent?.endDate) }}</div>
+          </div>
+          <div class="ev-mini-card">
+            <div class="ev-mini-label">📍 Lieu</div>
+            <div><strong>Ville:</strong> {{ selectedEvent?.city || '-' }}</div>
+            <div><strong>Adresse:</strong> {{ selectedEvent?.address || '-' }}</div>
+          </div>
+        </div>
+
+        <div class="ev-about-label">À PROPOS</div>
+        <div class="ev-desc" [class.ev-desc-empty]="!selectedEvent?.description">
+          {{ selectedEvent?.description || 'Aucune description disponible.' }}
+        </div>
+
+        <div class="ev-progress">
+          <div class="ev-progress-head">
+            <div class="ev-progress-label">Taux de participation</div>
+            <div class="ev-progress-count">{{ selectedEvent?.currentParticipants ?? 0 }} / {{ selectedEvent?.maxParticipants ?? 0 }} inscrits</div>
+          </div>
+          <div class="part-bar">
+            <div class="part-fill" [style.width.%]="selectedProgressPercent"></div>
+          </div>
+          <div class="ev-progress-pct">{{ selectedProgressPercent }}%</div>
+        </div>
+
         <div class="rl-msg ok" *ngIf="participateSuccess">{{ participateSuccess }}</div>
         <div class="rl-msg err" *ngIf="participateError">{{ participateError }}</div>
-      </div>
 
-      <div class="ev-actions">
-        <button class="btn btn-primary" [disabled]="participating" (click)="participate()">
-          {{ participating ? 'En cours...' : 'Participer' }}
+        <button class="btn btn-primary ev-participate-btn" [disabled]="participating || selectedIsFull" (click)="participate()">
+          {{ selectedIsFull ? 'Complet' : (participating ? 'En cours...' : 'Participer') }}
         </button>
+        <button class="ev-close-link" (click)="closeEventDetails()">Fermer</button>
       </div>
     </div>
   </div>

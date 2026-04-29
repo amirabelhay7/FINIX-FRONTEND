@@ -236,11 +236,7 @@
               <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('workProofDoc', $event)" />
             </label>
             <label class="rl-field">
-              <span>Justificatif de domicile</span>
-              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('addressProofDoc', $event)" />
-            </label>
-            <label class="rl-field">
-              <span>Autres documents facultatifs</span>
+              <span>Autres documents (optionnel)</span>
               <input type="file" multiple accept=".pdf,image/*" (change)="onOptionalFilesSelected($event)" />
             </label>
             <div class="rl-full optional-docs" *ngIf="uploadState.optionalDocs.length > 0">

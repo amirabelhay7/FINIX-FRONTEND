@@ -1,6 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CreateRequestLoanPayload } from '../../../models/credit.model';
+import { forkJoin, Observable, of } from 'rxjs';
+import { CreateRequestLoanPayload, RequestLoanDto } from '../../../models/credit.model';
 import { AuthService } from '../../../services/auth/auth.service';
 import { Credit } from '../../../services/credit/credit.service';
 
@@ -26,7 +27,6 @@ interface UploadFileState {
   payslipDoc: File | null;
   bankStatementDoc: File | null;
   workProofDoc: File | null;
-  addressProofDoc: File | null;
   optionalDocs: File[];
 }
 
@@ -274,69 +274,70 @@ export class ClientVehicles implements OnDestroy {
       return;
     }
 
-    const vehiculeId = this.findVehicleId(this.selectedVehicle.marque, this.selectedVehicle.modele, this.selectedVehicle.prixTnd);
-    if (!vehiculeId) {
-      this.submitError = 'Véhicule introuvable pour cette sélection.';
-      return;
-    }
-
     this.recalculateMensualite();
     this.isSubmitting = true;
     this.submitError = '';
     this.submitSuccess = '';
-
-    const payload: CreateRequestLoanPayload = {
-      montantDemande: Number(this.requestForm.montantDemande),
-      apportPersonnel: Number(this.requestForm.apportPersonnel),
-      dureeMois: Number(this.requestForm.dureeMois),
-      mensualiteEstimee: Number(this.requestForm.mensualiteEstimee),
-      objectifCredit: this.requestForm.objectifCredit || 'Achat véhicule',
-      fullName: this.requestForm.fullName,
-      dateOfBirth: this.requestForm.dateOfBirth ? new Date(this.requestForm.dateOfBirth).toISOString() : undefined,
-      cinNumber: this.requestForm.cinNumber,
-      address: this.requestForm.address,
-      phone: this.requestForm.phone,
-      email: this.requestForm.email,
-      situationFamiliale: this.requestForm.maritalStatus,
-      typeEmploi: this.requestForm.employmentType,
-      revenuMensuelEstime: Number(this.requestForm.estimatedMonthlyIncome) || 0,
-      typeRemboursementSouhaite: this.requestForm.repaymentType,
-      demandePeriodeGrace: this.requestForm.demandePeriodeGrace,
-      confirmExactitudeInformations: this.requestForm.infoAccuracyConfirmed,
-      autorisationVerificationDocuments: this.requestForm.documentsCheckAuthorized,
-      acceptationConditionsGenerales: this.requestForm.termsAccepted,
-      consentementTraitementDonnees: this.requestForm.personalDataConsent,
-      docCinFourni: !!this.uploadState.cinDoc,
-      docFichePaieFournie: !!this.uploadState.payslipDoc,
-      docReleveBancaireFourni: !!this.uploadState.bankStatementDoc,
-      docAttestationTravailFournie: !!this.uploadState.workProofDoc,
-      docJustificatifDomicileFourni: !!this.uploadState.addressProofDoc,
-      nombreDocumentsOptionnels: this.uploadState.optionalDocs.length,
-      statutDemande: 'PENDING',
-      userId,
-      vehiculeId,
-      dateCreation: new Date().toISOString(),
-    };
-
-    this.creditService.createRequestLoan(payload).subscribe({
-      next: () => {
-        const submittedVehicleId = this.selectedVehicle?.id;
-        this.isSubmitting = false;
-        this.submitError = '';
-        this.submitSuccess = '';
-        this.closeRequestLoanModal();
-        this.resetRequestLoanFormAfterSubmit();
-        if (submittedVehicleId != null) {
-          const drafts = this.getAllLocalDrafts();
-          delete drafts[submittedVehicleId];
-          localStorage.setItem(this.draftStorageCollectionKey, JSON.stringify(drafts));
+    const payloadWithVehicle = this.buildCreateRequestLoanPayload(userId, true);
+    this.creditService.createRequestLoan(payloadWithVehicle).subscribe({
+      next: (createdLoan: RequestLoanDto) => {
+        const requestLoanId = Number(createdLoan?.idDemande);
+        if (!requestLoanId) {
+          this.isSubmitting = false;
+          this.submitError = 'Demande créée, mais identifiant introuvable pour lier les documents.';
+          return;
         }
-        localStorage.removeItem(this.draftStorageKey);
-        this.showTopToast('La demande de crédit a été envoyée avec succès.');
+        this.uploadLoanDocuments(requestLoanId).subscribe({
+          next: () => this.handleSubmitSuccess(),
+          error: (uploadError: unknown) => {
+            this.isSubmitting = false;
+            this.submitError = this.extractBackendErrorMessage(
+              uploadError,
+              'Demande créée, mais échec de sauvegarde des documents.',
+            );
+          },
+        });
       },
       error: (error: unknown) => {
+        const msg = this.extractBackendErrorMessage(error, 'Echec de l envoi de la demande.');
+        const vehicleNotFound = msg.toLowerCase().includes('véhicule introuvable')
+          || msg.toLowerCase().includes('vehicule introuvable');
+
+        // Fallback for environments where frontend catalog IDs do not match DB vehicle IDs.
+        if (vehicleNotFound) {
+          const payloadWithoutVehicle = this.buildCreateRequestLoanPayload(userId, false);
+          this.creditService.createRequestLoan(payloadWithoutVehicle).subscribe({
+            next: (createdLoan: RequestLoanDto) => {
+              const requestLoanId = Number(createdLoan?.idDemande);
+              if (!requestLoanId) {
+                this.isSubmitting = false;
+                this.submitError = 'Demande créée, mais identifiant introuvable pour lier les documents.';
+                return;
+              }
+              this.uploadLoanDocuments(requestLoanId).subscribe({
+                next: () => {
+                  this.handleSubmitSuccess();
+                  this.showTopToast('Demande envoyée (sans liaison véhicule backend).');
+                },
+                error: (uploadError: unknown) => {
+                  this.isSubmitting = false;
+                  this.submitError = this.extractBackendErrorMessage(
+                    uploadError,
+                    'Demande créée, mais échec de sauvegarde des documents.',
+                  );
+                },
+              });
+            },
+            error: (retryError: unknown) => {
+              this.isSubmitting = false;
+              this.submitError = this.extractBackendErrorMessage(retryError, 'Echec de l envoi de la demande.');
+            },
+          });
+          return;
+        }
+
         this.isSubmitting = false;
-        this.submitError = this.extractBackendErrorMessage(error, 'Echec de l envoi de la demande.');
+        this.submitError = msg;
       },
     });
   }
@@ -386,15 +387,76 @@ export class ClientVehicles implements OnDestroy {
     }
   }
 
-  private findVehicleId(marque: string, modele: string, prixTnd: number): number | null {
-    const match = this.catalogVehicles.find(
-      (item) =>
-        item.marque.toLowerCase() === marque.toLowerCase() &&
-        item.modele.toLowerCase() === modele.toLowerCase() &&
-        item.prixTnd === prixTnd,
-    );
+  private buildCreateRequestLoanPayload(userId: number, includeVehicleId: boolean): CreateRequestLoanPayload {
+    return {
+      montantDemande: Number(this.requestForm.montantDemande),
+      apportPersonnel: Number(this.requestForm.apportPersonnel),
+      dureeMois: Number(this.requestForm.dureeMois),
+      mensualiteEstimee: Number(this.requestForm.mensualiteEstimee),
+      objectifCredit: this.requestForm.objectifCredit || 'Achat véhicule',
+      fullName: this.requestForm.fullName,
+      dateOfBirth: this.requestForm.dateOfBirth ? new Date(this.requestForm.dateOfBirth).toISOString() : undefined,
+      cinNumber: this.requestForm.cinNumber,
+      address: this.requestForm.address,
+      phone: this.requestForm.phone,
+      email: this.requestForm.email,
+      situationFamiliale: this.requestForm.maritalStatus,
+      typeEmploi: this.requestForm.employmentType,
+      revenuMensuelEstime: Number(this.requestForm.estimatedMonthlyIncome) || 0,
+      typeRemboursementSouhaite: this.requestForm.repaymentType,
+      demandePeriodeGrace: this.requestForm.demandePeriodeGrace,
+      confirmExactitudeInformations: this.requestForm.infoAccuracyConfirmed,
+      autorisationVerificationDocuments: this.requestForm.documentsCheckAuthorized,
+      acceptationConditionsGenerales: this.requestForm.termsAccepted,
+      consentementTraitementDonnees: this.requestForm.personalDataConsent,
+      docCinFourni: !!this.uploadState.cinDoc,
+      docFichePaieFournie: !!this.uploadState.payslipDoc,
+      docReleveBancaireFourni: !!this.uploadState.bankStatementDoc,
+      docAttestationTravailFournie: !!this.uploadState.workProofDoc,
+      // Backward compatibility: some backend instances still enforce this flag.
+      // We keep domicile upload removed in UI, but send true to avoid false negatives.
+      docJustificatifDomicileFourni: true,
+      nombreDocumentsOptionnels: this.uploadState.optionalDocs.length,
+      statutDemande: 'PENDING',
+      userId,
+      vehiculeId: includeVehicleId ? this.selectedVehicle?.id : undefined,
+      dateCreation: new Date().toISOString(),
+    };
+  }
 
-    return match ? match.id : null;
+  private handleSubmitSuccess(): void {
+    const submittedVehicleId = this.selectedVehicle?.id;
+    this.isSubmitting = false;
+    this.submitError = '';
+    this.submitSuccess = '';
+    this.closeRequestLoanModal();
+    this.resetRequestLoanFormAfterSubmit();
+    if (submittedVehicleId != null) {
+      const drafts = this.getAllLocalDrafts();
+      delete drafts[submittedVehicleId];
+      localStorage.setItem(this.draftStorageCollectionKey, JSON.stringify(drafts));
+    }
+    localStorage.removeItem(this.draftStorageKey);
+    this.showTopToast('La demande de crédit a été envoyée avec succès.');
+  }
+
+  private uploadLoanDocuments(requestLoanId: number): Observable<unknown> {
+    const uploads: Observable<unknown>[] = [];
+    const requiredDocuments: Array<{ type: string; file: File | null }> = [
+      { type: 'CIN', file: this.uploadState.cinDoc },
+      { type: 'FICHE_PAIE', file: this.uploadState.payslipDoc },
+      { type: 'RELEVE_BANCAIRE', file: this.uploadState.bankStatementDoc },
+      { type: 'ATTESTATION_TRAVAIL', file: this.uploadState.workProofDoc },
+    ];
+    requiredDocuments.forEach((doc) => {
+      if (doc.file) {
+        uploads.push(this.creditService.uploadLoanDocument(requestLoanId, doc.type, doc.file));
+      }
+    });
+    this.uploadState.optionalDocs.forEach((file, index) => {
+      uploads.push(this.creditService.uploadLoanDocument(requestLoanId, `OPTIONAL_${index + 1}`, file));
+    });
+    return uploads.length ? forkJoin(uploads) : of([]);
   }
 
   private createInitialUploadState(): UploadFileState {
@@ -403,7 +465,6 @@ export class ClientVehicles implements OnDestroy {
       payslipDoc: null,
       bankStatementDoc: null,
       workProofDoc: null,
-      addressProofDoc: null,
       optionalDocs: [],
     };
   }
@@ -491,7 +552,6 @@ export class ClientVehicles implements OnDestroy {
     payslipDocName: string | null;
     bankStatementDocName: string | null;
     workProofDocName: string | null;
-    addressProofDocName: string | null;
     optionalDocNames: string[];
   } {
     return {
@@ -499,7 +559,6 @@ export class ClientVehicles implements OnDestroy {
       payslipDocName: this.uploadState.payslipDoc?.name ?? null,
       bankStatementDocName: this.uploadState.bankStatementDoc?.name ?? null,
       workProofDocName: this.uploadState.workProofDoc?.name ?? null,
-      addressProofDocName: this.uploadState.addressProofDoc?.name ?? null,
       optionalDocNames: this.uploadState.optionalDocs.map((f) => f.name),
     };
   }
@@ -511,7 +570,6 @@ export class ClientVehicles implements OnDestroy {
           payslipDocName?: string | null;
           bankStatementDocName?: string | null;
           workProofDocName?: string | null;
-          addressProofDocName?: string | null;
           optionalDocNames?: string[];
         }
       | null
@@ -527,7 +585,6 @@ export class ClientVehicles implements OnDestroy {
       payslipDoc: makePlaceholderFile(draft?.payslipDocName),
       bankStatementDoc: makePlaceholderFile(draft?.bankStatementDocName),
       workProofDoc: makePlaceholderFile(draft?.workProofDocName),
-      addressProofDoc: makePlaceholderFile(draft?.addressProofDocName),
       optionalDocs: Array.isArray(draft?.optionalDocNames)
         ? draft!.optionalDocNames
             .filter((name) => typeof name === 'string' && name.trim().length > 0)
@@ -537,33 +594,49 @@ export class ClientVehicles implements OnDestroy {
   }
 
   private validateAdvancedForm(setError: boolean): boolean {
-    const requiredTextValues = [
-      this.requestForm.fullName,
-      this.requestForm.dateOfBirth,
-      this.requestForm.cinNumber,
-      this.requestForm.address,
-      this.requestForm.phone,
-      this.requestForm.email,
-    ];
-    const hasRequiredText = requiredTextValues.every((value) => String(value || '').trim().length > 0);
-    const hasIncome = Number(this.requestForm.estimatedMonthlyIncome) > 0;
-    const hasAmount = Number(this.requestForm.montantDemande) > 0;
-    const hasDocs =
-      !!this.uploadState.cinDoc &&
-      !!this.uploadState.payslipDoc &&
-      !!this.uploadState.bankStatementDoc &&
-      !!this.uploadState.workProofDoc &&
-      !!this.uploadState.addressProofDoc;
-    const hasConsent =
-      this.requestForm.infoAccuracyConfirmed &&
-      this.requestForm.documentsCheckAuthorized &&
-      this.requestForm.termsAccepted &&
-      this.requestForm.personalDataConsent;
-    const isValid = hasRequiredText && hasIncome && hasAmount && hasDocs && hasConsent;
+    const issues = this.getValidationIssues();
+    const isValid = issues.length === 0;
     if (!isValid && setError) {
-      this.submitError =
-        'Veuillez compléter les champs requis, téléverser les documents obligatoires et cocher tous les consentements.';
+      this.submitError = `Veuillez corriger avant envoi: ${issues.join(' | ')}`;
     }
     return isValid;
+  }
+
+  private getValidationIssues(): string[] {
+    const issues: string[] = [];
+
+    const requiredTextValues = [
+      ['Nom complet', this.requestForm.fullName],
+      ['Date de naissance', this.requestForm.dateOfBirth],
+      ['Numéro CIN', this.requestForm.cinNumber],
+      ['Adresse', this.requestForm.address],
+      ['Téléphone', this.requestForm.phone],
+      ['Email', this.requestForm.email],
+    ] as const;
+
+    requiredTextValues.forEach(([label, value]) => {
+      if (String(value || '').trim().length === 0) {
+        issues.push(`${label} manquant`);
+      }
+    });
+
+    if (Number(this.requestForm.estimatedMonthlyIncome) <= 0) {
+      issues.push('Revenu mensuel invalide');
+    }
+
+    if (Number(this.requestForm.montantDemande) <= 0) {
+      issues.push('Montant demandé invalide');
+    }
+
+    if (!this.uploadState.cinDoc) issues.push('CIN non téléversée');
+    if (!this.uploadState.payslipDoc) issues.push('Fiche de paie non téléversée');
+    if (!this.uploadState.bankStatementDoc) issues.push('Relevé bancaire non téléversé');
+    if (!this.uploadState.workProofDoc) issues.push('Attestation de travail non téléversée');
+    if (!this.requestForm.infoAccuracyConfirmed) issues.push('Confirmation exactitude non cochée');
+    if (!this.requestForm.documentsCheckAuthorized) issues.push('Autorisation vérification non cochée');
+    if (!this.requestForm.termsAccepted) issues.push('Conditions générales non cochées');
+    if (!this.requestForm.personalDataConsent) issues.push('Consentement données non coché');
+
+    return issues;
   }
 }

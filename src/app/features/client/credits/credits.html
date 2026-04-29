@@ -12,7 +12,7 @@
     </div>
   </div>
 
-  <div class="panel s2 panel-animated panel-enter">
+  <div class="panel s2">
     <div class="panel-body" *ngIf="loading">Chargement des demandes...</div>
     <div class="panel-body" *ngIf="error">{{ error }}</div>
 
@@ -245,25 +245,37 @@
             <label class="rl-field">
               <span>Carte d'identite nationale (CIN)</span>
               <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('cinDoc', $event)">
+              <small *ngIf="editUploadState.cinDoc">
+                Document actuel: {{ editUploadState.cinDoc.name }}
+                <button type="button" class="btn btn-outline btn-xs" (click)="openExistingDocument(getExistingDocumentByType('CIN'))">Consulter</button>
+              </small>
             </label>
             <label class="rl-field">
               <span>Fiche de paie recente</span>
               <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('payslipDoc', $event)">
+              <small *ngIf="editUploadState.payslipDoc">
+                Document actuel: {{ editUploadState.payslipDoc.name }}
+                <button type="button" class="btn btn-outline btn-xs" (click)="openExistingDocument(getExistingDocumentByType('FICHE_PAIE'))">Consulter</button>
+              </small>
             </label>
             <label class="rl-field">
               <span>Releve bancaire des 3 derniers mois</span>
               <input type="file" accept=".pdf" (change)="onSingleFileSelected('bankStatementDoc', $event)">
+              <small *ngIf="editUploadState.bankStatementDoc">
+                Document actuel: {{ editUploadState.bankStatementDoc.name }}
+                <button type="button" class="btn btn-outline btn-xs" (click)="openExistingDocument(getExistingDocumentByType('RELEVE_BANCAIRE'))">Consulter</button>
+              </small>
             </label>
             <label class="rl-field">
               <span>Attestation de travail / preuve d'activite</span>
               <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('workProofDoc', $event)">
+              <small *ngIf="editUploadState.workProofDoc">
+                Document actuel: {{ editUploadState.workProofDoc.name }}
+                <button type="button" class="btn btn-outline btn-xs" (click)="openExistingDocument(getExistingDocumentByType('ATTESTATION_TRAVAIL'))">Consulter</button>
+              </small>
             </label>
             <label class="rl-field">
-              <span>Justificatif de domicile</span>
-              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('addressProofDoc', $event)">
-            </label>
-            <label class="rl-field">
-              <span>Autres documents facultatifs</span>
+              <span>Autres documents (optionnel)</span>
               <input type="file" multiple accept=".pdf,image/*" (change)="onOptionalFilesSelected($event)">
             </label>
             <div class="rl-full optional-docs" *ngIf="editUploadState.optionalDocs.length > 0">
@@ -271,6 +283,9 @@
                 {{ doc.name }}
                 <button type="button" (click)="removeOptionalDoc(i)">×</button>
               </div>
+            </div>
+            <div class="rl-full" *ngIf="loadingExistingDocuments">
+              <small>Chargement des documents existants...</small>
             </div>
           </div>
         </section>

@@ -1,4 +1,4 @@
-
+@import "leaflet/dist/leaflet.css";
 /* ═══════════════════════════════════════════════
    SHARED THEME VARIABLES (dark / light)
    Used by all layouts: agent, seller, insurer, backoffice
@@ -885,3 +885,32 @@ td { padding:.75rem 1rem; font-size:.8375rem; color:var(--g700); vertical-align:
 .doc-meta { font-size:.73rem; color:var(--g400); }
 .doc-size { font-size:.69rem; color:var(--g400); }
 .doc-actions { display:flex; gap:.5rem; }
+
+/* Leaflet safety overrides (prevents broken/sliced map tiles) */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+.leaflet-container img,
+.leaflet-container .leaflet-tile,
+.leaflet-container .leaflet-marker-icon,
+.leaflet-container .leaflet-marker-shadow {
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* Fallback positioning in case global CSS conflicts with Leaflet defaults */
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  position: absolute;
+}
+.leaflet-container .leaflet-pane {
+  left: 0;
+  top: 0;
+}
+.leaflet-container .leaflet-tile {
+  display: block;
+}

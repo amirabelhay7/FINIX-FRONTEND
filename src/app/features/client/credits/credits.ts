@@ -3,7 +3,7 @@ import { catchError, finalize, of, Subject, takeUntil, timeout } from 'rxjs';
 import { AuthService } from '../../../services/auth/auth.service';
 import { Credit } from '../../../services/credit/credit.service';
 import { ClientCreditsSearchService } from '../../../services/client-credits-search.service';
-import { RequestLoanDto } from '../../../models/credit.model';
+import { LoanDocumentDto, RequestLoanDto } from '../../../models/credit.model';
 
 type MaritalStatus = 'Célibataire' | 'Marié(e)' | 'Divorcé(e)' | 'Veuf/Veuve';
 type EmploymentType = 'Salarié' | 'Indépendant' | 'Sans emploi' | 'Étudiant' | 'Retraité';
@@ -64,6 +64,8 @@ export class ClientCredits implements OnInit, OnDestroy {
   readonly repaymentTypeOptions: RepaymentType[] = ['Mensualités fixes', 'Mensualités flexibles'];
   editUploadState: UploadFileState = this.createInitialUploadState();
   isSavingDraft = false;
+  loadingExistingDocuments = false;
+  existingLoanDocuments: LoanDocumentDto[] = [];
 
   editForm = {
     fullName: '',
@@ -395,6 +397,7 @@ export class ClientCredits implements OnInit, OnDestroy {
     this.submitError = '';
     this.submitSuccess = '';
     this.loadEditDraftIfAny(loan.idDemande);
+    this.loadExistingDocuments(loan.idDemande);
     this.showEditModal = true;
   }
 
@@ -420,6 +423,7 @@ export class ClientCredits implements OnInit, OnDestroy {
     this.selectedLoan = null;
     this.montantTotalCredit = 0;
     this.editUploadState = this.createInitialUploadState();
+    this.existingLoanDocuments = [];
     this.submitError = '';
     this.submitSuccess = '';
   }
@@ -604,8 +608,7 @@ export class ClientCredits implements OnInit, OnDestroy {
     const hasDocs = !!this.editUploadState.cinDoc
       && !!this.editUploadState.payslipDoc
       && !!this.editUploadState.bankStatementDoc
-      && !!this.editUploadState.workProofDoc
-      && !!this.editUploadState.addressProofDoc;
+      && !!this.editUploadState.workProofDoc;
     const hasConsents = this.editForm.infoAccuracyConfirmed
       && this.editForm.documentsCheckAuthorized
       && this.editForm.termsAccepted
@@ -713,6 +716,66 @@ export class ClientCredits implements OnInit, OnDestroy {
             .map((name) => new File([''], name, { type: 'application/octet-stream' }))
         : [],
     };
+  }
+
+  private loadExistingDocuments(requestLoanId: number): void {
+    this.loadingExistingDocuments = true;
+    this.existingLoanDocuments = [];
+    this.creditService.getLoanDocuments(0, 500).subscribe({
+      next: (response) => {
+        const docs = Array.isArray(response?.content)
+          ? response.content.filter((d) => Number(d.requestLoanId) === Number(requestLoanId))
+          : [];
+        this.existingLoanDocuments = docs;
+        if (docs.length > 0) {
+          this.applyExistingDocumentsToEditState(docs);
+        }
+        this.loadingExistingDocuments = false;
+      },
+      error: () => {
+        this.loadingExistingDocuments = false;
+      },
+    });
+  }
+
+  getExistingDocumentByType(type: string): LoanDocumentDto | undefined {
+    return this.existingLoanDocuments.find((d) => (d.typeDocument || '').trim().toUpperCase() === type);
+  }
+
+  openExistingDocument(doc: LoanDocumentDto | undefined): void {
+    if (!doc?.idDocument) {
+      return;
+    }
+    this.creditService.downloadLoanDocument(doc.idDocument).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      },
+      error: () => {
+        this.submitError = 'Impossible de consulter ce document pour le moment.';
+      },
+    });
+  }
+
+  private applyExistingDocumentsToEditState(docs: LoanDocumentDto[]): void {
+    const byType = (type: string): LoanDocumentDto | undefined =>
+      docs.find((d) => (d.typeDocument || '').trim().toUpperCase() === type);
+    const makePlaceholder = (doc?: LoanDocumentDto): File | null =>
+      doc?.nomFichier ? new File([''], doc.nomFichier, { type: 'application/octet-stream' }) : null;
+
+    this.editUploadState.cinDoc = makePlaceholder(byType('CIN')) ?? this.editUploadState.cinDoc;
+    this.editUploadState.payslipDoc = makePlaceholder(byType('FICHE_PAIE')) ?? this.editUploadState.payslipDoc;
+    this.editUploadState.bankStatementDoc =
+      makePlaceholder(byType('RELEVE_BANCAIRE')) ?? this.editUploadState.bankStatementDoc;
+    this.editUploadState.workProofDoc =
+      makePlaceholder(byType('ATTESTATION_TRAVAIL')) ?? this.editUploadState.workProofDoc;
+    const optionalDocs = docs
+      .filter((d) => (d.typeDocument || '').toUpperCase().startsWith('OPTIONAL_') && d.nomFichier)
+      .map((d) => new File([''], d.nomFichier, { type: 'application/octet-stream' }));
+    if (optionalDocs.length > 0) {
+      this.editUploadState.optionalDocs = optionalDocs;
+    }
   }
 
 }

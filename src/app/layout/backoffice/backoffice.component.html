@@ -657,57 +657,154 @@
             <span class="ptdot"></span>
             Gestion des événements
           </div>
-          <button class="btn btn-outline btn-sm" (click)="loadEvents()">Actualiser</button>
-        </div>
-
-        <div class="panel-body" *ngIf="eventsLoading">
-          Chargement des événements...
+          <div class="events-filter-bar">
+            <input
+              class="form-input events-search-input"
+              type="text"
+              placeholder="Rechercher par titre, ville..."
+              [(ngModel)]="eventsSearchTerm"
+              (ngModelChange)="onEventsFilterChange()"
+            />
+            <select class="form-input events-status-select" [(ngModel)]="eventsStatusFilter" (ngModelChange)="onEventsFilterChange()">
+              <option value="ALL">Tous les statuts</option>
+              <option value="PUBLISHED">Published</option>
+              <option value="DRAFT">Draft</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+            <select class="form-input events-size-select" [(ngModel)]="eventsPageSize" (ngModelChange)="onEventsFilterChange()">
+              <option [ngValue]="6">6 / page</option>
+              <option [ngValue]="10">10 / page</option>
+              <option [ngValue]="15">15 / page</option>
+            </select>
+          </div>
         </div>
 
         <div class="panel-body" *ngIf="eventsError">
           {{ eventsError }}
         </div>
 
-        <div class="tbl-wrap" *ngIf="!eventsLoading && events.length > 0">
-          <table>
-            <thead>
-              <tr>
-                <th>Titre</th>
-                <th>Ville</th>
-                <th>Date début</th>
-                <th>Date fin</th>
-                <th>Statut</th>
-                <th>Participants</th>
-                <th>Payant</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let ev of events">
-                <td>
-                  <div class="td-primary">{{ ev.title }}</div>
-                  <div class="td-sub">{{ ev.address || '-' }}</div>
-                </td>
-                <td>{{ ev.city || '-' }}</td>
-                <td>{{ ev.startDate ? (ev.startDate | date:'short') : '-' }}</td>
-                <td>{{ ev.endDate ? (ev.endDate | date:'short') : '-' }}</td>
-                <td>
-                  <span class="badge b-blue">{{ ev.status || '-' }}</span>
-                </td>
-                <td>
-                  {{ ev.currentParticipants ?? 0 }} / {{ ev.maxParticipants ?? 0 }}
-                </td>
-                <td>
-                  <span class="badge" [ngClass]="ev.paidEvent ? 'b-review' : 'b-actif'">
-                    {{ ev.paidEvent ? 'Oui' : 'Non' }}
+        <div class="events-content" *ngIf="filteredEvents.length > 0">
+          <div class="events-cards">
+          <article class="event-card" *ngFor="let ev of paginatedEvents; trackBy: trackByEventId">
+            <div class="event-card-main">
+              <img class="event-thumb" [src]="ev.imageUrl || 'https://picsum.photos/240/180?grayscale'" [alt]="ev.title || 'event'" />
+
+              <div class="event-main-content">
+                <div class="event-title-row">
+                  <div>
+                    <h3 class="event-title">{{ ev.title || 'Event sans titre' }}</h3>
+                    <a class="event-category-link" href="javascript:void(0)">{{ getCategoryLabel(ev) }}</a>
+                    <div class="event-meta-line">{{ getEventDateTimeLabel(ev) }}</div>
+                  </div>
+                  <div class="event-stat-top-right">{{ getEventFillStat(ev) }}</div>
+                </div>
+
+                <div class="event-days-row">
+                  <span
+                    class="event-day-pill"
+                    *ngFor="let day of weekDays; let i = index"
+                    [class.active]="isEventDayActive(ev, i)"
+                  >
+                    {{ day }}
                   </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+
+                <div class="event-status-line">
+                  <span class="event-status-dot" [ngClass]="getEventStatusClass(ev.status)"></span>
+                  <span class="event-status-label">{{ ev.status || 'UNKNOWN' }}</span>
+                </div>
+              </div>
+
+              <div class="event-side-info">
+                <div class="event-locations">
+                  <div class="event-location-item" *ngFor="let loc of getEventLocations(ev)">
+                    <span class="loc-pin">⌖</span>
+                    <span>{{ loc }}</span>
+                  </div>
+                </div>
+
+                <div class="event-donut-row">
+                  <div class="event-metric">
+                    <div class="event-donut" [style.--pct]="getEventMetricPct(ev, 'inscrits') + '%'">
+                      <span>{{ getEventMetricValue(ev, 'inscrits') }}</span>
+                    </div>
+                    <div class="event-metric-label">Inscrits</div>
+                  </div>
+                  <div class="event-metric">
+                    <div class="event-donut blue" [style.--pct]="getEventMetricPct(ev, 'capacite') + '%'">
+                      <span>{{ getEventMetricValue(ev, 'capacite') }}</span>
+                    </div>
+                    <div class="event-metric-label">Capacité</div>
+                  </div>
+                  <div class="event-metric">
+                    <div class="event-donut gray" [style.--pct]="getEventMetricPct(ev, 'restants') + '%'">
+                      <span>{{ getEventMetricValue(ev, 'restants') }}</span>
+                    </div>
+                    <div class="event-metric-label">Restants</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="event-card-actions">
+              <button class="btn btn-outline btn-sm" [disabled]="!canEditEvent(ev)" (click)="openEditEventModal(ev)">
+                Modifier
+              </button>
+              <button class="btn btn-ghost btn-sm" (click)="toggleEventExpand(ev.idEvent)">
+                {{ expandedEventId === ev.idEvent ? 'Masquer stats' : 'Voir stats' }}
+              </button>
+            </div>
+
+            <div class="event-expand-row" *ngIf="expandedEventId === ev.idEvent">
+              <div class="event-stat-box">
+                <div class="event-stat-val">{{ ev.maxParticipants ?? 0 }}</div>
+                <div class="event-stat-lbl">Capacity</div>
+              </div>
+              <div class="event-stat-box">
+                <div class="event-stat-val">{{ ev.currentParticipants ?? 0 }}</div>
+                <div class="event-stat-lbl">Registrations</div>
+              </div>
+              <div class="event-stat-box">
+                <div class="event-stat-val">
+                  {{ getEventMetricValue(ev, 'inscrits') }}
+                </div>
+                <div class="event-stat-lbl">Confirmés</div>
+              </div>
+              <div class="event-stat-box">
+                <div class="event-stat-val">
+                  {{ getEventMetricValue(ev, 'restants') }}
+                </div>
+                <div class="event-stat-lbl">Disponibles</div>
+              </div>
+            </div>
+          </article>
+          </div>
+
+          <div class="events-pagination">
+            <button class="btn btn-outline btn-sm" [disabled]="eventsPage === 1" (click)="goToEventsPage(eventsPage - 1)">
+              Prev
+            </button>
+            <button
+              class="btn btn-sm"
+              *ngFor="let p of eventPaginationPages"
+              [ngClass]="eventsPage === p ? 'btn-primary' : 'btn-outline'"
+              (click)="goToEventsPage(p)"
+            >
+              {{ p }}
+            </button>
+            <button
+              class="btn btn-outline btn-sm"
+              [disabled]="eventsPage === totalEventPages"
+              (click)="goToEventsPage(eventsPage + 1)"
+            >
+              Next
+            </button>
+            <span class="events-pagination-info">{{ eventsPage }} / {{ totalEventPages }}</span>
+          </div>
         </div>
 
-        <div class="panel-body" *ngIf="!eventsLoading && events.length === 0 && !eventsError">
-          No events...
+        <div class="panel-body" *ngIf="!eventsLoading && filteredEvents.length === 0 && !eventsError">
+          Aucun événement trouvé...
         </div>
       </div>
 
@@ -1402,7 +1499,7 @@
 
         <div class="bk-modal-header">
           <div>
-            <div class="bk-modal-title">Créer Evenement</div>
+            <div class="bk-modal-title">{{ isEditingEvent ? 'Modifier Evenement' : 'Créer Evenement' }}</div>
             <div class="bk-modal-sub">Renseignez les informations de publication</div>
           </div>
           <button class="bk-modal-close" (click)="closeCreateEventModal()">✕</button>
@@ -1424,6 +1521,9 @@
             <div class="form-group">
               <label class="form-label">Adresse *</label>
               <input class="form-input" type="text" [(ngModel)]="eventForm.address" />
+              <button class="btn btn-outline btn-sm map-pick-btn" type="button" (click)="openAddressMapPicker()">
+                Choisir sur la carte
+              </button>
             </div>
             <div class="form-group">
               <label class="form-label">Participants max</label>
@@ -1448,54 +1548,18 @@
             </div>
             <div class="form-group">
               <label class="form-label">Date fin *</label>
-              <input class="form-input" type="datetime-local" [(ngModel)]="eventForm.endDate" />
+              <input class="form-input" type="datetime-local" [min]="eventForm.startDate" [(ngModel)]="eventForm.endDate" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Date limite inscription</label>
-              <input class="form-input" type="datetime-local" [(ngModel)]="eventForm.registrationDeadline" />
+              <input class="form-input" type="datetime-local" [max]="eventForm.endDate" [(ngModel)]="eventForm.registrationDeadline" />
             </div>
             <div class="form-group">
               <label class="form-label">Participants actuels</label>
-              <input class="form-input" type="number" [value]="0" readonly />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Evenement payant</label>
-              <label style="display:flex; align-items:center; gap:8px; margin-top:.25rem;">
-                <input
-                  type="checkbox"
-                  [checked]="eventForm.paidEvent"
-                  (ngModelChange)="onPaidEventToggle($event)"
-                  [(ngModel)]="eventForm.paidEvent"
-                />
-                <span>{{ eventForm.paidEvent ? 'Oui' : 'Non' }}</span>
-              </label>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Registration fee</label>
-              <label style="display:flex; align-items:center; gap:8px; margin-top:.25rem;">
-                <input
-                  type="checkbox"
-                  [checked]="hasRegistrationFee"
-                  (ngModelChange)="onRegistrationFeeToggle($event)"
-                  [(ngModel)]="hasRegistrationFee"
-                />
-                <span>Activer les frais</span>
-              </label>
-              <input
-                *ngIf="hasRegistrationFee"
-                class="form-input"
-                style="margin-top:.5rem;"
-                type="number"
-                min="0"
-                [(ngModel)]="eventForm.registrationFee"
-              />
+              <input class="form-input" type="number" [value]="eventForm.currentParticipants" readonly />
             </div>
           </div>
 
@@ -1503,10 +1567,6 @@
             <div class="form-group">
               <label class="form-label">Image URL</label>
               <input class="form-input" type="text" [(ngModel)]="eventForm.imageUrl" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">External URL</label>
-              <input class="form-input" type="text" [(ngModel)]="eventForm.externalUrl" />
             </div>
           </div>
 
@@ -1540,11 +1600,46 @@
         <div class="decision-bar">
           <button class="btn btn-outline btn-lg" [disabled]="isCreatingEvent" (click)="closeCreateEventModal()">Annuler</button>
           <button class="btn btn-primary btn-lg flex-1" [disabled]="isCreatingEvent" (click)="createEvent()">
-            {{ isCreatingEvent ? 'Création...' : 'Créer Evenement' }}
+            {{ isCreatingEvent ? (isEditingEvent ? 'Modification...' : 'Création...') : (isEditingEvent ? 'Modifier Evenement' : 'Créer Evenement') }}
           </button>
         </div>
       </div>
     </div><!-- /modal create event -->
+
+    <div class="bk-modal-overlay" *ngIf="showAddressMapModal" (click)="closeAddressMapPicker()">
+      <div class="bk-modal map-modal" (click)="$event.stopPropagation()">
+        <div class="bk-modal-header">
+          <div>
+            <div class="bk-modal-title">Choisir une adresse</div>
+            <div class="bk-modal-sub">Cliquez sur la carte puis confirmez.</div>
+          </div>
+          <button class="bk-modal-close" (click)="closeAddressMapPicker()">✕</button>
+        </div>
+        <div class="bk-modal-body">
+          <form class="map-search-row" (submit)="searchAddressOnMap(); $event.preventDefault()">
+            <input
+              class="form-input"
+              type="text"
+              placeholder="Rechercher une adresse..."
+              [(ngModel)]="mapSearchQuery"
+              name="mapSearchQuery"
+            />
+            <button class="btn btn-outline btn-sm" type="submit">Rechercher</button>
+          </form>
+          <div id="event-address-map" class="event-address-map"></div>
+          <div class="map-selected-address">{{ selectedMapAddress || 'Aucune adresse sélectionnée.' }}</div>
+          <div class="panel-body" *ngIf="mapPickerError" style="color: var(--danger, #c0392b); padding-top: 0;">
+            {{ mapPickerError }}
+          </div>
+        </div>
+        <div class="decision-bar">
+          <button class="btn btn-outline btn-lg" (click)="closeAddressMapPicker()">Annuler</button>
+          <button class="btn btn-primary btn-lg flex-1" [disabled]="!selectedMapLocation" (click)="confirmAddressFromMap()">
+            Utiliser cette adresse
+          </button>
+        </div>
+      </div>
+    </div>
 
 
     <!-- ═══════════════════════════════════════════════════════

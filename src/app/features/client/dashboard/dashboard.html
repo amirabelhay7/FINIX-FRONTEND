@@ -11,39 +11,66 @@
     </div>
   </div>
 
-  <!-- KPIs row -->
-  <div class="kpi-row s2">
-    <div class="kpi" style="--kc:var(--blue);">
-      <div class="kpi-top">
-        <div class="kpi-ico">💳</div>
-        <div class="kpi-badge kb-up">↑ +1 ce mois</div>
+  <div class="dashboard-top s2">
+    <!-- KPIs row -->
+    <div class="kpi-row kpi-row-no-gap">
+      <div class="kpi" style="--kc:var(--blue);">
+        <div class="kpi-top">
+          <div class="kpi-ico">💳</div>
+          <div class="kpi-badge kb-up">↑ +1 ce mois</div>
+        </div>
+        <div><div class="kpi-val">3</div><div class="kpi-lbl">Crédits actifs</div></div>
+        <div class="kpi-foot">Capacité restante : <b>15 000 TND</b></div>
       </div>
-      <div><div class="kpi-val">3</div><div class="kpi-lbl">Crédits actifs</div></div>
-      <div class="kpi-foot">Capacité restante : <b>15 000 TND</b></div>
+      <div class="kpi" style="--kc:var(--success);">
+        <div class="kpi-top">
+          <div class="kpi-ico" style="background:var(--fx-success-soft);">💰</div>
+          <div class="kpi-badge kb-up">✓ Score 742</div>
+        </div>
+        <div><div class="kpi-val"><small>TND </small>24 500</div><div class="kpi-lbl">Encours total</div></div>
+        <div class="kpi-foot">Remboursé : <b>18 200 TND (74%)</b></div>
+      </div>
+      <div class="kpi" style="--kc:var(--warning);">
+        <div class="kpi-top">
+          <div class="kpi-ico" style="background:var(--fx-warning-soft);">📅</div>
+          <div class="kpi-badge kb-warn">⚠ Dans 5 jours</div>
+        </div>
+        <div><div class="kpi-val"><small>TND </small>850</div><div class="kpi-lbl">Prochaine échéance</div></div>
+        <div class="kpi-foot">Date limite : <b>05 Mars 2026</b></div>
+      </div>
+      <div class="kpi" style="--kc:var(--steel);">
+        <div class="kpi-top">
+          <div class="kpi-ico" style="background:var(--fx-blue-soft);">🚗</div>
+          <div class="kpi-badge kb-neu">● 2 véhicules</div>
+        </div>
+        <div><div class="kpi-val">742<small>/850</small></div><div class="kpi-lbl">Score de crédit</div></div>
+        <div class="kpi-foot">Profil : <b>Bon emprunteur ✓</b></div>
+      </div>
     </div>
-    <div class="kpi" style="--kc:var(--success);">
-      <div class="kpi-top">
-        <div class="kpi-ico" style="background:var(--fx-success-soft);">💰</div>
-        <div class="kpi-badge kb-up">✓ Score 742</div>
+
+    <div class="mini-calendar-wrap">
+      <div class="mini-cal-block-title">event du mois</div>
+      <div class="mini-calendar">
+        <div class="mini-cal-head">
+          <div class="mini-cal-title">{{ calendarMonthLabel }}</div>
+          <div class="mini-cal-nav">
+            <button class="mini-nav-btn" (click)="prevCalendarMonth()">‹</button>
+            <button class="mini-nav-btn" (click)="nextCalendarMonth()">›</button>
+          </div>
+        </div>
+        <div class="mini-cal-weekday" *ngFor="let day of calendarWeekdays">{{ day }}</div>
+        <div class="mini-cal-day" *ngFor="let cell of calendarDays" [class.out]="!cell.inMonth">
+          <button
+            class="mini-day-num"
+            [class.event]="cell.isEventDay"
+            [class.multi]="cell.hasMultiple"
+            [disabled]="!cell.isEventDay || !cell.inMonth"
+            (click)="onCalendarDayClick(cell)"
+          >
+            {{ cell.day }}
+          </button>
+        </div>
       </div>
-      <div><div class="kpi-val"><small>TND </small>24 500</div><div class="kpi-lbl">Encours total</div></div>
-      <div class="kpi-foot">Remboursé : <b>18 200 TND (74%)</b></div>
-    </div>
-    <div class="kpi" style="--kc:var(--warning);">
-      <div class="kpi-top">
-        <div class="kpi-ico" style="background:var(--fx-warning-soft);">📅</div>
-        <div class="kpi-badge kb-warn">⚠ Dans 5 jours</div>
-      </div>
-      <div><div class="kpi-val"><small>TND </small>850</div><div class="kpi-lbl">Prochaine échéance</div></div>
-      <div class="kpi-foot">Date limite : <b>05 Mars 2026</b></div>
-    </div>
-    <div class="kpi" style="--kc:var(--steel);">
-      <div class="kpi-top">
-        <div class="kpi-ico" style="background:var(--fx-blue-soft);">🚗</div>
-        <div class="kpi-badge kb-neu">● 2 véhicules</div>
-      </div>
-      <div><div class="kpi-val">742<small>/850</small></div><div class="kpi-lbl">Score de crédit</div></div>
-      <div class="kpi-foot">Profil : <b>Bon emprunteur ✓</b></div>
     </div>
   </div>
 
@@ -160,6 +187,22 @@
         <div class="alert-row"><div class="alert-ico ico-info">📋</div><div><div class="alert-title">Dossier en analyse</div><div class="alert-desc">#CR-2025-043</div><div class="alert-time">Hier</div></div><div class="unread"></div></div>
         <div class="alert-row"><div class="alert-ico ico-ok">✅</div><div><div class="alert-title">Score +12 pts</div><div class="alert-desc">Nouveau : 742/850</div><div class="alert-time">23 Fév</div></div></div>
         <div class="alert-row"><div class="alert-ico ico-danger">❗</div><div><div class="alert-title">Document requis</div><div class="alert-desc">Justificatif revenu</div><div class="alert-time">12 Fév</div></div><div class="unread" style="background:var(--danger)"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-ev-overlay" *ngIf="showEventModal" (click)="closeEventModal()">
+    <div class="dash-ev-modal" (click)="$event.stopPropagation()">
+      <div class="dash-ev-head">
+        <div class="dash-ev-title">{{ selectedEvent?.title || 'Event' }}</div>
+        <button class="btn btn-outline btn-xs" (click)="closeEventModal()">Fermer</button>
+      </div>
+      <div class="dash-ev-body">
+        <div><strong>Date:</strong> {{ formatDate(selectedEvent?.startDate) }}</div>
+        <div><strong>Ville:</strong> {{ selectedEvent?.city || '-' }}</div>
+        <div><strong>Adresse:</strong> {{ selectedEvent?.address || '-' }}</div>
+        <div><strong>Participants:</strong> {{ selectedEvent?.currentParticipants ?? 0 }} / {{ selectedEvent?.maxParticipants ?? 0 }}</div>
+        <div class="dash-ev-desc">{{ selectedEvent?.description || 'Aucune description.' }}</div>
       </div>
     </div>
   </div>
