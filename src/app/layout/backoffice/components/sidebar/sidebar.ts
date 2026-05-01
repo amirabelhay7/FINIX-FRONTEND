@@ -33,7 +33,8 @@ export class SidebarComponent implements OnInit {
   }
 
   switchPage(page: string) {
-    this.currentPage = page;
+    // Users is nested under Settings → mark settings as active in sidebar
+    this.currentPage = page === 'users' ? 'settings' : page;
     this.pageChanged.emit(page);
   }
 

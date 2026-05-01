@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Credit } from '../../services/credit/credit.service';
 
 interface PipelineCard {
   name: string;
@@ -48,6 +47,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   logsList: any[] = [];
   logsLoading = false;
   usersTab: 'users' | 'logs' = 'users';
+  activeSettingsSection: string = 'general';
 
   /* ── Dashboard KPIs ── */
   dash = {
@@ -67,7 +67,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   };
   dashLoading = false;
 
-  constructor(private renderer: Renderer2, private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef, private creditService: Credit) {}
+  constructor(private renderer: Renderer2, private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   logout(): void {
     localStorage.removeItem('finix_access_token');
@@ -135,14 +135,26 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   }
 
   onPageChange(page: string) {
-    this.navigateTo(page);
     if (page === 'users') {
-      this.usersTab = 'users';
-      this.loadUsers();
-      this.loadLogs();
+      this.setSettingsSection('users-roles');
+      return;
+    }
+    this.navigateTo(page);
+    if (page === 'settings') {
+      this.activeSettingsSection = 'general';
     }
     if (page === 'clients') {
       this.loadClients();
+    }
+  }
+
+  setSettingsSection(section: string): void {
+    this.activeSettingsSection = section;
+    this.navigateTo('settings');
+    if (section === 'users-roles') {
+      this.usersTab = 'users';
+      this.loadUsers();
+      this.loadLogs();
     }
   }
 
@@ -724,7 +736,8 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         this.usersLoading = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err: any) => {
+        console.error('[loadUsers] Erreur chargement utilisateurs:', err);
         this.usersLoading = false;
         this.cdr.detectChanges();
       }
@@ -820,7 +833,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
           this.addUserLoading = false;
           this.showUserModal = false;
           this.cdr.detectChanges();
-          this.loadUsers();
+          setTimeout(() => this.loadUsers(), 0);
         },
         error: (err: any) => {
           this.addUserLoading = false;
@@ -829,7 +842,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      // CREATE
+      // CREATE — uses /api/users/register (no JWT generation, password hashed server-side)
       const payload: any = {
         firstName: this.newUser.firstName,
         lastName: this.newUser.lastName,
@@ -838,6 +851,8 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         role: this.newUser.role,
         phoneNumber: this.newUser.phoneNumber ? Number(this.newUser.phoneNumber) : null,
         cin: this.newUser.cin || null,
+        address: this.newUser.address || null,
+        city: this.newUser.city || null,
       };
       if (this.newUser.role === 'AGENT') {
         payload.agenceCode = this.newUser.agenceCode ? Number(this.newUser.agenceCode) : null;
@@ -847,18 +862,18 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         payload.insurerEmail = this.newUser.insurerEmail;
       }
       console.log('[ADMIN] Creating user with payload:', JSON.stringify(payload));
-      this.http.post(`${this.API}/auth/register`, payload).subscribe({
+      this.http.post(`${this.API}/users/register`, payload).subscribe({
         next: (res) => {
           console.log('[ADMIN] User created successfully:', res);
           this.addUserLoading = false;
           this.showUserModal = false;
           this.cdr.detectChanges();
-          this.loadUsers();
+          setTimeout(() => this.loadUsers(), 0);
         },
         error: (err: any) => {
           console.error('[ADMIN] Create user error:', err);
           this.addUserLoading = false;
-          this.addUserError = err.error?.message || err.message || 'Erreur lors de la création.';
+          this.addUserError = err.error?.message || err.error || err.message || 'Erreur lors de la création.';
           this.cdr.detectChanges();
         }
       });

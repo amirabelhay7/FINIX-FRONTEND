@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetectorRef, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
@@ -27,6 +27,9 @@ export class AgentLayout implements OnInit, OnDestroy {
   agentRole      = 'Agent IMF';
 
   private readonly API = 'http://localhost:8081/api';
+
+  currentTime = '';
+  private clockInterval: any;
 
   /* ── Payment form ── */
   showPaymentModal = false;
@@ -90,6 +93,7 @@ export class AgentLayout implements OnInit, OnDestroy {
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private delinquencyService: DelinquencyService,
+    private ngZone: NgZone,
   ) {}
 
   ngOnInit(): void {
@@ -98,6 +102,17 @@ export class AgentLayout implements OnInit, OnDestroy {
     this.applyTheme();
     this.loadAgentProfile();
     if (this.selectedPage === 'dossiers') this.loadDossiers();
+
+    this.currentTime = this.formatTime();
+    this.ngZone.runOutsideAngular(() => {
+      this.clockInterval = setInterval(() => {
+        const t = this.formatTime();
+        if (t !== this.currentTime) {
+          this.currentTime = t;
+          this.cdr.detectChanges();
+        }
+      }, 1000);
+    });
   }
 
   private loadAgentProfile(): void {
@@ -112,6 +127,7 @@ export class AgentLayout implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.renderer.removeAttribute(document.documentElement, 'data-theme');
+    clearInterval(this.clockInterval);
   }
 
   toggleTheme(): void {
@@ -279,9 +295,8 @@ export class AgentLayout implements OnInit, OnDestroy {
     this.renderer.setAttribute(document.documentElement, 'data-theme', this.currentTheme);
   }
 
-  get currentTime(): string {
-    const now = new Date();
-    return now.toLocaleTimeString('fr-FR', {
+  private formatTime(): string {
+    return new Date().toLocaleTimeString('fr-FR', {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',

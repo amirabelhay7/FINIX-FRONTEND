@@ -1175,132 +1175,16 @@
     <!-- ═══════════════════════════════════════════════════════
          USERS PAGE
          ═══════════════════════════════════════════════════════ -->
-    <div class="page" [class.active]="selectedPage === 'users'" id="page-users">
-      <div class="ph s1">
-        <div>
-          <div class="ph-eyebrow">Système</div>
-          <div class="ph-title">Users — Agents IMF & Assureurs</div>
-          <div class="ph-desc">Gérer les comptes et consulter l'historique des connexions</div>
-        </div>
-        <div class="ph-actions">
-          <button class="btn btn-primary" *ngIf="usersTab === 'users'" (click)="openAddUser()">+ Ajouter un utilisateur</button>
-        </div>
-      </div>
-
-      <!-- Tabs -->
-      <div style="display:flex;gap:0;margin-bottom:1.25rem;border-bottom:2px solid var(--border, #e5e7eb)">
-        <button (click)="switchUsersTab('users')"
-          style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
-          [style.color]="usersTab === 'users' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
-          [style.border-bottom]="usersTab === 'users' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
-          Utilisateurs
-        </button>
-        <button (click)="switchUsersTab('logs')"
-          style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
-          [style.color]="usersTab === 'logs' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
-          [style.border-bottom]="usersTab === 'logs' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
-          Historique connexions
-        </button>
-      </div>
-
-      <!-- Users table -->
-      <div class="panel s2" *ngIf="usersTab === 'users'">
-        <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Liste des utilisateurs</div>
-          <div style="font-size:.75rem;color:var(--muted)">{{ usersList.length }} utilisateur(s)</div>
-        </div>
-        <div class="tbl-wrap">
-          <div *ngIf="usersLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
-          <div *ngIf="!usersLoading && usersList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucun agent ou assureur trouvé.</div>
-          <table *ngIf="!usersLoading && usersList.length > 0">
-            <thead>
-              <tr>
-                <th>Utilisateur</th>
-                <th>Email</th>
-                <th>Rôle</th>
-                <th>Téléphone</th>
-                <th>Ville</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let user of usersList">
-                <td>
-                  <div style="display:flex;align-items:center;gap:.5rem">
-                    <div class="sb-avatar" style="width:30px;height:30px;font-size:.65rem">{{ getUserInitials(user) }}</div>
-                    <div class="td-primary">{{ user.firstName }} {{ user.lastName }}</div>
-                  </div>
-                </td>
-                <td style="font-size:.775rem">{{ user.email }}</td>
-                <td>
-                  <span class="badge" [ngClass]="user.role === 'AGENT' ? 'b-blue' : 'b-purple'">{{ user.role }}</span>
-                </td>
-                <td style="font-size:.775rem">{{ user.phoneNumber || '—' }}</td>
-                <td style="font-size:.775rem">{{ user.city || '—' }}</td>
-                <td>
-                  <div style="display:flex;gap:.35rem">
-                    <button class="btn btn-ghost btn-xs" (click)="openViewUser(user)">Voir</button>
-                    <button class="btn btn-ghost btn-xs" style="color:var(--blue)" (click)="openEditUser(user)">Modifier</button>
-                    <button class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteUser(user.id)">Supprimer</button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Logs table -->
-      <div class="panel s2" *ngIf="usersTab === 'logs'">
-        <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Historique des connexions</div>
-          <div style="font-size:.75rem;color:var(--muted)">{{ logsList.length }} connexion(s)</div>
-        </div>
-        <div class="tbl-wrap">
-          <div *ngIf="logsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
-          <div *ngIf="!logsLoading && logsList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucune connexion enregistrée.</div>
-          <table *ngIf="!logsLoading && logsList.length > 0">
-            <thead>
-              <tr>
-                <th>Utilisateur</th>
-                <th>Email</th>
-                <th>Rôle</th>
-                <th>Date & Heure</th>
-                <th>Adresse IP</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let log of logsList">
-                <td>
-                  <div class="td-primary">{{ log.userName || '—' }}</div>
-                </td>
-                <td style="font-size:.775rem">{{ log.userEmail || '—' }}</td>
-                <td>
-                  <span class="badge" [ngClass]="log.userRole === 'AGENT' ? 'b-blue' : log.userRole === 'INSURER' ? 'b-purple' : log.userRole === 'ADMIN' ? 'b-orange' : 'b-green'">{{ log.userRole }}</span>
-                </td>
-                <td style="font-size:.775rem">{{ log.loginDate | date:'dd/MM/yyyy HH:mm' }}</td>
-                <td style="font-size:.775rem">{{ log.ipAddress || '—' }}</td>
-                <td>
-                  <span class="badge b-green">{{ log.action }}</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-
     <div class="page" [class.active]="selectedPage === 'settings'" id="page-parametres">
       <div class="ph s1">
         <div>
           <div class="ph-eyebrow">Configuration</div>
-          <div class="ph-title">Paramètres</div>
-          <div class="ph-desc">Configuration système, utilisateurs et règles métier</div>
+          <div class="ph-title">{{ activeSettingsSection === 'users-roles' ? 'Utilisateurs & Rôles' : 'Paramètres' }}</div>
+          <div class="ph-desc">{{ activeSettingsSection === 'users-roles' ? 'Gérer les comptes et consulter l\'historique des connexions' : 'Configuration système, utilisateurs et règles métier' }}</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-primary">Sauvegarder la configuration</button>
+          <button class="btn btn-primary" *ngIf="activeSettingsSection === 'users-roles' && usersTab === 'users'" (click)="openAddUser()">+ Ajouter un utilisateur</button>
+          <button class="btn btn-primary" *ngIf="activeSettingsSection !== 'users-roles'">Sauvegarder la configuration</button>
         </div>
       </div>
 
@@ -1313,126 +1197,216 @@
             </div>
             <div class="panel-body" style="padding: 0.5rem">
               <div class="settings-nav">
-                <button class="sn-item active">Général</button>
-                <button class="sn-item">Utilisateurs & Rôles</button>
-                <button class="sn-item" (click)="goToBusinessRules()">Règles métier</button>
-                <button class="sn-item">Notifications</button>
-                <button class="sn-item">Sécurité</button>
-                <button class="sn-item">Sauvegarde</button>
-                <button class="sn-item">Intégrations</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'general'" (click)="setSettingsSection('general')">Général</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'users-roles'" (click)="setSettingsSection('users-roles')">Utilisateurs & Rôles</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'business-rules'" (click)="goToBusinessRules()">Règles métier</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'notifications'" (click)="setSettingsSection('notifications')">Notifications</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'security'" (click)="setSettingsSection('security')">Sécurité</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'backup'" (click)="setSettingsSection('backup')">Sauvegarde</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'integrations'" (click)="setSettingsSection('integrations')">Intégrations</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Formulaires de configuration -->
+        <!-- Contenu dynamique selon la section active -->
         <div style="display: flex; flex-direction: column; gap: 1.25rem">
-          <!-- Paramètres généraux -->
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title"><span class="ptdot"></span>Paramètres généraux</div>
-            </div>
-            <div class="panel-body">
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Nom de l'institution</label>
-                  <input class="form-input" type="text" value="FIN'IX — Crédit & Assurance" />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Identifiant fiscal</label>
-                  <input class="form-input" type="text" value="TN-2019-00182741" />
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Devise</label>
-                  <select class="form-input">
-                    <option>TND — Dinar Tunisien</option>
-                    <option>EUR</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Fuseau horaire</label>
-                  <select class="form-input">
-                    <option>Africa/Tunis (UTC+1)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <!-- Règles de scoring -->
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title"><span class="ptdot"></span>Règles de scoring</div>
-            </div>
-            <div class="panel-body">
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Score min. approbation auto</label>
-                  <input class="form-input" type="number" value="700" />
+          <!-- ── GÉNÉRAL ── -->
+          <ng-container *ngIf="activeSettingsSection === 'general'">
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title"><span class="ptdot"></span>Paramètres généraux</div>
+              </div>
+              <div class="panel-body">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Nom de l'institution</label>
+                    <input class="form-input" type="text" value="FIN'IX — Crédit & Assurance" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Identifiant fiscal</label>
+                    <input class="form-input" type="text" value="TN-2019-00182741" />
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label class="form-label">Score min. dossier standard</label>
-                  <input class="form-input" type="number" value="600" />
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Devise</label>
+                    <select class="form-input">
+                      <option>TND — Dinar Tunisien</option>
+                      <option>EUR</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Fuseau horaire</label>
+                    <select class="form-input">
+                      <option>Africa/Tunis (UTC+1)</option>
+                    </select>
+                  </div>
                 </div>
               </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Taux endettement max (%)</label>
-                  <input class="form-input" type="number" value="40" />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Montant max non garanti (TND)</label>
-                  <input class="form-input" type="number" value="15000" />
-                </div>
-              </div>
             </div>
-          </div>
 
-          <!-- Notifications automatiques -->
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title"><span class="ptdot"></span>Notifications automatiques</div>
-            </div>
-            <div class="panel-body" style="padding: 0.25rem 1.25rem">
-              <div class="toggle-row">
-                <div class="toggle-info">
-                  <div class="toggle-label">Alertes impayés</div>
-                  <div class="toggle-sub">Envoyer SMS au client dès le J+1 de retard</div>
-                </div>
-                <button
-                  class="toggle"
-                  [class.on]="notificationsConfig.overdueSms"
-                  (click)="toggleConfig('overdueSms')"
-                ></button>
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title"><span class="ptdot"></span>Règles de scoring</div>
               </div>
-              <div class="toggle-row">
-                <div class="toggle-info">
-                  <div class="toggle-label">Rappels renouvellement assurance</div>
-                  <div class="toggle-sub">Notifier 30 jours avant expiration</div>
+              <div class="panel-body">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Score min. approbation auto</label>
+                    <input class="form-input" type="number" value="700" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Score min. dossier standard</label>
+                    <input class="form-input" type="number" value="600" />
+                  </div>
                 </div>
-                <button
-                  class="toggle"
-                  [class.on]="notificationsConfig.renewalReminder"
-                  (click)="toggleConfig('renewalReminder')"
-                ></button>
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-info">
-                  <div class="toggle-label">Rapport mensuel automatique</div>
-                  <div class="toggle-sub">Générer et envoyer le rapport le 1er du mois</div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Taux endettement max (%)</label>
+                    <input class="form-input" type="number" value="40" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Montant max non garanti (TND)</label>
+                    <input class="form-input" type="number" value="15000" />
+                  </div>
                 </div>
-                <button
-                  class="toggle"
-                  [class.on]="notificationsConfig.monthlyReport"
-                  (click)="toggleConfig('monthlyReport')"
-                ></button>
               </div>
             </div>
-          </div>
 
-          
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title"><span class="ptdot"></span>Notifications automatiques</div>
+              </div>
+              <div class="panel-body" style="padding: 0.25rem 1.25rem">
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <div class="toggle-label">Alertes impayés</div>
+                    <div class="toggle-sub">Envoyer SMS au client dès le J+1 de retard</div>
+                  </div>
+                  <button class="toggle" [class.on]="notificationsConfig.overdueSms" (click)="toggleConfig('overdueSms')"></button>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <div class="toggle-label">Rappels renouvellement assurance</div>
+                    <div class="toggle-sub">Notifier 30 jours avant expiration</div>
+                  </div>
+                  <button class="toggle" [class.on]="notificationsConfig.renewalReminder" (click)="toggleConfig('renewalReminder')"></button>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <div class="toggle-label">Rapport mensuel automatique</div>
+                    <div class="toggle-sub">Générer et envoyer le rapport le 1er du mois</div>
+                  </div>
+                  <button class="toggle" [class.on]="notificationsConfig.monthlyReport" (click)="toggleConfig('monthlyReport')"></button>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- ── UTILISATEURS & RÔLES ── -->
+          <ng-container *ngIf="activeSettingsSection === 'users-roles'">
+            <!-- Tabs -->
+            <div style="display:flex;gap:0;border-bottom:2px solid var(--border, #e5e7eb)">
+              <button (click)="switchUsersTab('users')"
+                style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
+                [style.color]="usersTab === 'users' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
+                [style.border-bottom]="usersTab === 'users' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
+                Utilisateurs
+              </button>
+              <button (click)="switchUsersTab('logs')"
+                style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
+                [style.color]="usersTab === 'logs' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
+                [style.border-bottom]="usersTab === 'logs' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
+                Historique connexions
+              </button>
+            </div>
+
+            <!-- Users table -->
+            <div class="panel s2" *ngIf="usersTab === 'users'">
+              <div class="panel-head">
+                <div class="panel-title"><span class="ptdot"></span>Liste des utilisateurs</div>
+                <div style="font-size:.75rem;color:var(--muted)">{{ usersList.length }} utilisateur(s)</div>
+              </div>
+              <div class="tbl-wrap">
+                <div *ngIf="usersLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
+                <div *ngIf="!usersLoading && usersList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucun agent ou assureur trouvé.</div>
+                <table *ngIf="!usersLoading && usersList.length > 0">
+                  <thead>
+                    <tr>
+                      <th>Utilisateur</th>
+                      <th>Email</th>
+                      <th>Rôle</th>
+                      <th>Téléphone</th>
+                      <th>Ville</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let user of usersList">
+                      <td>
+                        <div style="display:flex;align-items:center;gap:.5rem">
+                          <div class="sb-avatar" style="width:30px;height:30px;font-size:.65rem">{{ getUserInitials(user) }}</div>
+                          <div class="td-primary">{{ user.firstName }} {{ user.lastName }}</div>
+                        </div>
+                      </td>
+                      <td style="font-size:.775rem">{{ user.email }}</td>
+                      <td>
+                        <span class="badge" [ngClass]="user.role === 'AGENT' ? 'b-blue' : 'b-purple'">{{ user.role }}</span>
+                      </td>
+                      <td style="font-size:.775rem">{{ user.phoneNumber || '—' }}</td>
+                      <td style="font-size:.775rem">{{ user.city || '—' }}</td>
+                      <td>
+                        <div style="display:flex;gap:.35rem">
+                          <button class="btn btn-ghost btn-xs" (click)="openViewUser(user)">Voir</button>
+                          <button class="btn btn-ghost btn-xs" style="color:var(--blue)" (click)="openEditUser(user)">Modifier</button>
+                          <button class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteUser(user.id)">Supprimer</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Logs table -->
+            <div class="panel s2" *ngIf="usersTab === 'logs'">
+              <div class="panel-head">
+                <div class="panel-title"><span class="ptdot"></span>Historique des connexions</div>
+                <div style="font-size:.75rem;color:var(--muted)">{{ logsList.length }} connexion(s)</div>
+              </div>
+              <div class="tbl-wrap">
+                <div *ngIf="logsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
+                <div *ngIf="!logsLoading && logsList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucune connexion enregistrée.</div>
+                <table *ngIf="!logsLoading && logsList.length > 0">
+                  <thead>
+                    <tr>
+                      <th>Utilisateur</th>
+                      <th>Email</th>
+                      <th>Rôle</th>
+                      <th>Date & Heure</th>
+                      <th>Adresse IP</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let log of logsList">
+                      <td><div class="td-primary">{{ log.userName || '—' }}</div></td>
+                      <td style="font-size:.775rem">{{ log.userEmail || '—' }}</td>
+                      <td>
+                        <span class="badge" [ngClass]="log.userRole === 'AGENT' ? 'b-blue' : log.userRole === 'INSURER' ? 'b-purple' : log.userRole === 'ADMIN' ? 'b-orange' : 'b-green'">{{ log.userRole }}</span>
+                      </td>
+                      <td style="font-size:.775rem">{{ log.loginDate | date:'dd/MM/yyyy HH:mm' }}</td>
+                      <td style="font-size:.775rem">{{ log.ipAddress || '—' }}</td>
+                      <td><span class="badge b-green">{{ log.action }}</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </ng-container>
+
         </div>
         <!-- /forms -->
       </div>
