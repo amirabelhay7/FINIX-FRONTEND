@@ -64,6 +64,7 @@ export interface MLPrediction {
   confidenceInterval: number;
   alertLevel: 'SAFE' | 'WARNING' | 'CRITICAL' | 'UNAVAILABLE';
   contributions: { [key: string]: number };
+  worstRegion:        string;
   targetMonth: string;
 }
 

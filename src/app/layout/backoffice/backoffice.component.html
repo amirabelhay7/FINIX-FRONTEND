@@ -8,16 +8,16 @@
 
   <main class="main">
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          OVERVIEW PAGE
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <ng-container *ngIf="selectedPage === 'dashboard'">
 
       <div class="ph s1">
         <div>
           <div class="ph-eyebrow">28 February 2026 · Saturday</div>
           <div class="ph-title">Overview</div>
-          <div class="ph-desc">1,248 active clients · 3 pending decisions · System operational ✓</div>
+          <div class="ph-desc">1,248 active clients · 3 pending decisions · System operational</div>
         </div>
         <div class="ph-actions">
           <button class="btn btn-outline btn-sm">
@@ -30,7 +30,7 @@
 
       <div class="action-needed s1">
         <div>
-          <div class="an-title">🚨 3 files require immediate decision</div>
+          <div class="an-title">3 files require immediate decision</div>
           <div class="an-sub">Files #CR-2025-043, #CR-2025-051, #CR-2025-059 — Pending for more than 48h</div>
         </div>
         <div class="an-actions">
@@ -45,7 +45,7 @@
             <div class="kpi-ico" style="background:rgba(59,130,246,.12);">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
-            <div class="kpi-trend success">↑ +23 this month</div>
+            <div class="kpi-trend success">+23 this month</div>
           </div>
           <div class="kpi-val">1 248</div>
           <div class="kpi-lbl">Active clients</div>
@@ -56,7 +56,7 @@
             <div class="kpi-ico" style="background:rgba(16,185,129,.12);">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
-            <div class="kpi-trend success">↑ +8.2%</div>
+            <div class="kpi-trend success">+8.2%</div>
           </div>
           <div class="kpi-val" style="font-size:1.5rem;">TND <span style="font-size:2rem;">14.2M</span></div>
           <div class="kpi-lbl">Total outstanding</div>
@@ -67,7 +67,7 @@
             <div class="kpi-ico" style="background:rgba(245,158,11,.12);">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
             </div>
-            <div class="kpi-trend warning">⚠ Urgent: 3</div>
+            <div class="kpi-trend warning">Urgent: 3</div>
           </div>
           <div class="kpi-val">47</div>
           <div class="kpi-lbl">Files in progress</div>
@@ -78,7 +78,7 @@
             <div class="kpi-ico" style="background:rgba(239,68,68,.12);">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </div>
-            <div class="kpi-trend danger">↑ +2 vs yesterday</div>
+            <div class="kpi-trend danger">+2 vs yesterday</div>
           </div>
           <div class="kpi-val">12</div>
           <div class="kpi-lbl">Active unpaid</div>
@@ -89,7 +89,7 @@
       <div class="panel s3">
         <div class="panel-head">
           <div class="panel-title"><span class="ptdot"></span>Recent files — Action required</div>
-          <button class="btn btn-ghost btn-sm">View all →</button>
+          <button class="btn btn-ghost btn-sm">View all</button>
         </div>
         <div class="tbl-wrap">
           <table>
@@ -155,7 +155,7 @@
           </div>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Credit distribution</div><button class="btn btn-ghost btn-sm">Details →</button></div>
+          <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Credit distribution</div><button class="btn btn-ghost btn-sm">Details</button></div>
           <div class="panel-body">
             <div style="display:flex;align-items:center;gap:1.5rem;">
               <div class="donut-wrap">
@@ -194,8 +194,8 @@
 
       <div class="panel s5">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot" style="background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.12);"></span>Unpaid & overdue</div>
-          <div style="display:flex;gap:.5rem;margin-left:auto;"><span class="badge b-danger">12 active cases</span><button class="btn btn-ghost btn-sm">View all →</button></div>
+          <div class="panel-title"><span class="ptdot" style="background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.12);"></span>Unpaid &amp; overdue</div>
+          <div style="display:flex;gap:.5rem;margin-left:auto;"><span class="badge b-danger">12 active cases</span><button class="btn btn-ghost btn-sm">View all</button></div>
         </div>
         <div class="tbl-wrap">
           <table>
@@ -205,7 +205,7 @@
                 <td>
                   <div style="display:flex;align-items:center;gap:.625rem">
                     <div class="client-flag" style="background:linear-gradient(135deg,var(--danger),#c0392b);width:38px;height:38px;font-size:.8rem;">{{ d.initials }}</div>
-                    <div><div class="td-primary">{{ d.name }}</div><div class="td-sub">{{ d.city }} · <span style="font-size:.75rem;">📞 {{ d.phone }}</span></div></div>
+                    <div><div class="td-primary">{{ d.name }}</div><div class="td-sub">{{ d.city }} · {{ d.phone }}</div></div>
                   </div>
                 </td>
                 <td><span class="td-ref">{{ d.dossier }}</span><div class="td-sub">{{ d.product }}</div></td>
@@ -215,9 +215,7 @@
                 <td><span class="badge" [ngClass]="d.risk === 'High' ? 'b-danger' : d.risk === 'Moderate' ? 'b-review' : 'b-actif'">{{ d.risk }}</span></td>
                 <td>
                   <div style="display:flex;gap:.375rem">
-                    <button class="btn btn-xs" [ngClass]="d.risk === 'High' ? 'btn-danger' : 'btn-success'" style="display:flex;align-items:center;gap:.25rem;">
-                      <span>{{ d.risk === 'High' ? '⚖️' : '📞' }}</span>{{ d.risk === 'High' ? 'Legal' : 'Follow up' }}
-                    </button>
+                    <button class="btn btn-xs" [ngClass]="d.risk === 'High' ? 'btn-danger' : 'btn-success'">{{ d.risk === 'High' ? 'Legal' : 'Follow up' }}</button>
                     <button class="btn btn-outline btn-xs">File</button>
                   </div>
                 </td>
@@ -229,19 +227,19 @@
 
     </ng-container>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : CLIENTS
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'clients'" id="page-clients">
       <div class="ph s1">
         <div><div class="ph-eyebrow">Client management</div><div class="ph-title">Client base</div><div class="ph-desc">1,248 clients · 23 new this month · 3 suspended</div></div>
         <div class="ph-actions"><button class="btn btn-outline">Import</button><button class="btn btn-outline">Export</button><button class="btn btn-primary">+ New client</button></div>
       </div>
       <div class="kpi-row s2">
-        <div class="kpi" style="--kc:var(--blue);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(59,130,246,.12);">👥</div><div class="kpi-trend success">↑ +23</div></div><div class="kpi-val">1 248</div><div class="kpi-lbl">Total clients</div><div class="kpi-foot">Average score: <b>698</b></div></div>
-        <div class="kpi" style="--kc:var(--success);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(16,185,129,.12);">✓</div><div class="kpi-trend success">Active</div></div><div class="kpi-val">1 201</div><div class="kpi-lbl">Active clients</div><div class="kpi-foot">KYC completed: <b>1,180</b></div></div>
-        <div class="kpi" style="--kc:var(--warning);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(245,158,11,.12);">📋</div><div class="kpi-trend warning">⚠ 44</div></div><div class="kpi-val">44</div><div class="kpi-lbl">Incomplete files</div><div class="kpi-foot">Missing documents: <b>67</b></div></div>
-        <div class="kpi" style="--kc:var(--danger);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(239,68,68,.12);">🚫</div><div class="kpi-trend danger">Suspended</div></div><div class="kpi-val">3</div><div class="kpi-lbl">Suspended clients</div><div class="kpi-foot">Reason: <b>Repeated defaults</b></div></div>
+        <div class="kpi" style="--kc:var(--blue);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(59,130,246,.12);">&#128101;</div><div class="kpi-trend success">+23</div></div><div class="kpi-val">1 248</div><div class="kpi-lbl">Total clients</div><div class="kpi-foot">Average score: <b>698</b></div></div>
+        <div class="kpi" style="--kc:var(--success);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(16,185,129,.12);">&#10003;</div><div class="kpi-trend success">Active</div></div><div class="kpi-val">1 201</div><div class="kpi-lbl">Active clients</div><div class="kpi-foot">KYC completed: <b>1,180</b></div></div>
+        <div class="kpi" style="--kc:var(--warning);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(245,158,11,.12);">&#128203;</div><div class="kpi-trend warning">44</div></div><div class="kpi-val">44</div><div class="kpi-lbl">Incomplete files</div><div class="kpi-foot">Missing documents: <b>67</b></div></div>
+        <div class="kpi" style="--kc:var(--danger);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(239,68,68,.12);">&#128683;</div><div class="kpi-trend danger">Suspended</div></div><div class="kpi-val">3</div><div class="kpi-lbl">Suspended clients</div><div class="kpi-foot">Reason: <b>Repeated defaults</b></div></div>
       </div>
       <div class="panel s4">
         <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Client list</div><span style="font-size:.75rem;color:var(--g400)">{{ clients.length }} results</span></div>
@@ -267,12 +265,12 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : CREDITS & FILES
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'credits'" id="page-credits">
       <div class="ph s1">
-        <div><div class="ph-eyebrow">Credit management</div><div class="ph-title">Files & Pipeline</div><div class="ph-desc">47 active files · 3 urgent decisions · Approval rate 78.3%</div></div>
+        <div><div class="ph-eyebrow">Credit management</div><div class="ph-title">Files &amp; Pipeline</div><div class="ph-desc">47 active files · 3 urgent decisions · Approval rate 78.3%</div></div>
         <div class="ph-actions"><button class="btn btn-outline">Statistics</button><button class="btn btn-primary">+ New file</button></div>
       </div>
       <div class="credit-pipeline s2">
@@ -281,7 +279,7 @@
           <div class="pipeline-cards">
             <div class="pip-card" *ngFor="let card of col.cards" (click)="card.warn ? openModal(card) : null" [style.borderColor]="card.warn ? 'var(--warning)' : ''">
               <div class="pip-name">{{ card.name }}</div><div class="pip-ref">{{ card.ref }}</div><div class="pip-amount">{{ card.amount }}</div><div class="pip-type">{{ card.type }}</div>
-              <div *ngIf="card.warn" style="margin-top:.5rem;"><span class="badge b-review" style="font-size:.65rem;">⏰ 48h+</span></div>
+              <div *ngIf="card.warn" style="margin-top:.5rem;"><span class="badge b-review" style="font-size:.65rem;">48h+</span></div>
             </div>
           </div>
         </div>
@@ -302,7 +300,7 @@
                 <td>{{ file.debtRatio }}%</td>
                 <td>{{ file.seniority }}</td>
                 <td><span class="badge b-actif">{{ file.recommendation }}</span></td>
-                <td><div style="display:flex;gap:.375rem"><button class="btn btn-success btn-xs" (click)="openModal(file)">✓ Approve</button><button class="btn btn-danger btn-xs">✗ Reject</button></div></td>
+                <td><div style="display:flex;gap:.375rem"><button class="btn btn-success btn-xs" (click)="openModal(file)">Approve</button><button class="btn btn-danger btn-xs">Reject</button></div></td>
               </tr>
             </tbody>
           </table>
@@ -310,14 +308,14 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : REPAYMENTS
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'repayments'" id="page-remboursements">
       <div class="ph s1">
         <div><div class="ph-eyebrow">Financial tracking</div><div class="ph-title">Repayments</div><div class="ph-desc">Monthly collection: 487,200 TND · Recovery rate: 98.2%</div></div>
         <div class="ph-actions">
-          <button class="btn btn-outline btn-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+          <button class="btn btn-outline btn-sm">Export</button>
           <button class="btn btn-primary btn-sm">+ Record payment</button>
         </div>
       </div>
@@ -342,11 +340,11 @@
                 <td><span class="td-ref">{{ p.file }}</span><div class="td-sub">{{ p.fileType }}</div></td>
                 <td class="td-amount">{{ p.amount }}</td>
                 <td style="font-size:.8rem;color:var(--g500);">{{ p.date }}</td>
-                <td><span class="badge" [ngClass]="{'b-blue':p.mode==='Transfer'||p.mode==='Virement','b-purple':p.mode==='Direct Debit'||p.mode==='Prelevement','b-teal':p.mode==='Cash'||p.mode==='Especes'}">{{ p.mode === 'Transfer' ? 'Transfer' : p.mode === 'Direct Debit' ? 'Direct Debit' : p.mode === 'Cash' ? 'Cash' : (p.mode || '—') }}</span></td>
+                <td><span class="badge" [ngClass]="{'b-blue':p.mode==='Transfer'||p.mode==='Virement','b-purple':p.mode==='Direct Debit'||p.mode==='Prelevement','b-teal':p.mode==='Cash'||p.mode==='Especes'}">{{ p.mode || '—' }}</span></td>
                 <td>
-                  <span *ngIf="p.status==='Paid'||p.status==='Paye'" class="badge b-actif">✓ Paid</span>
+                  <span *ngIf="p.status==='Paid'||p.status==='Paye'" class="badge b-actif">Paid</span>
                   <span *ngIf="p.status==='Pending'||p.status==='En attente'" class="badge b-review">Pending</span>
-                  <span *ngIf="p.status!=='Paid'&&p.status!=='Paye'&&p.status!=='Pending'&&p.status!=='En attente'" class="badge b-danger">✗ Unpaid</span>
+                  <span *ngIf="p.status!=='Paid'&&p.status!=='Paye'&&p.status!=='Pending'&&p.status!=='En attente'" class="badge b-danger">Unpaid</span>
                 </td>
                 <td style="font-size:.75rem;color:var(--g500);">{{ p.agent }}</td>
                 <td>
@@ -360,16 +358,16 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : VEHICLES
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'vehicles'" id="page-vehicles">
       <div class="ph s1">
         <div><div class="ph-eyebrow">Fleet management</div><div class="ph-title">Vehicles</div><div class="ph-desc">2,148 registered vehicles · 1,890 insured · 48 to renew</div></div>
         <div class="ph-actions"><button class="btn btn-outline">Import</button><button class="btn btn-primary">+ Add vehicle</button></div>
       </div>
       <div class="panel s2">
-        <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Vehicle registry</div><div class="tb-search" style="width:200px;"><span>🔍</span><input type="text" placeholder="Plate, client, model…"></div></div>
+        <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Vehicle registry</div><div class="tb-search" style="width:200px;"><span>&#128269;</span><input type="text" placeholder="Plate, client, model…"></div></div>
         <div class="tbl-wrap">
           <table>
             <thead><tr><th>Plate</th><th>Vehicle</th><th>Owner</th><th>Credit</th><th>Value</th><th>Mileage</th><th>Insurance</th><th>Status</th><th>Actions</th></tr></thead>
@@ -391,9 +389,9 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : INSURANCE
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'insurance'" id="page-assurance">
       <div class="ph s1">
         <div><div class="ph-eyebrow">Insurance management</div><div class="ph-title">Insurance contracts</div><div class="ph-desc">1,890 active contracts · 48 to renew · 2 claims in progress</div></div>
@@ -428,11 +426,11 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : RISK & SCORE
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'risk'" id="page-risk">
-      <div class="ph s1"><div><div class="ph-eyebrow">Risk analysis</div><div class="ph-title">Risk & Score</div><div class="ph-desc">3 critical alerts · Global default rate 1.8%</div></div></div>
+      <div class="ph s1"><div><div class="ph-eyebrow">Risk analysis</div><div class="ph-title">Risk &amp; Score</div><div class="ph-desc">3 critical alerts · Global default rate 1.8%</div></div></div>
       <div class="panel s2">
         <div class="panel-head"><div class="panel-title"><span class="ptdot" style="background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.12);"></span>High-risk alerts</div><span class="badge b-danger">3 critical</span></div>
         <div class="tbl-wrap">
@@ -462,19 +460,19 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : ALERTS & NOTIFICATIONS
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'notifications'" id="page-alertes">
       <div class="ph s1">
-        <div><div class="ph-eyebrow">Notification center</div><div class="ph-title">Alerts & Notifications</div><div class="ph-desc">7 unread · 3 critical</div></div>
+        <div><div class="ph-eyebrow">Notification center</div><div class="ph-title">Alerts &amp; Notifications</div><div class="ph-desc">7 unread · 3 critical</div></div>
         <div class="ph-actions"><button class="btn btn-outline">Mark all as read</button></div>
       </div>
       <div class="panel s2">
         <div class="panel-head"><div class="panel-title"><span class="ptdot" style="background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.12);"></span>Critical alerts</div><span class="badge b-danger">3 unread</span></div>
         <div class="notif-list">
           <div class="notif-item unread" *ngFor="let n of notificationsCritical">
-            <div class="notif-ico" [style.background]="n.type==='danger' ? 'rgba(239,68,68,.1)' : 'rgba(245,158,11,.1)'">⚠</div>
+            <div class="notif-ico" [style.background]="n.type==='danger' ? 'rgba(239,68,68,.1)' : 'rgba(245,158,11,.1)'">!</div>
             <div class="notif-body"><div class="notif-title">{{ n.title }}</div><div class="notif-meta">{{ n.meta }}</div></div>
             <div class="notif-unread-dot" [style.background]="n.type==='danger' ? 'var(--danger)' : 'var(--warning)'"></div>
           </div>
@@ -484,26 +482,26 @@
         <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Recent activity</div></div>
         <div class="notif-list">
           <div class="notif-item" *ngFor="let n of notificationsRecent">
-            <div class="notif-ico" [style.background]="n.color==='success' ? 'rgba(16,185,129,.1)' : n.color==='blue' ? 'rgba(31,111,234,.1)' : n.color==='purple' ? 'rgba(139,92,246,.1)' : 'rgba(0,0,0,.05)'">✓</div>
+            <div class="notif-ico" [style.background]="n.color==='success' ? 'rgba(16,185,129,.1)' : n.color==='blue' ? 'rgba(31,111,234,.1)' : n.color==='purple' ? 'rgba(139,92,246,.1)' : 'rgba(0,0,0,.05)'">&#10003;</div>
             <div class="notif-body"><div class="notif-title">{{ n.title }}</div><div class="notif-meta">{{ n.meta }}</div></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : REPORTS
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'rapports'" id="page-rapports">
       <div class="ph s1">
-        <div><div class="ph-eyebrow">Analysis & reports</div><div class="ph-title">Reports</div><div class="ph-desc">Generate and export your periodic reports</div></div>
+        <div><div class="ph-eyebrow">Analysis &amp; reports</div><div class="ph-title">Reports</div><div class="ph-desc">Generate and export your periodic reports</div></div>
         <div class="ph-actions"><button class="btn btn-primary">+ Generate report</button></div>
       </div>
       <div class="panel s2">
         <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Available reports</div></div>
         <div style="display:flex;flex-direction:column;gap:0;">
           <div *ngFor="let r of reports" class="report-row" style="display:flex;align-items:center;gap:.625rem;padding:.875rem 1.25rem;border-bottom:1px solid var(--g100);cursor:pointer;transition:background .15s;">
-            <span style="font-size:1.25rem;">📄</span>
+            <span style="font-size:1.25rem;">&#128196;</span>
             <div style="flex:1;"><div style="font-size:.8rem;font-weight:600;color:var(--g900);">{{ r.title }}</div><div style="font-size:.7rem;color:var(--g400);">{{ r.date }}</div></div>
             <button class="btn btn-xs" [ngClass]="r.outline ? 'btn-outline' : 'btn-primary'">{{ r.actionLabel }}</button>
           </div>
@@ -511,9 +509,9 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : SETTINGS
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'settings'" id="page-parametres">
       <div class="ph s1">
         <div><div class="ph-eyebrow">Configuration</div><div class="ph-title">Settings</div><div class="ph-desc">System configuration, users and business rules</div></div>
@@ -526,7 +524,7 @@
             <div class="panel-body" style="padding:.5rem;">
               <div class="settings-nav">
                 <button class="sn-item active">General</button>
-                <button class="sn-item">Users & Roles</button>
+                <button class="sn-item">Users &amp; Roles</button>
                 <button class="sn-item">Business rules</button>
                 <button class="sn-item">Notifications</button>
                 <button class="sn-item">Security</button>
@@ -541,7 +539,7 @@
             <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>General settings</div></div>
             <div class="panel-body">
               <div class="form-row">
-                <div class="form-group"><label class="form-label">Institution name</label><input class="form-input" type="text" value="FIN'IX — Credit & Insurance"></div>
+                <div class="form-group"><label class="form-label">Institution name</label><input class="form-input" type="text" value="FIN'IX — Credit &amp; Insurance"></div>
                 <div class="form-group"><label class="form-label">Tax ID</label><input class="form-input" type="text" value="TN-2019-00182741"></div>
               </div>
               <div class="form-row">
@@ -592,9 +590,9 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : MARKETING CAMPAIGNS
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'campaigns'" id="page-campaigns">
       <div class="ph s1">
         <div><div class="ph-eyebrow">Marketing Strategy</div><div class="ph-title">Campaigns</div><div class="ph-desc">Manage your campaigns and measure their impact on credits</div></div>
@@ -605,11 +603,9 @@
       <div *ngIf="selectedCampaignForSegments" class="panel" style="border:2px solid var(--purple);margin-bottom:1rem;">
         <div class="panel-head">
           <div class="panel-title"><span class="ptdot" style="background:var(--purple)"></span>Assigned segments — {{ selectedCampaignForSegments.name }}</div>
-          <button type="button" class="btn btn-outline btn-sm" (click)="closeSegmentAssignment()">✕ Close</button>
+          <button type="button" class="btn btn-outline btn-sm" (click)="closeSegmentAssignment()">Close</button>
         </div>
         <div class="panel-body">
-
-          <!-- Already assigned segments -->
           <div style="margin-bottom:1.25rem;">
             <div style="font-size:.75rem;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;">Assigned segments</div>
             <div *ngIf="validAssignedSegments.length === 0" style="color:var(--g400);font-size:.85rem;">No segment assigned</div>
@@ -622,26 +618,20 @@
               <button type="button" class="btn btn-danger btn-xs" (click)="unassignSegment(segId)">Unassign</button>
             </div>
           </div>
-
-          <!-- Assign a new segment -->
           <div style="border-top:1px solid var(--g200);padding-top:1rem;">
             <div style="font-size:.75rem;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;">Assign a segment</div>
             <div style="display:flex;gap:.75rem;align-items:center;">
               <select class="form-input" style="flex:1;" [(ngModel)]="selectedSegmentToAssign">
                 <option [ngValue]="null">-- Choose a segment --</option>
-                <option *ngFor="let s of segments" [ngValue]="s.id"
-                  [disabled]="isAssigned(s.id!)">
+                <option *ngFor="let s of segments" [ngValue]="s.id" [disabled]="isAssigned(s.id!)">
                   {{ s.name }} {{ isAssigned(s.id!) ? '(already assigned)' : '' }}
                 </option>
               </select>
-              <button type="button" class="btn btn-success" (click)="assignSegment()"
-                [disabled]="!selectedSegmentToAssign"
-                [style.opacity]="!selectedSegmentToAssign ? '0.5' : '1'">
+              <button type="button" class="btn btn-success" (click)="assignSegment()" [disabled]="!selectedSegmentToAssign" [style.opacity]="!selectedSegmentToAssign ? '0.5' : '1'">
                 + Assign
               </button>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -651,21 +641,15 @@
           <div class="panel-title"><span class="ptdot"></span>{{ editingCampaignId ? 'Edit campaign' : 'New campaign' }}</div>
         </div>
         <div class="panel-body">
-          <div *ngIf="campaignError"
-              style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
-            ⚠ {{ campaignError }}
+          <div *ngIf="campaignError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
+            {{ campaignError }}
           </div>
-
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Name *</label>
-              <input class="form-input" type="text" [(ngModel)]="campaignForm.name"
-                placeholder="Ex: Moto Express Spring 2026"
-                [style.borderColor]="campaignForm.name?.length > 0 && (campaignForm.name?.length < 3 || campaignForm.name?.length > 100) ? 'var(--danger)' : ''">
-              <span *ngIf="campaignForm.name?.length > 0 && campaignForm.name?.length < 3"
-                style="color:var(--danger);font-size:.75rem;">Minimum 3 characters</span>
-              <span *ngIf="campaignForm.name?.length > 100"
-                style="color:var(--danger);font-size:.75rem;">Maximum 100 characters</span>
+              <input class="form-input" type="text" [(ngModel)]="campaignForm.name" placeholder="Ex: Moto Express Spring 2026">
+              <span *ngIf="campaignForm.name?.length > 0 && campaignForm.name?.length < 3" style="color:var(--danger);font-size:.75rem;">Minimum 3 characters</span>
+              <span *ngIf="campaignForm.name?.length > 100" style="color:var(--danger);font-size:.75rem;">Maximum 100 characters</span>
             </div>
             <div class="form-group">
               <label class="form-label">Type *</label>
@@ -676,43 +660,28 @@
               </select>
             </div>
           </div>
-
           <div class="form-group" style="margin-bottom:1rem;">
             <label class="form-label">Description *</label>
-            <textarea class="form-input" rows="3" [(ngModel)]="campaignForm.description"
-              placeholder="Describe the campaign objective… (min 10 characters)"
-              [style.borderColor]="campaignForm.description?.length > 0 && (campaignForm.description?.length < 10 || campaignForm.description?.length > 1000) ? 'var(--danger)' : ''"></textarea>
-            <span *ngIf="campaignForm.description?.length > 0 && campaignForm.description?.length < 10"
-              style="color:var(--danger);font-size:.75rem;">Minimum 10 characters ({{ campaignForm.description?.length }}/10)</span>
-            <span *ngIf="campaignForm.description?.length > 1000"
-              style="color:var(--danger);font-size:.75rem;">Maximum 1000 characters</span>
+            <textarea class="form-input" rows="3" [(ngModel)]="campaignForm.description" placeholder="Describe the campaign objective… (min 10 characters)"></textarea>
+            <span *ngIf="campaignForm.description?.length > 0 && campaignForm.description?.length < 10" style="color:var(--danger);font-size:.75rem;">Minimum 10 characters ({{ campaignForm.description?.length }}/10)</span>
+            <span *ngIf="campaignForm.description?.length > 1000" style="color:var(--danger);font-size:.75rem;">Maximum 1000 characters</span>
           </div>
-
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Start date *</label>
-              <input class="form-input" type="date" [(ngModel)]="campaignForm.startDate"
-                [style.borderColor]="campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate ? 'var(--danger)' : ''">
-              <span *ngIf="campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate"
-                style="color:var(--danger);font-size:.75rem;">Start date must be before end date</span>
+              <input class="form-input" type="date" [(ngModel)]="campaignForm.startDate">
+              <span *ngIf="campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate" style="color:var(--danger);font-size:.75rem;">Start date must be before end date</span>
             </div>
             <div class="form-group">
               <label class="form-label">End date *</label>
-              <input class="form-input" type="date" [(ngModel)]="campaignForm.endDate"
-                [style.borderColor]="campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate ? 'var(--danger)' : ''">
-              <span *ngIf="campaignForm.startDate && campaignForm.endDate && campaignForm.startDate >= campaignForm.endDate"
-                style="color:var(--danger);font-size:.75rem;">End date must be after start date</span>
+              <input class="form-input" type="date" [(ngModel)]="campaignForm.endDate">
             </div>
           </div>
-
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Budget (TND) *</label>
-              <input class="form-input" type="number" [(ngModel)]="campaignForm.budget"
-                placeholder="Ex: 15000"
-                [style.borderColor]="campaignForm.budget !== null && campaignForm.budget <= 0 ? 'var(--danger)' : ''">
-              <span *ngIf="campaignForm.budget !== null && campaignForm.budget <= 0"
-                style="color:var(--danger);font-size:.75rem;">Budget must be greater than 0</span>
+              <input class="form-input" type="number" [(ngModel)]="campaignForm.budget" placeholder="Ex: 15000">
+              <span *ngIf="campaignForm.budget !== null && campaignForm.budget <= 0" style="color:var(--danger);font-size:.75rem;">Budget must be greater than 0</span>
             </div>
             <div class="form-group">
               <label class="form-label">Status *</label>
@@ -723,34 +692,22 @@
               </select>
             </div>
           </div>
-
           <div style="display:flex;gap:.75rem;margin-top:1rem;">
             <button class="btn btn-success" (click)="saveCampaign()"
-              [disabled]="!campaignForm.name || campaignForm.name.length < 3 ||
-                          !campaignForm.description || campaignForm.description.length < 10 ||
-                          !campaignForm.startDate || !campaignForm.endDate ||
-                          campaignForm.startDate >= campaignForm.endDate ||
-                          !campaignForm.budget || campaignForm.budget <= 0"
-              [style.opacity]="!campaignForm.name || campaignForm.name.length < 3 ||
-                          !campaignForm.description || campaignForm.description.length < 10 ||
-                          !campaignForm.startDate || !campaignForm.endDate ||
-                          campaignForm.startDate >= campaignForm.endDate ||
-                          !campaignForm.budget || campaignForm.budget <= 0 ? '0.5' : '1'">
-              ✓ {{ editingCampaignId ? 'Update' : 'Create campaign' }}
+              [disabled]="!campaignForm.name || campaignForm.name.length < 3 || !campaignForm.description || campaignForm.description.length < 10 || !campaignForm.startDate || !campaignForm.endDate || campaignForm.startDate >= campaignForm.endDate || !campaignForm.budget || campaignForm.budget <= 0"
+              [style.opacity]="!campaignForm.name || campaignForm.name.length < 3 || !campaignForm.description || campaignForm.description.length < 10 || !campaignForm.startDate || !campaignForm.endDate || campaignForm.startDate >= campaignForm.endDate || !campaignForm.budget || campaignForm.budget <= 0 ? '0.5' : '1'">
+              {{ editingCampaignId ? 'Update' : 'Create campaign' }}
             </button>
-            <button class="btn btn-primary" (click)="showCampaignModal ? closeCampaignModal() : openCampaignForm()">
-              {{ showCampaignModal ? '✕ Cancel' : '+ New campaign' }}
-            </button>
+            <button class="btn btn-primary" (click)="closeCampaignModal()">Cancel</button>
           </div>
-
         </div>
       </div>
 
       <div class="kpi-row s2">
-        <div class="kpi" style="--kc:var(--blue);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(59,130,246,.12);">📣</div><div class="kpi-trend success">Total</div></div><div class="kpi-val">{{ campaigns.length }}</div><div class="kpi-lbl">Total campaigns</div><div class="kpi-foot">Loaded from backend</div></div>
-        <div class="kpi" style="--kc:var(--success);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(16,185,129,.12);">✓</div><div class="kpi-trend success">Ongoing</div></div><div class="kpi-val">{{ countByStatus('ACTIVE') }}</div><div class="kpi-lbl">Active campaigns</div><div class="kpi-foot">Status ACTIVE</div></div>
-        <div class="kpi" style="--kc:var(--warning);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(245,158,11,.12);">⏳</div><div class="kpi-trend warning">Planned</div></div><div class="kpi-val">{{ countByStatus('PLANNED') }}</div><div class="kpi-lbl">Planned campaigns</div><div class="kpi-foot">Status PLANNED</div></div>
-        <div class="kpi" style="--kc:var(--g400);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(0,0,0,.06);">🏁</div><div class="kpi-trend">Finished</div></div><div class="kpi-val">{{ countByStatus('FINISHED') }}</div><div class="kpi-lbl">Finished campaigns</div><div class="kpi-foot">Status FINISHED</div></div>
+        <div class="kpi" style="--kc:var(--blue);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(59,130,246,.12);">&#128226;</div><div class="kpi-trend success">Total</div></div><div class="kpi-val">{{ campaigns.length }}</div><div class="kpi-lbl">Total campaigns</div><div class="kpi-foot">Loaded from backend</div></div>
+        <div class="kpi" style="--kc:var(--success);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(16,185,129,.12);">&#10003;</div><div class="kpi-trend success">Ongoing</div></div><div class="kpi-val">{{ countByStatus('ACTIVE') }}</div><div class="kpi-lbl">Active campaigns</div><div class="kpi-foot">Status ACTIVE</div></div>
+        <div class="kpi" style="--kc:var(--warning);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(245,158,11,.12);">&#8987;</div><div class="kpi-trend warning">Planned</div></div><div class="kpi-val">{{ countByStatus('PLANNED') }}</div><div class="kpi-lbl">Planned campaigns</div><div class="kpi-foot">Status PLANNED</div></div>
+        <div class="kpi" style="--kc:var(--g400);"><div class="kpi-top"><div class="kpi-ico" style="background:rgba(0,0,0,.06);">&#127937;</div><div class="kpi-trend">Finished</div></div><div class="kpi-val">{{ countByStatus('FINISHED') }}</div><div class="kpi-lbl">Finished campaigns</div><div class="kpi-foot">Status FINISHED</div></div>
       </div>
 
       <div class="panel s3">
@@ -780,65 +737,42 @@
             </tbody>
           </table>
         </div>
-        <!-- PAGINATION — outside <table>, inside .tbl-wrap's parent -->
         <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 1.25rem;border-top:1px solid var(--g100);">
           <span style="font-size:.775rem;color:var(--g400);">
             Page {{ campaignPage + 1 }} / {{ campaignTotalPages }} — {{ campaigns.length }} campaigns
           </span>
           <div style="display:flex;gap:.375rem;align-items:center;">
-            <button class="btn btn-outline btn-xs"
-              (click)="campaignPrevPage()"
-              [disabled]="campaignPage === 0"
-              [style.opacity]="campaignPage === 0 ? '0.4' : '1'">
-              ← Previous
-            </button>
-            <button *ngFor="let p of campaignPages"
-              class="btn btn-xs"
-              [ngClass]="p === campaignPage ? 'btn-primary' : 'btn-outline'"
-              (click)="campaignGoToPage(p)">
-              {{ p + 1 }}
-            </button>
-            <button class="btn btn-outline btn-xs"
-              (click)="campaignNextPage()"
-              [disabled]="campaignPage >= campaignTotalPages - 1"
-              [style.opacity]="campaignPage >= campaignTotalPages - 1 ? '0.4' : '1'">
-              Next →
-            </button>
+            <button class="btn btn-outline btn-xs" (click)="campaignPrevPage()" [disabled]="campaignPage === 0" [style.opacity]="campaignPage === 0 ? '0.4' : '1'">Previous</button>
+            <button *ngFor="let p of campaignPages" class="btn btn-xs" [ngClass]="p === campaignPage ? 'btn-primary' : 'btn-outline'" (click)="campaignGoToPage(p)">{{ p + 1 }}</button>
+            <button class="btn btn-outline btn-xs" (click)="campaignNextPage()" [disabled]="campaignPage >= campaignTotalPages - 1" [style.opacity]="campaignPage >= campaignTotalPages - 1 ? '0.4' : '1'">Next</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : CLIENT SEGMENTS
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'segments'" id="page-segments">
       <div class="ph s1">
         <div><div class="ph-eyebrow">Marketing Strategy</div><div class="ph-title">Client segments</div><div class="ph-desc">Define target customer profiles</div></div>
         <div class="ph-actions"><button class="btn btn-primary" (click)="openSegmentForm()">+ New segment</button></div>
       </div>
 
-      <!-- SEGMENT FORM -->
       <div *ngIf="showSegmentModal" class="panel" style="border:2px solid var(--blue);margin-bottom:1rem;">
         <div class="panel-head">
           <div class="panel-title"><span class="ptdot"></span>{{ editingSegmentId ? 'Edit segment' : 'New segment' }}</div>
         </div>
         <div class="panel-body">
-
           <div *ngIf="segmentError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
-            ⚠ {{ segmentError }}
+            {{ segmentError }}
           </div>
-
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Name *</label>
-              <input class="form-input" type="text" [(ngModel)]="segmentForm.name"
-                placeholder="Ex: Young Urban Professionals"
-                [style.borderColor]="segmentForm.name?.length > 0 && (segmentForm.name?.length < 3 || segmentForm.name?.length > 100) ? 'var(--danger)' : ''">
-              <span *ngIf="segmentForm.name?.length > 0 && segmentForm.name?.length < 3"
-                style="color:var(--danger);font-size:.75rem;">Minimum 3 characters</span>
-              <span *ngIf="segmentForm.name?.length > 100"
-                style="color:var(--danger);font-size:.75rem;">Maximum 100 characters</span>
+              <input class="form-input" type="text" [(ngModel)]="segmentForm.name" placeholder="Ex: Young Urban Professionals">
+              <span *ngIf="segmentForm.name?.length > 0 && segmentForm.name?.length < 3" style="color:var(--danger);font-size:.75rem;">Minimum 3 characters</span>
+              <span *ngIf="segmentForm.name?.length > 100" style="color:var(--danger);font-size:.75rem;">Maximum 100 characters</span>
             </div>
             <div class="form-group">
               <label class="form-label">Employment type *</label>
@@ -849,69 +783,36 @@
               </select>
             </div>
           </div>
-
           <div class="form-group" style="margin-bottom:1rem;">
             <label class="form-label">Description *</label>
-            <textarea class="form-input" rows="3" [(ngModel)]="segmentForm.description"
-              placeholder="Describe the segment… (min 10 characters)"
-              [style.borderColor]="segmentForm.description?.length > 0 && (segmentForm.description?.length < 10 || segmentForm.description?.length > 500) ? 'var(--danger)' : ''"></textarea>
-            <span *ngIf="segmentForm.description?.length > 0 && segmentForm.description?.length < 10"
-              style="color:var(--danger);font-size:.75rem;">Minimum 10 characters ({{ segmentForm.description?.length }}/10)</span>
-            <span *ngIf="segmentForm.description?.length > 500"
-              style="color:var(--danger);font-size:.75rem;">Maximum 500 characters</span>
+            <textarea class="form-input" rows="3" [(ngModel)]="segmentForm.description" placeholder="Describe the segment… (min 10 characters)"></textarea>
+            <span *ngIf="segmentForm.description?.length > 0 && segmentForm.description?.length < 10" style="color:var(--danger);font-size:.75rem;">Minimum 10 characters ({{ segmentForm.description?.length }}/10)</span>
           </div>
-
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Min income (TND) *</label>
-              <input class="form-input" type="number" [(ngModel)]="segmentForm.minIncome"
-                placeholder="Ex: 500"
-                [style.borderColor]="segmentForm.minIncome !== null && segmentForm.minIncome < 0 ? 'var(--danger)' : ''">
-              <span *ngIf="segmentForm.minIncome !== null && segmentForm.minIncome < 0"
-                style="color:var(--danger);font-size:.75rem;">Min income must be >= 0</span>
+              <input class="form-input" type="number" [(ngModel)]="segmentForm.minIncome" placeholder="Ex: 500">
+              <span *ngIf="segmentForm.minIncome !== null && segmentForm.minIncome < 0" style="color:var(--danger);font-size:.75rem;">Min income must be >= 0</span>
             </div>
             <div class="form-group">
               <label class="form-label">Max income (TND) *</label>
-              <input class="form-input" type="number" [(ngModel)]="segmentForm.maxIncome"
-                placeholder="Ex: 3000"
-                [style.borderColor]="segmentForm.maxIncome !== null && segmentForm.maxIncome <= 0 ? 'var(--danger)' : ''">
-              <span *ngIf="segmentForm.maxIncome !== null && segmentForm.maxIncome <= 0"
-                style="color:var(--danger);font-size:.75rem;">Max income must be > 0</span>
-              <span *ngIf="segmentForm.minIncome !== null && segmentForm.maxIncome !== null && segmentForm.minIncome >= segmentForm.maxIncome"
-                style="color:var(--danger);font-size:.75rem;">Max income must be greater than min income</span>
+              <input class="form-input" type="number" [(ngModel)]="segmentForm.maxIncome" placeholder="Ex: 3000">
+              <span *ngIf="segmentForm.maxIncome !== null && segmentForm.maxIncome <= 0" style="color:var(--danger);font-size:.75rem;">Max income must be > 0</span>
+              <span *ngIf="segmentForm.minIncome !== null && segmentForm.maxIncome !== null && segmentForm.minIncome >= segmentForm.maxIncome" style="color:var(--danger);font-size:.75rem;">Max income must be greater than min income</span>
             </div>
           </div>
-
           <div class="form-group" style="margin-bottom:1rem;">
             <label class="form-label">Geographic zone *</label>
-            <input class="form-input" type="text" [(ngModel)]="segmentForm.geographicZone"
-              placeholder="Ex: Greater Tunis"
-              [style.borderColor]="segmentForm.geographicZone?.length > 0 && (segmentForm.geographicZone?.length < 2 || segmentForm.geographicZone?.length > 100) ? 'var(--danger)' : ''">
-            <span *ngIf="segmentForm.geographicZone?.length > 0 && segmentForm.geographicZone?.length < 2"
-              style="color:var(--danger);font-size:.75rem;">Minimum 2 characters</span>
-            <span *ngIf="segmentForm.geographicZone?.length > 100"
-              style="color:var(--danger);font-size:.75rem;">Maximum 100 characters</span>
+            <input class="form-input" type="text" [(ngModel)]="segmentForm.geographicZone" placeholder="Ex: Greater Tunis">
           </div>
-
           <div style="display:flex;gap:.75rem;margin-top:1rem;">
             <button type="button" class="btn btn-success" (click)="saveSegment()"
-              [disabled]="!segmentForm.name || segmentForm.name.length < 3 ||
-                          !segmentForm.description || segmentForm.description.length < 10 ||
-                          segmentForm.minIncome === null || segmentForm.minIncome < 0 ||
-                          !segmentForm.maxIncome || segmentForm.maxIncome <= 0 ||
-                          segmentForm.minIncome >= segmentForm.maxIncome ||
-                          !segmentForm.geographicZone || segmentForm.geographicZone.length < 2"
-              [style.opacity]="!segmentForm.name || segmentForm.name.length < 3 ||
-                          !segmentForm.description || segmentForm.description.length < 10 ||
-                          segmentForm.minIncome === null || segmentForm.minIncome < 0 ||
-                          !segmentForm.maxIncome || segmentForm.maxIncome <= 0 ||
-                          segmentForm.minIncome >= segmentForm.maxIncome ||
-                          !segmentForm.geographicZone || segmentForm.geographicZone.length < 2 ? '0.5' : '1'">
-              ✓ {{ editingSegmentId ? 'Update' : 'Create segment' }}
+              [disabled]="!segmentForm.name || segmentForm.name.length < 3 || !segmentForm.description || segmentForm.description.length < 10 || segmentForm.minIncome === null || segmentForm.minIncome < 0 || !segmentForm.maxIncome || segmentForm.maxIncome <= 0 || segmentForm.minIncome >= segmentForm.maxIncome || !segmentForm.geographicZone || segmentForm.geographicZone.length < 2"
+              [style.opacity]="!segmentForm.name || segmentForm.name.length < 3 || !segmentForm.description || segmentForm.description.length < 10 || segmentForm.minIncome === null || segmentForm.minIncome < 0 || !segmentForm.maxIncome || segmentForm.maxIncome <= 0 || segmentForm.minIncome >= segmentForm.maxIncome || !segmentForm.geographicZone || segmentForm.geographicZone.length < 2 ? '0.5' : '1'">
+              {{ editingSegmentId ? 'Update' : 'Create segment' }}
             </button>
             <button type="button" class="btn btn-outline" (click)="closeSegmentModal()">Cancel</button>
           </div>
-
         </div>
       </div>
 
@@ -927,11 +828,7 @@
                 <td class="td-amount">{{ s.minIncome | number }} TND</td>
                 <td class="td-amount">{{ s.maxIncome | number }} TND</td>
                 <td>{{ s.geographicZone }}</td>
-                <td>
-                  <span *ngFor="let c of s.campaignNames; let last = last">
-                    {{ c }}<span *ngIf="!last">, </span>
-                  </span>
-                </td>
+                <td><span *ngFor="let c of s.campaignNames; let last = last">{{ c }}<span *ngIf="!last">, </span></span></td>
                 <td><div style="display:flex;gap:.375rem">
                   <button class="btn btn-ghost btn-xs" (click)="editSegment(s)">Edit</button>
                   <button class="btn btn-danger btn-xs" (click)="deleteSegment(s.segmentId)">Delete</button>
@@ -944,58 +841,34 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : FINANCIAL INDICATORS
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'indicators'" id="page-indicators">
       <div class="ph s1">
         <div><div class="ph-eyebrow">Financial Steering</div><div class="ph-title">Financial indicators</div><div class="ph-desc">Institution global health — historical snapshots</div></div>
         <div class="ph-actions"><button class="btn btn-primary" (click)="openIndicatorForm()">+ New indicator</button></div>
       </div>
-      <!-- INDICATOR FORM -->
       <div *ngIf="showIndicatorForm" class="panel" style="border:2px solid var(--blue);margin-bottom:1rem;">
         <div class="panel-head">
           <div class="panel-title"><span class="ptdot"></span>New indicator</div>
-          <button class="btn btn-outline btn-sm" (click)="closeIndicatorForm()">✕ Cancel</button>
+          <button class="btn btn-outline btn-sm" (click)="closeIndicatorForm()">Cancel</button>
         </div>
         <div class="panel-body">
           <div *ngIf="indicatorError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
-            ⚠ {{ indicatorError }}
+            {{ indicatorError }}
           </div>
           <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Name *</label>
-              <input class="form-input" type="text" [(ngModel)]="indicatorForm.name" placeholder="Ex: NPL Default Rate">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Reference *</label>
-              <input class="form-input" type="text" [(ngModel)]="indicatorForm.referenceIndicator" placeholder="Ex: NPL_RATIO">
-            </div>
+            <div class="form-group"><label class="form-label">Name *</label><input class="form-input" type="text" [(ngModel)]="indicatorForm.name" placeholder="Ex: NPL Default Rate"></div>
+            <div class="form-group"><label class="form-label">Reference *</label><input class="form-input" type="text" [(ngModel)]="indicatorForm.referenceIndicator" placeholder="Ex: NPL_RATIO"></div>
           </div>
           <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Current value *</label>
-              <input class="form-input" type="number" step="0.01" [(ngModel)]="indicatorForm.value" placeholder="Ex: 0.12">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Warning threshold *</label>
-              <input class="form-input" type="number" step="0.01" [(ngModel)]="indicatorForm.warningThreshold" placeholder="Ex: 0.15">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Critical threshold *</label>
-              <input class="form-input" type="number" step="0.01" [(ngModel)]="indicatorForm.criticalThreshold" placeholder="Ex: 0.25">
-            </div>
-          </div>
-          <div *ngIf="indicatorForm.warningThreshold !== null && indicatorForm.criticalThreshold !== null && indicatorForm.warningThreshold >= indicatorForm.criticalThreshold"
-            style="color:var(--danger);font-size:.75rem;margin-bottom:.5rem;">
-            ⚠ Warning threshold must be less than critical threshold
+            <div class="form-group"><label class="form-label">Current value *</label><input class="form-input" type="number" step="0.01" [(ngModel)]="indicatorForm.value" placeholder="Ex: 0.12"></div>
+            <div class="form-group"><label class="form-label">Warning threshold *</label><input class="form-input" type="number" step="0.01" [(ngModel)]="indicatorForm.warningThreshold" placeholder="Ex: 0.15"></div>
+            <div class="form-group"><label class="form-label">Critical threshold *</label><input class="form-input" type="number" step="0.01" [(ngModel)]="indicatorForm.criticalThreshold" placeholder="Ex: 0.25"></div>
           </div>
           <div style="display:flex;gap:.75rem;margin-top:1rem;">
-            <button class="btn btn-success" (click)="saveIndicator()"
-              [disabled]="!indicatorForm.name || !indicatorForm.referenceIndicator || indicatorForm.value === null || indicatorForm.warningThreshold === null || indicatorForm.criticalThreshold === null || indicatorForm.warningThreshold >= indicatorForm.criticalThreshold"
-              [style.opacity]="!indicatorForm.name || !indicatorForm.referenceIndicator || indicatorForm.value === null || indicatorForm.warningThreshold === null || indicatorForm.criticalThreshold === null || indicatorForm.warningThreshold >= indicatorForm.criticalThreshold ? '0.5' : '1'">
-              ✓ Save indicator
-            </button>
+            <button class="btn btn-success" (click)="saveIndicator()" [disabled]="!indicatorForm.name || !indicatorForm.referenceIndicator || indicatorForm.value === null || indicatorForm.warningThreshold === null || indicatorForm.criticalThreshold === null || indicatorForm.warningThreshold >= indicatorForm.criticalThreshold">Save indicator</button>
             <button class="btn btn-outline" (click)="closeIndicatorForm()">Cancel</button>
           </div>
         </div>
@@ -1022,9 +895,9 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
-     PAGE : CONCENTRATION RISK ANALYZER — HHI
-     ═══════════════════════════════════════════════════════ -->
+    <!-- ===============================================================
+         PAGE : CONCENTRATION RISK ANALYZER — HHI
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'hhi-analyzer'" id="page-hhi-analyzer">
       <div class="ph s1">
         <div>
@@ -1036,118 +909,69 @@
       <app-hhi-analyzer></app-hhi-analyzer>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : TREASURY ACCOUNTS
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'treasury'" id="page-treasury">
       <div class="ph s1">
         <div><div class="ph-eyebrow">Financial Steering</div><div class="ph-title">Treasury accounts</div><div class="ph-desc">Balances and movements of institution accounts</div></div>
         <div class="ph-actions"><button class="btn btn-primary" (click)="openTreasuryForm()">+ New account</button></div>
       </div>
-      <!-- TREASURY FORM -->
       <div *ngIf="showTreasuryForm" class="panel" style="border:2px solid var(--blue);margin-bottom:1rem;">
         <div class="panel-head">
           <div class="panel-title"><span class="ptdot"></span>{{ editingTreasuryId ? 'Edit account' : 'New treasury account' }}</div>
-          <button class="btn btn-outline btn-sm" (click)="closeTreasuryForm()">✕ Cancel</button>
+          <button class="btn btn-outline btn-sm" (click)="closeTreasuryForm()">Cancel</button>
         </div>
         <div class="panel-body">
           <div *ngIf="treasuryError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
-            ⚠ {{ treasuryError }}
+            {{ treasuryError }}
           </div>
-          <!-- CREATE -->
           <ng-container *ngIf="!editingTreasuryId">
             <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Name *</label>
-                <input class="form-input" type="text" [(ngModel)]="treasuryForm.name" placeholder="Ex: Main TND Account">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Type *</label>
-                <select class="form-input" [(ngModel)]="treasuryForm.type">
-                  <option value="MAIN">MAIN</option>
-                  <option value="RESERVE">RESERVE</option>
-                  <option value="PROVISION">PROVISION</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Currency * (3 letters)</label>
-                <input class="form-input" type="text" [(ngModel)]="treasuryForm.currency" placeholder="TND" maxlength="3" style="text-transform:uppercase">
-              </div>
+              <div class="form-group"><label class="form-label">Name *</label><input class="form-input" type="text" [(ngModel)]="treasuryForm.name" placeholder="Ex: Main TND Account"></div>
+              <div class="form-group"><label class="form-label">Type *</label><select class="form-input" [(ngModel)]="treasuryForm.type"><option value="MAIN">MAIN</option><option value="RESERVE">RESERVE</option><option value="PROVISION">PROVISION</option></select></div>
+              <div class="form-group"><label class="form-label">Currency * (3 letters)</label><input class="form-input" type="text" [(ngModel)]="treasuryForm.currency" placeholder="TND" maxlength="3" style="text-transform:uppercase"></div>
             </div>
             <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Initial balance *</label>
-                <input class="form-input" type="number" [(ngModel)]="treasuryForm.initialBalance" placeholder="Ex: 100000">
-                <span style="font-size:.72rem;color:var(--g400)">Current balance will automatically equal initial balance.</span>
-              </div>
+              <div class="form-group"><label class="form-label">Initial balance *</label><input class="form-input" type="number" [(ngModel)]="treasuryForm.initialBalance" placeholder="Ex: 100000"><span style="font-size:.72rem;color:var(--g400)">Current balance will automatically equal initial balance.</span></div>
             </div>
           </ng-container>
-          <!-- EDIT -->
           <ng-container *ngIf="editingTreasuryId">
             <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Name *</label>
-                <input class="form-input" type="text" [(ngModel)]="treasuryUpdateForm.name">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Currency * (3 letters)</label>
-                <input class="form-input" type="text" [(ngModel)]="treasuryUpdateForm.currency" maxlength="3" style="text-transform:uppercase">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Status *</label>
-                <select class="form-input" [(ngModel)]="treasuryUpdateForm.status">
-                  <option value="ACTIVE">ACTIVE</option>
-                  <option value="INACTIVE">INACTIVE</option>
-                </select>
-              </div>
+              <div class="form-group"><label class="form-label">Name *</label><input class="form-input" type="text" [(ngModel)]="treasuryUpdateForm.name"></div>
+              <div class="form-group"><label class="form-label">Currency * (3 letters)</label><input class="form-input" type="text" [(ngModel)]="treasuryUpdateForm.currency" maxlength="3" style="text-transform:uppercase"></div>
+              <div class="form-group"><label class="form-label">Status *</label><select class="form-input" [(ngModel)]="treasuryUpdateForm.status"><option value="ACTIVE">ACTIVE</option><option value="INACTIVE">INACTIVE</option></select></div>
             </div>
           </ng-container>
           <div style="display:flex;gap:.75rem;margin-top:1rem;">
-            <button class="btn btn-success" (click)="saveTreasury()">
-              ✓ {{ editingTreasuryId ? 'Update' : 'Create account' }}
-            </button>
+            <button class="btn btn-success" (click)="saveTreasury()">{{ editingTreasuryId ? 'Update' : 'Create account' }}</button>
             <button class="btn btn-outline" (click)="closeTreasuryForm()">Cancel</button>
           </div>
         </div>
       </div>
 
-      <!-- MOVEMENTS PANEL -->
       <div *ngIf="showMovementsPanel" class="panel" style="border:2px solid var(--purple);margin-bottom:1rem;">
         <div class="panel-head">
           <div class="panel-title"><span class="ptdot" style="background:var(--purple)"></span>Movements — Account #{{ selectedTreasuryId }}</div>
           <div style="display:flex;gap:.5rem;">
             <button class="btn btn-primary btn-sm" (click)="openMovementForm()">+ New movement</button>
-            <button class="btn btn-outline btn-sm" (click)="closeMovementsPanel()">✕ Close</button>
+            <button class="btn btn-outline btn-sm" (click)="closeMovementsPanel()">Close</button>
           </div>
         </div>
-        <!-- Inline movement form -->
         <div *ngIf="showMovementForm" class="panel-body" style="border-bottom:1px solid var(--g200);">
           <div *ngIf="movementError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
-            ⚠ {{ movementError }}
+            {{ movementError }}
           </div>
           <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Direction *</label>
-              <select class="form-input" [(ngModel)]="movementForm.movementDirection">
-                <option value="INFLOW">INFLOW (In)</option>
-                <option value="OUTFLOW">OUTFLOW (Out)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Amount *</label>
-              <input class="form-input" type="number" [(ngModel)]="movementForm.amount" placeholder="Ex: 5000">
-            </div>
+            <div class="form-group"><label class="form-label">Direction *</label><select class="form-input" [(ngModel)]="movementForm.movementDirection"><option value="INFLOW">INFLOW (In)</option><option value="OUTFLOW">OUTFLOW (Out)</option></select></div>
+            <div class="form-group"><label class="form-label">Amount *</label><input class="form-input" type="number" [(ngModel)]="movementForm.amount" placeholder="Ex: 5000"></div>
           </div>
           <div class="form-group" style="margin-bottom:1rem;">
             <label class="form-label">Description * (min 5 characters)</label>
             <input class="form-input" type="text" [(ngModel)]="movementForm.description" placeholder="Ex: Transfer from client Karim Hadj">
           </div>
           <div style="display:flex;gap:.75rem;">
-            <button class="btn btn-success" (click)="saveMovement()"
-              [disabled]="!movementForm.description || movementForm.description.length < 5 || !movementForm.amount || movementForm.amount <= 0"
-              [style.opacity]="!movementForm.description || movementForm.description.length < 5 || !movementForm.amount || movementForm.amount <= 0 ? '0.5' : '1'">
-              ✓ Save
-            </button>
+            <button class="btn btn-success" (click)="saveMovement()" [disabled]="!movementForm.description || movementForm.description.length < 5 || !movementForm.amount || movementForm.amount <= 0">Save</button>
             <button class="btn btn-outline" (click)="showMovementForm = false">Cancel</button>
           </div>
         </div>
@@ -1157,15 +981,11 @@
             <tbody>
               <tr *ngFor="let m of movements">
                 <td><span class="badge" [ngClass]="m.movementDirection === 'INFLOW' ? 'b-actif' : 'b-danger'">{{ m.movementDirection }}</span></td>
-                <td class="td-amount" [style.color]="m.movementDirection === 'INFLOW' ? 'var(--success)' : 'var(--danger)'">
-                  {{ m.movementDirection === 'INFLOW' ? '+' : '-' }}{{ m.amount | number }} TND
-                </td>
+                <td class="td-amount" [style.color]="m.movementDirection === 'INFLOW' ? 'var(--success)' : 'var(--danger)'">{{ m.movementDirection === 'INFLOW' ? '+' : '-' }}{{ m.amount | number }} TND</td>
                 <td>{{ m.description }}</td>
                 <td style="font-size:.75rem;color:var(--g400)">{{ m.movementDate | date:'dd/MM/yyyy HH:mm' }}</td>
               </tr>
-              <tr *ngIf="movements.length === 0">
-                <td colspan="4" style="text-align:center;color:var(--g400);padding:1.5rem;">No movement recorded</td>
-              </tr>
+              <tr *ngIf="movements.length === 0"><td colspan="4" style="text-align:center;color:var(--g400);padding:1.5rem;">No movement recorded</td></tr>
             </tbody>
           </table>
         </div>
@@ -1193,63 +1013,33 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : FUNDING SIMULATIONS
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'simulations'" id="page-simulations">
       <div class="ph s1">
         <div><div class="ph-eyebrow">Financial Steering</div><div class="ph-title">Funding simulations</div><div class="ph-desc">Evaluate the institution's capacity to finance new credits</div></div>
         <div class="ph-actions"><button class="btn btn-primary" (click)="openSimulationForm()">+ New simulation</button></div>
       </div>
-      <!-- SIMULATION FORM -->
       <div *ngIf="showSimulationForm" class="panel" style="border:2px solid var(--blue);margin-bottom:1rem;">
         <div class="panel-head">
           <div class="panel-title"><span class="ptdot"></span>New funding simulation</div>
-          <button class="btn btn-outline btn-sm" (click)="closeSimulationForm()">✕ Cancel</button>
+          <button class="btn btn-outline btn-sm" (click)="closeSimulationForm()">Cancel</button>
         </div>
         <div class="panel-body">
           <div *ngIf="simulationError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:var(--danger);font-size:.85rem;font-weight:600;">
-            ⚠ {{ simulationError }}
+            {{ simulationError }}
           </div>
           <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Projected amount (TND) *</label>
-              <input class="form-input" type="number" [(ngModel)]="simulationForm.projectedAmount" placeholder="Ex: 500000">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Average default rate * (between 0 and 1)</label>
-              <input class="form-input" type="number" step="0.01" min="0" max="1" [(ngModel)]="simulationForm.averageDefaultRate" placeholder="Ex: 0.15">
-              <span style="font-size:.72rem;color:var(--g400);">If ≥ 0.20 → decision automatically REJECTED</span>
-            </div>
+            <div class="form-group"><label class="form-label">Projected amount (TND) *</label><input class="form-input" type="number" [(ngModel)]="simulationForm.projectedAmount" placeholder="Ex: 500000"></div>
+            <div class="form-group"><label class="form-label">Average default rate * (between 0 and 1)</label><input class="form-input" type="number" step="0.01" min="0" max="1" [(ngModel)]="simulationForm.averageDefaultRate" placeholder="Ex: 0.15"><span style="font-size:.72rem;color:var(--g400);">If >= 0.20 decision automatically REJECTED</span></div>
           </div>
           <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Estimated provision (TND) *</label>
-              <input class="form-input" type="number" [(ngModel)]="simulationForm.estimatedProvisionNeeded" placeholder="Ex: 75000">
-              <span *ngIf="simulationForm.estimatedProvisionNeeded > simulationForm.projectedAmount && simulationForm.projectedAmount"
-                style="color:var(--danger);font-size:.75rem;">Provision cannot exceed projected amount</span>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Decision (optional)</label>
-              <select class="form-input" [(ngModel)]="simulationForm.decision">
-                <option [ngValue]="null">-- Auto calculated by backend --</option>
-                <option value="ACCEPTED">ACCEPTED</option>
-                <option value="REJECTED">REJECTED</option>
-              </select>
-            </div>
+            <div class="form-group"><label class="form-label">Estimated provision (TND) *</label><input class="form-input" type="number" [(ngModel)]="simulationForm.estimatedProvisionNeeded" placeholder="Ex: 75000"><span *ngIf="simulationForm.estimatedProvisionNeeded > simulationForm.projectedAmount && simulationForm.projectedAmount" style="color:var(--danger);font-size:.75rem;">Provision cannot exceed projected amount</span></div>
+            <div class="form-group"><label class="form-label">Decision (optional)</label><select class="form-input" [(ngModel)]="simulationForm.decision"><option [ngValue]="null">-- Auto calculated by backend --</option><option value="ACCEPTED">ACCEPTED</option><option value="REJECTED">REJECTED</option></select></div>
           </div>
           <div style="display:flex;gap:.75rem;margin-top:1rem;">
-            <button class="btn btn-success" (click)="saveSimulation()"
-              [disabled]="!simulationForm.projectedAmount || simulationForm.projectedAmount <= 0
-                          || simulationForm.averageDefaultRate === null
-                          || simulationForm.estimatedProvisionNeeded === null
-                          || simulationForm.estimatedProvisionNeeded > simulationForm.projectedAmount"
-              [style.opacity]="!simulationForm.projectedAmount || simulationForm.projectedAmount <= 0
-                          || simulationForm.averageDefaultRate === null
-                          || simulationForm.estimatedProvisionNeeded === null
-                          || simulationForm.estimatedProvisionNeeded > simulationForm.projectedAmount ? '0.5' : '1'">
-              ✓ Run simulation
-            </button>
+            <button class="btn btn-success" (click)="saveSimulation()" [disabled]="!simulationForm.projectedAmount || simulationForm.projectedAmount <= 0 || simulationForm.averageDefaultRate === null || simulationForm.estimatedProvisionNeeded === null || simulationForm.estimatedProvisionNeeded > simulationForm.projectedAmount">Run simulation</button>
             <button class="btn btn-outline" (click)="closeSimulationForm()">Cancel</button>
           </div>
         </div>
@@ -1274,9 +1064,9 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          PAGE : FINANCIAL STEERING — DASHBOARD
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'financial-steering'" id="page-financial-steering">
       <div class="ph s1">
         <div>
@@ -1288,13 +1078,13 @@
 
       <div class="ph-actions">
         <button class="btn btn-primary" (click)="onPageChange('financial-steering-charts')">
-          📊 Visual Dashboard
+          Visual Dashboard
         </button>
       </div>
 
       <div *ngIf="steeringLoading" style="text-align:center;padding:3rem;color:var(--g400);">Loading...</div>
       <div *ngIf="steeringError" style="background:rgba(239,68,68,.1);border:1px solid var(--danger);border-radius:8px;padding:1.5rem;color:var(--danger);font-weight:600;">
-        ⚠ Error loading data. Make sure the backend is running.
+        Error loading data. Make sure the backend is running.
       </div>
 
       <ng-container *ngIf="!steeringLoading && !steeringError && steeringDashboard">
@@ -1310,32 +1100,77 @@
         <!-- KPIs -->
         <div class="kpi-row s2">
           <div class="kpi" style="--kc:var(--success);">
-            <div class="kpi-top"><div class="kpi-ico" style="background:rgba(16,185,129,.12);">📥</div></div>
+            <div class="kpi-top"><div class="kpi-ico" style="background:rgba(16,185,129,.12);">IN</div></div>
             <div class="kpi-val" style="font-size:1.5rem;">{{ steeringDashboard.totalInflow | number:'1.0-0' }} <small style="font-size:1rem;">TND</small></div>
             <div class="kpi-lbl">Total INFLOW</div>
           </div>
           <div class="kpi" style="--kc:var(--danger);">
-            <div class="kpi-top"><div class="kpi-ico" style="background:rgba(239,68,68,.12);">📤</div></div>
+            <div class="kpi-top"><div class="kpi-ico" style="background:rgba(239,68,68,.12);">OUT</div></div>
             <div class="kpi-val" style="font-size:1.5rem;">{{ steeringDashboard.totalOutflow | number:'1.0-0' }} <small style="font-size:1rem;">TND</small></div>
             <div class="kpi-lbl">Total OUTFLOW</div>
           </div>
           <div class="kpi" style="--kc:var(--warning);">
-            <div class="kpi-top"><div class="kpi-ico" style="background:rgba(245,158,11,.12);">⚠️</div></div>
+            <div class="kpi-top"><div class="kpi-ico" style="background:rgba(245,158,11,.12);">!</div></div>
             <div class="kpi-val" [style.color]="getSteeringTauxColor(steeringDashboard.globalDefaultRate)">{{ steeringDashboard.globalDefaultRate }}%</div>
             <div class="kpi-lbl">Global default rate</div>
           </div>
           <div class="kpi" style="--kc:var(--blue);">
-            <div class="kpi-top"><div class="kpi-ico" style="background:rgba(59,130,246,.12);">📈</div></div>
+            <div class="kpi-top"><div class="kpi-ico" style="background:rgba(59,130,246,.12);">%</div></div>
             <div class="kpi-val" [style.color]="steeringDashboard.rendement >= 0 ? 'var(--success)' : 'var(--danger)'">{{ steeringDashboard.rendement }}%</div>
             <div class="kpi-lbl">Yield</div>
           </div>
         </div>
 
-        <!-- Monthly evolution -->
-        <div class="panel s3">
-          <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Default rate evolution — Financial history</div></div>
+        <!-- ============================================================
+             PAGINATION NAV — 3 cards
+             ============================================================ -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;margin:1.5rem 0 .75rem;">
+          <button class="btn btn-sm"
+            [ngClass]="steeringCardPage === 0 ? 'btn-primary' : 'btn-outline'"
+            (click)="steeringCardPage = 0">
+            Default Rate Evolution
+          </button>
+          <button class="btn btn-sm"
+            [ngClass]="steeringCardPage === 1 ? 'btn-primary' : 'btn-outline'"
+            (click)="steeringCardPage = 1">
+            Segment Analysis
+          </button>
+          <button class="btn btn-sm"
+            [ngClass]="steeringCardPage === 2 ? 'btn-primary' : 'btn-outline'"
+            (click)="steeringCardPage = 2">
+            ML Prediction
+          </button>
+        </div>
+
+        <!-- Dot indicators -->
+        <div style="display:flex;justify-content:center;gap:.4rem;margin-bottom:1.25rem;">
+          <div *ngFor="let i of [0,1,2]"
+            (click)="steeringCardPage = i"
+            style="width:8px;height:8px;border-radius:50%;cursor:pointer;transition:background .2s;"
+            [style.background]="steeringCardPage === i ? 'var(--blue)' : 'var(--g300)'">
+          </div>
+        </div>
+
+        <!-- ============================================================
+             CARD 0 : Default Rate Evolution
+             ============================================================ -->
+        <div *ngIf="steeringCardPage === 0" class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="ptdot"></span>Default rate evolution — Financial history</div>
+            <div style="display:flex;align-items:center;gap:.625rem;margin-left:auto;">
+              <div class="tb-search" style="width:180px;">
+                <span>&#128269;</span>
+                <input type="text" placeholder="Filter by month… (ex: 2025-03)"
+                       [(ngModel)]="evolutionSearchMonth"
+                       (ngModelChange)="onEvolutionSearch()">
+              </div>
+            </div>
+          </div>
           <div class="panel-body">
-            <div *ngFor="let m of steeringDashboard.monthlyEvolution" style="margin-bottom:1rem;">
+            <div *ngIf="pagedEvolution.length === 0" style="color:var(--g400);text-align:center;padding:1.5rem;">
+              No month matches your search.
+            </div>
+            <div *ngFor="let m of pagedEvolution" style="margin-bottom:1rem;">
               <div style="display:flex;justify-content:space-between;margin-bottom:.375rem;">
                 <span style="font-weight:700;color:var(--g700);">{{ m.month }}</span>
                 <span style="font-weight:700;" [style.color]="getSteeringTauxColor(m.tauxDefaut)">{{ m.tauxDefaut }}% default</span>
@@ -1348,10 +1183,35 @@
               <div style="font-size:.775rem;color:var(--g400);">{{ m.enRetard }} contracts overdue out of {{ m.total }}</div>
             </div>
           </div>
+          <!-- Pagination -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 1.25rem;border-top:1px solid var(--g100);">
+            <span style="font-size:.775rem;color:var(--g400);">
+              Page {{ evolutionPage + 1 }} / {{ evolutionTotalPages || 1 }}
+              &nbsp;·&nbsp; {{ filteredEvolution.length }} months
+            </span>
+            <div style="display:flex;gap:.375rem;align-items:center;">
+              <button class="btn btn-outline btn-xs"
+                      (click)="evolutionGoTo(evolutionPage - 1)"
+                      [disabled]="evolutionPage === 0"
+                      [style.opacity]="evolutionPage === 0 ? '0.4' : '1'">‹</button>
+              <button *ngFor="let p of evolutionPageNumbers" class="btn btn-xs"
+                      [ngClass]="p === evolutionPage ? 'btn-primary' : 'btn-outline'"
+                      (click)="evolutionGoTo(p)">{{ p + 1 }}</button>
+              <button class="btn btn-outline btn-xs"
+                      (click)="evolutionGoTo(evolutionPage + 1)"
+                      [disabled]="evolutionPage >= evolutionTotalPages - 1"
+                      [style.opacity]="evolutionPage >= evolutionTotalPages - 1 ? '0.4' : '1'">›</button>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;padding:.75rem 1.25rem;border-top:1px solid var(--g100);">
+            <button class="btn btn-outline btn-sm" (click)="steeringCardPage = 1">Next — Segment Analysis</button>
+          </div>
         </div>
 
-        <!-- Segment analysis -->
-        <div class="panel s4">
+        <!-- ============================================================
+             CARD 1 : Segment Analysis
+             ============================================================ -->
+        <div *ngIf="steeringCardPage === 1" class="panel">
           <div class="panel-head">
             <div class="panel-title"><span class="ptdot"></span>Segment analysis</div>
             <div style="display:flex;align-items:center;gap:.75rem;margin-left:auto;">
@@ -1386,7 +1246,7 @@
 
             <!-- Region -->
             <div *ngIf="steeringActiveTab === 'region'">
-              <div *ngFor="let s of steeringRegionSegments" style="padding:1rem;border:1px solid var(--g200);border-radius:10px;margin-bottom:.75rem;">
+              <div *ngFor="let s of pagedRegionSegments" style="padding:1rem;border:1px solid var(--g200);border-radius:10px;margin-bottom:.75rem;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
                   <span style="font-weight:700;color:var(--g700);font-size:.9rem;">{{ s.segment }}</span>
                   <span style="font-weight:800;font-size:1.1rem;" [style.color]="getSteeringTauxColor(s.tauxDefaut)">{{ s.tauxDefaut }}%</span>
@@ -1397,11 +1257,23 @@
                 <div style="font-size:.775rem;color:var(--g400);margin-bottom:.5rem;">{{ s.enRetard }} overdue / {{ s.total }} total</div>
                 <div style="font-size:.8rem;color:var(--g600);background:var(--g50);padding:.5rem .75rem;border-radius:6px;border-left:3px solid var(--g300);">{{ s.recommendation }}</div>
               </div>
+              <!-- Region Pagination -->
+              <div *ngIf="regionTotalPages > 1" style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;margin-top:.5rem;">
+                <span style="font-size:.775rem;color:var(--g400);">Page {{ regionPage + 1 }} / {{ regionTotalPages }}</span>
+                <div style="display:flex;gap:.375rem;">
+                  <button class="btn btn-outline btn-xs" (click)="regionPage = regionPage - 1" [disabled]="regionPage === 0" [style.opacity]="regionPage === 0 ? '0.4' : '1'">‹</button>
+                  <button *ngFor="let p of regionPageNumbers" class="btn btn-xs"
+                          [ngClass]="p === regionPage ? 'btn-primary' : 'btn-outline'"
+                          (click)="regionPage = p">{{ p + 1 }}</button>
+                  <button class="btn btn-outline btn-xs" (click)="regionPage = regionPage + 1" [disabled]="regionPage >= regionTotalPages - 1" [style.opacity]="regionPage >= regionTotalPages - 1 ? '0.4' : '1'">›</button>
+                </div>
+              </div>
             </div>
+
 
             <!-- Risk -->
             <div *ngIf="steeringActiveTab === 'risk'">
-              <div *ngFor="let r of steeringRiskIndicators" style="padding:1rem;border:1px solid var(--g200);border-radius:10px;margin-bottom:.75rem;">
+              <div *ngFor="let r of pagedRiskIndicators" style="padding:1rem;border:1px solid var(--g200);border-radius:10px;margin-bottom:.75rem;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
                   <span style="font-weight:800;color:var(--g900);font-size:1rem;">{{ r.month }}</span>
                   <span class="badge" [ngClass]="getSteeringStatusClass(r.status)">{{ r.status }}</span>
@@ -1415,95 +1287,108 @@
                 <div style="font-size:.8rem;color:var(--g600);background:var(--g50);padding:.5rem .75rem;border-radius:6px;border-left:3px solid var(--g300);margin-bottom:.5rem;">{{ r.recommendation }}</div>
                 <div style="font-size:.775rem;color:var(--g500);background:var(--g50);padding:.5rem .75rem;border-radius:6px;"><strong>Procedure:</strong> {{ r.procedure }}</div>
               </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- [ML ADDED] ML Prediction Card -->
-      <div class="ml-pred-card" *ngIf="mlPrediction && !mlLoading">
-
-        <!-- Header -->
-        <div class="ml-pred-header">
-          <div>
-            <div class="ml-pred-title">ML Prediction — Default Rate</div>
-            <div class="ml-pred-subtitle">Target month: {{ mlPrediction.targetMonth }}</div>
-          </div>
-          <span class="badge" [ngClass]="getMlAlertClass(mlPrediction.alertLevel)">
-            {{ mlPrediction.alertLevel }}
-          </span>
-        </div>
-
-        <!-- Main value -->
-        <div class="ml-pred-value-row">
-          <span class="ml-pred-value" [ngClass]="getMlAlertClass(mlPrediction.alertLevel)">
-            {{ mlPrediction.predictedRatePct | number:'1.1-1' }}%
-          </span>
-          <span class="ml-pred-interval">
-            ± {{ (mlPrediction.confidenceInterval * 100) | number:'1.1-1' }}%
-          </span>
-        </div>
-
-        <!-- Contributions -->
-        <div class="ml-contrib-section">
-          <div class="ml-contrib-title">Key Contributing Factors</div>
-          <div *ngFor="let c of getMlContributions()" class="ml-contrib-row">
-            <span class="ml-contrib-label">{{ c.label }}</span>
-            <div class="ml-bar-track">
-              <div class="ml-bar-fill"
-                  [style.width.%]="(Math.abs(c.value) / getMlMaxContrib()) * 100"
-                  [ngClass]="c.value > 0 ? 'ml-bar-risk' : 'ml-bar-safe'">
+              <!-- Risk Pagination -->
+              <div *ngIf="riskTotalPages > 1" style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;margin-top:.5rem;">
+                <span style="font-size:.775rem;color:var(--g400);">Page {{ riskPage + 1 }} / {{ riskTotalPages }}</span>
+                <div style="display:flex;gap:.375rem;">
+                  <button class="btn btn-outline btn-xs" (click)="riskPage = riskPage - 1" [disabled]="riskPage === 0" [style.opacity]="riskPage === 0 ? '0.4' : '1'">‹</button>
+                  <button *ngFor="let p of riskPageNumbers" class="btn btn-xs"
+                          [ngClass]="p === riskPage ? 'btn-primary' : 'btn-outline'"
+                          (click)="riskPage = p">{{ p + 1 }}</button>
+                  <button class="btn btn-outline btn-xs" (click)="riskPage = riskPage + 1" [disabled]="riskPage >= riskTotalPages - 1" [style.opacity]="riskPage >= riskTotalPages - 1 ? '0.4' : '1'">›</button>
+                </div>
               </div>
             </div>
-            <span class="ml-contrib-val" [ngClass]="c.value > 0 ? 'ml-text-risk' : 'ml-text-safe'">
-              {{ c.value > 0 ? '+' : '' }}{{ c.value | number:'1.3-3' }}
-            </span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:.75rem 1.25rem;border-top:1px solid var(--g100);">
+            <button class="btn btn-outline btn-sm" (click)="steeringCardPage = 0">Previous — Default Rate Evolution</button>
+            <button class="btn btn-outline btn-sm" (click)="steeringCardPage = 2">Next — ML Prediction</button>
           </div>
         </div>
 
-        <!-- Footer -->
-        <div class="ml-pred-footer">
-          <div class="ml-meta">
-            <span class="ml-meta-label">Analyzed month</span>
-            <span class="ml-meta-val">{{ steeringSelectedMonth }}</span>
+        <!-- ============================================================
+             CARD 2 : ML Prediction
+             ============================================================ -->
+        <div *ngIf="steeringCardPage === 2">
+
+          <div class="ml-pred-card" *ngIf="mlPrediction && !mlLoading">
+            <div class="ml-pred-header">
+              <div>
+                <div class="ml-pred-title">ML Prediction — Default Rate</div>
+                <div class="ml-pred-subtitle">Target month: {{ mlPrediction.targetMonth }}</div>
+              </div>
+              <span class="badge" [ngClass]="getMlAlertClass(mlPrediction.alertLevel)">
+                {{ mlPrediction.alertLevel }}
+              </span>
+            </div>
+            <div class="ml-pred-value-row">
+              <span class="ml-pred-value" [ngClass]="getMlAlertClass(mlPrediction.alertLevel)">
+                {{ mlPrediction.predictedRatePct | number:'1.1-1' }}%
+              </span>
+              <span class="ml-pred-interval">
+                +/- {{ (mlPrediction.confidenceInterval * 100) | number:'1.1-1' }}%
+              </span>
+            </div>
+            <div class="ml-contrib-section">
+              <div class="ml-contrib-title">Key Contributing Factors</div>
+              <div *ngFor="let c of getMlContributions()" class="ml-contrib-row">
+                <span class="ml-contrib-label">{{ c.label }}</span>
+                <div class="ml-bar-track">
+                  <div class="ml-bar-fill"
+                      [style.width.%]="(Math.abs(c.value) / getMlMaxContrib()) * 100"
+                      [ngClass]="c.value > 0 ? 'ml-bar-risk' : 'ml-bar-safe'">
+                  </div>
+                </div>
+                <span class="ml-contrib-val" [ngClass]="c.value > 0 ? 'ml-text-risk' : 'ml-text-safe'">
+                  {{ c.value > 0 ? '+' : '' }}{{ c.value | number:'1.3-3' }}
+                </span>
+              </div>
+            </div>
+            <div class="ml-pred-footer">
+              <div class="ml-meta">
+                <span class="ml-meta-label">Analyzed month</span>
+                <span class="ml-meta-val">{{ steeringSelectedMonth }}</span>
+              </div>
+              <div class="ml-meta">
+                <span class="ml-meta-label">Model</span>
+                <span class="ml-meta-val">Ridge Regression</span>
+              </div>
+            </div>
           </div>
-          <div class="ml-meta">
-            <span class="ml-meta-label">Model</span>
-            <span class="ml-meta-val">Ridge Regression</span>
+
+          <div class="ml-pred-card ml-loading" *ngIf="mlLoading">
+            Loading ML prediction...
+          </div>
+
+          <div class="ml-pred-card ml-error" *ngIf="mlError && !mlLoading">
+            ML service unavailable. Make sure Flask is running on port 5001.
+          </div>
+
+          <div style="display:flex;justify-content:flex-start;padding:.75rem 0;">
+            <button class="btn btn-outline btn-sm" (click)="steeringCardPage = 1">Previous — Segment Analysis</button>
           </div>
         </div>
-      </div>
-
-      <!-- Loading state -->
-      <div class="ml-pred-card ml-loading" *ngIf="mlLoading">
-        Loading ML prediction...
-      </div>
-
-      <!-- Error state -->
-      <div class="ml-pred-card ml-error" *ngIf="mlError && !mlLoading">
-        ML service unavailable. Make sure Flask is running on port 5001.
-      </div>
 
       </ng-container>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
-     PAGE : VISUAL FINANCIAL DASHBOARD
-     ═══════════════════════════════════════════════════════ -->
+    <!-- ===============================================================
+         PAGE : VISUAL FINANCIAL DASHBOARD
+         =============================================================== -->
     <div class="page" [class.active]="selectedPage === 'financial-steering-charts'" id="page-charts">
       <app-financial-steering-charts></app-financial-steering-charts>
       <app-advanced-indicators></app-advanced-indicators>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- ===============================================================
          MODAL — FILE DECISION
-         ═══════════════════════════════════════════════════════ -->
+         =============================================================== -->
     <div class="modal-overlay" *ngIf="showModal" (click)="closeModal($event)">
       <div class="modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <div><div class="modal-title">{{ dossier.reference }} — Decision required</div><div class="modal-sub">Submitted on {{ dossier.submittedDate }} · Under analysis</div></div>
           <span class="badge b-review">{{ dossier.status }}</span>
-          <button class="modal-close" (click)="closeModal($event)">✕</button>
+          <button class="modal-close" (click)="closeModal($event)">X</button>
         </div>
         <div class="modal-body">
           <div class="detail-section">
@@ -1521,13 +1406,25 @@
           </div>
         </div>
         <div class="decision-bar">
-          <button class="btn btn-success btn-lg flex-1" (click)="approveCase()">✓ Approve file</button>
+          <button class="btn btn-success btn-lg flex-1" (click)="approveCase()">Approve file</button>
           <button class="btn btn-outline btn-lg" (click)="requestMoreInfo()">Request more information</button>
-          <button class="btn btn-danger btn-lg" (click)="rejectCase()">✗ Reject</button>
+          <button class="btn btn-danger btn-lg" (click)="rejectCase()">Reject</button>
         </div>
       </div>
-    </div>
+
+
+      </div>
+      <!-- ===============================================================
+         SCROLL TO TOP BUTTON
+         =============================================================== -->
+    <button class="scroll-top-btn" (click)="scrollToTop()" title="Back to top">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </button>
 
   </main>
+
+
 
 </div>

@@ -944,3 +944,28 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
 
 .ml-loading { color: var(--text-muted, #6b7280); font-size: 13px; text-align: center; padding: 30px; }
 .ml-error { background: #fef2f2; border-color: #fecaca; color: #991b1b; font-size: 13px; }
+/* ── Scroll to top ── */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--blue, #1F6FEA);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(31,111,234,.35);
+  z-index: 999;
+  transition: background .2s, transform .2s, opacity .2s;
+  opacity: 0.88;
+}
+.scroll-top-btn:hover {
+  background: var(--blue-dark, #1558c0);
+  transform: translateY(-2px);
+  opacity: 1;
+}

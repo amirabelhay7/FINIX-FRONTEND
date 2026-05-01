@@ -12,7 +12,6 @@ import { CashMovementService, CashMovement } from '../../services/steering/cash-
 import { CampaignSegmentLinkService } from '../../services/marketing/campaign-segment-link.service';
 import { CampaignCreditLinkService } from '../../services/marketing/campaign-credit-link.service';
 import { CampaignCreditLink } from '../../models/marketing.model';
-// [ML ADDED] MLPrediction added to the existing import — no duplicate import
 import { DashboardService, FinancialSteeringDashboard, DefaultRateSegmentDTO, RiskIndicatorDTO, MLPrediction } from '../../services/steering/dashboard.service';
 
 interface PipelineCard {
@@ -57,7 +56,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   private readonly API = 'http://localhost:8081/api';
 
-  /* ── Users management ── */
+  /* -- Users management -- */
   usersList: any[] = [];
   usersLoading = false;
   showUserModal = false;
@@ -68,12 +67,12 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   showViewUserModal = false;
   viewUser: any = null;
 
-  /* ── Logs ── */
+  /* -- Logs -- */
   logsList: any[] = [];
   logsLoading = false;
   usersTab: 'users' | 'logs' = 'users';
 
-  /* ── Marketing ── */
+  /* -- Marketing -- */
   campaigns: MarketingCampaign[] = [];
   campaignPage = 0;
   campaignPageSize = 5;
@@ -115,7 +114,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     employmentType: 'SALARIED', geographicZone: ''
   };
 
-  /* ── Clients ── */
+  /* -- Clients -- */
   clients: any[] = [];
   clientsLoading = false;
 
@@ -195,7 +194,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     return this.campaigns.filter(c => c.status === status).length;
   }
 
-  // ── Campaign ──
+  // -- Campaign --
   openCampaignForm() {
     this.campaignForm = { name: '', description: '', campaignType: 'PROMOTION', startDate: '', endDate: '', budget: null, status: 'PLANNED' };
     this.editingCampaignId = null;
@@ -235,7 +234,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Segment ──
+  // -- Segment --
   openSegmentForm() {
     this.segmentForm = { name: '', description: '', minIncome: null, maxIncome: null, employmentType: 'SALARIED', geographicZone: '' };
     this.editingSegmentId = null;
@@ -372,7 +371,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.segmentService.getAll().subscribe({ next: data => this.segments = data, error: err => console.error('Segments error', err) });
   }
 
-  // ── Segment Assignment ──
+  // -- Segment Assignment --
   isAssigned(segmentId: number): boolean {
     return this.assignedSegmentIds.includes(segmentId);
   }
@@ -432,7 +431,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     return segment ? segment.name : 'Segment #' + segmentId;
   }
 
-  // ── Credit Link ──
+  // -- Credit Link --
   openCreditLink(campaign: any) {
     this.selectedCampaignForCredits = campaign;
     this.showCreditForm = false;
@@ -485,7 +484,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     return this.campaignCredits.reduce((sum, c) => sum + (c.interestAmount || 0), 0);
   }
 
-  // ── Steering ──
+  // -- Steering --
   savingIndicator = false;
   savingTreasury = false;
   savingSimulation = false;
@@ -517,7 +516,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   movements: CashMovement[] = [];
   showMovementForm = false;
 
-  /* ── Financial Steering Dashboard ── */
+  /* -- Financial Steering Dashboard -- */
   steeringDashboard: FinancialSteeringDashboard | null = null;
   steeringLoading = false;
   steeringError = false;
@@ -526,32 +525,108 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   steeringSalarySegments: DefaultRateSegmentDTO[] = [];
   steeringRegionSegments: DefaultRateSegmentDTO[] = [];
   steeringRiskIndicators: RiskIndicatorDTO[] = [];
+
+  /** 0 = Default Rate Evolution | 1 = Segment Analysis | 2 = ML Prediction */
+  steeringCardPage: number = 0;
+  // -- Default Rate Evolution pagination + search --
+  evolutionSearchMonth = '';
+  evolutionPage = 0;
+  evolutionPageSize = 4;
+
+  get filteredEvolution(): any[] {
+    if (!this.steeringDashboard?.monthlyEvolution) return [];
+    const q = this.evolutionSearchMonth.trim().toLowerCase();
+    return q
+      ? this.steeringDashboard.monthlyEvolution.filter(m => m.month.toLowerCase().includes(q))
+      : this.steeringDashboard.monthlyEvolution;
+  }
+
+  get pagedEvolution(): any[] {
+    const start = this.evolutionPage * this.evolutionPageSize;
+    return this.filteredEvolution.slice(start, start + this.evolutionPageSize);
+  }
+
+  get evolutionTotalPages(): number {
+    return Math.ceil(this.filteredEvolution.length / this.evolutionPageSize);
+  }
+
+  evolutionGoTo(page: number): void {
+    this.evolutionPage = Math.max(0, Math.min(page, this.evolutionTotalPages - 1));
+  }
+
+  get evolutionPageNumbers(): number[] {
+    return Array.from({ length: this.evolutionTotalPages }, (_, i) => i);
+  }
+
+  onEvolutionSearch(): void {
+    this.evolutionPage = 0;
+  }
+
+  // -- By Region pagination --
+  regionPage = 0;
+  regionPageSize = 3;
+
+  get pagedRegionSegments(): DefaultRateSegmentDTO[] {
+    const start = this.regionPage * this.regionPageSize;
+    return this.steeringRegionSegments.slice(start, start + this.regionPageSize);
+  }
+
+  get regionTotalPages(): number {
+    return Math.ceil(this.steeringRegionSegments.length / this.regionPageSize);
+  }
+
+  get regionPageNumbers(): number[] {
+    return Array.from({ length: this.regionTotalPages }, (_, i) => i);
+  }
+
+  // -- Risk Indicators pagination --
+  riskPage = 0;
+  riskPageSize = 3;
+
+  get pagedRiskIndicators(): RiskIndicatorDTO[] {
+    const start = this.riskPage * this.riskPageSize;
+    return this.steeringRiskIndicators.slice(start, start + this.riskPageSize);
+  }
+
+  get riskTotalPages(): number {
+    return Math.ceil(this.steeringRiskIndicators.length / this.riskPageSize);
+  }
+
+  get riskPageNumbers(): number[] {
+    return Array.from({ length: this.riskTotalPages }, (_, i) => i);
+  }
+
+  // -- Scroll to top --
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   steeringMonths = [
-  { value: '2025-01', label: 'January 2025' },
-  { value: '2025-03', label: 'March 2025' },
-  { value: '2025-05', label: 'May 2025' },
-  { value: '2025-06', label: 'June 2025' },
-  { value: '2025-07', label: 'July 2025' },
-  { value: '2025-08', label: 'August 2025' },
-  { value: '2025-09', label: 'September 2025' },
-  { value: '2025-10', label: 'October 2025' },
-  { value: '2025-11', label: 'November 2025' },
-  { value: '2025-12', label: 'December 2025' }
-];
+    { value: '2025-01', label: 'January 2025' },
+    { value: '2025-03', label: 'March 2025' },
+    { value: '2025-05', label: 'May 2025' },
+    { value: '2025-06', label: 'June 2025' },
+    { value: '2025-07', label: 'July 2025' },
+    { value: '2025-08', label: 'August 2025' },
+    { value: '2025-09', label: 'September 2025' },
+    { value: '2025-10', label: 'October 2025' },
+    { value: '2025-11', label: 'November 2025' },
+    { value: '2025-12', label: 'December 2025' }
+  ];
+
   movementError = '';
   movementForm: any = {
     treasuryAccountId: null, movementDirection: 'INFLOW',
     description: '', amount: null
   };
 
-  // [ML ADDED] ML prediction properties
+  // ML prediction properties
   mlPrediction: MLPrediction | null = null;
   mlLoading = false;
   mlError = false;
-  // [ML ADDED] needed to use Math.abs() in the HTML template
   protected Math = Math;
 
-  // ── Indicator ──
+  // -- Indicator --
   openIndicatorForm() {
     this.indicatorForm = { name: '', referenceIndicator: '', value: null, warningThreshold: null, criticalThreshold: null };
     this.indicatorError = '';
@@ -576,7 +651,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Treasury ──
+  // -- Treasury --
   openTreasuryForm() {
     this.treasuryForm = { name: '', type: 'MAIN', initialBalance: null, currentBalance: null, currency: 'TND' };
     this.editingTreasuryId = null;
@@ -623,7 +698,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ── Simulation ──
+  // -- Simulation --
   openSimulationForm() {
     this.simulationForm = { projectedAmount: null, averageDefaultRate: null, estimatedProvisionNeeded: null, decision: null };
     this.simulationError = '';
@@ -648,7 +723,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Movements ──
+  // -- Movements --
   viewMovements(id: any) {
     this.selectedTreasuryId = id;
     this.showMovementsPanel = true;
@@ -704,7 +779,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.simulationService.getAll().subscribe({ next: data => this.simulations = data, error: err => console.error('Simulations error', err) });
   }
 
-  // ── Clients API ──
+  // -- Clients API --
   loadClients(): void {
     this.clientsLoading = true;
     this.http.get<any[]>(`${this.API}/users`).subscribe({
@@ -723,7 +798,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Logs API ──
+  // -- Logs API --
   loadLogs(): void {
     this.logsLoading = true;
     this.http.get<any[]>(`${this.API}/users/logs`).subscribe({
@@ -732,7 +807,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Users API ──
+  // -- Users API --
   loadUsers(): void {
     this.usersLoading = true;
     this.http.get<any[]>(`${this.API}/users`).subscribe({
@@ -795,7 +870,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     return ((user.firstName?.[0] || '') + (user.lastName?.[0] || '')).toUpperCase();
   }
 
-  // ── Static data ──
+  // -- Static data --
   dossiers = [
     { ref: '#CR-2025-043', initials: 'BM', client: 'Bilel Mrabet', clientSince: 'Client since 2021', type: 'Real estate', amount: '85,000 TND', score: '742', scoreColor: '#2ECC71', status: 'Under review', statusClass: 'b-review' },
     { ref: '#CR-2025-051', initials: 'LB', client: 'Leila Bourguiba', clientSince: 'Client since 2023', type: 'Car loan', amount: '32,500 TND', score: '610', scoreColor: '#F39C12', status: 'Under review', statusClass: 'b-review' },
@@ -881,14 +956,14 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   ];
 
   vehicles = [
-    { plate: "267 TN 2022", name: "Toyota Corolla", desc: "Auto · Petrol · 2022", owner: "Bilel Mrabet", credit: "#CR-2024-001", value: "42,000 TND", km: "32,450 km", insurance: "⚠ 2 days", status: "Insured", statusClass: "b-review" },
-    { plate: "158 TN 2019", name: "Kia Picanto", desc: "Manual · Petrol · 2019", owner: "Bilel Mrabet", credit: "Settled ✓", value: "18,500 TND", km: "78,200 km", insurance: "106 days", status: "Insured", statusClass: "b-actif" },
+    { plate: "267 TN 2022", name: "Toyota Corolla", desc: "Auto · Petrol · 2022", owner: "Bilel Mrabet", credit: "#CR-2024-001", value: "42,000 TND", km: "32,450 km", insurance: "2 days", status: "Insured", statusClass: "b-review" },
+    { plate: "158 TN 2019", name: "Kia Picanto", desc: "Manual · Petrol · 2019", owner: "Bilel Mrabet", credit: "Settled", value: "18,500 TND", km: "78,200 km", insurance: "106 days", status: "Insured", statusClass: "b-actif" },
     { plate: "445 TN 2021", name: "Volkswagen Golf", desc: "Auto · Diesel · 2021", owner: "Amira Selmi", credit: "#CR-2024-015", value: "58,000 TND", km: "41,200 km", insurance: "210 days", status: "Insured", statusClass: "b-actif" }
   ];
 
   insuranceContracts = [
-    { number: "STAR-2025-048291", client: "Bilel Mrabet", vehicle: "Toyota Corolla 2022", insurer: "STAR Assurance", type: "All Risks", premium: "1,200 TND", expiry: "28 Feb 2026", delay: "⚠ 2 days", delayClass: "b-danger", actions: ["Renew", "View"] },
-    { number: "GAT-2024-019384", client: "Sonia Karray", vehicle: "Renault Clio 2020", insurer: "GAT Assurance", type: "Third Party Extended", premium: "640 TND", expiry: "10 Mar 2026", delay: "⚠ 10 days", delayClass: "b-review", actions: ["Renew", "View"] },
+    { number: "STAR-2025-048291", client: "Bilel Mrabet", vehicle: "Toyota Corolla 2022", insurer: "STAR Assurance", type: "All Risks", premium: "1,200 TND", expiry: "28 Feb 2026", delay: "2 days", delayClass: "b-danger", actions: ["Renew", "View"] },
+    { number: "GAT-2024-019384", client: "Sonia Karray", vehicle: "Renault Clio 2020", insurer: "GAT Assurance", type: "Third Party Extended", premium: "640 TND", expiry: "10 Mar 2026", delay: "10 days", delayClass: "b-review", actions: ["Renew", "View"] },
     { number: "MAGHREBIA-018742", client: "Hadi Jouini", vehicle: "Peugeot 208 2023", insurer: "Maghrebia", type: "All Risks", premium: "1,100 TND", expiry: "25 Mar 2026", delay: "25 days", delayClass: "b-pending", actions: ["Prepare", "View"] }
   ];
 
@@ -925,7 +1000,6 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         this.steeringRegionSegments = data.defaultByRegion;
         this.steeringRiskIndicators = data.riskIndicators;
         this.steeringLoading = false;
-        // [ML ADDED] load ML prediction after dashboard data is ready
         this.loadMlPrediction(this.steeringSelectedMonth);
         this.cdr.detectChanges();
       },
@@ -937,19 +1011,17 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     });
   }
 
-  
-onSteeringMonthChange(month: string): void {
-  console.log('[Dashboard] Month changed to:', month);
-  this.steeringSelectedMonth = month; // force la valeur explicitement
-
-  this.dashboardService.getDefaultRateBySalary(month).subscribe(
-    data => { this.steeringSalarySegments = data; this.cdr.detectChanges(); }
-  );
-  this.dashboardService.getDefaultRateByRegion(month).subscribe(
-    data => { this.steeringRegionSegments = data; this.cdr.detectChanges(); }
-  );
-  this.loadMlPrediction(month);
-}
+  onSteeringMonthChange(month: string): void {
+    console.log('[Dashboard] Month changed to:', month);
+    this.steeringSelectedMonth = month;
+    this.dashboardService.getDefaultRateBySalary(month).subscribe(
+      data => { this.steeringSalarySegments = data; this.cdr.detectChanges(); }
+    );
+    this.dashboardService.getDefaultRateByRegion(month).subscribe(
+      data => { this.steeringRegionSegments = data; this.cdr.detectChanges(); }
+    );
+    this.loadMlPrediction(month);
+  }
 
   getSteeringStatusClass(status: string): string {
     if (status === 'CRITICAL') return 'b-danger';
@@ -967,11 +1039,6 @@ onSteeringMonthChange(month: string): void {
     return Math.min(taux, 100) + '%';
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // [ML ADDED] — All methods below are new — do not touch above
-  // ─────────────────────────────────────────────────────────────
-
-  /** Calls Spring Boot GET /api/dashboard/prediction?month=... */
   loadMlPrediction(month: string): void {
     this.mlLoading = true;
     this.mlError = false;
@@ -989,7 +1056,6 @@ onSteeringMonthChange(month: string): void {
     });
   }
 
-  /** Maps alertLevel string to existing badge CSS class */
   getMlAlertClass(level: string): string {
     const map: { [k: string]: string } = {
       SAFE:        'b-actif',
@@ -1000,23 +1066,16 @@ onSteeringMonthChange(month: string): void {
     return map[level] || 'b-pending';
   }
 
-  /** Returns contributions sorted by absolute value (most impactful first) */
   getMlContributions(): { label: string; value: number }[] {
     if (!this.mlPrediction?.contributions) return [];
-    // Human-readable labels for each feature key coming from Flask
-    const labels: { [k: string]: string } = {
-      prev_default_rate:  'Previous Default Rate',
-      sfax_concentration: 'Sfax Concentration',
-      low_salary_share:   'Low Salary Share',
-      avg_delay_days:     'Avg Delay Days',
-      contract_volume:    'Contract Volume'
-    };
     return Object.entries(this.mlPrediction.contributions)
-      .map(([k, v]) => ({ label: labels[k] || k, value: v as number }))
+      .map(([k, v]) => ({
+        label: k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        value: v as number
+      }))
       .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
   }
 
-  /** Returns the largest absolute contribution — used to scale bar widths to 100% */
   getMlMaxContrib(): number {
     const c = this.getMlContributions();
     return c.length ? Math.max(...c.map(x => Math.abs(x.value))) : 1;
