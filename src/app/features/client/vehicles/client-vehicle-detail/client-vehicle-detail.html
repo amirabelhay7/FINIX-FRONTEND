@@ -1,0 +1,228 @@
+<div class="cvd-page" *ngIf="!isLoading && vehicle">
+  <nav class="cvd-breadcrumb">
+    <a routerLink="/client/vehicles">← Catalog</a>
+  </nav>
+
+  <header class="cvd-hero">
+    <div class="cvd-media">
+      <img
+        *ngIf="activeImageUrl && !hasImageError"
+        [src]="activeImageUrl"
+        [alt]="vehicle.marque + ' ' + vehicle.modele"
+        loading="lazy"
+        (error)="onImageError()"
+      />
+      <div *ngIf="!activeImageUrl || hasImageError" class="cvd-media-ph">VEHICLE IMAGE</div>
+      <button
+        *ngIf="hasMultipleImages"
+        type="button"
+        class="cvd-media-nav cvd-media-nav--prev"
+        aria-label="Previous photo"
+        (click)="prevImage($event)"
+      >
+        &lt;
+      </button>
+      <button
+        *ngIf="hasMultipleImages"
+        type="button"
+        class="cvd-media-nav cvd-media-nav--next"
+        aria-label="Next photo"
+        (click)="nextImage($event)"
+      >
+        &gt;
+      </button>
+      <div class="cvd-media-dots" *ngIf="hasMultipleImages">
+        <button
+          *ngFor="let _ of imageUrls; let i = index"
+          type="button"
+          class="cvd-media-dot"
+          [class.is-active]="i === currentImageIndex"
+          [attr.aria-label]="'Photo ' + (i + 1)"
+          (click)="setImage(i, $event)"
+        ></button>
+      </div>
+    </div>
+    <div class="cvd-hero-text">
+      <p class="cvd-eyebrow">{{ vehicle.marque }}</p>
+      <h1 class="cvd-title">{{ vehicle.modele }}</h1>
+      <div class="cvd-meta">
+        <span class="cvd-badge" [attr.data-st]="vehicle.status">{{ statusLabels[vehicle.status] }}</span>
+        <span class="cvd-badge cvd-badge-soft">{{ vehicle.active ? 'Active listing' : 'Hidden' }}</span>
+        <span class="cvd-badge cvd-badge-soft">Etat: {{ conditionLabel }}</span>
+      </div>
+      <div class="cvd-price">{{ vehicle.prixTnd | number : '1.0-0' }} <small>TND</small></div>
+      <div class="cvd-kv">
+        <span>Localisation: {{ vehicle.localisation || '—' }}</span>
+        <span>Serie: {{ vehicle.serieVehicule || '—' }}</span>
+      </div>
+      <p class="cvd-desc">
+        Ref. #{{ vehicle.id }} · Explore IMF financing and submit your application in just a few steps.
+      </p>
+      <div class="cvd-cta-row">
+        <button
+          type="button"
+          *ngIf="canShowReserveCta"
+          class="btn btn-primary"
+          (click)="openReserve()"
+        >
+          Reserve this vehicle
+        </button>
+        <button
+          type="button"
+          *ngIf="isClient && hasAnyActiveReservation && vehicle.status === 'DISPONIBLE' && vehicle.active"
+          class="btn btn-primary"
+          disabled
+          title="You already have an active vehicle reservation. Please wait for the admin decision."
+        >
+          Reserve this vehicle
+        </button>
+        <a class="btn btn-outline" routerLink="/client/vehicles" fragment="catalogue">Back to catalog</a>
+      </div>
+      <p
+        class="cvd-msg"
+        [class.cvd-msg--err]="resMessageError"
+        *ngIf="resMessage && !showResModal"
+        role="status"
+        aria-live="polite"
+      >
+        {{ resMessage }}
+      </p>
+    </div>
+  </header>
+
+  <section class="cvd-panel" id="reserver">
+    <h2 class="cvd-h2">Reservation</h2>
+    <ng-container *ngIf="isClient">
+      <p class="cvd-p" *ngIf="myReservation">
+        Ongoing request: <strong>{{ reservationStatusLabel(myReservation.status) }}</strong> (since
+        {{ myReservation.createdAt | date : 'short' }}).
+        <span *ngIf="myReservation.adminComment" class="cvd-hint d-block mt-1">
+          Admin message: {{ myReservation.adminComment }}
+        </span>
+        <button type="button" class="btn btn-ghost btn-xs" *ngIf="canCancelClientReservation" (click)="cancelReservation()">
+          Cancel my request
+        </button>
+      </p>
+      <div class="cvd-feedback-actions" *ngIf="myReservation">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          *ngIf="canGiveServiceFeedback"
+          (click)="goToFeedback('CLIENT_SERVICE')"
+        >
+          Leave service feedback
+        </button>
+      </div>
+      <p class="cvd-p" *ngIf="!myReservation && vehicle.status === 'DISPONIBLE'">
+        No active reservation — click "Reserve this vehicle" above.
+      </p>
+      <p class="cvd-p" *ngIf="!myReservation && hasAnyActiveReservation">
+        You already have an active vehicle reservation. Please wait for the admin decision.
+      </p>
+    </ng-container>
+    <p class="cvd-p" *ngIf="!isClient">
+      <a routerLink="/login-client">Sign in</a> as a client to reserve and submit an application.
+    </p>
+  </section>
+
+  <section class="cvd-panel" *ngIf="isClient">
+    <h2 class="cvd-h2">Feedback for this vehicle</h2>
+    <div *ngIf="vehicleFeedbacks.length; else noVehicleFeedback">
+      <article class="cvd-fb-card" *ngFor="let fb of vehicleFeedbacks">
+        <p class="cvd-fb-stars">{{ starsLabel(fb.noteGlobal) }} <span>{{ fb.noteGlobal }}/5</span></p>
+        <p class="cvd-fb-author">
+          Posted by:
+          <strong>{{ fb.authorName || 'User' }}</strong>
+          <span *ngIf="fb.authorRole">({{ fb.authorRole }})</span>
+        </p>
+        <p class="cvd-fb-comment" *ngIf="fb.comment">{{ fb.comment }}</p>
+        <p class="cvd-fb-meta">Posted on {{ fb.createdAt | date : 'mediumDate' }}</p>
+      </article>
+    </div>
+    <ng-template #noVehicleFeedback>
+      <p class="cvd-p">No feedback recorded for this vehicle.</p>
+    </ng-template>
+  </section>
+</div>
+
+<div *ngIf="isLoading" class="cvd-loading">Loading vehicle…</div>
+<div *ngIf="!isLoading && loadError" class="cvd-error">{{ loadError }}</div>
+
+<div
+  class="cvd-modal-overlay"
+  *ngIf="showResModal"
+  (click)="closeResModal()"
+  role="presentation"
+>
+  <div
+    class="cvd-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="res-modal-title"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="cvd-modal__header">
+      <h3 id="res-modal-title" class="cvd-modal__title">Confirm reservation request</h3>
+    </header>
+    <div class="cvd-modal__body">
+      <p class="cvd-modal__lead">
+        Your request will be sent to the back office. The vehicle will be marked as "reserved" only after admin approval.
+        Other clients can also submit a request for this vehicle while none is approved yet; you cannot open a second
+        request for the same vehicle while yours is still in progress.
+      </p>
+      <div class="cvd-modal__fields">
+        <label class="cvd-modal__field" for="res-phone">
+          <span class="cvd-modal__label">Phone number (required)</span>
+          <input
+            id="res-phone"
+            class="cvd-modal__input"
+            type="tel"
+            inputmode="numeric"
+            [(ngModel)]="reservationPhone"
+            placeholder="+216 20 123 456"
+            required
+          />
+        </label>
+        <label class="cvd-modal__field" for="res-date">
+          <span class="cvd-modal__label">Desired date (optional)</span>
+          <input
+            id="res-date"
+            class="cvd-modal__input"
+            type="date"
+            [(ngModel)]="reservationDesiredDate"
+          />
+        </label>
+        <label class="cvd-modal__field" for="res-notes">
+          <span class="cvd-modal__label">Message (optional)</span>
+          <textarea
+            id="res-notes"
+            class="cvd-modal__input cvd-modal__textarea"
+            rows="4"
+            [(ngModel)]="reservationNotes"
+            placeholder="Useful information for the seller or the administrator…"
+          ></textarea>
+        </label>
+      </div>
+    </div>
+    <footer class="cvd-modal__footer">
+      <button type="button" class="btn btn-outline btn-sm" (click)="closeResModal()">Cancel</button>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        [disabled]="resSubmitting || !isReservationPhoneValid"
+        (click)="confirmReservation()"
+      >
+        {{ resSubmitting ? 'Validating…' : 'Confirm' }}
+      </button>
+    </footer>
+    <p
+      class="cvd-modal__feedback"
+      [class.cvd-modal__feedback--error]="resMessageError"
+      *ngIf="resMessage && showResModal"
+      role="status"
+      aria-live="polite"
+    >
+      {{ resMessage }}
+    </p>
+  </div>
+</div>

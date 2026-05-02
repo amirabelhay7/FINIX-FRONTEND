@@ -1,0 +1,34 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <div class="flex items-center gap-4">
+        <a routerLink="/credit/my-loans" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50">
+            <h4 class="font-bold text-gray-800">{{ pipelineTitle }}</h4>
+        </div>
+        <div class="p-6 space-y-0">
+            <ng-container *ngFor="let step of steps; let i = index">
+                <div class="flex items-center gap-4" [ngClass]="step.isDone || step.isActive ? '' : 'opacity-60'">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" [ngClass]="step.iconBgClass">
+                        <span class="material-symbols-outlined text-[20px]" [ngClass]="step.iconColorClass">{{ step.icon }}</span>
+                    </div>
+                    <div class="flex-1 py-3">
+                        <p class="text-gray-800" [ngClass]="(step.isDone || step.isActive) ? 'font-bold' : 'font-medium text-gray-600'">{{ step.title }}</p>
+                        <p class="text-xs" [ngClass]="step.isActive ? 'text-amber-700' : 'text-gray-500'">{{ step.subtitle }}</p>
+                    </div>
+                    <a *ngIf="step.linkRoute" [routerLink]="step.linkRoute" class="text-xs font-bold text-[#135bec] hover:underline">{{ step.linkLabel }}</a>
+                </div>
+                <div *ngIf="i < steps.length - 1" class="w-px h-4 bg-gray-200 ml-5"></div>
+            </ng-container>
+        </div>
+    </div>
+
+</div>

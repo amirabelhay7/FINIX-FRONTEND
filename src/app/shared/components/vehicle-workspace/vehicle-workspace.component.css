@@ -1,0 +1,315 @@
+/* Same patterns as client vehicles + embed in backoffice */
+.vehicle-workspace-root.page-body {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  width: min(560px, 94vw);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 1rem;
+}
+
+/** Formulaire véhicule : ne pas dépasser l’écran ; pied fixe avec boutons toujours visibles */
+.modal-card--vehicle-form {
+  width: min(440px, 94vw);
+  max-height: min(88vh, 640px);
+  display: flex;
+  flex-direction: column;
+  padding: 0.85rem 1rem 1rem;
+}
+
+.modal-card--vehicle-form .modal-header {
+  flex-shrink: 0;
+  margin-bottom: 0.5rem;
+}
+
+.modal-body--scroll {
+  display: grid;
+  gap: 0.65rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.15rem;
+}
+
+.modal-footer--sticky {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.modal-form-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.modal-card--vehicle-form .vw-img-preview {
+  min-height: 72px;
+  max-height: 140px;
+}
+
+.modal-card--vehicle-form .vw-img-preview img {
+  max-height: 120px;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.form-input {
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.crud-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.crud-tab {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.crud-tab.active {
+  border-color: #2563eb;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.crud-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.crud-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.crud-table {
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+.crud-table td {
+  padding: 0.45rem 0.2rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.ta-r {
+  text-align: right;
+}
+
+.vw-thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.vw-thumb-fallback {
+  font-size: 1.5rem;
+  display: inline-block;
+  line-height: 40px;
+  text-align: center;
+  width: 40px;
+}
+
+.vw-detail-img {
+  max-width: 100%;
+  max-height: 220px;
+  border-radius: 10px;
+  margin-top: 0.35rem;
+  border: 1px solid #e2e8f0;
+}
+
+.vw-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+  padding: 0 1rem 1rem;
+}
+
+.vw-stat-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vw-stat-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vw-stat-val {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.vw-marque-row {
+  padding: 0 1rem 1rem;
+  font-size: 0.8rem;
+  color: #475569;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.vw-marque-chip {
+  background: #eef2ff;
+  color: #3730a3;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.vw-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.65rem;
+  padding: 0 1rem 1rem;
+}
+
+.vw-fg-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.vw-fg-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vw-hint {
+  padding: 0 1rem;
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.vw-img-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.vw-img-preview {
+  min-height: 120px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.vw-img-preview img {
+  max-width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+}
+
+.vw-img-placeholder {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.rating-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.star-btn {
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.star-btn.active {
+  color: #f59e0b;
+}
+
+.star-static {
+  color: #cbd5e1;
+}
+
+.star-static.active {
+  color: #f59e0b;
+}
+
+.feedback-row-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.85rem;
+  margin: 0.2rem 0;
+}
+
+.rating-label {
+  margin-left: 0.4rem;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+@media (max-width: 900px) {
+  .crud-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

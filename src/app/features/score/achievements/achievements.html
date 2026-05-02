@@ -1,0 +1,109 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Achievements</h1>
+            <p class="text-gray-500 text-sm font-medium">Unlock rewards by completing financial milestones</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <div class="flex items-center bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm text-xs space-x-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                <span class="font-medium text-gray-500">{{ totalUnlocked }}/15 Unlocked</span>
+            </div>
+            <button class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md flex items-center" (click)="selectCategory('All')">
+                <span class="material-symbols-outlined mr-2 text-[18px]">filter_list</span>Filter
+            </button>
+        </div>
+    </div>
+
+    <!-- Achievement Categories -->
+    <div class="flex flex-wrap gap-2 mb-6">
+        <button class="px-4 py-2 bg-[#135bec] text-white rounded-lg text-xs font-bold" 
+                [class.bg-blue-500]="selectedCategory === 'All'" (click)="selectCategory('All')">All</button>
+        <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:border-[#135bec]/30" 
+                [class.bg-blue-500]="selectedCategory === 'Documents'" (click)="selectCategory('Documents')">Documents</button>
+        <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:border-[#135bec]/30" 
+                [class.bg-blue-500]="selectedCategory === 'Profile'" (click)="selectCategory('Profile')">Profile</button>
+        <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:border-[#135bec]/30" 
+                [class.bg-blue-500]="selectedCategory === 'Wallet'" (click)="selectCategory('Wallet')">Wallet</button>
+        <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:border-[#135bec]/30" 
+                [class.bg-blue-500]="selectedCategory === 'Guarantees'" (click)="selectCategory('Guarantees')">Guarantees</button>
+        <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:border-[#135bec]/30" 
+                [class.bg-blue-500]="selectedCategory === 'Loans'" (click)="selectCategory('Loans')">Loans</button>
+    </div>
+
+    <!-- Unlocked Achievements -->
+    <div class="space-y-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-green-500 text-[20px]">emoji_events</span>
+                Unlocked Achievements
+            </h3>
+            <p class="text-sm text-gray-500">{{ totalUnlocked }} achievements • {{ totalPoints }} points earned</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden group hover:shadow-md transition-all" 
+                 *ngFor="let achievement of unlockedAchievements" (click)="viewAchievementDetail(achievement)">
+                <div class="h-32 bg-gradient-to-br from-{{ achievement.color }}-400 to-{{ achievement.color }}-600 relative">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                            <span class="material-symbols-outlined text-white text-4xl">{{ achievement.icon }}</span>
+                        </div>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-white/20 px-2 py-1 rounded-full">
+                        <p class="text-white text-xs font-bold">+{{ achievement.points }}</p>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-bold text-gray-900 mb-2">{{ achievement.title }}</h4>
+                    <p class="text-sm text-gray-600 mb-3">{{ achievement.description }}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-green-600 font-bold">UNLOCKED</span>
+                        <span class="text-xs text-gray-400">{{ achievement.unlockedAt }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Locked Achievements -->
+    <div class="space-y-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-gray-400 text-[20px]">lock</span>
+                Locked Achievements
+            </h3>
+            <p class="text-sm text-gray-500">{{ lockedAchievements.length }} achievements • 350 points available</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden group hover:shadow-md transition-all opacity-75" 
+                 *ngFor="let achievement of lockedAchievements" (click)="viewAchievementDetail(achievement)">
+                <div class="h-32 bg-gradient-to-br from-gray-400 to-gray-600 relative">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                            <span class="material-symbols-outlined text-white text-4xl">{{ achievement.icon }}</span>
+                        </div>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-white/20 px-2 py-1 rounded-full">
+                        <p class="text-white text-xs font-bold" *ngIf="!achievement.isSecret">+{{ achievement.points }}</p>
+                        <p class="text-white text-xs font-bold" *ngIf="achievement.isSecret">???</p>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-bold text-gray-900 mb-2">{{ achievement.title }}</h4>
+                    <p class="text-sm text-gray-600 mb-3">{{ achievement.description }}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-400 font-bold" *ngIf="achievement.isSecret">SECRET</span>
+                        <span class="text-xs text-gray-400 font-bold" *ngIf="!achievement.isSecret">LOCKED</span>
+                        <span class="text-xs text-gray-400" *ngIf="achievement.progress">{{ achievement.progress }}</span>
+                        <span class="text-xs text-gray-400" *ngIf="!achievement.progress">???</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

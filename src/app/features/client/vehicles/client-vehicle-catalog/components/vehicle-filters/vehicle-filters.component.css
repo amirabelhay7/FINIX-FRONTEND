@@ -1,0 +1,124 @@
+:host {
+  display: block;
+}
+
+.filters {
+  border: 1px solid #dce7fb;
+  border-radius: 18px;
+  padding: 1rem;
+  background: #ffffff;
+  box-shadow: 0 8px 26px rgba(15, 33, 74, 0.06);
+  margin-top: 1rem;
+}
+
+.filters__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.filters__title {
+  margin: 0;
+  color: #15284f;
+  font-size: 1rem;
+}
+
+.filters__actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.filters__grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .filters__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 980px) {
+  .filters__grid {
+    grid-template-columns: 1.2fr 0.9fr 0.9fr auto;
+    align-items: end;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.36rem;
+}
+
+.field__label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #5d74a0;
+}
+
+.field__control {
+  border: 1px solid #cad8f2;
+  border-radius: 10px;
+  min-height: 2.4rem;
+  background: #fafdff;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.9rem;
+  color: #162e5d;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.field__control:focus-visible {
+  border-color: #3b82f6;
+  outline: 2px solid rgba(59, 130, 246, 0.18);
+  outline-offset: 0;
+}
+
+.field--check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.45rem;
+  color: #355280;
+  font-size: 0.88rem;
+  min-height: 2.4rem;
+}
+
+.btn {
+  border-radius: 10px;
+  border: 1px solid transparent;
+  min-height: 2.4rem;
+  padding: 0.48rem 0.86rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.btn--primary {
+  color: #f8fbff;
+  border-color: #2457c4;
+  background: linear-gradient(135deg, #2463d6, #1e48a8);
+  box-shadow: 0 10px 22px rgba(36, 99, 214, 0.24);
+}
+
+.btn--secondary {
+  color: #1f428b;
+  border-color: #b7cdf9;
+  background: #eef4ff;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.btn:not([disabled]):hover {
+  transform: translateY(-1px);
+}

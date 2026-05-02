@@ -1,0 +1,404 @@
+<!-- ═══════════ TOPBAR ═══════════ -->
+<div class="in-topbar">
+  <div class="in-tb-brand">
+    <img class="in-tb-logo-img" src="/assets/logo.png" alt="FIN'IX Logo">
+    <div class="in-tb-name">FIN<span>'IX</span></div>
+  </div>
+  <div class="in-tb-divider"></div>
+  <div class="in-tb-sub">Insurer Portal · Policy & Claims Management</div>
+  <div class="in-tb-right">
+    <button class="in-tb-btn">🔔<span class="in-notif-dot"></span></button>
+    <button class="in-tb-btn">⚙️</button>
+    <button class="in-theme-toggle" (click)="toggleTheme()" title="Changer le thème">
+      {{ currentTheme === 'dark' ? '☀️' : '🌙' }}
+    </button>
+    <div class="in-tb-user" (click)="toggleUserDropdown()" style="position:relative;">
+      <div class="in-tb-avatar">{{ userInitials }}</div>
+      <div>
+        <div class="in-tb-uname">{{ userName }}</div>
+        <div class="in-tb-urole">Insurer</div>
+      </div>
+      <span style="color:rgba(255,255,255,.3);font-size:.65rem;margin-left:.25rem;">▾</span>
+      <div class="in-dropdown" [class.in-dropdown-hidden]="!showUserDropdown" (click)="$event.stopPropagation()">
+        <div class="in-dp-head">
+          <div class="in-dp-av">{{ userInitials }}</div>
+          <div>
+            <div class="in-dp-name">{{ userName }}</div>
+            <div class="in-dp-email">{{ userEmail }}</div>
+          </div>
+        </div>
+        <div style="padding:.25rem 0;">
+          <button class="in-dp-item">👤 My Profile</button>
+          <button class="in-dp-item">📊 Analytics</button>
+          <div class="in-dp-sep"></div>
+          <button class="in-dp-item">❓ Help & Support</button>
+          <div class="in-dp-sep"></div>
+          <button class="in-dp-item in-red" (click)="logout()">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ NAVBAR ═══════════ -->
+<nav class="in-nav">
+  <button class="in-nav-tab" [class.active]="activeSection === 'dashboard'" (click)="activeSection = 'dashboard'">
+    📊 Dashboard
+  </button>
+  <button class="in-nav-tab" [class.active]="activeSection === 'offers'" (click)="activeSection = 'offers'">
+    📋 Insurance Offers <span class="in-nav-badge">{{ offerCounts.total }}</span>
+  </button>
+  <button class="in-nav-tab" [class.active]="activeSection === 'events'" (click)="activeSection = 'events'">
+    ⚡ Events <span class="in-nav-badge" [class.in-warn]="eventCounts.urgent > 0">{{ eventCounts.total }}</span>
+  </button>
+  <button class="in-nav-tab" [class.active]="activeSection === 'catalogs'" (click)="activeSection = 'catalogs'">
+    📚 Offer Catalogs <span class="in-nav-badge">{{ catalogs.length }}</span>
+  </button>
+  <div class="in-nav-actions">
+    <div class="in-search-wrap">
+      <span>🔍</span>
+      <input type="text" placeholder="Search..." [(ngModel)]="searchQuery">
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="in-main">
+
+  <!-- ══════ DASHBOARD SECTION ══════ -->
+  <div *ngIf="activeSection === 'dashboard'">
+    <!-- STATS ROW -->
+    <div class="in-stats-row">
+      <div class="in-stat-card" *ngFor="let s of stats">
+        <div class="in-stat-icon">{{ s.icon }}</div>
+        <div class="in-stat-info">
+          <div class="in-stat-label">{{ s.label }}</div>
+          <div class="in-stat-value">{{ s.value }} <span *ngIf="s.suffix" class="in-stat-suffix">{{ s.suffix }}</span></div>
+          <div class="in-stat-trend" [class.up]="s.trendClass === 'up'">{{ s.trend }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="in-section-head">
+      <div>
+        <div class="in-section-title">Quick Actions</div>
+        <div class="in-section-sub">Access main features quickly</div>
+      </div>
+    </div>
+    <div class="in-quick-actions">
+      <button class="in-qa-card" (click)="activeSection = 'events'; openAddEventModal()">
+        <div class="in-qa-icon">⚡</div>
+        <div class="in-qa-label">Add Event</div>
+        <div class="in-qa-sub">Declare a claim, renewal...</div>
+      </button>
+      <button class="in-qa-card" (click)="activeSection = 'offers'; openAddOfferModal()">
+        <div class="in-qa-icon">📋</div>
+        <div class="in-qa-label">Create Offer</div>
+        <div class="in-qa-sub">New insurance offer</div>
+      </button>
+      <button class="in-qa-card" (click)="activeSection = 'catalogs'; openAddCatalogModal()">
+        <div class="in-qa-icon">📚</div>
+        <div class="in-qa-label">New Catalog</div>
+        <div class="in-qa-sub">Organize your products</div>
+      </button>
+    </div>
+
+    <!-- RECENT EVENTS -->
+    <div class="in-section-head">
+      <div>
+        <div class="in-section-title">Recent Events</div>
+        <div class="in-section-sub">{{ eventCounts.urgent }} urgent(s) · {{ eventCounts.en_cours }} in progress</div>
+      </div>
+      <button class="in-btn-link" (click)="activeSection = 'events'">View all →</button>
+    </div>
+    <div class="in-events-list">
+      <div class="in-event-row" *ngFor="let e of events | slice:0:4">
+        <div class="in-ev-type-icon">
+          {{ e.type === 'sinistre' ? '🔴' : e.type === 'renouvellement' ? '🔄' : e.type === 'resiliation' ? '❌' : '🟢' }}
+        </div>
+        <div class="in-ev-info">
+          <div class="in-ev-title">{{ e.title }}</div>
+          <div class="in-ev-sub">{{ e.client }} · {{ e.date }}</div>
+        </div>
+        <span class="in-ev-status"
+              [class.in-st-urgent]="e.status === 'urgent'"
+              [class.in-st-encours]="e.status === 'en_cours'"
+              [class.in-st-traite]="e.status === 'traite'">
+          {{ getStatusLabel(e.status) }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ OFFERS SECTION ══════ -->
+  <div *ngIf="activeSection === 'offers'">
+    <div class="in-section-head">
+      <div>
+        <div class="in-section-title">Insurance Offers</div>
+        <div class="in-section-sub">{{ offerCounts.active }} active · {{ offerCounts.draft }} draft · {{ offerCounts.expired }} expired</div>
+      </div>
+      <button class="in-btn-new" (click)="openAddOfferModal()">+ New Offer</button>
+    </div>
+    <div class="in-offers-grid">
+      <div class="in-offer-card" *ngFor="let o of filteredOffers">
+        <div class="in-o-header">
+          <div class="in-o-type-badge">{{ getTypeIcon(o.type) }} {{ getTypeLabel(o.type) }}</div>
+          <span class="in-o-status"
+                [class.in-ost-active]="o.status === 'active'"
+                [class.in-ost-draft]="o.status === 'draft'"
+                [class.in-ost-expired]="o.status === 'expired'">
+            {{ getStatusLabel(o.status) }}
+          </span>
+        </div>
+        <div class="in-o-body">
+          <div class="in-o-name">{{ o.name }}</div>
+          <div class="in-o-price">{{ formatPrice(o.price) }}<span class="in-o-dur"> / {{ o.duration }}</span></div>
+          <div class="in-o-coverage">{{ o.coverage }}</div>
+          <div class="in-o-meta">
+            <span>👥 {{ o.subscribers }} subscribers</span>
+            <span>📅 {{ o.date }}</span>
+          </div>
+        </div>
+        <div class="in-o-footer">
+          <button class="in-o-btn">✏️</button>
+          <button class="in-o-btn in-o-btn-danger">🗑️</button>
+        </div>
+      </div>
+    </div>
+    <div class="in-empty" *ngIf="filteredOffers.length === 0">
+      <div class="in-empty-icon">📋</div>
+      <div class="in-empty-title">No offer found</div>
+      <div class="in-empty-sub">Modify your search or create a new offer.</div>
+      <button class="in-btn-new" (click)="openAddOfferModal()">+ New Offer</button>
+    </div>
+  </div>
+
+  <!-- ══════ EVENTS SECTION ══════ -->
+  <div *ngIf="activeSection === 'events'">
+    <div class="in-section-head">
+      <div>
+        <div class="in-section-title">Recent Events</div>
+        <div class="in-section-sub">{{ eventCounts.urgent }} urgent(s) · {{ eventCounts.en_cours }} in progress · {{ eventCounts.traite }} treated</div>
+      </div>
+      <button class="in-btn-new" (click)="openAddEventModal()">+ New Event</button>
+    </div>
+    <div class="in-events-full">
+      <div class="in-event-card" *ngFor="let e of filteredEvents">
+        <div class="in-ec-left">
+          <div class="in-ec-type-icon">
+            {{ e.type === 'sinistre' ? '🔴' : e.type === 'renouvellement' ? '🔄' : e.type === 'resiliation' ? '❌' : '🟢' }}
+          </div>
+          <div class="in-ec-type-label">{{ getEventTypeLabel(e.type) }}</div>
+        </div>
+        <div class="in-ec-body">
+          <div class="in-ec-title">{{ e.title }}</div>
+          <div class="in-ec-desc">{{ e.description }}</div>
+          <div class="in-ec-meta">
+            <span>👤 {{ e.client }}</span>
+            <span>📅 {{ e.date }}</span>
+          </div>
+        </div>
+        <div class="in-ec-right">
+          <span class="in-ev-status"
+                [class.in-st-urgent]="e.status === 'urgent'"
+                [class.in-st-encours]="e.status === 'en_cours'"
+                [class.in-st-traite]="e.status === 'traite'">
+            {{ getStatusLabel(e.status) }}
+          </span>
+          <div class="in-ec-actions">
+            <button class="in-o-btn">✏️</button>
+            <button class="in-o-btn in-o-btn-danger">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="in-empty" *ngIf="filteredEvents.length === 0">
+      <div class="in-empty-icon">⚡</div>
+      <div class="in-empty-title">No event found</div>
+      <div class="in-empty-sub">Modify your search or declare a new event.</div>
+      <button class="in-btn-new" (click)="openAddEventModal()">+ New Event</button>
+    </div>
+  </div>
+
+  <!-- ══════ CATALOGS SECTION ══════ -->
+  <div *ngIf="activeSection === 'catalogs'">
+    <div class="in-section-head">
+      <div>
+        <div class="in-section-title">Insurance Catalogs</div>
+        <div class="in-section-sub">{{ catalogs.length }} catalogs · Organize your insurance products</div>
+      </div>
+      <button class="in-btn-new" (click)="openAddCatalogModal()">+ New Catalog</button>
+    </div>
+    <div class="in-catalogs-grid">
+      <div class="in-catalog-card" *ngFor="let c of catalogs">
+        <div class="in-cat-icon">{{ c.icon }}</div>
+        <div class="in-cat-body">
+          <div class="in-cat-name">{{ c.name }}</div>
+          <div class="in-cat-category">{{ c.category }}</div>
+          <div class="in-cat-desc">{{ c.description }}</div>
+          <div class="in-cat-meta">
+            <span class="in-cat-count">{{ c.offersCount }} offers</span>
+          </div>
+        </div>
+        <div class="in-cat-actions">
+          <button class="in-o-btn">✏️</button>
+          <button class="in-o-btn in-o-btn-danger">🗑️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="in-footer">
+  <div>
+    <div class="in-ft-brand">FIN<span>'IX</span></div>
+    <div class="in-ft-copy">© 2026 FIN'IX — Insurer Portal · Policy & Claims Management</div>
+  </div>
+  <div class="in-ft-links">
+    <a href="#" class="in-ft-link">Privacy Policy</a>
+    <a href="#" class="in-ft-link">Terms of Service</a>
+    <a href="#" class="in-ft-link">Help</a>
+    <a href="#" class="in-ft-link">Contact</a>
+  </div>
+</footer>
+</main>
+
+<!-- ═══════════ ADD OFFER MODAL ═══════════ -->
+<div class="in-modal-overlay" *ngIf="showAddOfferModal" (click)="closeAddOfferModal()">
+  <div class="in-modal" (click)="$event.stopPropagation()">
+    <div class="in-modal-head">
+      <div>
+        <div class="in-modal-title">Nouvelle offre d'assurance</div>
+        <div class="in-modal-sub">Remplissez les informations de l'offre à publier</div>
+      </div>
+      <button class="in-modal-close" (click)="closeAddOfferModal()">✕</button>
+    </div>
+    <div class="in-modal-body">
+      <div class="in-form-row">
+        <div class="in-form-group">
+          <label class="in-label">Nom de l'offre</label>
+          <input class="in-input" type="text" placeholder="Ex: Auto Tous Risques" [(ngModel)]="newOffer.name">
+        </div>
+        <div class="in-form-group">
+          <label class="in-label">Type</label>
+          <select class="in-input" [(ngModel)]="newOffer.type">
+            <option value="auto">Automobile</option>
+            <option value="habitation">Habitation</option>
+            <option value="sante">Santé</option>
+            <option value="vie">Vie</option>
+          </select>
+        </div>
+      </div>
+      <div class="in-form-row">
+        <div class="in-form-group">
+          <label class="in-label">Prime (TND)</label>
+          <input class="in-input" type="number" placeholder="Ex: 850" [(ngModel)]="newOffer.price">
+        </div>
+        <div class="in-form-group">
+          <label class="in-label">Durée</label>
+          <select class="in-input" [(ngModel)]="newOffer.duration">
+            <option>6 mois</option>
+            <option>12 mois</option>
+            <option>24 mois</option>
+            <option>36 mois</option>
+            <option>60 mois</option>
+          </select>
+        </div>
+      </div>
+      <div class="in-form-group">
+        <label class="in-label">Couverture</label>
+        <input class="in-input" type="text" placeholder="Ex: Tous risques + assistance 24h" [(ngModel)]="newOffer.coverage">
+      </div>
+      <div class="in-form-group">
+        <label class="in-label">Description</label>
+        <textarea class="in-input in-textarea" placeholder="Décrivez l'offre en détail..." [(ngModel)]="newOffer.description"></textarea>
+      </div>
+    </div>
+    <div class="in-modal-foot">
+      <button class="in-btn-outline" (click)="closeAddOfferModal()">Annuler</button>
+      <button class="in-btn-primary" (click)="closeAddOfferModal()">Publier l'offre</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ADD EVENT MODAL ═══════════ -->
+<div class="in-modal-overlay" *ngIf="showAddEventModal" (click)="closeAddEventModal()">
+  <div class="in-modal" (click)="$event.stopPropagation()">
+    <div class="in-modal-head">
+      <div>
+        <div class="in-modal-title">Déclarer un événement</div>
+        <div class="in-modal-sub">Sinistre, renouvellement, résiliation ou nouveau contrat</div>
+      </div>
+      <button class="in-modal-close" (click)="closeAddEventModal()">✕</button>
+    </div>
+    <div class="in-modal-body">
+      <div class="in-form-row">
+        <div class="in-form-group">
+          <label class="in-label">Titre</label>
+          <input class="in-input" type="text" placeholder="Ex: Déclaration sinistre auto" [(ngModel)]="newEvent.title">
+        </div>
+        <div class="in-form-group">
+          <label class="in-label">Type</label>
+          <select class="in-input" [(ngModel)]="newEvent.type">
+            <option value="sinistre">Sinistre</option>
+            <option value="renouvellement">Renouvellement</option>
+            <option value="resiliation">Résiliation</option>
+            <option value="nouveau">Nouveau contrat</option>
+          </select>
+        </div>
+      </div>
+      <div class="in-form-row">
+        <div class="in-form-group">
+          <label class="in-label">Client</label>
+          <input class="in-input" type="text" placeholder="Nom du client" [(ngModel)]="newEvent.client">
+        </div>
+        <div class="in-form-group">
+          <label class="in-label">Date</label>
+          <input class="in-input" type="date" [(ngModel)]="newEvent.date">
+        </div>
+      </div>
+      <div class="in-form-group">
+        <label class="in-label">Description</label>
+        <textarea class="in-input in-textarea" placeholder="Décrivez l'événement..." [(ngModel)]="newEvent.description"></textarea>
+      </div>
+    </div>
+    <div class="in-modal-foot">
+      <button class="in-btn-outline" (click)="closeAddEventModal()">Annuler</button>
+      <button class="in-btn-primary" (click)="closeAddEventModal()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ADD CATALOG MODAL ═══════════ -->
+<div class="in-modal-overlay" *ngIf="showAddCatalogModal" (click)="closeAddCatalogModal()">
+  <div class="in-modal" (click)="$event.stopPropagation()">
+    <div class="in-modal-head">
+      <div>
+        <div class="in-modal-title">Nouveau catalogue</div>
+        <div class="in-modal-sub">Créez un nouveau catalogue pour organiser vos offres</div>
+      </div>
+      <button class="in-modal-close" (click)="closeAddCatalogModal()">✕</button>
+    </div>
+    <div class="in-modal-body">
+      <div class="in-form-row">
+        <div class="in-form-group">
+          <label class="in-label">Nom du catalogue</label>
+          <input class="in-input" type="text" placeholder="Ex: Assurance Automobile" [(ngModel)]="newCatalog.name">
+        </div>
+        <div class="in-form-group">
+          <label class="in-label">Catégorie</label>
+          <input class="in-input" type="text" placeholder="Ex: Auto, Santé..." [(ngModel)]="newCatalog.category">
+        </div>
+      </div>
+      <div class="in-form-group">
+        <label class="in-label">Description</label>
+        <textarea class="in-input in-textarea" placeholder="Décrivez le catalogue..." [(ngModel)]="newCatalog.description"></textarea>
+      </div>
+    </div>
+    <div class="in-modal-foot">
+      <button class="in-btn-outline" (click)="closeAddCatalogModal()">Annuler</button>
+      <button class="in-btn-primary" (click)="closeAddCatalogModal()">Créer le catalogue</button>
+    </div>
+  </div>
+</div>

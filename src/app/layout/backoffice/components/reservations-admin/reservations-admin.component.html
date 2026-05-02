@@ -1,0 +1,75 @@
+<div class="ph s1">
+  <div>
+    <div class="ph-eyebrow">Véhicules</div>
+    <div class="ph-title">Réservations en attente</div>
+    <div class="ph-desc">Validation admin des demandes clients</div>
+  </div>
+  <div class="ph-actions">
+    <button type="button" class="btn btn-ghost btn-sm" (click)="goToVehiclesPage()">
+      Retour véhicules
+    </button>
+    <button type="button" class="btn btn-outline btn-sm" (click)="loadPendingReservations()" [disabled]="loading">
+      Actualiser
+    </button>
+  </div>
+</div>
+
+<div class="s2">
+  <span class="badge b-review">{{ pendingReservations.length }} demande(s) en attente</span>
+</div>
+
+<div *ngIf="error" class="cmr-muted" style="padding: 1rem; color: var(--danger)">{{ error }}</div>
+<div *ngIf="loading" class="cmr-muted" style="padding: 1rem">Chargement...</div>
+
+<div class="table-wrap" style="margin-top: 1rem" *ngIf="!loading">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Véhicule</th>
+        <th>Client</th>
+        <th>Date</th>
+        <th>Statut</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of pendingReservations">
+        <td>{{ r.id }}</td>
+        <td>{{ r.vehicleTitle }} <small class="text-muted">#{{ r.vehicleId }}</small></td>
+        <td>{{ r.clientName || ('#' + r.clientUserId) }}</td>
+        <td>{{ r.createdAt | date: 'short' }}</td>
+        <td><span class="badge">{{ statusLabel(r.status) }}</span></td>
+        <td>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+            <button type="button" class="btn btn-success btn-xs" [disabled]="actionLoading" (click)="approveReservation(r.id)">Valider</button>
+            <button type="button" class="btn btn-danger btn-xs" [disabled]="actionLoading" (click)="openRejectModal(r)">Refuser</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p *ngIf="pendingReservations.length === 0" class="cmr-muted" style="padding: 1rem">Aucune réservation en attente.</p>
+</div>
+
+<div
+  class="modal-overlay"
+  *ngIf="selectedForReject"
+  style="position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem"
+  (click)="closeRejectModal()"
+>
+  <div class="card" style="max-width: 620px; width: 100%; padding: 1.2rem" (click)="$event.stopPropagation()">
+    <h3 style="margin: 0 0 .6rem">Refuser la réservation #{{ selectedForReject.id }}</h3>
+    <p class="text-sm" style="margin: 0 0 .8rem">
+      Véhicule : {{ selectedForReject.vehicleTitle }} · Client : {{ selectedForReject.clientName || selectedForReject.clientUserId }}
+    </p>
+
+    <label class="text-sm">Motif de refus (obligatoire)</label>
+    <textarea class="form-input" rows="3" [(ngModel)]="rejectReason" placeholder="Renseignez la raison du refus..."></textarea>
+
+    <div style="margin-top:.8rem;display:flex;justify-content:flex-end;gap:.5rem">
+      <button type="button" class="btn btn-outline btn-sm" (click)="closeRejectModal()">Annuler</button>
+      <button type="button" class="btn btn-danger btn-sm" [disabled]="actionLoading || !rejectReason.trim()" (click)="rejectReservation()">Confirmer le refus</button>
+    </div>
+  </div>
+</div>

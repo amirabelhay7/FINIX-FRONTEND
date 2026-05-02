@@ -1,0 +1,234 @@
+:host {
+  display: block;
+}
+
+.vehicle-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #d9e5fb;
+  box-shadow: 0 10px 24px rgba(22, 46, 93, 0.08);
+  overflow: hidden;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px rgba(22, 46, 93, 0.14);
+}
+
+.vehicle-card__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(180deg, #f0f6ff 0%, #e5efff 100%);
+}
+
+.vehicle-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vehicle-card__placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #5f7aad;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.vehicle-card__status {
+  position: absolute;
+  top: 0.62rem;
+  left: 0.62rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.93);
+  border: 1px solid #d9e8ff;
+  color: #1d3d80;
+  padding: 0.2rem 0.56rem;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.vehicle-card__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(29, 61, 128, 0.25);
+  background: rgba(255, 255, 255, 0.85);
+  color: #1d3d80;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(22, 46, 93, 0.15);
+  z-index: 2;
+}
+
+.vehicle-card__nav--prev {
+  left: 0.55rem;
+}
+
+.vehicle-card__nav--next {
+  right: 0.55rem;
+}
+
+.vehicle-card__nav:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.vehicle-card__dots {
+  position: absolute;
+  left: 50%;
+  bottom: 0.6rem;
+  transform: translateX(-50%);
+  display: inline-flex;
+  gap: 0.35rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(29, 61, 128, 0.18);
+  z-index: 2;
+}
+
+.vehicle-card__dot {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  border: none;
+  background: #9fb6de;
+  cursor: pointer;
+  padding: 0;
+}
+
+.vehicle-card__dot.is-active {
+  background: #1e4bb0;
+}
+
+.vehicle-card__status[data-status='DISPONIBLE'] {
+  color: #087443;
+}
+
+.vehicle-card__status[data-status='RESERVE'] {
+  color: #9a4d00;
+}
+
+.vehicle-card__status[data-status='VENDU'] {
+  color: #1e4db6;
+}
+
+.vehicle-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+  padding: 0.95rem 1rem 1rem;
+  flex: 1;
+}
+
+.vehicle-card__brand {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  color: #6681b3;
+  font-weight: 700;
+}
+
+.vehicle-card__model {
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.28;
+  color: #10254c;
+}
+
+.vehicle-card__cond {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #4b6896;
+  font-weight: 600;
+}
+
+.vehicle-card__meta {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #516e9e;
+}
+
+.vehicle-card__price {
+  margin: 0.45rem 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.vehicle-card__price-value {
+  font-size: 1.55rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #0b2f84;
+}
+
+.vehicle-card__currency {
+  color: #4869a4;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.vehicle-card__actions {
+  margin-top: auto;
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.8rem;
+  align-items: center;
+}
+
+.btn {
+  text-decoration: none;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  min-height: 2.2rem;
+  padding: 0.46rem 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.84rem;
+  font-weight: 700;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+  flex: 1 1 auto;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn--primary {
+  background: linear-gradient(135deg, #2463d6, #1e48a8);
+  color: #f8fbff;
+  border-color: #2457c4;
+}
+
+.btn--secondary {
+  background: #eef4ff;
+  color: #21458f;
+  border-color: #c2d7fb;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}

@@ -1,0 +1,144 @@
+<section class="vs-root panel s2" aria-label="Vehicle fleet statistics">
+  <div class="panel-head vs-head">
+    <div>
+      <div class="panel-title"><span class="ptdot"></span>Statistics (global fleet)</div>
+      <p class="vs-sub">Fleet overview - metrics and trends</p>
+    </div>
+    <button
+      type="button"
+      class="btn btn-outline btn-xs vs-refresh"
+      (click)="onRefresh()"
+      [disabled]="loading"
+    >
+      {{ loading ? 'Refreshing...' : 'Refresh' }}
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="vs-loading">
+    <span class="vs-loading-dot"></span>
+    Loading indicators...
+  </div>
+
+  <div *ngIf="!loading && error" class="vs-err">{{ error }}</div>
+
+  <ng-container *ngIf="!loading && !error && stats">
+    <!-- KPI cards (conservées) -->
+    <div class="vw-stats-grid vs-kpi">
+      <div class="vw-stat-card vs-kpi-card">
+        <span class="vw-stat-label">Total</span>
+        <span class="vw-stat-val">{{ stats.total }}</span>
+      </div>
+      <div class="vw-stat-card vs-kpi-card">
+        <span class="vw-stat-label">Available</span>
+        <span class="vw-stat-val">{{ stats.disponibles }}</span>
+      </div>
+      <div class="vw-stat-card vs-kpi-card">
+        <span class="vw-stat-label">Reserved</span>
+        <span class="vw-stat-val">{{ stats.reserves }}</span>
+      </div>
+      <div class="vw-stat-card vs-kpi-card">
+        <span class="vw-stat-label">Sold</span>
+        <span class="vw-stat-val">{{ stats.vendus }}</span>
+      </div>
+      <div class="vw-stat-card vs-kpi-card">
+        <span class="vw-stat-label">Inactive (status)</span>
+        <span class="vw-stat-val">{{ stats.inactifs }}</span>
+      </div>
+      <div class="vw-stat-card vs-kpi-card">
+        <span class="vw-stat-label">Active (visibility)</span>
+        <span class="vw-stat-val">{{ stats.actifs }}</span>
+      </div>
+      <div class="vw-stat-card vs-kpi-card">
+        <span class="vw-stat-label">With image</span>
+        <span class="vw-stat-val">{{ stats.avecImage }}</span>
+      </div>
+      <div class="vw-stat-card vs-kpi-card">
+        <span class="vw-stat-label">Reservations (join)</span>
+        <span class="vw-stat-val">{{ stats.totalReservations || 0 }}</span>
+      </div>
+      <div class="vw-stat-card vs-kpi-card">
+        <span class="vw-stat-label">Clients with reservations (join)</span>
+        <span class="vw-stat-val">{{ stats.clientsAvecReservation || 0 }}</span>
+      </div>
+    </div>
+
+    <!-- Prix moyen : highlight + jauge -->
+    <div class="vs-price-highlight">
+      <div class="vs-price-inner">
+        <div class="vs-price-label">Average catalog price</div>
+        <div class="vs-price-value">
+          {{ stats.prixMoyen | number : '1.0-3' }}
+          <span class="vs-price-unit">TND</span>
+        </div>
+        <p class="vs-price-hint">Relative indicator (displayed max reference: 150,000 TND)</p>
+        <div class="vs-gauge" role="img" [attr.aria-valuenow]="prixGaugePercent(stats)" aria-valuemin="0" aria-valuemax="100" aria-label="Average price level">
+          <div class="vs-gauge-fill" [style.width.%]="prixGaugePercent(stats)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="stats.total === 0" class="vs-empty">
+      <div class="vs-empty-icon">📊</div>
+      <p>No vehicle recorded - charts will appear after the first addition.</p>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="vs-charts" *ngIf="hasData">
+      <div class="vs-chart-card">
+        <div class="vs-chart-canvas">
+          <canvas baseChart type="doughnut" [data]="statusDoughnutData" [options]="statusDoughnutOptions"></canvas>
+        </div>
+      </div>
+
+      <div class="vs-chart-card">
+        <div class="vs-chart-canvas">
+          <canvas baseChart type="doughnut" [data]="activeDoughnutData" [options]="activeDoughnutOptions"></canvas>
+        </div>
+      </div>
+
+      <div class="vs-chart-card vs-chart-wide">
+        <div class="vs-chart-canvas vs-chart-bar">
+          <canvas baseChart type="bar" [data]="marqueBarData" [options]="marqueBarOptions"></canvas>
+        </div>
+      </div>
+
+      <div class="vs-chart-card">
+        <div class="vs-chart-canvas">
+          <canvas
+            baseChart
+            type="doughnut"
+            [data]="reservationsStatusDoughnutData"
+            [options]="reservationsStatusDoughnutOptions"
+          ></canvas>
+        </div>
+      </div>
+
+      <div class="vs-chart-card vs-chart-wide">
+        <div class="vs-chart-canvas vs-chart-bar">
+          <canvas baseChart type="bar" [data]="topClientsBarData" [options]="topClientsBarOptions"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="vw-marque-row" *ngIf="stats.parMarque && (stats.parMarque | keyvalue).length">
+      <strong>Brand summary:</strong>
+      <span *ngFor="let e of stats.parMarque | keyvalue" class="vw-marque-chip">{{ e.key }} ({{ e.value }})</span>
+    </div>
+
+    <div class="vw-marque-row" *ngIf="stats.parVendeur && (stats.parVendeur | keyvalue).length">
+      <strong>Top sellers (join vehicle->seller):</strong>
+      <span *ngFor="let e of stats.parVendeur | keyvalue" class="vw-marque-chip">{{ e.key }} ({{ e.value }})</span>
+    </div>
+
+    <div class="vw-marque-row" *ngIf="stats.reservationsParStatut && (stats.reservationsParStatut | keyvalue).length">
+      <strong>Reservations by status (join reservations):</strong>
+      <span *ngFor="let e of stats.reservationsParStatut | keyvalue" class="vw-marque-chip">{{ e.key }} ({{ e.value }})</span>
+    </div>
+
+    <div class="vw-marque-row" *ngIf="stats.topClientsParReservation && (stats.topClientsParReservation | keyvalue).length">
+      <strong>Top clients with reservations (join reservations->client):</strong>
+      <span *ngFor="let e of stats.topClientsParReservation | keyvalue" class="vw-marque-chip">{{ e.key }} ({{ e.value }})</span>
+    </div>
+  </ng-container>
+</section>

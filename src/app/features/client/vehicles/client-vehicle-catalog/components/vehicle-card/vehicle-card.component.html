@@ -1,0 +1,75 @@
+<article class="vehicle-card">
+  <div class="vehicle-card__media">
+    <img
+      *ngIf="showImage"
+      [src]="activeImageUrl!"
+      [alt]="'Photo of ' + vehicle.marque + ' ' + vehicle.modele"
+      loading="lazy"
+      (error)="onImageError()"
+    />
+    <div *ngIf="!showImage" class="vehicle-card__placeholder" aria-hidden="true">Vehicle</div>
+    <button
+      *ngIf="hasMultipleImages"
+      type="button"
+      class="vehicle-card__nav vehicle-card__nav--prev"
+      aria-label="Previous photo"
+      (click)="prevImage($event)"
+    >
+      &lt;
+    </button>
+    <button
+      *ngIf="hasMultipleImages"
+      type="button"
+      class="vehicle-card__nav vehicle-card__nav--next"
+      aria-label="Next photo"
+      (click)="nextImage($event)"
+    >
+      &gt;
+    </button>
+    <div class="vehicle-card__dots" *ngIf="hasMultipleImages">
+      <button
+        *ngFor="let idx of imageDotIndexes"
+        type="button"
+        class="vehicle-card__dot"
+        [class.is-active]="idx === currentImageIndex"
+        [attr.aria-label]="'Photo ' + (idx + 1)"
+        (click)="setImage(idx, $event)"
+      ></button>
+    </div>
+    <span class="vehicle-card__status" [attr.data-status]="vehicle.status">{{ statusLabels[vehicle.status] }}</span>
+  </div>
+
+  <div class="vehicle-card__body">
+    <p class="vehicle-card__brand">{{ vehicle.marque }}</p>
+    <h3 class="vehicle-card__model">{{ vehicle.modele }}</h3>
+    <p class="vehicle-card__cond">Etat: {{ conditionLabel }}</p>
+    <p class="vehicle-card__meta">Localisation: {{ vehicle.localisation || '—' }}</p>
+    <p class="vehicle-card__meta">Serie: {{ vehicle.serieVehicule || '—' }}</p>
+
+    <p class="vehicle-card__price">
+      <span class="vehicle-card__price-value">{{ vehicle.prixTnd | number : '1.0-0' }}</span>
+      <span class="vehicle-card__currency">TND</span>
+    </p>
+
+    <div class="vehicle-card__actions">
+      <a class="btn btn--secondary" [routerLink]="['/client/vehicles', vehicle.id]">View details</a>
+      <a
+        *ngIf="canReserve"
+        class="btn btn--primary"
+        [routerLink]="['/client/vehicles', vehicle.id]"
+        [fragment]="'reserver'"
+      >
+        Reserve
+      </a>
+      <button
+        *ngIf="vehicle.status === 'DISPONIBLE' && vehicle.active && disableReserve"
+        type="button"
+        class="btn btn--primary"
+        disabled
+        title="You already have an active vehicle reservation. Please wait for the admin decision."
+      >
+        Reserve
+      </button>
+    </div>
+  </div>
+</article>

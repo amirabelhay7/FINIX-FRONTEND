@@ -1,0 +1,110 @@
+<section class="rec-section" aria-labelledby="rec-title">
+  <div class="rec-section__head">
+    <h2 id="rec-title" class="rec-section__title">
+      <span class="rec-section__icon" aria-hidden="true">✦</span>
+      Recommended for you
+    </h2>
+    <div class="rec-section__head-right">
+      <p *ngIf="loading" class="rec-section__loading">Loading...</p>
+      <button *ngIf="!loading" type="button" class="rec-section__refresh-btn" (click)="onRefresh()" title="Reload recommendations">
+        ↻ Refresh
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="error && !loading" class="rec-section__alert" role="alert">{{ error }}</div>
+
+  <p *ngIf="!loading && !error && recommendations.length === 0" class="rec-section__empty">
+    No recommendations yet. Set your preferences below to get personalized suggestions.
+  </p>
+
+  <div class="rec-grid" *ngIf="!loading && recommendations.length > 0">
+    <article class="rec-card" *ngFor="let v of recommendations">
+      <div class="rec-card__media">
+        <img
+          *ngIf="showImage(v)"
+          [src]="activeImageUrl(v)!"
+          [alt]="'Photo of ' + v.marque + ' ' + v.modele"
+          loading="lazy"
+          (error)="onImageError(v.id)"
+        />
+        <div *ngIf="!showImage(v)" class="rec-card__placeholder" aria-hidden="true">Vehicle</div>
+
+        <button
+          *ngIf="hasMultipleImages(v)"
+          type="button"
+          class="rec-card__nav rec-card__nav--prev"
+          aria-label="Previous photo"
+          (click)="prevImage(v, $event)"
+        >
+          &lt;
+        </button>
+        <button
+          *ngIf="hasMultipleImages(v)"
+          type="button"
+          class="rec-card__nav rec-card__nav--next"
+          aria-label="Next photo"
+          (click)="nextImage(v, $event)"
+        >
+          &gt;
+        </button>
+        <div class="rec-card__dots" *ngIf="hasMultipleImages(v)">
+          <button
+            *ngFor="let idx of imageDotIndexes(v)"
+            type="button"
+            class="rec-card__dot"
+            [class.is-active]="idx === (imageIndexes[v.id] || 0)"
+            [attr.aria-label]="'Photo ' + (idx + 1)"
+            (click)="setImage(v, idx, $event)"
+          ></button>
+        </div>
+
+        <div class="rec-card__score-badge" [style.background]="scoreColor(v.matchScore)">
+          {{ v.matchScore }}%
+        </div>
+      </div>
+
+      <div class="rec-card__body">
+        <p class="rec-card__brand">{{ v.marque }}</p>
+        <h3 class="rec-card__model">{{ v.modele }}</h3>
+        <p class="rec-card__cond">Etat: {{ conditionLabel(v) }}</p>
+        <p class="rec-card__price">
+          <span class="rec-card__price-value">{{ v.prixTnd | number : '1.0-0' }}</span>
+          <span class="rec-card__currency">TND</span>
+        </p>
+
+        <div class="rec-card__why-wrap">
+          <button
+            type="button"
+            class="rec-card__why-btn"
+            (click)="toggleTooltip(v.id)"
+            [attr.aria-expanded]="activeTooltipId === v.id"
+            aria-controls="why-tooltip-{{ v.id }}"
+          >
+            Why this vehicle?
+          </button>
+          <div
+            id="why-tooltip-{{ v.id }}"
+            class="rec-card__tooltip"
+            [class.rec-card__tooltip--visible]="activeTooltipId === v.id"
+            role="tooltip"
+          >
+            {{ v.recommendationReason }}
+          </div>
+        </div>
+
+        <div class="rec-card__actions">
+          <a class="btn btn--secondary" [routerLink]="['/client/vehicles', v.id]">View</a>
+          <a
+            *ngIf="v.status === 'DISPONIBLE' && v.active"
+            class="btn btn--primary"
+            [routerLink]="['/client/vehicles', v.id]"
+            [fragment]="'reserver'"
+          >
+            Reserve
+          </a>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
