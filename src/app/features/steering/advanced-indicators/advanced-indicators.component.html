@@ -7,74 +7,120 @@
   </div>
 
   <div *ngIf="loading" class="adv-loading">Loading indicators...</div>
-  <div *ngIf="error"   class="adv-error">⚠ Failed to load advanced indicators. Check backend.</div>
+  <div *ngIf="error"   class="adv-error">Failed to load advanced indicators. Check backend.</div>
 
   <ng-container *ngIf="!loading && !error && data">
 
-    <!-- ── 1. YIELD ─────────────────────────────────────────────────── -->
-    <div class="adv-section">
-      <div class="adv-section-title">📈 Yield — Gain / Funds</div>
-      <div class="adv-chart-card">
-        <canvas #yieldChart></canvas>
-      </div>
-      <div class="adv-interpretation" [class.interp-success]="data.yieldInterpretation.includes('Excellent')"
-                                       [class.interp-warning]="data.yieldInterpretation.includes('Moderate')"
-                                       [class.interp-danger]="data.yieldInterpretation.includes('Low')">
-        <span class="interp-icon">💡</span>
-        <span>{{ data.yieldInterpretation }}</span>
+    <!-- ============================================================
+         CHART PAGINATION NAV
+         ============================================================ -->
+    <div class="chart-nav">
+      <button class="btn btn-sm" [ngClass]="advPage === 0 ? 'btn-primary' : 'btn-outline'" (click)="advPage = 0">Yield</button>
+      <button class="btn btn-sm" [ngClass]="advPage === 1 ? 'btn-primary' : 'btn-outline'" (click)="advPage = 1">Gain Rate</button>
+      <button class="btn btn-sm" [ngClass]="advPage === 2 ? 'btn-primary' : 'btn-outline'" (click)="advPage = 2">Client Growth</button>
+      <button class="btn btn-sm" [ngClass]="advPage === 3 ? 'btn-primary' : 'btn-outline'" (click)="advPage = 3">Sharpe Ratio</button>
+    </div>
+
+    <!-- Dot indicators -->
+    <div class="chart-nav-dots">
+      <div *ngFor="let i of [0,1,2,3]"
+           (click)="advPage = i"
+           [style.background]="advPage === i ? 'var(--blue)' : 'var(--g300)'"
+           class="chart-nav-dot">
       </div>
     </div>
 
-    <!-- ── 2. GAIN RATE ─────────────────────────────────────────────── -->
-    <div class="adv-section">
-      <div class="adv-section-title">💰 Gain Rate — Monthly Profitability</div>
-      <div class="adv-chart-card">
-        <canvas #gainRateChart></canvas>
-      </div>
-      <div class="adv-interpretation" [class.interp-success]="data.gainRateInterpretation.includes('improving')"
-                                       [class.interp-warning]="data.gainRateInterpretation.includes('stable')"
-                                       [class.interp-danger]="data.gainRateInterpretation.includes('declining')">
-        <span class="interp-icon">💡</span>
-        <span>{{ data.gainRateInterpretation }}</span>
-      </div>
-    </div>
-
-    <!-- ── 3. CLIENT GROWTH ─────────────────────────────────────────── -->
-    <div class="adv-section">
-      <div class="adv-section-title">👥 Client Growth — Acquisition Strategy</div>
-      <div class="adv-chart-card">
-        <canvas #clientGrowthChart></canvas>
-      </div>
-      <div class="adv-interpretation" [class.interp-success]="data.clientGrowthInterpretation.includes('Strong')"
-                                       [class.interp-warning]="data.clientGrowthInterpretation.includes('Moderate')"
-                                       [class.interp-danger]="data.clientGrowthInterpretation.includes('shrinking')">
-        <span class="interp-icon">💡</span>
-        <span>{{ data.clientGrowthInterpretation }}</span>
-      </div>
-    </div>
-
-    <!-- ── 4. SHARPE RATIO ──────────────────────────────────────────── -->
-    <div class="adv-section">
-      <div class="adv-section-title">⚖️ Sharpe Ratio — Risk-Adjusted Return</div>
-      <div class="sharpe-card">
-        <div class="sharpe-formula">Sharpe = Mean(Yield) / σ(Yield)</div>
-        <div class="sharpe-value" [style.color]="getSharpeColor()">
-          {{ data.sharpeRatio | number:'1.2-2' }}
+    <!-- Page 0 : Yield -->
+    <ng-container *ngIf="advPage === 0">
+      <div class="adv-section">
+        <div class="adv-section-title">Yield — Gain / Funds</div>
+        <div class="adv-chart-card">
+          <canvas #yieldChart></canvas>
         </div>
-        <div class="sharpe-badge"
-             [class.badge-success]="data.sharpeRatio > 1.5"
-             [class.badge-warning]="data.sharpeRatio > 0.8 && data.sharpeRatio <= 1.5"
-             [class.badge-danger]="data.sharpeRatio <= 0.8">
-          {{ data.sharpeRatio > 1.5 ? 'EXCELLENT' : data.sharpeRatio > 0.8 ? 'ACCEPTABLE' : 'POOR' }}
+        <div class="adv-interpretation"
+             [class.interp-success]="data.yieldInterpretation.includes('Excellent')"
+             [class.interp-warning]="data.yieldInterpretation.includes('Moderate')"
+             [class.interp-danger]="data.yieldInterpretation.includes('Low')">
+          <span class="interp-icon">—</span>
+          <span>{{ data.yieldInterpretation }}</span>
         </div>
       </div>
-      <div class="adv-interpretation"
-           [class.interp-success]="data.sharpeInterpretation.includes('Strong')"
-           [class.interp-warning]="data.sharpeInterpretation.includes('Acceptable')"
-           [class.interp-danger]="data.sharpeInterpretation.includes('Poor')">
-        <span class="interp-icon">💡</span>
-        <span>{{ data.sharpeInterpretation }}</span>
+    </ng-container>
+
+    <!-- Page 1 : Gain Rate -->
+    <ng-container *ngIf="advPage === 1">
+      <div class="adv-section">
+        <div class="adv-section-title">Gain Rate — Monthly Profitability</div>
+        <div class="adv-chart-card">
+          <canvas #gainRateChart></canvas>
+        </div>
+        <div class="adv-interpretation"
+             [class.interp-success]="data.gainRateInterpretation.includes('improving')"
+             [class.interp-warning]="data.gainRateInterpretation.includes('stable')"
+             [class.interp-danger]="data.gainRateInterpretation.includes('declining')">
+          <span class="interp-icon">—</span>
+          <span>{{ data.gainRateInterpretation }}</span>
+        </div>
       </div>
+    </ng-container>
+
+    <!-- Page 2 : Client Growth -->
+    <ng-container *ngIf="advPage === 2">
+      <div class="adv-section">
+        <div class="adv-section-title">Client Growth — Acquisition Strategy</div>
+        <div class="adv-chart-card">
+          <canvas #clientGrowthChart></canvas>
+        </div>
+        <div class="adv-interpretation"
+             [class.interp-success]="data.clientGrowthInterpretation.includes('Strong')"
+             [class.interp-warning]="data.clientGrowthInterpretation.includes('Moderate')"
+             [class.interp-danger]="data.clientGrowthInterpretation.includes('shrinking')">
+          <span class="interp-icon">—</span>
+          <span>{{ data.clientGrowthInterpretation }}</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Page 3 : Sharpe Ratio -->
+    <ng-container *ngIf="advPage === 3">
+      <div class="adv-section">
+        <div class="adv-section-title">Sharpe Ratio — Risk-Adjusted Return</div>
+        <div class="sharpe-card">
+          <div class="sharpe-formula">Sharpe = Mean(Yield) / σ(Yield)</div>
+          <div class="sharpe-value" [style.color]="getSharpeColor()">
+            {{ data.sharpeRatio | number:'1.2-2' }}
+          </div>
+          <div class="sharpe-badge"
+               [class.badge-success]="data.sharpeRatio > 1.5"
+               [class.badge-warning]="data.sharpeRatio > 0.8 && data.sharpeRatio <= 1.5"
+               [class.badge-danger]="data.sharpeRatio <= 0.8">
+            {{ data.sharpeRatio > 1.5 ? 'EXCELLENT' : data.sharpeRatio > 0.8 ? 'ACCEPTABLE' : 'POOR' }}
+          </div>
+        </div>
+        <div class="adv-interpretation"
+             [class.interp-success]="data.sharpeInterpretation.includes('Strong')"
+             [class.interp-warning]="data.sharpeInterpretation.includes('Acceptable')"
+             [class.interp-danger]="data.sharpeInterpretation.includes('Poor')">
+          <span class="interp-icon">—</span>
+          <span>{{ data.sharpeInterpretation }}</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Prev / Next navigation -->
+    <div class="chart-nav-arrows">
+      <button class="btn btn-outline btn-sm"
+              (click)="advPage = advPage - 1"
+              [disabled]="advPage === 0"
+              [style.opacity]="advPage === 0 ? '0.4' : '1'">
+        &#8592; Previous
+      </button>
+      <button class="btn btn-outline btn-sm"
+              (click)="advPage = advPage + 1"
+              [disabled]="advPage === 3"
+              [style.opacity]="advPage === 3 ? '0.4' : '1'">
+        Next &#8594;
+      </button>
     </div>
 
   </ng-container>

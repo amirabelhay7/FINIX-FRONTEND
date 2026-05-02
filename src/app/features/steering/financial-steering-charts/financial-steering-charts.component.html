@@ -9,7 +9,7 @@
   </div>
 
   <div *ngIf="loading" class="charts-loading">Loading charts...</div>
-  <div *ngIf="error" class="charts-error">⚠ Error loading data. Check backend connection.</div>
+  <div *ngIf="error" class="charts-error">Error loading data. Check backend connection.</div>
 
   <ng-container *ngIf="!loading && !error && dashboard">
 
@@ -38,47 +38,121 @@
       {{ dashboard.alertMessage }}
     </div>
 
-    <!-- Row 1: Line + Bar -->
-    <div class="charts-row">
-      <div class="chart-card">
-        <canvas #defaultRateChart></canvas>
-      </div>
-      <div class="chart-card">
-        <canvas #cashFlowChart></canvas>
+    <!-- ============================================================
+         CHART PAGINATION NAV
+         ============================================================ -->
+    <div class="chart-nav">
+      <button class="btn btn-sm" [ngClass]="chartPage === 0 ? 'btn-primary' : 'btn-outline'" (click)="chartPage = 0">Default Rate</button>
+      <button class="btn btn-sm" [ngClass]="chartPage === 1 ? 'btn-primary' : 'btn-outline'" (click)="chartPage = 1">Cash Flow</button>
+      <button class="btn btn-sm" [ngClass]="chartPage === 2 ? 'btn-primary' : 'btn-outline'" (click)="chartPage = 2">Portfolio Risk</button>
+      <button class="btn btn-sm" [ngClass]="chartPage === 3 ? 'btn-primary' : 'btn-outline'" (click)="chartPage = 3">By Salary</button>
+      <button class="btn btn-sm" [ngClass]="chartPage === 4 ? 'btn-primary' : 'btn-outline'" (click)="chartPage = 4">By Region</button>
+      <button class="btn btn-sm" [ngClass]="chartPage === 5 ? 'btn-primary' : 'btn-outline'" (click)="chartPage = 5">Recommendations</button>
+    </div>
+
+    <!-- Dot indicators -->
+    <div class="chart-nav-dots">
+      <div *ngFor="let i of [0,1,2,3,4,5]"
+           (click)="chartPage = i"
+           [style.background]="chartPage === i ? 'var(--blue)' : 'var(--g300)'"
+           class="chart-nav-dot">
       </div>
     </div>
 
-    <!-- Row 2: Horizontal bar -->
-    <div class="charts-row single">
-      <div class="chart-card wide">
-        <canvas #riskChart></canvas>
-      </div>
+    <!-- Page 0 : Default Rate Line Chart -->
+    <div *ngIf="chartPage === 0" class="chart-card-full">
+      <canvas #defaultRateChart></canvas>
     </div>
 
-    <!-- Row 3: Two Donuts -->
-    <div class="charts-row">
-      <div class="chart-card">
-        <canvas #salaryPieChart></canvas>
-      </div>
-      <div class="chart-card">
-        <canvas #regionPieChart></canvas>
-      </div>
+    <!-- Page 1 : Cash Flow Bar Chart -->
+    <div *ngIf="chartPage === 1" class="chart-card-full">
+      <canvas #cashFlowChart></canvas>
     </div>
 
-    <!-- Recommendations -->
-    <div class="reco-section">
-      <div class="reco-title">🎯 Key Recommendations</div>
-      <div class="reco-grid">
-        <div *ngFor="let r of dashboard.riskIndicators" class="reco-card"
-             [class.reco-critical]="r.status === 'CRITICAL'"
-             [class.reco-warning]="r.status === 'WARNING'"
-             [class.reco-normal]="r.status === 'NORMAL'">
-          <div class="reco-month">{{ r.month }} — <span>{{ r.status }}</span></div>
-          <div class="reco-constat">{{ r.constat }}</div>
-          <div class="reco-text">{{ r.recommendation }}</div>
-          <div class="reco-procedure">📋 {{ r.procedure }}</div>
+    <!-- Page 2 : Portfolio Risk Horizontal Bar -->
+    <div *ngIf="chartPage === 2" class="chart-card-full">
+      <canvas #riskChart></canvas>
+    </div>
+
+    <!-- Page 3 : Default Rate by Salary Donut -->
+    <div *ngIf="chartPage === 3" class="chart-card-full chart-card-donut">
+      <canvas #salaryPieChart></canvas>
+    </div>
+
+    <!-- Page 4 : Default Rate by Region Donut -->
+    <div *ngIf="chartPage === 4" class="chart-card-full chart-card-donut">
+      <canvas #regionPieChart></canvas>
+    </div>
+
+    <!-- Page 5 : Recommendations -->
+    <div *ngIf="chartPage === 5">
+
+      <!-- Filter by month -->
+      <div class="reco-filter">
+        <div class="tb-search" style="width:220px;">
+          <span>&#128269;</span>
+          <input type="text"
+                 placeholder="Filter by month… (ex: 2025-03)"
+                 [(ngModel)]="recoSearch"
+                 (ngModelChange)="onRecoSearch()">
+        </div>
+        <span style="font-size:.775rem;color:var(--g400);">{{ filteredRecos.length }} results</span>
+      </div>
+
+      <!-- Paged recommendations -->
+      <div class="reco-section">
+        <div class="reco-title">Key Recommendations</div>
+        <div *ngIf="pagedRecos.length === 0" style="color:var(--g400);text-align:center;padding:2rem;">
+          No result for this filter.
+        </div>
+        <div class="reco-grid">
+          <div *ngFor="let r of pagedRecos" class="reco-card"
+               [class.reco-critical]="r.status === 'CRITICAL'"
+               [class.reco-warning]="r.status === 'WARNING'"
+               [class.reco-normal]="r.status === 'NORMAL'">
+            <div class="reco-month">{{ r.month }} — <span>{{ r.status }}</span></div>
+            <div class="reco-constat">{{ r.constat }}</div>
+            <div class="reco-text">{{ r.recommendation }}</div>
+            <div class="reco-procedure">Procedure: {{ r.procedure }}</div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="reco-pagination">
+          <span style="font-size:.775rem;color:var(--g400);">
+            Page {{ recoPage + 1 }} / {{ recoTotalPages || 1 }}
+          </span>
+          <div style="display:flex;gap:.375rem;">
+            <button class="btn btn-outline btn-xs"
+                    (click)="recoGoTo(recoPage - 1)"
+                    [disabled]="recoPage === 0"
+                    [style.opacity]="recoPage === 0 ? '0.4' : '1'">&#8249;</button>
+            <button *ngFor="let p of recoPageNumbers" class="btn btn-xs"
+                    [ngClass]="p === recoPage ? 'btn-primary' : 'btn-outline'"
+                    (click)="recoGoTo(p)">{{ p + 1 }}</button>
+            <button class="btn btn-outline btn-xs"
+                    (click)="recoGoTo(recoPage + 1)"
+                    [disabled]="recoPage >= recoTotalPages - 1"
+                    [style.opacity]="recoPage >= recoTotalPages - 1 ? '0.4' : '1'">&#8250;</button>
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- Prev / Next navigation -->
+    <div class="chart-nav-arrows">
+      <button class="btn btn-outline btn-sm"
+              (click)="chartPage = chartPage - 1"
+              [disabled]="chartPage === 0"
+              [style.opacity]="chartPage === 0 ? '0.4' : '1'">
+        &#8592; Previous
+      </button>
+      <button class="btn btn-outline btn-sm"
+              (click)="chartPage = chartPage + 1"
+              [disabled]="chartPage === 5"
+              [style.opacity]="chartPage === 5 ? '0.4' : '1'">
+        Next &#8594;
+      </button>
     </div>
 
   </ng-container>

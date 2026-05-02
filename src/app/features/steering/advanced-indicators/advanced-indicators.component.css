@@ -32,3 +32,62 @@
 .badge-success  { background: rgba(16,185,129,.15); color: #065f46; }
 .badge-warning  { background: rgba(245,158,11,.15); color: #92400e; }
 .badge-danger   { background: rgba(239,68,68,.15);  color: #991b1b; }
+/* ── Chart pagination nav ── */
+.chart-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  justify-content: center;
+  margin: 1.5rem 0 .75rem;
+}
+
+.chart-nav-dots {
+  display: flex;
+  justify-content: center;
+  gap: .4rem;
+  margin-bottom: 1.25rem;
+}
+
+.chart-nav-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.chart-card-full {
+  background: var(--surface, #fff);
+  border: 1px solid var(--g200, #e5e7eb);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.chart-card-donut {
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.chart-nav-arrows {
+  display: flex;
+  justify-content: space-between;
+  padding: .75rem 0;
+  margin-top: .5rem;
+}
+
+.reco-filter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.reco-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 0;
+  margin-top: .75rem;
+}
