@@ -1,0 +1,621 @@
+<!-- ═══════════════════════════════════════════════════════
+     PAGE : REPAYMENTS
+     ═══════════════════════════════════════════════════════ -->
+<div class="page" [class.active]="selectedPage === 'repayments'" id="page-remboursements">
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Financial Tracking</div>
+      <div class="ph-title">Repayments</div>
+      <div class="ph-desc">Monthly Collection : {{ kpiCollectedThisMonth | number:'1.0-0' }} TND · Recovery Rate : {{ kpiRecoveryRate }}%</div>
+    </div>
+    <div class="ph-actions">
+      <button class="btn btn-primary btn-sm" (click)="openAdminPayModal()">+ Saisir paiement</button>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-row s2">
+    <div class="kpi" style="--kc: var(--success)">
+      <div class="kpi-top">
+        <div class="kpi-ico" style="background: rgba(16, 185, 129, 0.12)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="kpi-trend success">+12%</div>
+      </div>
+      <div class="kpi-val" style="font-size: 1.3rem">TND <span style="font-size: 1.9rem">{{ kpiCollectedThisMonth | number:'1.0-0' }}</span></div>
+      <div class="kpi-lbl">Collected this month</div>
+      <div class="kpi-foot">Recovery rate : <b>{{ kpiRecoveryRate }}%</b></div>
+    </div>
+
+    <div class="kpi" style="--kc: var(--danger)">
+      <div class="kpi-top">
+        <div class="kpi-ico" style="background: rgba(239, 68, 68, 0.12)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="kpi-trend danger">{{ kpiUnpaidCases }} cases</div>
+      </div>
+      <div class="kpi-val" style="font-size: 1.3rem">TND <span style="font-size: 1.9rem">{{ kpiUnpaidTotal | number:'1.0-0' }}</span></div>
+      <div class="kpi-lbl">Unpaid totals</div>
+      <div class="kpi-foot">Default rate : <b>{{ kpiDefaultRate }}%</b></div>
+    </div>
+
+    <div class="kpi" style="--kc: var(--blue)">
+      <div class="kpi-top">
+        <div class="kpi-ico" style="background: rgba(59, 130, 246, 0.12)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div class="kpi-trend warning">A venir</div>
+      </div>
+      <div class="kpi-val" style="font-size: 1.3rem">TND <span style="font-size: 1.9rem">{{ kpiDueThisMonth | number:'1.0-0' }}</span></div>
+      <div class="kpi-lbl">Due Dates for {{ kpiCurrentMonthLabel }}</div>
+      <div class="kpi-foot">Next : <b>{{ kpiNextDueDate ? (kpiNextDueDate | date:'dd MMMM yyyy') : '—' }}</b></div>
+    </div>
+
+    <div class="kpi" style="--kc: var(--purple)">
+      <div class="kpi-top">
+        <div class="kpi-ico" style="background: rgba(139, 92, 246, 0.12)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <div class="kpi-trend success">{{ kpiRecoveryRate }}%</div>
+      </div>
+      <div class="kpi-val">{{ kpiContractsFollowed | number:'1.0-0' }}</div>
+      <div class="kpi-lbl">Contracts Followed</div>
+      <div class="kpi-foot">Open cases : <b>{{ kpiUnpaidCases }}</b></div>
+    </div>
+  </div>
+
+  <!-- Payment History Table -->
+  <div class="panel s3">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot"></span>Payment History</div>
+    </div>
+
+    <!-- Filters -->
+    <div class="pay-filters" *ngIf="adminPayments.length > 0">
+      <div class="pay-filter-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search client, ID, contract, agent…"
+          [(ngModel)]="paymentFilter" (ngModelChange)="onAdminPayFilterChange()"
+          class="form-input" style="border:none;flex:1;padding:.35rem .5rem;font-size:.8rem;background:transparent"/>
+      </div>
+      <select class="form-input pay-filter-select" [(ngModel)]="paymentStatusFilter" (ngModelChange)="onAdminPayFilterChange()">
+        <option value="">All</option>
+        <option value="PAID">Paid</option>
+        <option value="PENDING">Pending</option>
+        <option value="CANCELLED">Cancelled</option>
+      </select>
+      <select class="form-input pay-filter-select" [(ngModel)]="paymentMethodFilter" (ngModelChange)="onAdminPayFilterChange()">
+        <option value="">All methods</option>
+        <option value="CASH_AGENT">Cash Agent</option>
+        <option value="CARD">Card</option>
+        <option value="CASH_IMF">Cash IMF</option>
+      </select>
+      <div class="pay-filter-count">
+        {{ filteredPayments.length }} résultat(s)
+        <span *ngIf="adminPayTotalPages > 1" style="margin-left:.25rem;opacity:.6">· p.{{ adminPayPage }}/{{ adminPayTotalPages }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="adminPaymentsLoading" style="text-align:center;padding:2rem;opacity:.5">…</div>
+    <div *ngIf="!adminPaymentsLoading && adminPayments.length === 0" style="text-align:center;padding:2rem;opacity:.4;font-size:.85rem">No payments recorded</div>
+    <div *ngIf="!adminPaymentsLoading && adminPayments.length > 0 && filteredPayments.length === 0" style="text-align:center;padding:2rem;opacity:.4;font-size:.85rem">Aucun résultat pour ce filtre</div>
+
+    <div *ngIf="!adminPaymentsLoading && filteredPayments.length > 0" class="admin-pay-tbl-wrap">
+      <table class="admin-pay-tbl">
+        <thead>
+          <tr>
+            <th>Ref</th><th>Client</th><th>Contract</th><th>Installment</th>
+            <th>Base Amount</th><th>Penalty</th><th>Total Paid</th>
+            <th>Payment Date</th><th>Mode</th><th>Status</th><th>Agent</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of pagedPayments">
+            <td><span class="td-ref">#{{ p.id }}</span></td>
+            <td>
+              <div class="td-primary" style="font-size:.82rem">{{ p.clientFirstName }} {{ p.clientLastName }}</div>
+              <div style="font-size:.7rem;color:var(--g400)">CIN {{ p.clientCin || '—' }}</div>
+            </td>
+            <td><span class="td-ref" style="font-size:.75rem">{{ p.numeroContrat || '—' }}</span></td>
+            <td style="text-align:center">#{{ p.installmentNumber }}</td>
+            <td class="td-amount" style="font-size:.82rem">{{ (p.baseInstallmentAmount ?? p.amountPaid) | number:'1.2-2' }} TND</td>
+            <td>
+              <ng-container *ngIf="p.penaltyAmount; else noPenAdmin">
+                <div style="display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:.68rem;font-weight:700;padding:2px 5px;border-radius:4px;width:fit-content"
+                    [style.background]="p.penaltyTier === 'TIER_5' ? '#4c0519' : p.penaltyTier === 'TIER_4' ? '#ffe4e6' : p.penaltyTier === 'TIER_3' ? '#fef2f2' : p.penaltyTier === 'TIER_2' ? '#fff7ed' : '#fefce8'"
+                    [style.color]="p.penaltyTier === 'TIER_5' ? '#fda4af' : p.penaltyTier === 'TIER_4' ? '#9f1239' : p.penaltyTier === 'TIER_3' ? '#dc2626' : p.penaltyTier === 'TIER_2' ? '#ea580c' : '#ca8a04'">
+                    {{ p.penaltyTierLabel }}
+                  </span>
+                  <span style="font-size:.78rem;color:#ef4444;font-weight:700">+{{ p.penaltyAmount | number:'1.2-2' }} TND</span>
+                  <span style="font-size:.65rem;color:var(--g400)">{{ p.penaltyDaysOverdue }}j retard</span>
+                </div>
+              </ng-container>
+              <ng-template #noPenAdmin><span style="color:var(--g400);font-size:.8rem">—</span></ng-template>
+            </td>
+            <td>
+              <ng-container *ngIf="p.penaltyAmount; else totalNoPenAdmin">
+                <div style="display:flex;flex-direction:column;gap:1px">
+                  <span style="font-size:.65rem;color:var(--g400)">{{ (p.baseInstallmentAmount ?? 0) | number:'1.2-2' }} + {{ p.penaltyAmount | number:'1.2-2' }}</span>
+                  <span class="td-amount" style="color:#ef4444;font-weight:800;font-size:.85rem">{{ p.amountPaid | number:'1.2-2' }} TND</span>
+                </div>
+              </ng-container>
+              <ng-template #totalNoPenAdmin><span class="td-amount" style="font-size:.82rem">{{ p.amountPaid | number:'1.2-2' }} TND</span></ng-template>
+            </td>
+            <td style="font-size:.75rem;color:var(--g500)">{{ p.paymentDate | date:'dd/MM/yy HH:mm' }}</td>
+            <td>
+              <span class="badge"
+                [ngClass]="{'b-blue': p.paymentMethod === 'CARD', 'b-teal': p.paymentMethod === 'CASH_AGENT' || p.paymentMethod === 'CASH_IMF', 'b-purple': p.paymentMethod === 'D17'}">
+                {{ p.paymentMethod === 'CASH_AGENT' ? 'Cash Agent' : p.paymentMethod === 'CARD' ? 'Card' : p.paymentMethod === 'CASH_IMF' ? 'Cash IMF' : p.paymentMethod || '—' }}
+              </span>
+            </td>
+            <td>
+              <span *ngIf="p.paymentStatus === 'PAID'" class="badge b-actif">Paid</span>
+              <span *ngIf="p.paymentStatus === 'PENDING'" class="badge b-review">Pending</span>
+              <span *ngIf="p.paymentStatus === 'CANCELLED'" class="badge b-danger">Cancelled</span>
+            </td>
+            <td style="font-size:.78rem">
+              <span *ngIf="p.agentFirstName">
+                <div style="font-weight:600;color:var(--g800)">{{ p.agentFirstName }} {{ p.agentLastName }}</div>
+                <div style="font-size:.68rem;color:var(--g400)" *ngIf="p.agentAgenceCode">Agence #{{ p.agentAgenceCode }}</div>
+              </span>
+              <span *ngIf="!p.agentFirstName" style="opacity:.4;color:var(--g500)">— Auto</span>
+            </td>
+            <td>
+              <select class="form-input" style="width:100px;padding:.2rem .4rem;font-size:.7rem"
+                [value]="p.paymentStatus" (change)="changePaymentStatus(p.id, $any($event.target).value)">
+                <option *ngFor="let s of statusOptions" [value]="s" [selected]="s === p.paymentStatus">{{ s }}</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Export PDF -->
+      <div style="display:flex;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--g100)">
+        <button class="btn btn-outline btn-sm" (click)="exportAdminPaymentsPdf()" [disabled]="filteredPayments.length === 0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export PDF
+        </button>
+      </div>
+
+      <!-- Pagination -->
+      <div class="ap-pagination" *ngIf="adminPayTotalPages > 1">
+        <button class="pg-btn" (click)="goAdminPayPage(1)" [disabled]="adminPayPage === 1">«</button>
+        <button class="pg-btn" (click)="goAdminPayPage(adminPayPage - 1)" [disabled]="adminPayPage === 1">‹</button>
+        <span class="pg-ellipsis" *ngIf="adminPayPages[0] > 1">…</span>
+        <button *ngFor="let pg of adminPayPages" class="pg-num" [class.pg-active]="pg === adminPayPage" (click)="goAdminPayPage(pg)">{{ pg }}</button>
+        <span class="pg-ellipsis" *ngIf="adminPayPages[adminPayPages.length - 1] < adminPayTotalPages">…</span>
+        <button class="pg-btn" (click)="goAdminPayPage(adminPayPage + 1)" [disabled]="adminPayPage === adminPayTotalPages">›</button>
+        <button class="pg-btn" (click)="goAdminPayPage(adminPayTotalPages)" [disabled]="adminPayPage === adminPayTotalPages">»</button>
+        <span class="pg-info">Page {{ adminPayPage }} / {{ adminPayTotalPages }} &nbsp;·&nbsp; {{ filteredPayments.length }} résultat(s)</span>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /page-repayments -->
+
+<!-- ═══ MODAL: Saisir paiement admin ═══ -->
+<div class="modal-overlay" *ngIf="showAdminPayModal" (click)="closeAdminPayModal()">
+  <div class="modal-card admin-pay-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Saisir un paiement</div>
+        <div class="modal-sub">Méthode : Cash IMF</div>
+      </div>
+      <button class="modal-close" (click)="closeAdminPayModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Rechercher le client (CIN ou nom)</label>
+      <div style="position:relative">
+        <input class="form-input" type="text" placeholder="Saisir le CIN…"
+          [value]="adminCinSearch" (input)="onAdminCinInput($event)"/>
+        <div class="admin-search-results" *ngIf="adminClientResults.length > 0">
+          <div class="admin-search-item" *ngFor="let c of adminClientResults" (click)="selectAdminClient(c)">
+            <strong>{{ c.firstName }} {{ c.lastName }}</strong>
+            <span style="color:var(--g400);margin-left:.5rem">CIN {{ c.cin || '—' }}</span>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="adminInstError" class="admin-pay-error" style="margin-top:.75rem">{{ adminInstError }}</div>
+      <div *ngIf="adminInstLoading" style="text-align:center;padding:1rem;opacity:.5;font-size:.85rem">Chargement…</div>
+      <div *ngIf="adminSelectedClient && adminNextInstallment" style="margin-top:1rem">
+        <div class="admin-pay-client-chip">
+          <strong>{{ adminSelectedClient.firstName }} {{ adminSelectedClient.lastName }}</strong>
+          <span style="color:var(--g400)">· CIN {{ adminSelectedClient.cin || '—' }} · Contrat {{ adminNextInstallment.numeroContrat }}</span>
+          <button style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--g400)" (click)="resetAdminPayForm()">✕</button>
+        </div>
+        <div class="admin-pay-details">
+          <div class="admin-pay-detail-row"><span>Mensualité</span><strong>#{{ adminNextInstallment.installmentNumber }} / {{ adminNextInstallment.totalInstallments }}</strong></div>
+          <div class="admin-pay-detail-row"><span>Échéance</span><strong>{{ adminNextInstallment.dueDate }}</strong></div>
+          <div class="admin-pay-detail-row"><span>Montant</span><strong style="font-size:1.05rem;color:var(--success)">{{ adminNextInstallment.amountDue | number:'1.2-2' }} TND</strong></div>
+          <div class="admin-pay-detail-row"><span>Méthode</span><span class="badge b-teal">Cash IMF</span></div>
+        </div>
+      </div>
+      <div *ngIf="adminPaySuccess && adminLastPayment" class="admin-pay-success" style="margin-top:1rem">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Paiement #{{ adminLastPayment.id }} enregistré — {{ adminLastPayment.amountPaid | number:'1.2-2' }} TND</span>
+      </div>
+      <div *ngIf="adminPayError" class="admin-pay-error" style="margin-top:.75rem">{{ adminPayError }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" (click)="adminPaySuccess ? resetAdminPayForm() : closeAdminPayModal()">
+        {{ adminPaySuccess ? 'Nouveau paiement' : 'Annuler' }}
+      </button>
+      <button class="btn btn-primary btn-sm" *ngIf="adminNextInstallment && !adminPaySuccess"
+        [disabled]="adminPayLoading" (click)="submitAdminPayment()">
+        {{ adminPayLoading ? 'Enregistrement…' : 'Confirmer le paiement' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE : DELINQUENCY CASES
+     ═══════════════════════════════════════════════════════ -->
+<div class="page" [class.active]="selectedPage === 'delinquency'" id="page-delinquency">
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Recovery Management</div>
+      <div class="ph-title">Delinquency Cases</div>
+      <div class="ph-desc">Follow-up and recovery</div>
+    </div>
+  </div>
+
+  <div *ngIf="casesLoading" style="text-align:center;padding:3rem;opacity:.5">Loading…</div>
+  <div *ngIf="casesError" style="color:#ef4444;font-size:.85rem;padding:1rem 0">{{ casesError }}</div>
+
+  <!-- Liste dossiers -->
+  <ng-container *ngIf="!casesLoading && !selectedCase">
+    <div class="kpi-row s2" style="margin-bottom:0">
+      <div class="kpi" style="--kc:#ef4444">
+        <div class="kpi-top"><div class="kpi-ico" style="background:rgba(239,68,68,.1)"><span class="material-symbols-outlined" style="font-size:20px;color:#ef4444">warning</span></div></div>
+        <div class="kpi-val">{{ allCases.length }}</div><div class="kpi-lbl">Total cases</div>
+      </div>
+      <div class="kpi" style="--kc:#ef4444">
+        <div class="kpi-top"><div class="kpi-ico" style="background:rgba(239,68,68,.1)"><span class="material-symbols-outlined" style="font-size:20px;color:#ef4444">crisis_alert</span></div></div>
+        <div class="kpi-val" style="color:#ef4444">{{ countCasesByRisk('CRITICAL') }}</div><div class="kpi-lbl">Critical</div>
+      </div>
+      <div class="kpi" style="--kc:#f97316">
+        <div class="kpi-top"><div class="kpi-ico" style="background:rgba(249,115,22,.1)"><span class="material-symbols-outlined" style="font-size:20px;color:#f97316">trending_up</span></div></div>
+        <div class="kpi-val" style="color:#f97316">{{ countCasesByCategory('LEGAL') }}</div><div class="kpi-lbl">Legal phase</div>
+      </div>
+      <div class="kpi" style="--kc:var(--blue)">
+        <div class="kpi-top"><div class="kpi-ico" style="background:rgba(59,130,246,.1)"><span class="material-symbols-outlined" style="font-size:20px;color:#3b82f6">people</span></div></div>
+        <div class="kpi-val">{{ countCasesByStatus('NEW') }}</div><div class="kpi-lbl">New (unassigned)</div>
+      </div>
+    </div>
+
+    <div class="pay-filters" style="margin-top:20px">
+      <select class="form-input pay-filter-select" [(ngModel)]="caseFilterStatus" (change)="applyDelinquencyFilters()">
+        <option value="">All statuses</option>
+        <option value="NEW">New</option><option value="CONTACTED">Contacted</option>
+        <option value="IN_PROGRESS">In Progress</option><option value="PLAN_ACTIVE">Plan Active</option>
+        <option value="RECOVERED">Recovered</option><option value="CLOSED">Closed</option>
+      </select>
+      <select class="form-input pay-filter-select" [(ngModel)]="caseFilterRisk" (change)="applyDelinquencyFilters()">
+        <option value="">All risks</option>
+        <option value="LOW">LOW</option><option value="MODERATE">MODERATE</option>
+        <option value="HIGH">HIGH</option><option value="CRITICAL">CRITICAL</option>
+      </select>
+      <select class="form-input pay-filter-select" [(ngModel)]="caseFilterCategory" (change)="applyDelinquencyFilters()">
+        <option value="">All phases</option>
+        <option value="FRIENDLY">Friendly</option><option value="PRE_LEGAL">Pre-Legal</option><option value="LEGAL">Legal</option>
+      </select>
+      <div class="pay-filter-count">{{ filteredCases.length }} case(s)</div>
+    </div>
+
+    <div class="panel s3" style="margin-top:12px;padding:0">
+      <table class="admin-pay-tbl" *ngIf="filteredCases.length > 0">
+        <thead>
+          <tr><th>#</th><th>Client</th><th>Contract</th><th>Risk</th><th>Phase</th><th>Statut</th><th>Overdue</th><th>Penalties</th><th>Delay</th><th>Agent</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of filteredCases">
+            <td><span class="td-ref">#{{ c.id }}</span></td>
+            <td><div class="td-primary" style="font-size:.82rem">{{ c.clientFullName }}</div></td>
+            <td style="font-size:.75rem;color:var(--g500)">{{ c.loanContractId }}</td>
+            <td><span class="badge" [ngClass]="caseRiskClass(c.riskLevel)">{{ c.riskLevel }}</span></td>
+            <td><span class="badge" [ngClass]="caseCategoryClass(c.category)">{{ c.category }}</span></td>
+            <td><span class="badge b-blue">{{ caseStatusLabel(c.status) }}</span></td>
+            <td class="td-amount" style="color:#ef4444;font-size:.82rem">{{ c.totalOverdueAmount | number:'1.2-2' }} TND</td>
+            <td style="font-size:.8rem;color:#f97316">{{ c.totalPenaltyAmount | number:'1.2-2' }} TND</td>
+            <td style="font-size:.8rem;font-weight:700" [ngClass]="caseRiskClass(c.riskLevel)">{{ c.maxDaysOverdue }}j</td>
+            <td style="font-size:.75rem">{{ c.assignedAgentFullName ?? '—' }}</td>
+            <td style="display:flex;gap:4px;flex-wrap:wrap;padding:8px 12px">
+              <button class="btn btn-outline btn-sm" style="font-size:.7rem;padding:.2rem .6rem" (click)="openCaseDetail(c)">Detail</button>
+              <button class="btn btn-outline btn-sm" style="font-size:.7rem;padding:.2rem .6rem" (click)="openAssignModal(c.id)">Assign</button>
+              <button class="btn btn-outline btn-sm" style="font-size:.7rem;padding:.2rem .6rem;color:#ef4444;border-color:#ef4444" (click)="openCloseModal(c.id)">Close</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!casesLoading && filteredCases.length === 0" style="text-align:center;padding:3rem;opacity:.4;font-size:.85rem">No delinquency cases found</div>
+    </div>
+  </ng-container>
+
+  <!-- Détail d'un dossier -->
+  <ng-container *ngIf="!casesLoading && selectedCase">
+    <div style="margin-top:12px">
+      <button class="btn btn-outline btn-sm" (click)="backToCaseList()" style="margin-bottom:20px">← Return to the list</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div style="font-size:1.1rem;font-weight:800;color:var(--text)">{{ selectedCase.clientFullName }}</div>
+          <div style="font-size:.8rem;color:var(--g400)">Contract #{{ selectedCase.loanContractId }} · Case #{{ selectedCase.id }}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" (click)="openCaseActionForm()">+ Add Action</button>
+          <button class="btn btn-outline btn-sm" (click)="openAssignModal(selectedCase.id)">Assign Agent</button>
+          <button class="btn btn-outline btn-sm" style="color:#ef4444;border-color:#ef4444" (click)="openCloseModal(selectedCase.id)">Close Case</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+        <div class="kpi" style="--kc:#ef4444;padding:14px">
+          <div class="kpi-val" style="font-size:1.3rem;color:#ef4444">{{ selectedCase.totalOverdueAmount | number:'1.2-2' }} TND</div>
+          <div class="kpi-lbl">Overdue Amount</div>
+        </div>
+        <div class="kpi" style="--kc:#f97316;padding:14px">
+          <div class="kpi-val" style="font-size:1.3rem;color:#f97316">{{ selectedCase.totalPenaltyAmount | number:'1.2-2' }} TND</div>
+          <div class="kpi-lbl">Penalties</div>
+        </div>
+        <div class="kpi" style="padding:14px">
+          <div class="kpi-val" style="font-size:1.3rem">{{ selectedCase.overdueInstallmentsCount }}</div>
+          <div class="kpi-lbl">Overdue Installments</div>
+        </div>
+        <div class="kpi" style="padding:14px">
+          <div class="kpi-val" style="font-size:1.3rem">{{ selectedCase.maxDaysOverdue }}j</div>
+          <div class="kpi-lbl">Max Delay</div>
+        </div>
+      </div>
+      <div class="panel" style="padding:16px;margin-bottom:16px;font-size:.85rem;line-height:2">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          <div><b>Phase :</b> <span class="badge" [ngClass]="caseCategoryClass(selectedCase.category)">{{ selectedCase.category }}</span></div>
+          <div><b>Status :</b> <span class="badge b-blue">{{ caseStatusLabel(selectedCase.status) }}</span></div>
+          <div><b>Risk :</b> <span class="badge" [ngClass]="caseRiskClass(selectedCase.riskLevel)">{{ selectedCase.riskLevel }}</span></div>
+          <div><b>Opened on :</b> {{ selectedCase.openedDate | date:'dd/MM/yyyy' }}</div>
+          <div *ngIf="selectedCase.assignedAgentFullName"><b>Agent :</b> {{ selectedCase.assignedAgentFullName }}</div>
+          <div *ngIf="selectedCase.lastEscalationDate"><b>Last Escalation :</b> {{ selectedCase.lastEscalationDate | date:'dd/MM/yyyy' }}</div>
+        </div>
+        <div style="margin-top:10px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:.78rem;font-weight:700;color:var(--g400)">Internal note</span>
+            <button *ngIf="!editingNote" (click)="startEditNote()"
+              style="background:none;border:1px solid #3b82f6;cursor:pointer;color:#3b82f6;font-size:.72rem;font-weight:600;padding:2px 6px;border-radius:4px">✏ Edit</button>
+          </div>
+          <div *ngIf="!editingNote" style="padding:8px 10px;background:var(--bg);border-radius:8px;color:var(--g500);font-size:.8rem;min-height:32px">
+            {{ selectedCase.notes ?? '— No note found —' }}
+          </div>
+          <div *ngIf="editingNote">
+            <textarea class="form-input" [(ngModel)]="editNoteValue" rows="3"
+              style="width:100%;resize:vertical;font-size:.82rem;box-sizing:border-box;margin-bottom:6px"
+              placeholder="Add an internal note..."></textarea>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-primary btn-sm" (click)="saveNote()" [disabled]="savingNote">{{ savingNote ? 'Saving…' : 'Save' }}</button>
+              <button class="btn btn-outline btn-sm" (click)="cancelEditNote()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="showCaseActionForm" class="panel" style="padding:16px;margin-bottom:16px">
+        <div style="font-weight:700;font-size:.88rem;margin-bottom:12px">New Collection Action</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <select class="form-input" [(ngModel)]="caseActionForm.actionType">
+            <option value="">— Action Type —</option>
+            <option *ngFor="let t of caseActionTypes" [value]="t">{{ t }}</option>
+          </select>
+          <select class="form-input" [(ngModel)]="caseActionForm.result">
+            <option value="">— Result —</option>
+            <option *ngFor="let r of caseResultOptions" [value]="r">{{ r }}</option>
+          </select>
+        </div>
+        <textarea class="form-input" [(ngModel)]="caseActionForm.description" rows="2"
+          placeholder="Description of the action..." style="width:100%;resize:vertical;margin-bottom:8px;box-sizing:border-box"></textarea>
+        <div *ngIf="caseActionError" style="color:#ef4444;font-size:.78rem;margin-bottom:6px">{{ caseActionError }}</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-primary btn-sm" (click)="submitCaseAction()" [disabled]="savingCaseAction">{{ savingCaseAction ? 'Saving…' : 'Save' }}</button>
+          <button class="btn btn-outline btn-sm" (click)="showCaseActionForm = false">Cancel</button>
+        </div>
+      </div>
+      <div class="panel" style="padding:16px">
+        <div class="panel-head" style="padding:0 0 12px 0;border-bottom:1px solid var(--g100);margin-bottom:12px">
+          <div class="panel-title"><span class="ptdot"></span>Actions history ({{ caseActions.length }})</div>
+        </div>
+        <div *ngIf="caseActionsLoading" style="text-align:center;padding:1rem;opacity:.5">Loading…</div>
+        <div *ngIf="!caseActionsLoading && caseActions.length === 0" style="text-align:center;padding:2rem;opacity:.4;font-size:.85rem">No actions recorded.</div>
+        <div *ngFor="let a of caseActions; let last = last"
+          style="display:flex;gap:12px;padding:12px 0"
+          [style.borderBottom]="last ? 'none' : '1px solid var(--g100)'">
+          <div style="width:34px;height:34px;border-radius:50%;background:rgba(59,130,246,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <span class="material-symbols-outlined" style="font-size:17px;color:#3b82f6">{{ caseActionIcon(a.actionType) }}</span>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-size:.83rem">{{ a.actionType }} <span style="font-weight:400;color:var(--g500)">— {{ a.result }}</span></div>
+            <div style="font-size:.78rem;color:var(--g600);margin-top:2px">{{ a.description }}</div>
+            <div style="font-size:.7rem;color:var(--g400);margin-top:4px">{{ a.actionDate | date:'dd/MM/yyyy HH:mm' }} · {{ a.performedByFullName ?? 'Admin' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Modal Assign Agent -->
+  <div class="modal-overlay" *ngIf="showAssignModal" (click)="closeAssignModal()"></div>
+  <div class="modal" *ngIf="showAssignModal" style="max-width:400px">
+    <div class="modal-head"><div class="modal-title">Assign an agent</div></div>
+    <div class="modal-body">
+      <select class="form-input" [(ngModel)]="assignAgentId" style="width:100%">
+        <option [value]="null">— Select an agent —</option>
+        <option *ngFor="let ag of agentsList" [value]="ag.id">{{ ag.firstName }} {{ ag.lastName }}</option>
+      </select>
+    </div>
+    <div class="modal-foot" style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-outline btn-sm" (click)="closeAssignModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" (click)="confirmAssign()" [disabled]="!assignAgentId">Confirm</button>
+    </div>
+  </div>
+
+  <!-- Modal Close Case -->
+  <div class="modal-overlay" *ngIf="showCloseModal" (click)="closeCloseModal()"></div>
+  <div class="modal" *ngIf="showCloseModal" style="max-width:400px">
+    <div class="modal-head"><div class="modal-title">Close the case</div></div>
+    <div class="modal-body">
+      <select class="form-input" [(ngModel)]="closeReason" style="width:100%">
+        <option value="PAID">PAID — Client has paid</option>
+        <option value="RESTRUCTURED">RESTRUCTURED — Loan restructured</option>
+        <option value="WRITTEN_OFF">WRITTEN_OFF — Written off</option>
+      </select>
+    </div>
+    <div class="modal-foot" style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-outline btn-sm" (click)="closeCloseModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" (click)="confirmClose()">Close</button>
+    </div>
+  </div>
+</div>
+<!-- /page-delinquency -->
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE : GRACE PERIOD REQUESTS
+     ═══════════════════════════════════════════════════════ -->
+<div class="page" [class.active]="selectedPage === 'grace-requests'" id="page-grace-requests">
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Management</div>
+      <div class="ph-title">Grace Period Requests</div>
+      <div class="ph-desc">Review and process client grace period requests</div>
+    </div>
+    <div class="ph-actions">
+      <select class="gpr-filter-select" [ngModel]="graceFilterStatus" (ngModelChange)="onGraceFilterChange($event)">
+        <option value="">All Requests</option>
+        <option value="PENDING">Pending</option>
+        <option value="APPROVED">Approved</option>
+        <option value="REJECTED">Rejected</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="kpi-row s2">
+    <div class="kpi" style="--kc: var(--warning)"><div class="kpi-top"><div class="kpi-label">Total Requests</div></div><div class="kpi-val">{{ graceRequests.length }}</div></div>
+    <div class="kpi" style="--kc: #f59e0b"><div class="kpi-top"><div class="kpi-label">Pending</div></div><div class="kpi-val" style="color:#f59e0b">{{ pendingGraceCount }}</div></div>
+    <div class="kpi" style="--kc: var(--success)"><div class="kpi-top"><div class="kpi-label">Approved</div></div><div class="kpi-val" style="color:var(--success)">{{ approvedGraceCount }}</div></div>
+    <div class="kpi" style="--kc: var(--danger)"><div class="kpi-top"><div class="kpi-label">Rejected</div></div><div class="kpi-val" style="color:var(--danger)">{{ rejectedGraceCount }}</div></div>
+  </div>
+
+  <div *ngIf="graceRequestsLoading" style="text-align:center;padding:2rem;color:var(--muted)">Loading grace period requests...</div>
+
+  <div class="tbl-wrap" *ngIf="!graceRequestsLoading">
+    <table>
+      <thead>
+        <tr><th>Client</th><th>Contract</th><th>Installment</th><th>Days</th><th>Affected</th><th>Reason</th><th>Date</th><th>Docs</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="graceRequests.length === 0">
+          <td colspan="10" style="text-align:center;padding:2rem;color:var(--muted)">No grace period requests found.</td>
+        </tr>
+        <tr *ngFor="let req of graceRequests">
+          <td>
+            <div class="td-primary">{{ req.clientFirstName }} {{ req.clientLastName }}</div>
+            <div class="td-sub">CIN {{ req.clientCin || '—' }}</div>
+          </td>
+          <td><span class="td-ref">{{ req.numeroContrat || '—' }}</span></td>
+          <td>
+            <div class="td-primary">#{{ req.installmentNumber }}</div>
+            <div class="td-sub">{{ req.installmentDueDate | date:'dd/MM/yyyy' }}</div>
+          </td>
+          <td><strong>{{ req.requestedGraceDays }}d</strong></td>
+          <td><strong>{{ req.numberOfAffectedInstallments }}</strong></td>
+          <td><div class="gpr-reason-cell" title="{{ req.reason }}">{{ req.reason }}</div></td>
+          <td>{{ req.createdAt | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <span class="gpr-doc-count" *ngIf="req.documents?.length" (click)="openGraceDetail(req)">{{ req.documents.length }} file(s)</span>
+            <span *ngIf="!req.documents?.length" style="color:var(--muted)">—</span>
+          </td>
+          <td>
+            <span class="badge"
+              [class.gpr-badge-pending]="req.status === 'PENDING'"
+              [class.gpr-badge-approved]="req.status === 'APPROVED'"
+              [class.gpr-badge-rejected]="req.status === 'REJECTED'">{{ req.status }}</span>
+          </td>
+          <td>
+            <div class="gpr-actions" *ngIf="req.status === 'PENDING'">
+              <button class="btn btn-sm gpr-btn-approve-bo" (click)="approveGraceRequest(req.id)" [disabled]="graceActionLoading === req.id">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                Approve
+              </button>
+              <button class="btn btn-sm gpr-btn-reject-bo" (click)="openRejectModal(req.id)" [disabled]="graceActionLoading === req.id">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Reject
+              </button>
+            </div>
+            <div *ngIf="req.status !== 'PENDING'" style="color:var(--muted);font-size:.75rem">{{ req.reviewerFirstName }} {{ req.reviewerLastName }}</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Reject modal -->
+  <div class="gpr-overlay" *ngIf="graceRejectId !== null" (click)="graceRejectId = null">
+    <div class="gpr-modal-bo" (click)="$event.stopPropagation()">
+      <div class="gpr-modal-title">Reject Grace Period Request</div>
+      <label class="gpr-modal-label">Reason for rejection (optional)</label>
+      <textarea class="gpr-modal-textarea" [(ngModel)]="graceRejectReason" rows="3" placeholder="Provide a reason..."></textarea>
+      <div class="gpr-modal-actions">
+        <button class="btn btn-outline btn-sm" (click)="graceRejectId = null">Cancel</button>
+        <button class="btn btn-sm gpr-btn-reject-bo" (click)="confirmRejectGraceRequest()" [disabled]="graceActionLoading !== null">Confirm Rejection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail modal -->
+  <div class="gpr-overlay" *ngIf="graceDetailRequest" (click)="closeGraceDetail()">
+    <div class="gpr-modal-bo" (click)="$event.stopPropagation()" style="max-width:500px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+        <div class="gpr-modal-title" style="margin:0">Request Details</div>
+        <button style="background:none;border:none;cursor:pointer;color:var(--muted)" (click)="closeGraceDetail()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="gpr-detail-row-bo"><strong>Client:</strong> {{ graceDetailRequest.clientFirstName }} {{ graceDetailRequest.clientLastName }} (CIN: {{ graceDetailRequest.clientCin }})</div>
+      <div class="gpr-detail-row-bo"><strong>Contract:</strong> {{ graceDetailRequest.numeroContrat }}</div>
+      <div class="gpr-detail-row-bo"><strong>Installment:</strong> #{{ graceDetailRequest.installmentNumber }} — due {{ graceDetailRequest.installmentDueDate | date:'dd/MM/yyyy' }}</div>
+      <div class="gpr-detail-row-bo"><strong>Grace Days:</strong> {{ graceDetailRequest.requestedGraceDays }}</div>
+      <div class="gpr-detail-row-bo"><strong>Affected Installments:</strong> {{ graceDetailRequest.numberOfAffectedInstallments }}</div>
+      <div class="gpr-detail-row-bo"><strong>Reason:</strong> {{ graceDetailRequest.reason }}</div>
+      <div class="gpr-detail-row-bo"><strong>Date:</strong> {{ graceDetailRequest.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+      <div class="gpr-detail-row-bo" *ngIf="graceDetailRequest.rejectionReason"><strong>Rejection Reason:</strong> {{ graceDetailRequest.rejectionReason }}</div>
+      <div class="gpr-detail-row-bo" *ngIf="graceDetailRequest.documents?.length > 0">
+        <strong>Documents:</strong>
+        <div style="margin-top:.4rem">
+          <a *ngFor="let doc of graceDetailRequest.documents"
+            style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--blue);text-decoration:none;padding:4px 0"
+            [href]="'http://localhost:8082' + doc.fileUrl" target="_blank">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            {{ doc.fileName }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /page-grace-requests -->
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE : PENALTY TIERS
+     ═══════════════════════════════════════════════════════ -->
+<div class="page" [class.active]="selectedPage === 'penalty-tiers'">
+  <app-penalty-tiers (backClicked)="onNavigate.emit('settings')"></app-penalty-tiers>
+</div>
+<!-- /page-penalty-tiers -->

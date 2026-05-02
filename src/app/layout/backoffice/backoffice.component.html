@@ -9,11 +9,13 @@
   <app-topbar
     [currentPage]="selectedPage"
     [currentTheme]="currentTheme"
+    [notificationModuleFilter]="selectedPage === 'vehicles' ? 'VEHICLE' : null"
     (themeToggled)="toggleTheme()"
     (loggedOut)="logout()"
+    (navigatePage)="navigateTo($event)"
   ></app-topbar>
 
-  <main class="main">
+  <div class="main" role="main">
     <!-- ═══════════════════════════════════════════════════════
          OVERVIEW PAGE — visible seulement si selectedPage === 'dashboard'
          ═══════════════════════════════════════════════════════ -->
@@ -25,6 +27,7 @@
           <div class="ph-title">Vue d'ensemble</div>
           <div class="ph-desc">
             1 248 clients actifs · 3 décisions en attente · Système opérationnel
+            {{ dash.activeClients }} clients actifs · {{ dash.openDelinquencyCases }} dossiers délinquance · {{ dash.pendingGraceRequests }} demande(s) de grâce en attente
           </div>
         </div>
         <div class="ph-actions">
@@ -170,7 +173,143 @@
           <div class="kpi-foot">Taux de défaut : <b>1.8%</b></div>
         </div>
       </div>
+
+      <!-- ── KPI CARDS (dynamiques) ── -->
+      <div class="kpi-row s2" [class.loading-shimmer]="dashLoading">
+
+        <!-- Clients actifs -->
+        <div class="kpi" style="--kc: var(--blue)">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background: rgba(59, 130, 246, 0.12)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="kpi-trend success">{{ dash.activeContracts }} contrats</div>
+          </div>
+          <div class="kpi-val">{{ dash.activeClients | number:'1.0-0' }}</div>
+          <div class="kpi-lbl">Clients actifs</div>
+          <div class="kpi-foot">Taux de défaut : <b>{{ dash.defaultRate }}%</b></div>
+        </div>
+
+        <!-- Encours total -->
+        <div class="kpi" style="--kc: var(--success)">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background: rgba(16, 185, 129, 0.12)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div class="kpi-trend success">Taux recouvrement : {{ dash.recoveryRate }}%</div>
+          </div>
+          <div class="kpi-val" style="font-size:1.4rem">
+            TND <span style="font-size:1.9rem">{{ dash.totalOutstanding | number:'1.0-0' }}</span>
+          </div>
+          <div class="kpi-lbl">Encours total</div>
+          <div class="kpi-foot">Collecté ce mois : <b>{{ dash.collectedThisMonth | number:'1.0-0' }} TND</b></div>
+        </div>
+
+        <!-- Dossiers délinquance -->
+        <div class="kpi" style="--kc: var(--warning)">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background: rgba(245, 158, 11, 0.12)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+              </svg>
+            </div>
+            <div class="kpi-trend warning" *ngIf="dash.pendingGraceRequests > 0">⚠ {{ dash.pendingGraceRequests }} grâce en attente</div>
+            <div class="kpi-trend success" *ngIf="dash.pendingGraceRequests === 0">Aucune demande</div>
+          </div>
+          <div class="kpi-val">{{ dash.openDelinquencyCases }}</div>
+          <div class="kpi-lbl">Dossiers délinquance</div>
+          <div class="kpi-foot">Encours impayé : <b>{{ dash.totalOverdueAmount | number:'1.0-0' }} TND</b></div>
+        </div>
+
+        <!-- Impayés actifs -->
+        <div class="kpi" style="--kc: var(--danger)">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background: rgba(239, 68, 68, 0.12)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <div class="kpi-trend danger" *ngIf="dash.clientsWithPenalties > 0">{{ dash.clientsWithPenalties }} clients pénalisés</div>
+            <div class="kpi-trend success" *ngIf="dash.clientsWithPenalties === 0">Aucune pénalité</div>
+          </div>
+          <div class="kpi-val">{{ dash.pendingInstallmentsCount }}</div>
+          <div class="kpi-lbl">Mensualités en attente</div>
+          <div class="kpi-foot">Échéances ce mois : <b>{{ dash.dueThisMonth | number:'1.0-0' }} TND</b></div>
+        </div>
+      </div>
       <!-- /kpi-row -->
+
+      <!-- ── REPAYMENT STATS ROW ── -->
+      <div class="kpi-row s2" style="margin-top: 0.25rem">
+
+        <!-- Taux de recouvrement -->
+        <div class="kpi" style="--kc: #10B981; border-top: 3px solid #10B981">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background: rgba(16,185,129,0.1)">
+              <span class="material-symbols-outlined" style="font-size:20px;color:#10B981">trending_up</span>
+            </div>
+            <div class="kpi-trend success">Repayment</div>
+          </div>
+          <div class="kpi-val" style="font-size:2rem">{{ dash.recoveryRate }}<span style="font-size:1rem">%</span></div>
+          <div class="kpi-lbl">Taux de recouvrement</div>
+          <div class="kpi-foot">Collecté / encours impayé</div>
+        </div>
+
+        <!-- Grace period -->
+        <div class="kpi" style="--kc: #8B5CF6; border-top: 3px solid #8B5CF6">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background: rgba(139,92,246,0.1)">
+              <span class="material-symbols-outlined" style="font-size:20px;color:#8B5CF6">schedule</span>
+            </div>
+            <div class="kpi-trend" [style.color]="dash.pendingGraceRequests > 0 ? '#F59E0B' : '#10B981'">
+              {{ dash.pendingGraceRequests > 0 ? (dash.pendingGraceRequests + ' en attente') : 'À jour' }}
+            </div>
+          </div>
+          <div class="kpi-val">{{ dash.pendingGraceRequests }}</div>
+          <div class="kpi-lbl">Demandes de grâce</div>
+          <div class="kpi-foot">Requêtes en attente d'approbation</div>
+        </div>
+
+        <!-- Pénalités actives -->
+        <div class="kpi" style="--kc: #EF4444; border-top: 3px solid #EF4444">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background: rgba(239,68,68,0.1)">
+              <span class="material-symbols-outlined" style="font-size:20px;color:#EF4444">gavel</span>
+            </div>
+            <div class="kpi-trend danger" *ngIf="dash.clientsWithPenalties > 0">{{ dash.clientsWithPenalties }} clients</div>
+            <div class="kpi-trend success" *ngIf="dash.clientsWithPenalties === 0">Aucune</div>
+          </div>
+          <div class="kpi-val" style="font-size:1.5rem">{{ dash.totalPenaltyAmount | number:'1.0-0' }}<span style="font-size:0.85rem"> TND</span></div>
+          <div class="kpi-lbl">Pénalités actives</div>
+          <div class="kpi-foot">{{ dash.clientsWithPenalties }} client(s) pénalisé(s)</div>
+        </div>
+
+        <!-- Mensualités PENDING ce mois -->
+        <div class="kpi" style="--kc: #F59E0B; border-top: 3px solid #F59E0B">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background: rgba(245,158,11,0.1)">
+              <span class="material-symbols-outlined" style="font-size:20px;color:#F59E0B">calendar_month</span>
+            </div>
+            <div class="kpi-trend warning">{{ dash.pendingInstallmentsCount }} échéances</div>
+          </div>
+          <div class="kpi-val" style="font-size:1.5rem">{{ dash.dueThisMonth | number:'1.0-0' }}<span style="font-size:0.85rem"> TND</span></div>
+          <div class="kpi-lbl">Dû ce mois</div>
+          <div class="kpi-foot">Mensualités PENDING en cours</div>
+        </div>
+      </div>
+      <!-- /repayment-stats-row -->
 
       <!-- ── TABLE DOSSIERS RÉCENTS ── -->
       <div class="panel s3">
@@ -490,8 +629,9 @@
             </tbody>
           </table>
         </div>
-      </div> </ng-container
-    ><!-- /overview -->
+      </div>
+    </ng-container>
+    <!-- /overview -->
 
     <!-- ═══════════════════════════════════════════════════════
          PAGE : CLIENTS
@@ -676,338 +816,9 @@
     <!-- /page-credits -->
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : REMBOURSEMENTS
+         PAGE : REMBOURSEMENTS (single source of truth)
          ═══════════════════════════════════════════════════════ -->
-    <div class="page" [class.active]="selectedPage === 'repayments'" id="page-remboursements">
-      <div class="ph s1">
-        <div>
-          <div class="ph-eyebrow">Financial Tracking</div>
-          <div class="ph-title">Repayments</div>
-          <div class="ph-desc">Monthly Collection : 487 200 TND · Recovery Rate : 98.2%</div>
-        </div>
-        <div class="ph-actions">
-          <button class="btn btn-outline btn-sm">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            Export
-          </button>
-          <button class="btn btn-primary btn-sm" (click)="openAdminPayModal()">+ Saisir paiement</button>
-        </div>
-      </div>
-
-      <div class="kpi-row s2">
-        <div class="kpi" style="--kc: var(--success)">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(16, 185, 129, 0.12)">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#10B981"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <line x1="12" y1="1" x2="12" y2="23" />
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              </svg>
-            </div>
-            <div class="kpi-trend success">+12%</div>
-          </div>
-          <div class="kpi-val" style="font-size: 1.3rem">
-            TND <span style="font-size: 1.9rem">487 200</span>
-          </div>
-          <div class="kpi-lbl">Collected this month</div>
-          <div class="kpi-foot">Target : <b>500 000 TND (97.4%)</b></div>
-        </div>
-
-        <div class="kpi" style="--kc: var(--danger)">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(239, 68, 68, 0.12)">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#EF4444"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-                />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            </div>
-            <div class="kpi-trend danger">12 cases</div>
-          </div>
-          <div class="kpi-val" style="font-size: 1.3rem">
-            TND <span style="font-size: 1.9rem">8 940</span>
-          </div>
-          <div class="kpi-lbl">Unpaid totals</div>
-          <div class="kpi-foot">Default rate : <b>1.8%</b></div>
-        </div>
-
-        <div class="kpi" style="--kc: var(--blue)">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(59, 130, 246, 0.12)">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#3B82F6"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-            </div>
-            <div class="kpi-trend warning">A venir</div>
-          </div>
-          <div class="kpi-val" style="font-size: 1.3rem">
-            TND <span style="font-size: 1.9rem">52 800</span>
-          </div>
-          <div class="kpi-lbl">Due Dates for March</div>
-          <div class="kpi-foot">Next : <b>05 March 2026</b></div>
-        </div>
-
-        <div class="kpi" style="--kc: var(--purple)">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(139, 92, 246, 0.12)">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#8B5CF6"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-              </svg>
-            </div>
-            <div class="kpi-trend success">98.2%</div>
-          </div>
-          <div class="kpi-val">1 248</div>
-          <div class="kpi-lbl">Contracts Followed</div>
-          <div class="kpi-foot">Automated : <b>892 (71%)</b></div>
-        </div>
-      </div>
-
-      <div class="panel s3">
-        <div class="panel-head">
-          <div class="panel-title">
-            <span class="ptdot"></span>
-            Payment History
-          </div>
-          <div style="display:flex;align-items:center;gap:.5rem;margin-left:auto">
-            
-          </div>
-        </div>
-
-        <!-- Filters bar -->
-        <div class="pay-filters" *ngIf="adminPayments.length > 0">
-          <div class="pay-filter-search">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Search client, ID, contract, agent…"
-              [(ngModel)]="paymentFilter" class="form-input" style="border:none;flex:1;padding:.35rem .5rem;font-size:.8rem;background:transparent"/>
-          </div>
-          <select class="form-input pay-filter-select" [(ngModel)]="paymentStatusFilter">
-            <option value="">All</option>
-            <option value="PAID">Paid</option>
-            <option value="PENDING">Pending</option>
-            <option value="CANCELLED">Cancelled</option>
-            
-          </select>
-          <select class="form-input pay-filter-select" [(ngModel)]="paymentMethodFilter">
-            <option value="">All methods</option>
-            <option value="CASH_AGENT">Cash Agent</option>
-            <option value="CARD">Card</option>
-            <option value="CASH_IMF">Cash IMF</option>
-            
-          </select>
-          <div class="pay-filter-count">{{ filteredPayments.length }} result(s)</div>
-        </div>
-
-        <!-- Loading -->
-        <div *ngIf="adminPaymentsLoading" style="text-align:center;padding:2rem;opacity:.5">…</div>
-
-        <!-- Empty -->
-        <div *ngIf="!adminPaymentsLoading && adminPayments.length === 0" style="text-align:center;padding:2rem;opacity:.4;font-size:.85rem">No payments recorded</div>
-
-        <!-- No filter results -->
-        <div *ngIf="!adminPaymentsLoading && adminPayments.length > 0 && filteredPayments.length === 0" style="text-align:center;padding:2rem;opacity:.4;font-size:.85rem">Aucun résultat pour ce filtre</div>
-
-        <!-- Table (no horizontal scroll) -->
-        <div *ngIf="!adminPaymentsLoading && filteredPayments.length > 0">
-          <table class="admin-pay-tbl">
-            <thead>
-              <tr>
-                <th>Ref</th>
-                <th>Client</th>
-                <th>Contract</th>
-                <th>Installment</th>
-                <th>Amount</th>
-                <th>Payment Date</th>
-                <th>Mode</th>
-                <th>Statut</th>
-                <th>Agent</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let p of filteredPayments">
-                <td><span class="td-ref">#{{ p.id }}</span></td>
-                <td>
-                  <div class="td-primary" style="font-size:.82rem">{{ p.clientFirstName }} {{ p.clientLastName }}</div>
-                  <div style="font-size:.7rem;color:var(--g400)">CIN {{ p.clientCin || '—' }}</div>
-                </td>
-                <td><span class="td-ref" style="font-size:.75rem">{{ p.numeroContrat || '—' }}</span></td>
-                <td style="text-align:center">{{ p.installmentNumber }}</td>
-                <td class="td-amount" style="font-size:.82rem">{{ p.amountPaid | number:'1.2-2' }} TND</td>
-                <td style="font-size:.75rem;color:var(--g500)">{{ p.paymentDate | date:'dd/MM/yy HH:mm' }}</td>
-                <td>
-                  <span class="badge"
-                    [ngClass]="{
-                      'b-blue': p.paymentMethod === 'CARD',
-                      'b-teal': p.paymentMethod === 'CASH_AGENT' || p.paymentMethod === 'CASH_IMF',
-                      'b-purple': p.paymentMethod === 'D17'
-                    }">
-                    {{ p.paymentMethod === 'CASH_AGENT' ? 'Cash Agent'
-                     : p.paymentMethod === 'CARD' ? 'Card'
-                     : p.paymentMethod === 'CASH_IMF' ? 'Cash IMF'
-                     : p.paymentMethod || '—' }}
-                  </span>
-                </td>
-                <td>
-                  <span *ngIf="p.paymentStatus === 'PAID'" class="badge b-actif">Paid</span>
-                  <span *ngIf="p.paymentStatus === 'PENDING'" class="badge b-review">Pending</span>
-                  <span *ngIf="p.paymentStatus === 'CANCELLED'" class="badge b-danger">Cancelled</span>
-                  
-                </td>
-                <td style="font-size:.78rem">
-                  <span *ngIf="p.agentFirstName">
-                    <div style="font-weight:600;color:var(--g800)">{{ p.agentFirstName }} {{ p.agentLastName }}</div>
-                    <div style="font-size:.68rem;color:var(--g400)" *ngIf="p.agentAgenceCode">Agence #{{ p.agentAgenceCode }}</div>
-                  </span>
-                  <span *ngIf="!p.agentFirstName" style="opacity:.4;color:var(--g500)">— Auto</span>
-                </td>
-                <td>
-                  <select class="form-input"
-                    style="width:100px;padding:.2rem .4rem;font-size:.7rem"
-                    [value]="p.paymentStatus"
-                    (change)="changePaymentStatus(p.id, $any($event.target).value)">
-                    <option *ngFor="let s of statusOptions" [value]="s" [selected]="s === p.paymentStatus">{{ s }}</option>
-                  </select>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-    <!-- /page-remboursements -->
-
-    <!-- ═══ MODAL: Saisir paiement admin (CASH_IMF) ═══ -->
-    <div class="modal-overlay" *ngIf="showAdminPayModal" (click)="closeAdminPayModal()">
-      <div class="modal-card admin-pay-modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <div>
-            <div class="modal-title">Saisir un paiement</div>
-            <div class="modal-sub">Méthode : Cash IMF</div>
-          </div>
-          <button class="modal-close" (click)="closeAdminPayModal()">&times;</button>
-        </div>
-
-        <div class="modal-body">
-          <!-- Search -->
-          <label class="form-label">Rechercher le client (CIN ou nom)</label>
-          <div style="position:relative">
-            <input class="form-input" type="text" placeholder="Saisir le CIN…"
-              [value]="adminCinSearch" (input)="onAdminCinInput($event)"/>
-            <div class="admin-search-results" *ngIf="adminClientResults.length > 0">
-              <div class="admin-search-item" *ngFor="let c of adminClientResults" (click)="selectAdminClient(c)">
-                <strong>{{ c.firstName }} {{ c.lastName }}</strong>
-                <span style="color:var(--g400);margin-left:.5rem">CIN {{ c.cin || '—' }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Error -->
-          <div *ngIf="adminInstError" class="admin-pay-error" style="margin-top:.75rem">{{ adminInstError }}</div>
-
-          <!-- Loading installment -->
-          <div *ngIf="adminInstLoading" style="text-align:center;padding:1rem;opacity:.5;font-size:.85rem">Chargement…</div>
-
-          <!-- Selected client + installment -->
-          <div *ngIf="adminSelectedClient && adminNextInstallment" style="margin-top:1rem">
-            <div class="admin-pay-client-chip">
-              <strong>{{ adminSelectedClient.firstName }} {{ adminSelectedClient.lastName }}</strong>
-              <span style="color:var(--g400)">· CIN {{ adminSelectedClient.cin || '—' }} · Contrat {{ adminNextInstallment.numeroContrat }}</span>
-              <button style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--g400)" (click)="resetAdminPayForm()">✕</button>
-            </div>
-            <div class="admin-pay-details">
-              <div class="admin-pay-detail-row">
-                <span>Mensualité</span>
-                <strong>#{{ adminNextInstallment.installmentNumber }} / {{ adminNextInstallment.totalInstallments }}</strong>
-              </div>
-              <div class="admin-pay-detail-row">
-                <span>Échéance</span>
-                <strong>{{ adminNextInstallment.dueDate }}</strong>
-              </div>
-              <div class="admin-pay-detail-row">
-                <span>Montant</span>
-                <strong style="font-size:1.05rem;color:var(--success)">{{ adminNextInstallment.amountDue | number:'1.2-2' }} TND</strong>
-              </div>
-              <div class="admin-pay-detail-row">
-                <span>Méthode</span>
-                <span class="badge b-teal">Cash IMF</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Success -->
-          <div *ngIf="adminPaySuccess && adminLastPayment" class="admin-pay-success" style="margin-top:1rem">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>Paiement #{{ adminLastPayment.id }} enregistré — {{ adminLastPayment.amountPaid | number:'1.2-2' }} TND</span>
-          </div>
-
-          <!-- Error -->
-          <div *ngIf="adminPayError" class="admin-pay-error" style="margin-top:.75rem">{{ adminPayError }}</div>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-outline btn-sm" (click)="adminPaySuccess ? resetAdminPayForm() : closeAdminPayModal()">
-            {{ adminPaySuccess ? 'Nouveau paiement' : 'Annuler' }}
-          </button>
-          <button class="btn btn-primary btn-sm"
-            *ngIf="adminNextInstallment && !adminPaySuccess"
-            [disabled]="adminPayLoading"
-            (click)="submitAdminPayment()">
-            {{ adminPayLoading ? 'Enregistrement…' : 'Confirmer le paiement' }}
-          </button>
-        </div>
-      </div>
-    </div>
+    <app-repayment-backoffice [selectedPage]="selectedPage" (onNavigate)="navigateTo($event)"></app-repayment-backoffice>
 
     <!-- ═══════════════════════════════════════════════════════
          PAGE : VÉHICULES (liste / filtres — panneau entités liées masqué)
@@ -1015,15 +826,16 @@
     <div class="page" [class.active]="selectedPage === 'vehicles'" id="page-vehicles">
       <div class="s1" style="display:flex;justify-content:flex-end;gap:.5rem">
         <button type="button" class="btn btn-outline btn-sm" (click)="onPageChange('reservations')">
-          Réservations auto
+          Vehicle reservations
         </button>
       </div>
       <app-vehicle-workspace
         workspaceMode="admin"
         [showCatalog]="false"
         [showSubEntities]="false"
-        headingEyebrow="Gestion du parc"
-        headingTitle="Véhicules"
+        [showCreateVehicleButton]="false"
+        headingEyebrow="Fleet management"
+        headingTitle="Vehicles"
       ></app-vehicle-workspace>
     </div>
     <!-- /page-vehicles -->
@@ -1554,6 +1366,12 @@
         </div>
         <div class="ph-actions">
           <button class="btn btn-primary">Sauvegarder la configuration</button>
+          <div class="ph-title">{{ activeSettingsSection === 'users-roles' ? 'Utilisateurs & Rôles' : 'Paramètres' }}</div>
+          <div class="ph-desc">{{ activeSettingsSection === 'users-roles' ? 'Gérer les comptes et consulter l\'historique des connexions' : 'Configuration système, utilisateurs et règles métier' }}</div>
+        </div>
+        <div class="ph-actions">
+          <button class="btn btn-primary" *ngIf="activeSettingsSection === 'users-roles' && usersTab === 'users'" (click)="openAddUser()">+ Ajouter un utilisateur</button>
+          <button class="btn btn-primary" *ngIf="activeSettingsSection !== 'users-roles'">Sauvegarder la configuration</button>
         </div>
       </div>
 
@@ -1573,6 +1391,13 @@
                 <button class="sn-item">Sécurité</button>
                 <button class="sn-item">Sauvegarde</button>
                 <button class="sn-item">Intégrations</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'general'" (click)="setSettingsSection('general')">Général</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'users-roles'" (click)="setSettingsSection('users-roles')">Utilisateurs & Rôles</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'business-rules'" (click)="goToBusinessRules()">Règles métier</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'notifications'" (click)="setSettingsSection('notifications')">Notifications</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'security'" (click)="setSettingsSection('security')">Sécurité</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'backup'" (click)="setSettingsSection('backup')">Sauvegarde</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'integrations'" (click)="setSettingsSection('integrations')">Intégrations</button>
               </div>
             </div>
           </div>
@@ -1686,10 +1511,210 @@
           </div>
 
           
+        <!-- Contenu dynamique selon la section active -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem">
+
+          <!-- ── GÉNÉRAL ── -->
+          <ng-container *ngIf="activeSettingsSection === 'general'">
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title"><span class="ptdot"></span>Paramètres généraux</div>
+              </div>
+              <div class="panel-body">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Nom de l'institution</label>
+                    <input class="form-input" type="text" value="FIN'IX — Crédit & Assurance" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Identifiant fiscal</label>
+                    <input class="form-input" type="text" value="TN-2019-00182741" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Devise</label>
+                    <select class="form-input">
+                      <option>TND — Dinar Tunisien</option>
+                      <option>EUR</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Fuseau horaire</label>
+                    <select class="form-input">
+                      <option>Africa/Tunis (UTC+1)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title"><span class="ptdot"></span>Règles de scoring</div>
+              </div>
+              <div class="panel-body">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Score min. approbation auto</label>
+                    <input class="form-input" type="number" value="700" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Score min. dossier standard</label>
+                    <input class="form-input" type="number" value="600" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Taux endettement max (%)</label>
+                    <input class="form-input" type="number" value="40" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Montant max non garanti (TND)</label>
+                    <input class="form-input" type="number" value="15000" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title"><span class="ptdot"></span>Notifications automatiques</div>
+              </div>
+              <div class="panel-body" style="padding: 0.25rem 1.25rem">
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <div class="toggle-label">Alertes impayés</div>
+                    <div class="toggle-sub">Envoyer SMS au client dès le J+1 de retard</div>
+                  </div>
+                  <button class="toggle" [class.on]="notificationsConfig.overdueSms" (click)="toggleConfig('overdueSms')"></button>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <div class="toggle-label">Rappels renouvellement assurance</div>
+                    <div class="toggle-sub">Notifier 30 jours avant expiration</div>
+                  </div>
+                  <button class="toggle" [class.on]="notificationsConfig.renewalReminder" (click)="toggleConfig('renewalReminder')"></button>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <div class="toggle-label">Rapport mensuel automatique</div>
+                    <div class="toggle-sub">Générer et envoyer le rapport le 1er du mois</div>
+                  </div>
+                  <button class="toggle" [class.on]="notificationsConfig.monthlyReport" (click)="toggleConfig('monthlyReport')"></button>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- ── UTILISATEURS & RÔLES ── -->
+          <ng-container *ngIf="activeSettingsSection === 'users-roles'">
+            <!-- Tabs -->
+            <div style="display:flex;gap:0;border-bottom:2px solid var(--border, #e5e7eb)">
+              <button (click)="switchUsersTab('users')"
+                style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
+                [style.color]="usersTab === 'users' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
+                [style.border-bottom]="usersTab === 'users' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
+                Utilisateurs
+              </button>
+              <button (click)="switchUsersTab('logs')"
+                style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
+                [style.color]="usersTab === 'logs' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
+                [style.border-bottom]="usersTab === 'logs' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
+                Historique connexions
+              </button>
+            </div>
+
+            <!-- Users table -->
+            <div class="panel s2" *ngIf="usersTab === 'users'">
+              <div class="panel-head">
+                <div class="panel-title"><span class="ptdot"></span>Liste des utilisateurs</div>
+                <div style="font-size:.75rem;color:var(--muted)">{{ usersList.length }} utilisateur(s)</div>
+              </div>
+              <div class="tbl-wrap">
+                <div *ngIf="usersLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
+                <div *ngIf="!usersLoading && usersList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucun agent ou assureur trouvé.</div>
+                <table *ngIf="!usersLoading && usersList.length > 0">
+                  <thead>
+                    <tr>
+                      <th>Utilisateur</th>
+                      <th>Email</th>
+                      <th>Rôle</th>
+                      <th>Téléphone</th>
+                      <th>Ville</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let user of usersList">
+                      <td>
+                        <div style="display:flex;align-items:center;gap:.5rem">
+                          <div class="sb-avatar" style="width:30px;height:30px;font-size:.65rem">{{ getUserInitials(user) }}</div>
+                          <div class="td-primary">{{ user.firstName }} {{ user.lastName }}</div>
+                        </div>
+                      </td>
+                      <td style="font-size:.775rem">{{ user.email }}</td>
+                      <td>
+                        <span class="badge" [ngClass]="user.role === 'AGENT' ? 'b-blue' : 'b-purple'">{{ user.role }}</span>
+                      </td>
+                      <td style="font-size:.775rem">{{ user.phoneNumber || '—' }}</td>
+                      <td style="font-size:.775rem">{{ user.city || '—' }}</td>
+                      <td>
+                        <div style="display:flex;gap:.35rem">
+                          <button class="btn btn-ghost btn-xs" (click)="openViewUser(user)">Voir</button>
+                          <button class="btn btn-ghost btn-xs" style="color:var(--blue)" (click)="openEditUser(user)">Modifier</button>
+                          <button class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteUser(user.id)">Supprimer</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Logs table -->
+            <div class="panel s2" *ngIf="usersTab === 'logs'">
+              <div class="panel-head">
+                <div class="panel-title"><span class="ptdot"></span>Historique des connexions</div>
+                <div style="font-size:.75rem;color:var(--muted)">{{ logsList.length }} connexion(s)</div>
+              </div>
+              <div class="tbl-wrap">
+                <div *ngIf="logsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
+                <div *ngIf="!logsLoading && logsList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucune connexion enregistrée.</div>
+                <table *ngIf="!logsLoading && logsList.length > 0">
+                  <thead>
+                    <tr>
+                      <th>Utilisateur</th>
+                      <th>Email</th>
+                      <th>Rôle</th>
+                      <th>Date & Heure</th>
+                      <th>Adresse IP</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let log of logsList">
+                      <td><div class="td-primary">{{ log.userName || '—' }}</div></td>
+                      <td style="font-size:.775rem">{{ log.userEmail || '—' }}</td>
+                      <td>
+                        <span class="badge" [ngClass]="log.userRole === 'AGENT' ? 'b-blue' : log.userRole === 'INSURER' ? 'b-purple' : log.userRole === 'ADMIN' ? 'b-orange' : 'b-green'">{{ log.userRole }}</span>
+                      </td>
+                      <td style="font-size:.775rem">{{ log.loginDate | date:'dd/MM/yyyy HH:mm' }}</td>
+                      <td style="font-size:.775rem">{{ log.ipAddress || '—' }}</td>
+                      <td><span class="badge b-green">{{ log.action }}</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </ng-container>
+
         </div>
-        <!-- /forms -->
+        <!-- /forms (dynamic section 1911) -->
       </div>
-      <!-- /settings-grid -->
+      <!-- /settings column (1803) -->
+      </div>
+      <!-- /settings-grid (1774) -->
     </div>
     <!-- /page-parametres -->
 
@@ -1754,7 +1779,9 @@
     </div>
     <!-- /modal -->
 
-  </main>
+  </div>
+  <!-- /.main -->
+
 </div>
 
 <!-- ═══════════════════════════════════════════════════════

@@ -11,6 +11,7 @@ export interface VehicleDetailItem {
 
 export type VehicleCondition = 'NEUF' | 'TRES_BON' | 'BON' | 'MOYEN' | 'MAUVAIS';
 
+
 export interface VehicleListItem {
   id: number;
   name: string;
@@ -62,6 +63,15 @@ export type VehicleStatus = 'DISPONIBLE' | 'RESERVE' | 'VENDU' | 'INACTIF';
 
 export type VehicleWorkspaceMode = 'client' | 'seller' | 'admin';
 
+/** Aligné sur `VehicleModerationStatus` côté Spring. */
+export type VehicleModerationStatus =
+  | 'PENDING_AI_REVIEW'
+  | 'APPROVED_BY_AI'
+  | 'REJECTED_BY_AI'
+  | 'PENDING_ADMIN_REVIEW'
+  | 'APPROVED_BY_ADMIN'
+  | 'REJECTED_BY_ADMIN';
+
 export interface VehicleStatsDto {
   total: number;
   disponibles: number;
@@ -86,6 +96,9 @@ export interface VehicleDto {
   prixTnd: number;
   status: VehicleStatus;
   active: boolean;
+  moderationStatus?: VehicleModerationStatus | null;
+  rejectionReason?: string | null;
+  aiDecisionReason?: string | null;
   phoneNumber?: string | null;
   localisation?: string | null;
   serieVehicule?: string | null;

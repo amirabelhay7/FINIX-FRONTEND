@@ -95,11 +95,65 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.auth.logout();
   }
 
+  activeSettingsSection: string = 'general';
+
+  /* ── Dashboard KPIs ── */
+  dash = {
+    activeClients: 0,
+    totalOutstanding: 0,
+    activeContracts: 0,
+    collectedThisMonth: 0,
+    openDelinquencyCases: 0,
+    totalOverdueAmount: 0,
+    pendingGraceRequests: 0,
+    clientsWithPenalties: 0,
+    totalPenaltyAmount: 0,
+    dueThisMonth: 0,
+    pendingInstallmentsCount: 0,
+    recoveryRate: 0,
+    defaultRate: 0,
+  };
+  dashLoading = false;
+
   ngOnInit(): void {
     const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
     this.currentTheme = saved || 'light';
     this.applyTheme();
     this.loadAdminPayments();
+
+    const savedPage = sessionStorage.getItem('finix_page');
+    if (savedPage) this.selectedPage = savedPage;
+
+    this.loadDashboardKpi();
+  }
+
+  loadDashboardKpi(): void {
+    this.dashLoading = true;
+    this.http.get<any>(`${this.API}/dashboard/kpi`).subscribe({
+      next: (res) => {
+        this.dash = {
+          activeClients:          Number(res.activeClients ?? 0),
+          totalOutstanding:       Number(res.totalOutstanding ?? 0),
+          activeContracts:        Number(res.activeContracts ?? 0),
+          collectedThisMonth:     Number(res.collectedThisMonth ?? 0),
+          openDelinquencyCases:   Number(res.openDelinquencyCases ?? 0),
+          totalOverdueAmount:     Number(res.totalOverdueAmount ?? 0),
+          pendingGraceRequests:   Number(res.pendingGraceRequests ?? 0),
+          clientsWithPenalties:   Number(res.clientsWithPenalties ?? 0),
+          totalPenaltyAmount:     Number(res.totalPenaltyAmount ?? 0),
+          dueThisMonth:           Number(res.dueThisMonth ?? 0),
+          pendingInstallmentsCount: Number(res.pendingInstallmentsCount ?? 0),
+          recoveryRate:           Number(res.recoveryRate ?? 0),
+          defaultRate:            Number(res.defaultRate ?? 0),
+        };
+        this.dashLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('[Dashboard] KPI error:', err);
+        this.dashLoading = false;
+      }
+    });
   }
 
   toggleTheme(): void {
@@ -116,12 +170,22 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.renderer.setAttribute(document.documentElement, 'data-theme', this.currentTheme);
   }
 
-  onPageChange(page: string) {
+  navigateTo(page: string) {
     this.selectedPage = page;
+    sessionStorage.setItem('finix_page', page);
+  }
+
+  onPageChange(page: string) {
     if (page === 'users') {
       this.usersTab = 'users';
       this.loadUsers();
       this.loadLogs();
+      this.setSettingsSection('users-roles');
+      return;
+    }
+    this.navigateTo(page);
+    if (page === 'settings') {
+      this.activeSettingsSection = 'general';
     }
     if (page === 'clients') {
       this.loadClients();
@@ -131,6 +195,16 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     }
     if (page === 'reservations') {
       this.loadAdminReservations();
+    }
+  }
+
+  setSettingsSection(section: string): void {
+    this.activeSettingsSection = section;
+    this.navigateTo('settings');
+    if (section === 'users-roles') {
+      this.usersTab = 'users';
+      this.loadUsers();
+      this.loadLogs();
     }
   }
 
@@ -481,6 +555,45 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     }
   ];
 
+  vehicles = [
+    {
+      plate: "267 TN 2022",
+      name: "Toyota Corolla",
+      desc: "Auto · Petrol · 2022",
+      owner: "Bilel Mrabet",
+      credit: "#CR-2024-001",
+      value: "42 000 TND",
+      km: "32 450 km",
+      insurance: "⚠ 2 days",
+      status: "Insured",
+      statusClass: "b-review"
+    },
+    {
+      plate: "158 TN 2019",
+      name: "Kia Picanto",
+      desc: "Manual · Petrol · 2019",
+      owner: "Bilel Mrabet",
+      credit: "Settled ✓",
+      value: "18 500 TND",
+      km: "78 200 km",
+      insurance: "106 days",
+      status: "Insured",
+      statusClass: "b-actif"
+    },
+    {
+      plate: "445 TN 2021",
+      name: "Volkswagen Golf",
+      desc: "Auto · Diesel · 2021",
+      owner: "Amira Selmi",
+      credit: "#CR-2024-015",
+      value: "58 000 TND",
+      km: "41 200 km",
+      insurance: "210 days",
+      status: "Insured",
+      statusClass: "b-actif"
+    }
+  ];
+
   insuranceContracts = [
     {
       number: "STAR-2025-048291",
@@ -572,6 +685,10 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
 
 
+
+  goToBusinessRules() {
+    this.navigateTo('penalty-tiers');
+  }
 
   goCredits() {
     console.log('Navigate credits');
@@ -669,7 +786,8 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         this.usersLoading = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err: any) => {
+        console.error('[loadUsers] Erreur chargement utilisateurs:', err);
         this.usersLoading = false;
         this.cdr.detectChanges();
       }
@@ -766,6 +884,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
           this.showUserModal = false;
           this.cdr.detectChanges();
           this.loadUsers();
+          setTimeout(() => this.loadUsers(), 0);
         },
         error: (err: any) => {
           this.addUserLoading = false;
@@ -775,6 +894,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       });
     } else {
       // CREATE
+      // CREATE — uses /api/users/register (no JWT generation, password hashed server-side)
       const payload: any = {
         firstName: this.newUser.firstName,
         lastName: this.newUser.lastName,
@@ -783,6 +903,8 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         role: this.newUser.role,
         phoneNumber: this.newUser.phoneNumber ? Number(this.newUser.phoneNumber) : null,
         cin: this.newUser.cin || null,
+        address: this.newUser.address || null,
+        city: this.newUser.city || null,
       };
       if (this.newUser.role === 'AGENT') {
         payload.agenceCode = this.newUser.agenceCode ? Number(this.newUser.agenceCode) : null;
@@ -792,18 +914,19 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         payload.insurerEmail = this.newUser.insurerEmail;
       }
       console.log('[ADMIN] Creating user with payload:', JSON.stringify(payload));
-      this.http.post(`${this.API}/auth/register`, payload).subscribe({
+      this.http.post(`${this.API}/users/register`, payload).subscribe({
         next: (res) => {
           console.log('[ADMIN] User created successfully:', res);
           this.addUserLoading = false;
           this.showUserModal = false;
           this.cdr.detectChanges();
           this.loadUsers();
+          setTimeout(() => this.loadUsers(), 0);
         },
         error: (err: any) => {
           console.error('[ADMIN] Create user error:', err);
           this.addUserLoading = false;
-          this.addUserError = err.error?.message || err.message || 'Erreur lors de la création.';
+          this.addUserError = err.error?.message || err.error || err.message || 'Erreur lors de la création.';
           this.cdr.detectChanges();
         }
       });

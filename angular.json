@@ -47,6 +47,9 @@
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "leaflet"
             ]
           },
           "configurations": {
@@ -54,13 +57,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "1MB",
-                  "maximumError": "2MB"
+                  "maximumWarning": "2MB",
+                  "maximumError": "3MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "32kB",
-                  "maximumError": "64kB"
+                  "maximumWarning": "52kB",
+                  "maximumError": "96kB"
                 }
               ],
               "outputHashing": "all"

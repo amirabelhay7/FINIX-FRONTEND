@@ -1,4 +1,4 @@
-<main class="cmr-page">
+﻿<main class="cmr-page">
   <header class="cmr-head">
     <a routerLink="/client/vehicles" class="cmr-back">← Catalog</a>
     <h1 class="cmr-title">My reservations and applications</h1>
@@ -29,7 +29,12 @@
     </div>
 
     <div class="cmr-list" *ngIf="reservations.length">
-      <article class="cmr-card" *ngFor="let r of reservations; trackBy: trackByReservationId">
+      <article
+        class="cmr-card"
+        [class.cmr-card--focused]="focusedReservationId === r.id"
+        [attr.id]="'cmr-res-' + r.id"
+        *ngFor="let r of reservations; trackBy: trackByReservationId"
+      >
         <div class="cmr-card__top">
           <h3>{{ r.vehicleTitle || ('Vehicle #' + r.vehicleId) }}</h3>
           <span class="cmr-tag">{{ statusLabel(r.status) }}</span>
@@ -87,3 +92,4 @@
     </div>
   </section>
 </main>
+

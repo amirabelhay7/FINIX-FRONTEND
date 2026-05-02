@@ -14,7 +14,6 @@ import { SellerVehiclesPage } from './vehicles-page/vehicles-page';
 import { SellerProfileComponent } from './profile/profile';
 import { SharedModule } from '../../shared/shared-module';
 
-
 @NgModule({
   declarations: [
     Dashboard,
@@ -28,4 +27,4 @@ import { SharedModule } from '../../shared/shared-module';
   ],
   imports: [CommonModule, FormsModule, RouterModule, SellerRoutingModule, SharedModule],
 })
-export class SellerModule { }
+export class SellerModule {}

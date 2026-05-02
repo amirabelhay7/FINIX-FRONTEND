@@ -106,6 +106,39 @@
           </div>
         </div>
 
+        <!-- Penalty alert -->
+        <div class="ticket-penalty" *ngIf="getPenaltyForInstallment(currentInstallment.num) as penalty">
+          <div class="ticket-penalty-bar"></div>
+          <div class="ticket-penalty-body">
+            <div class="ticket-penalty-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              <span class="ticket-penalty-title">Late payment penalty</span>
+              <span class="ticket-penalty-tier"
+                [class.tier-1]="penalty.penaltyTier === 'TIER_1'"
+                [class.tier-2]="penalty.penaltyTier === 'TIER_2'"
+                [class.tier-3]="penalty.penaltyTier === 'TIER_3'"
+                [class.tier-4]="penalty.penaltyTier === 'TIER_4'"
+                [class.tier-5]="penalty.penaltyTier === 'TIER_5'">
+                {{ penalty.tierLabel }}
+              </span>
+            </div>
+            <div class="ticket-penalty-details">
+              <span>{{ penalty.daysOverdue }} days overdue</span>
+              <span class="tpd-sep"></span>
+              <span>Penalty: {{ penalty.penaltyAmount | number:'1.2-2' }} TND</span>
+              <span class="tpd-sep"></span>
+              <span>Collection fee: {{ penalty.relanceFee | number:'1.2-2' }} TND</span>
+            </div>
+            <div class="ticket-penalty-total">
+              Total penalty: <strong>{{ penalty.totalPenalty | number:'1.2-2' }} TND</strong>
+              <span class="ticket-penalty-cap">(capped at {{ penalty.cappedAt | number:'1.2-2' }} TND)</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Divider -->
         <div class="ticket-divider"></div>
 
@@ -113,6 +146,13 @@
         <div class="ticket-action">
           <div class="ticket-amount-wrap">
             <div class="ticket-amount">{{ currentInstallment.mensualite | number:'1.2-2' }}</div>
+            <ng-container *ngIf="getPenaltyForInstallment(currentInstallment.num); else noPenaltyAmount">
+              <div class="ticket-amount-old">{{ currentInstallment.mensualite | number:'1.2-2' }} TND</div>
+              <div class="ticket-amount ticket-amount-penalty">{{ currentTotalDue | number:'1.2-2' }}</div>
+            </ng-container>
+            <ng-template #noPenaltyAmount>
+              <div class="ticket-amount">{{ currentInstallment.mensualite | number:'1.2-2' }}</div>
+            </ng-template>
             <div class="ticket-currency">TND</div>
           </div>
 
@@ -186,6 +226,10 @@
             <button class="tc-nav" (click)="prevCalMonth()">‹</button>
             <div class="tc-title">{{ monthNames[calViewMonth] }} {{ calViewYear }}</div>
             <button class="tc-nav" (click)="nextCalMonth()">›</button>
+            <button class="tc-goto" (click)="goToNextDue()" title="Go to next due installment">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Next due
+            </button>
             <button class="tc-close" (click)="calExpanded = false">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <line x1="18" y1="6" x2="6" y2="18"/>
@@ -193,10 +237,35 @@
               </svg>
             </button>
           </div>
+
+          <!-- Monthly summary -->
+          <div class="tc-month-summary">
+            <ng-container *ngIf="calMonthSummary.dueRow; else noInstallmentThisMonth">
+              <span class="tc-ms-installment">
+                Installment #{{ calMonthSummary.dueRow.num }} — {{ calMonthSummary.dueRow.mensualite | number:'1.2-2' }} TND
+                <span class="tc-ms-badge" [class.tc-ms-paid]="calMonthSummary.isPaid" [class.tc-ms-pending]="!calMonthSummary.isPaid">
+                  {{ calMonthSummary.isPaid ? '✓ Paid' : 'Pending' }}
+                </span>
+              </span>
+              <span class="tc-ms-due">Due: {{ calMonthSummary.dueRow.date }}</span>
+              <!-- Penalty indicator in calendar -->
+              <span class="tc-ms-penalty" *ngIf="getPenaltyForInstallment(calMonthSummary.dueRow.num) as penalty">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Penalty: {{ penalty.totalPenalty | number:'1.2-2' }} TND — {{ penalty.tierLabel }} ({{ penalty.daysOverdue }}d late)
+              </span>
+            </ng-container>
+            <ng-template #noInstallmentThisMonth>
+              <span class="tc-ms-none">No installment due this month</span>
+            </ng-template>
+          </div>
+
           <div class="tc-weekdays">
             <div *ngFor="let wd of weekDays" class="tc-wd">{{ wd }}</div>
           </div>
-          <div class="tc-grid">
+          <div class="tc-grid" (mouseleave)="activeTooltip = null">
             <ng-container *ngFor="let week of getCalGrid()">
               <div
                 *ngFor="let cell of week"
@@ -209,9 +278,15 @@
                 [class.tc-future-due]="cell.status === 'future-due'"
                 [class.tc-past-unpaid]="cell.status === 'past-unpaid'"
                 [class.tc-tzone]="cell.status === 'tolerance-zone'"
+                [class.tc-paid-due]="cell.status === 'paid-due'"
+                (mouseenter)="activeTooltip = cell.tooltip || null"
               >{{ cell.day }}</div>
             </ng-container>
           </div>
+
+          <!-- Tooltip -->
+          <div class="tc-tooltip" *ngIf="activeTooltip" style="white-space: pre-line">{{ activeTooltip }}</div>
+
           <div class="tc-legend">
             <span class="tcl-item"><span class="tcl-dot tcd-green"></span>On Time</span>
             <span class="tcl-item"><span class="tcl-dot tcd-orange"></span>Tolerance</span>
@@ -219,6 +294,7 @@
             <span class="tcl-item"><span class="tcl-dot tcd-blue"></span>Due Today</span>
             <span class="tcl-item"><span class="tcl-dot tcd-future"></span>Future Due</span>
             <span class="tcl-item"><span class="tcl-dot tcd-past"></span>Past Unpaid</span>
+            <span class="tcl-item"><span class="tcl-dot tcd-paid-due"></span>Due (paid)</span>
           </div>
         </ng-container>
 
@@ -226,8 +302,70 @@
     </div>
   </div>
 
+  <!-- ── Grace Period Request Button ── -->
+  <div class="s3-grace" *ngIf="!isLoading && contract && !currentInstallmentPaid">
+    <div class="grace-banner">
+      <div class="grace-banner-left">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <div>
+          <div class="grace-banner-title">Need more time?</div>
+          <div class="grace-banner-desc">Request a grace period to delay your next payment</div>
+        </div>
+      </div>
+      <button
+        class="btn-grace-request"
+        (click)="openGraceModal()"
+        [disabled]="hasPendingGraceRequest"
+      >
+        <ng-container *ngIf="hasPendingGraceRequest">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Request Pending
+        </ng-container>
+        <ng-container *ngIf="!hasPendingGraceRequest">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Request Grace Period
+        </ng-container>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── My Grace Period Requests ── -->
+  <div class="s3-grace-list" *ngIf="myGraceRequests.length > 0">
+    <div class="section-header">
+      <span class="ptdot" style="background:#f59e0b"></span>
+      <span class="section-title-text">My Grace Period Requests</span>
+    </div>
+    <div class="grace-requests-grid">
+      <div class="grace-req-card" *ngFor="let req of myGraceRequests"
+        [class.grace-pending]="req.status === 'PENDING'"
+        [class.grace-approved]="req.status === 'APPROVED'"
+        [class.grace-rejected]="req.status === 'REJECTED'">
+        <div class="grace-req-top">
+          <span class="grace-req-badge"
+            [class.b-pending]="req.status === 'PENDING'"
+            [class.b-paid]="req.status === 'APPROVED'"
+            [class.b-late]="req.status === 'REJECTED'">
+            {{ req.status }}
+          </span>
+          <span class="grace-req-date">{{ req.createdAt | date:'dd MMM yyyy' }}</span>
+        </div>
+        <div class="grace-req-days">{{ req.requestedGraceDays }} days — Installment #{{ req.installmentNumber }} — {{ req.numberOfAffectedInstallments }} installment(s) affected</div>
+        <div class="grace-req-reason">{{ req.reason }}</div>
+        <div class="grace-req-docs" *ngIf="req.documents && req.documents.length > 0">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          {{ req.documents.length }} document(s)
+        </div>
+        <div class="grace-req-rejection" *ngIf="req.status === 'REJECTED' && req.rejectionReason">
+          <strong>Reason:</strong> {{ req.rejectionReason }}
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Tabbed Panel ── -->
-  <div class="panel s4">
+  <div class="panel s4" style="margin-top:32px">
     <div class="panel-head">
       <div class="tab-bar">
         <button class="tab-btn" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
@@ -236,8 +374,16 @@
         <button class="tab-btn" [class.active]="activeTab === 'amortization'" (click)="activeTab = 'amortization'">
           Amortization Table
         </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'delinquency'"
+          (click)="activeTab = 'delinquency'"
+          [style.color]="delinquencyCase ? '#ef4444' : ''"
+          [style.fontWeight]="delinquencyCase ? '700' : ''">
+          {{ delinquencyCase ? '⚠ Delinquency' : 'Delinquency' }}
+        </button>
       </div>
-      <button class="btn btn-ghost btn-sm" *ngIf="activeTab === 'amortization'">
+      <button class="btn btn-ghost btn-sm" *ngIf="contract" (click)="exportPdf()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
@@ -249,6 +395,26 @@
 
     <!-- Payment History -->
     <div class="tbl-wrap" *ngIf="activeTab === 'history'">
+
+      <!-- Search + sort toolbar -->
+      <div class="history-toolbar" *ngIf="paymentHistory.length > 0">
+        <div class="history-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="date"
+            class="history-search-input"
+            [(ngModel)]="historySearchDate"
+            (ngModelChange)="onHistorySearch()"
+          />
+          <button class="history-search-clear" *ngIf="historySearchDate" (click)="historySearchDate = ''; onHistorySearch()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <span class="history-count">{{ filteredHistory.length }} result{{ filteredHistory.length !== 1 ? 's' : '' }}</span>
+      </div>
+
       <div *ngIf="historyLoading" class="tbl-loading">Loading payment history…</div>
       <table *ngIf="!historyLoading">
         <thead>
@@ -256,22 +422,70 @@
             <th>Reference</th>
             <th>Installment</th>
             <th>Amount</th>
+            <th class="th-sortable" (click)="toggleHistorySort()">
+              Installment
+              <svg class="th-sort-icon" [class.th-sort-asc]="historySortDir === 'asc'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </th>
+            <th>Base Amount</th>
+            <th>Penalty</th>
+            <th>Total Paid</th>
             <th>Payment Date</th>
             <th>Method</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="paymentHistory.length === 0">
-            <td colspan="6" class="td-empty">No payments made.</td>
+          <tr *ngIf="filteredHistory.length === 0">
+            <td colspan="8" class="td-empty">{{ paymentHistory.length === 0 ? 'No payments made.' : 'No results for this date.' }}</td>
           </tr>
-          <tr *ngFor="let p of paymentHistory">
+          <tr *ngFor="let p of pagedHistory">
             <td><span class="td-ref">#PAY-{{ p.id }}</span></td>
             <td>
               <div class="td-primary">Installment #{{ p.installmentNumber }}</div>
-              <div class="td-sub" *ngIf="p.numeroContrat">{{ p.numeroContrat }}</div>
+              <div class="td-sub">{{ p.dueDate | date:'dd MMM yyyy' }}</div>
             </td>
-            <td><span class="td-amount">{{ p.amountPaid | number:'1.2-2' }} TND</span></td>
+            <td><span class="td-amount">{{ getBaseInstallmentAmount(p.installmentNumber) | number:'1.2-2' }} TND</span></td>
+            <td>
+              <ng-container *ngIf="getAnyPenaltyForInstallment(p.installmentNumber) as pen; else noPen">
+                <div class="td-penalty-wrap">
+                  <span class="badge-penalty-tier"
+                    [class.tier-1]="pen.penaltyTier === 'TIER_1'"
+                    [class.tier-2]="pen.penaltyTier === 'TIER_2'"
+                    [class.tier-3]="pen.penaltyTier === 'TIER_3'"
+                    [class.tier-4]="pen.penaltyTier === 'TIER_4'"
+                    [class.tier-5]="pen.penaltyTier === 'TIER_5'">
+                    {{ pen.tierLabel }}
+                  </span>
+                  <span class="td-penalty-amount">{{ pen.totalPenalty | number:'1.2-2' }} TND</span>
+                  <span class="td-penalty-detail">{{ pen.daysOverdue }}d late</span>
+                  <span class="badge-penalty-status"
+                    [class.bps-paid]="pen.status === 'PAID'"
+                    [class.bps-applied]="pen.status === 'APPLIED'"
+                    [class.bps-waived]="pen.status === 'WAIVED'">
+                    {{ pen.status === 'WAIVED' ? 'Waived' : pen.status === 'PAID' ? 'Paid' : 'Applied' }}
+                  </span>
+                </div>
+              </ng-container>
+              <ng-template #noPen>
+                <span class="td-no-penalty">—</span>
+              </ng-template>
+            </td>
+            <td>
+              <ng-container *ngIf="getAnyPenaltyForInstallment(p.installmentNumber) as pen; else noTotalPen">
+                <div style="display:flex;flex-direction:column;gap:2px">
+                  <div style="font-size:.72rem;color:var(--g400)">
+                    {{ getBaseInstallmentAmount(p.installmentNumber) | number:'1.2-2' }}
+                    <span style="color:var(--danger)"> + {{ pen.totalPenalty | number:'1.2-2' }}</span>
+                  </div>
+                  <span class="td-amount" style="color:var(--danger);font-weight:800">
+                    {{ getTotalPaid(p.installmentNumber) | number:'1.2-2' }} TND
+                  </span>
+                </div>
+              </ng-container>
+              <ng-template #noTotalPen>
+                <span class="td-amount">{{ getBaseInstallmentAmount(p.installmentNumber) | number:'1.2-2' }} TND</span>
+              </ng-template>
+            </td>
             <td>{{ p.paymentDate | date:'dd MMM yyyy' }}</td>
             <td>{{ p.paymentMethod }}</td>
             <td>
@@ -285,6 +499,23 @@
           </tr>
         </tbody>
       </table>
+      <!-- Pagination History -->
+      <div class="pagination" *ngIf="paymentHistory.length > historyPageSize">
+        <button class="pg-btn" (click)="goHistoryPage(historyPage - 1)" [disabled]="historyPage === 1">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button
+          *ngFor="let pg of historyPages"
+          class="pg-num"
+          [class.pg-active]="pg === historyPage"
+          (click)="goHistoryPage(pg)">
+          {{ pg }}
+        </button>
+        <button class="pg-btn" (click)="goHistoryPage(historyPage + 1)" [disabled]="historyPage === historyTotalPages">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <span class="pg-info">{{ historyPage }} / {{ historyTotalPages }}</span>
+      </div>
     </div>
 
     <!-- Tableau d'amortissement -->
@@ -292,7 +523,7 @@
       <div *ngIf="contract" class="amort-summary">
         <div class="amort-kpi">
           <div class="amort-kpi-label">Capital borrowed</div>
-          <div class="amort-kpi-val">{{ contract.montantTotalRembourse | number:'1.0-0' }} TND</div>
+          <div class="amort-kpi-val">{{ contract.montantCredit | number:'1.0-0' }} TND</div>
         </div>
         <div class="amort-kpi">
           <div class="amort-kpi-label">Installment</div>
@@ -323,33 +554,130 @@
               <th>Date</th>
               <th>Installment</th>
               <th>Interests</th>
+              <th>Repaid Capital</th>
               <th>Remaining Capital</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
             <tr
-              *ngFor="let row of amortizationRows"
+              *ngFor="let row of pagedAmortization"
               [class.row-paid]="isRowPaid(row.num)"
             >
               <td><span class="td-ref">#{{ row.num }}</span></td>
               <td>{{ row.date }}</td>
               <td><span class="td-amount">{{ row.mensualite | number:'1.2-2' }} TND</span></td>
               <td class="td-interest">{{ row.interet | number:'1.2-2' }} TND</td>
+              <td><span class="td-amount">{{ row.capital | number:'1.2-2' }} TND</span></td>
               <td><span class="td-amount">{{ row.restant | number:'1.2-2' }} TND</span></td>
               <td>
                 <span
                   class="badge"
-                  [class.b-paid]="isRowPaid(row.num)"
-                  [class.b-pending]="!isRowPaid(row.num)"
+                  [class.b-paid]="row.status === 'PAID' || isRowPaid(row.num)"
+                  [class.b-pending]="row.status === 'PENDING' && !isRowPaid(row.num)"
+                  [class.b-late]="row.status === 'OVERDUE'"
                 >
-                  {{ isRowPaid(row.num) ? 'Paid' : 'Pending' }}
+                  {{ row.status === 'PAID' || isRowPaid(row.num) ? 'Paid' : (row.status === 'OVERDUE' ? 'Overdue' : 'Pending') }}
+                </span>
+                <span class="badge-penalty-mini" *ngIf="getPenaltyForInstallment(row.num) as p">
+                  +{{ p.totalPenalty | number:'1.2-2' }} TND
                 </span>
               </td>
             </tr>
           </tbody>
         </table>
+        <!-- Pagination Amortization -->
+        <div class="pagination" *ngIf="activeTab === 'amortization' && amortizationRows.length > amortPageSize">
+          <button class="pg-btn" (click)="goAmortPage(amortPage - 1)" [disabled]="amortPage === 1">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button
+            *ngFor="let pg of amortPages"
+            class="pg-num"
+            [class.pg-active]="pg === amortPage"
+            (click)="goAmortPage(pg)">
+            {{ pg }}
+          </button>
+          <button class="pg-btn" (click)="goAmortPage(amortPage + 1)" [disabled]="amortPage === amortTotalPages">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <span class="pg-info">{{ amortPage }} / {{ amortTotalPages }}</span>
+        </div>
       </div>
+    </div>
+
+    <!-- ── Onglet Délinquance ── -->
+    <div *ngIf="activeTab === 'delinquency'" style="padding:48px 24px 24px 24px;margin-top:16px">
+
+      <div *ngIf="delinquencyLoading" style="text-align:center;padding:2rem;opacity:.5">Loading…</div>
+
+      <!-- Aucun dossier -->
+      <div *ngIf="!delinquencyLoading && !delinquencyCase"
+           style="display:flex;align-items:center;gap:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:20px">
+        <span class="material-symbols-outlined" style="color:#22c55e;font-size:32px">check_circle</span>
+        <div>
+          <div style="font-weight:800;font-size:1rem;color:#15803d">No overdue payments — you re up to date!</div>
+          <div style="font-size:.85rem;color:#166534;margin-top:2px">All your repayments have been successfully recorded.</div>
+        </div>
+      </div>
+
+      <!-- Dossier actif -->
+      <ng-container *ngIf="!delinquencyLoading && delinquencyCase">
+
+        <div style="border-radius:14px;padding:18px 20px;display:flex;gap:14px;align-items:flex-start;margin-bottom:20px"
+             [style.background]="delinquencyCase.riskLevel === 'CRITICAL' ? '#fef2f2' : '#fff7ed'"
+             [style.border]="'1px solid ' + (delinquencyCase.riskLevel === 'CRITICAL' ? '#fecaca' : '#fed7aa')">
+          <span class="material-symbols-outlined" style="font-size:26px" [style.color]="delinquencyRiskColor">warning</span>
+          <div>
+            <div style="font-weight:800;font-size:.95rem">Delinquency Case Opened</div>
+            <div style="font-size:.83rem;margin-top:2px">
+              You have overdue installments for <strong>{{ delinquencyCase.maxDaysOverdue }} days</strong>.
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px">
+          <div class="cs-stat" style="border-radius:12px;padding:16px">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g400);margin-bottom:4px">Total Overdue</div>
+            <div style="font-size:1.4rem;font-weight:800;color:#ef4444">{{ delinquencyCase.totalOverdueAmount | number:'1.2-2' }} TND</div>
+          </div>
+          <div class="cs-stat" style="border-radius:12px;padding:16px">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g400);margin-bottom:4px">Penalties</div>
+            <div style="font-size:1.4rem;font-weight:800;color:#f97316">{{ delinquencyCase.totalPenaltyAmount | number:'1.2-2' }} TND</div>
+          </div>
+          <div class="cs-stat" style="border-radius:12px;padding:16px">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g400);margin-bottom:4px">Overdue Installments</div>
+            <div style="font-size:1.4rem;font-weight:800">{{ delinquencyCase.overdueInstallmentsCount }}</div>
+          </div>
+          <div class="cs-stat" style="border-radius:12px;padding:16px">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g400);margin-bottom:4px">Max Delay</div>
+            <div style="font-size:1.4rem;font-weight:800" [style.color]="delinquencyRiskColor">{{ delinquencyCase.maxDaysOverdue }}j</div>
+          </div>
+        </div>
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;font-size:.85rem;line-height:2">
+          <div><b>Phase :</b> {{ delinquencyCase.category }}</div>
+          <div><b>Status :</b> {{ delinquencyCase.status }}</div>
+          <div><b>Opened on :</b> {{ delinquencyCase.openedDate | date:'dd/MM/yyyy' }}</div>
+          <div *ngIf="delinquencyCase.closedDate"><b>Closed on :</b> {{ delinquencyCase.closedDate | date:'dd/MM/yyyy' }}</div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
+          <div>
+            <div style="font-weight:700;font-size:.9rem">Régularize your situation</div>
+            <div style="font-size:.78rem;color:var(--g500);margin-top:2px">Pay your installments to close this case.</div>
+          </div>
+          <button class="btn-grace-submit" style="white-space:nowrap" (click)="activeTab = 'amortization'">Pay now</button>
+        </div>
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:.82rem;color:var(--g500);line-height:1.7">
+          <div style="font-weight:700;color:var(--text);margin-bottom:6px">What happens next?</div>
+          <div>• After <b>30d</b> : case opened (Friendly phase)</div>
+          <div>• After <b>60d</b> : pre-legal phase</div>
+          <div>• After <b>90d</b> : legal procedure</div>
+          <div style="color:#135bec;font-weight:600;margin-top:4px">Penalties capped at 10% of the due amount.</div>
+        </div>
+      </ng-container>
     </div>
 
   </div>
@@ -383,6 +711,9 @@
         {{ currentInstallment?.mensualite | number:'1.2-2' }}
         <span class="stripe-recap-currency">TND</span>
       </div>
+      <div class="stripe-recap-penalty" *ngIf="currentInstallment && getPenaltyForInstallment(currentInstallment.num) as penalty">
+        + {{ penalty.totalPenalty | number:'1.2-2' }} TND penalty ({{ penalty.tierLabel }})
+      </div>
       <div class="stripe-recap-date">Due Date: {{ currentInstallment?.date }}</div>
     </div>
 
@@ -398,8 +729,13 @@
         </div>
         <p class="stripe-confirm-text">
           Do you want to confirm the payment of<br>
-          <strong>{{ currentInstallment?.mensualite | number:'1.2-2' }} TND</strong>
-          for the installment <strong>#{{ currentInstallment?.num }}</strong> ?
+          <strong>{{ currentInstallment!.mensualite | number:'1.2-2' }} TND</strong>
+          for the installment <strong>#{{ currentInstallment!.num }}</strong> ?
+          <strong>{{ currentTotalDue | number:'1.2-2' }} TND</strong>
+          for the installment <strong>#{{ currentInstallment!.num }}</strong> ?
+          <span class="stripe-confirm-penalty" *ngIf="currentInstallment && getPenaltyForInstallment(currentInstallment.num) as penalty">
+            <br>({{ currentInstallment!.mensualite | number:'1.2-2' }} TND + {{ penalty.totalPenalty | number:'1.2-2' }} TND penalty)
+          </span>
         </p>
         <div *ngIf="stripeError" class="stripe-err-msg" style="margin:0 0 .5rem">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -439,6 +775,41 @@
         </ng-container>
       </div>
 
+      <!-- 3D Credit Card — Z-axis rotation -->
+      <div class="credit-card-scene">
+        <div class="credit-card">
+          <div class="credit-card-front">
+            <div class="cc-chip">
+              <svg width="36" height="28" viewBox="0 0 36 28"><rect x="0" y="0" width="36" height="28" rx="4" fill="#d4af37" opacity=".85"/><rect x="4" y="6" width="12" height="16" rx="2" fill="none" stroke="#b8860b" stroke-width="1.2"/><line x1="10" y1="6" x2="10" y2="22" stroke="#b8860b" stroke-width="1"/><line x1="4" y1="14" x2="16" y2="14" stroke="#b8860b" stroke-width="1"/></svg>
+            </div>
+            <div class="cc-contactless">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-linecap="round"><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M6 13a9 9 0 0 1 12 0"/><path d="M3.5 9.5a13 13 0 0 1 17 0"/></svg>
+            </div>
+            <div class="cc-number">•••• •••• •••• ••••</div>
+            <div class="cc-bottom">
+              <div class="cc-holder">
+                <div class="cc-holder-label">CARD HOLDER</div>
+                <div class="cc-holder-name">YOUR NAME</div>
+              </div>
+              <div class="cc-expiry">
+                <div class="cc-expiry-label">EXPIRES</div>
+                <div class="cc-expiry-val">MM/YY</div>
+              </div>
+            </div>
+            <div class="cc-brand">
+              <span class="cc-brand-visa">VISA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stripe-field-label">Bank Card Information</div>
+
+      <div class="stripe-card-loading" *ngIf="!stripeReady">
+        <span class="pay-spinner"></span> Loading form...
+      </div>
+      <div id="stripe-card-element" class="stripe-card-el" [class.stripe-card-hidden]="!stripeReady"></div>
+
       <div class="stripe-err-msg" *ngIf="stripeError">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -459,6 +830,7 @@
             <polyline points="20 6 9 17 4 12"/>
           </svg>
           Confirm — {{ currentInstallment?.mensualite | number:'1.2-2' }} TND
+          Confirm — {{ currentTotalDue | number:'1.2-2' }} TND
         </ng-container>
       </button>
 
@@ -487,6 +859,165 @@
         </div>
         <div class="stripe-success-title">Payment confirmed</div>
         <div class="stripe-success-sub">Your installment has been successfully recorded.</div>
+      </div>
+    </ng-container>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     Modal — Grace Period Request
+     ════════════════════════════════════════════════════ -->
+<div class="stripe-overlay" *ngIf="graceModalOpen" (click)="closeGraceModal()">
+  <div class="stripe-modal grace-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="stripe-modal-head">
+      <div class="stripe-modal-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Grace Period Request
+      </div>
+      <button class="stripe-modal-close" (click)="closeGraceModal()" [disabled]="graceLoading">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Success state -->
+    <ng-container *ngIf="graceSuccess">
+      <div class="stripe-success-body">
+        <div class="stripe-success-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="stripe-success-title">Request submitted</div>
+        <div class="stripe-success-sub">Your grace period request has been sent for review.</div>
+      </div>
+    </ng-container>
+
+    <!-- Form -->
+    <ng-container *ngIf="!graceSuccess">
+      <div class="grace-form">
+        <!-- Installment picker -->
+        <div class="grace-field">
+          <label class="grace-label">Select the installment</label>
+          <select class="grace-input" [(ngModel)]="graceSelectedInstallmentId">
+            <option [ngValue]="null" disabled>-- Choose an installment --</option>
+            <option *ngFor="let row of unpaidInstallments" [ngValue]="row.num">
+              Installment #{{ row.num }} — {{ row.date }} ({{ row.mensualite | number:'1.2-2' }} TND)
+            </option>
+          </select>
+        </div>
+
+        <!-- Grace days — spinning counter -->
+        <div class="grace-field">
+          <label class="grace-label">Number of grace days</label>
+          <div class="spin-counter">
+            <button class="spin-btn spin-btn-minus" (click)="decrementGraceDays()" [disabled]="graceRequestedDays <= 1" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="spin-display">
+              <div class="spin-value" [class.spin-bounce]="graceRequestedDays">{{ graceRequestedDays }}</div>
+              <div class="spin-label">days</div>
+            </div>
+            <button class="spin-btn spin-btn-plus" (click)="incrementGraceDays()" [disabled]="graceRequestedDays >= 15" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="spin-track">
+            <div class="spin-track-fill" [style.width.%]="(graceRequestedDays / 15) * 100"></div>
+          </div>
+          <span class="grace-hint">Between 1 and 15 days</span>
+        </div>
+
+        <!-- Number of affected installments — spinning counter -->
+        <div class="grace-field">
+          <label class="grace-label">Number of installments to delay</label>
+          <div class="spin-counter">
+            <button class="spin-btn spin-btn-minus" (click)="decrementAffectedCount()" [disabled]="graceAffectedCount <= 1" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="spin-display">
+              <div class="spin-value" [class.spin-bounce]="graceAffectedCount">{{ graceAffectedCount }}</div>
+              <div class="spin-label">installment{{ graceAffectedCount > 1 ? 's' : '' }}</div>
+            </div>
+            <button class="spin-btn spin-btn-plus" (click)="incrementAffectedCount()" [disabled]="graceAffectedCount >= maxAffectedInstallments" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="spin-track">
+            <div class="spin-track-fill" [style.width.%]="maxAffectedInstallments > 0 ? (graceAffectedCount / maxAffectedInstallments) * 100 : 0"></div>
+          </div>
+          <span class="grace-hint">Max {{ maxAffectedInstallments }} (remaining unpaid from selected)</span>
+        </div>
+
+        <!-- Reason -->
+        <div class="grace-field">
+          <label class="grace-label">Reason for request</label>
+          <textarea
+            class="grace-textarea"
+            [(ngModel)]="graceReason"
+            rows="4"
+            maxlength="2000"
+            placeholder="Explain why you need a grace period..."
+          ></textarea>
+          <span class="grace-hint">{{ graceReason.length }} / 2000</span>
+        </div>
+
+        <!-- File upload -->
+        <div class="grace-field">
+          <label class="grace-label">Supporting documents (optional)</label>
+          <div class="grace-upload-zone" (click)="fileInput.click()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span>Click to upload PDF or images</span>
+          </div>
+          <input
+            #fileInput
+            type="file"
+            multiple
+            accept=".pdf,.jpg,.jpeg,.png,.gif,.webp"
+            style="display:none"
+            (change)="onGraceFilesChange($event)"
+          />
+          <div class="grace-file-list" *ngIf="graceFiles.length > 0">
+            <div class="grace-file-item" *ngFor="let f of graceFiles; let i = index">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="grace-file-name">{{ f.name }}</span>
+              <button class="grace-file-remove" (click)="removeGraceFile(i)">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div class="stripe-err-msg" *ngIf="graceError" style="margin-bottom:.5rem">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          {{ graceError }}
+        </div>
+
+        <!-- Actions -->
+        <div class="grace-actions">
+          <button class="stripe-cancel-btn" (click)="closeGraceModal()">Cancel</button>
+          <button class="btn-grace-submit" (click)="submitGraceRequest()" [disabled]="graceLoading">
+            <ng-container *ngIf="graceLoading">
+              <span class="pay-spinner"></span> Submitting...
+            </ng-container>
+            <ng-container *ngIf="!graceLoading">
+              Submit Request
+            </ng-container>
+          </button>
+        </div>
       </div>
     </ng-container>
 

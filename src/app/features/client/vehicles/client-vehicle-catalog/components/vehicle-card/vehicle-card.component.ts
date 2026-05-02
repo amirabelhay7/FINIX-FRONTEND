@@ -32,11 +32,11 @@ export class VehicleCardComponent {
   };
 
   readonly conditionLabels: Record<VehicleCondition, string> = {
-    NEUF: 'Neuf',
-    TRES_BON: 'Tres bon',
-    BON: 'Bon',
-    MOYEN: 'Moyen',
-    MAUVAIS: 'Mauvais',
+    NEUF: 'New',
+    TRES_BON: 'Very good',
+    BON: 'Good',
+    MOYEN: 'Fair',
+    MAUVAIS: 'Poor',
   };
 
   hasImageError = false;
@@ -104,7 +104,7 @@ export class VehicleCardComponent {
 
   get conditionLabel(): string {
     const c = this.vehicle?.etatVehicule;
-    if (!c) return 'Non renseigne';
+    if (!c) return 'Not specified';
     return this.conditionLabels[c] ?? c;
   }
 }

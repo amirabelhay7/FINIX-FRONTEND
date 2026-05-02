@@ -1,5 +1,6 @@
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+﻿import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { finalize, switchMap } from 'rxjs/operators';
+import { catchError, of } from 'rxjs';
 import { VehicleReservationDto } from '../../../../models';
 import { ReservationService } from '../../../../services/vehicle/reservation.service';
 
@@ -19,13 +20,36 @@ export class ReservationsAdminComponent implements OnInit {
   selectedForReject: VehicleReservationDto | null = null;
   rejectReason = '';
 
+  /** Opened from notification when reservation is no longer in the pending list. */
+  focusedReservation: VehicleReservationDto | null = null;
+
   constructor(
     private reservationService: ReservationService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
+    const rawFocus = sessionStorage.getItem('finix_focus_reservation_id');
+    sessionStorage.removeItem('finix_focus_reservation_id');
+    const focusId = rawFocus ? Number(rawFocus) : NaN;
+
     this.loadPendingReservations();
+
+    if (Number.isFinite(focusId) && focusId > 0) {
+      this.reservationService
+        .getById(focusId)
+        .pipe(catchError(() => of(null)))
+        .subscribe((row) => {
+          if (row) {
+            this.focusedReservation = row;
+            this.cdr.detectChanges();
+          }
+        });
+    }
+  }
+
+  dismissFocusedReservation(): void {
+    this.focusedReservation = null;
   }
 
   loadPendingReservations(): void {
@@ -40,7 +64,7 @@ export class ReservationsAdminComponent implements OnInit {
         },
         error: (err) => {
           this.pendingReservations = [];
-          this.error = err?.error?.message || 'Erreur lors du chargement des réservations.';
+          this.error = err?.error?.message || 'Error while loading reservations.';
         },
       });
   }
@@ -50,8 +74,8 @@ export class ReservationsAdminComponent implements OnInit {
     this.reservationService
       .approveReservation(id)
       .pipe(
-        // Recharger la liste apres commit serveur : les autres demandes sur le meme vehicule passent en REJECTED
-        // et ne doivent plus apparaitre ici (evite la course avec setTimeout + filtre sur une seule ligne).
+        // Reload list after server commit: competing requests move to REJECTED
+        // and should no longer appear here (avoids race conditions).
         switchMap(() => this.reservationService.getPendingReservations()),
         finalize(() => {
           this.actionLoading = false;
@@ -65,7 +89,7 @@ export class ReservationsAdminComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: (err) => {
-          this.error = err?.error?.message || 'Impossible de valider la réservation.';
+          this.error = err?.error?.message || 'Unable to approve reservation.';
         },
       });
   }
@@ -103,15 +127,20 @@ export class ReservationsAdminComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: (err) => {
-          this.error = err?.error?.message || 'Impossible de refuser la réservation.';
+          this.error = err?.error?.message || 'Unable to reject reservation.';
         },
       });
   }
 
   statusLabel(status: string): string {
-    if (status === 'PENDING_ADMIN_APPROVAL') return 'En attente validation admin';
-    if (status === 'APPROVED') return 'Approuvée';
-    if (status === 'REJECTED') return 'Refusée';
+    if (status === 'PENDING_ADMIN_APPROVAL') return 'Pending admin approval';
+    if (status === 'WAITING_CUSTOMER_ACTION') return 'Client action required';
+    if (status === 'UNDER_REVIEW') return 'Under review';
+    if (status === 'APPROVED') return 'Approved';
+    if (status === 'REJECTED') return 'Rejected';
+    if (status === 'CANCELLED_BY_CLIENT') return 'Cancelled (client)';
+    if (status === 'CANCELLED_BY_ADMIN') return 'Cancelled (admin)';
+    if (status === 'EXPIRED') return 'Expired';
     return status;
   }
 
@@ -119,3 +148,5 @@ export class ReservationsAdminComponent implements OnInit {
     this.backToVehicles.emit();
   }
 }
+
+

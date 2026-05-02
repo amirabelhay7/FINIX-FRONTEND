@@ -2,7 +2,6 @@ import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
 import { SharedModule } from './shared/shared-module';
@@ -16,6 +15,8 @@ import { ReservationsAdminComponent } from './layout/backoffice/components/reser
 import { authInterceptor } from './services/auth/auth.interceptor';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { RepaymentBackofficeComponent } from './layout/backoffice/repayment-backoffice/repayment-backoffice.component';
+import { RepaymentsAdminModule } from './features/admin/repayments-admin/repayments-admin-module';
 
 @NgModule({
   declarations: [
@@ -28,12 +29,14 @@ import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
     TopbarComponent,
     ReservationsAdminComponent,
     UnauthorizedComponent,
+    RepaymentBackofficeComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     SharedModule,
+    RepaymentsAdminModule,
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),

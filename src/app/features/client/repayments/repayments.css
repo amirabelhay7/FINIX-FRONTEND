@@ -1,5 +1,168 @@
 /* Repayments-specific styles - shared styles are in global styles.css */
 
+/* ════════════════════════════════════════════════════════
+   ANIMATIONS — entrance, hover, micro-interactions
+   ════════════════════════════════════════════════════════ */
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideRight {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,.25); }
+  50%      { box-shadow: 0 0 0 8px rgba(59,130,246,0); }
+}
+
+@keyframes ticketBarSlide {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ════════════════════════════════════════════════════════
+   PERSISTENT ANIMATIONS — always running on the page
+   ════════════════════════════════════════════════════════ */
+
+/* ── 1. Animated gradient title ── */
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+:host .ph-title {
+  background: linear-gradient(270deg, #3b82f6, #6366f1, #8b5cf6, #3b82f6);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 6s ease infinite;
+}
+
+:host-context([data-theme="dark"]) .ph-title {
+  background: linear-gradient(270deg, #60a5fa, #818cf8, #a78bfa, #60a5fa);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 6s ease infinite;
+}
+
+/* ── 2. Floating icons on summary cards ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+:host .repay-card .rc-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+:host .repay-card:nth-child(2) .rc-icon { animation-delay: .4s; }
+:host .repay-card:nth-child(3) .rc-icon { animation-delay: .8s; }
+
+/* ── 3. Pulsing dot on section headers ── */
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.6); opacity: .5; }
+}
+
+:host .ptdot {
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+/* ── 4. Flowing border on the ticket card ── */
+@keyframes borderFlow {
+  0%   { border-color: #e2e8f0; }
+  25%  { border-color: #93c5fd; }
+  50%  { border-color: #6366f1; }
+  75%  { border-color: #93c5fd; }
+  100% { border-color: #e2e8f0; }
+}
+
+.installment-ticket:not(.ticket-is-paid) {
+  animation: scaleIn .45s ease .2s both, borderFlow 4s ease-in-out infinite;
+}
+
+:host-context([data-theme="dark"]) .installment-ticket:not(.ticket-is-paid) {
+  animation: scaleIn .45s ease .2s both, borderFlow 4s ease-in-out infinite;
+}
+
+/* ── 5. Eyebrow line shimmer ── */
+@keyframes lineShimmer {
+  0%   { width: 18px; opacity: .6; }
+  50%  { width: 30px; opacity: 1; }
+  100% { width: 18px; opacity: .6; }
+}
+
+:host .ph-eyebrow::before {
+  animation: lineShimmer 3s ease-in-out infinite;
+}
+
+/* ── 6. Penalty tier badge pulse (when penalty exists) ── */
+@keyframes tierPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .6; }
+}
+
+.ticket-penalty-tier {
+  animation: tierPulse 2s ease-in-out infinite;
+}
+
+/* ── 7. Ticket amount gentle scale (draws attention to amount) ── */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.02); }
+}
+
+.ticket-amount-wrap {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/* ── Staggered section entrance ── */
+.s1 { animation: fadeSlideUp .5s ease both; }
+.s2 { animation: fadeSlideUp .5s ease .08s both; }
+.s3 { animation: fadeSlideUp .5s ease .16s both; }
+.s3-grace { animation: fadeSlideUp .5s ease .2s both; }
+.s3-grace-list { animation: fadeSlideUp .5s ease .24s both; }
+.s4 { animation: fadeSlideUp .5s ease .28s both; }
+
+/* ── Summary cards entrance ── */
+.repay-summary .repay-card {
+  animation: scaleIn .4s ease both;
+}
+.repay-summary .repay-card:nth-child(1) { animation-delay: .12s; }
+.repay-summary .repay-card:nth-child(2) { animation-delay: .2s; }
+.repay-summary .repay-card:nth-child(3) { animation-delay: .28s; }
+
+.repay-card {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.repay-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+}
+
 /* ── Section header ── */
 .section-header {
   display: flex;
@@ -49,6 +212,14 @@
 
 .installment-ticket:hover {
   box-shadow: 0 6px 20px rgba(0,0,0,.1);
+  transition: transform .25s ease, box-shadow .25s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  animation: scaleIn .45s ease .2s both;
+}
+
+.installment-ticket:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.1);
 }
 
 .ticket-is-paid {
@@ -59,6 +230,8 @@
 .ticket-accent-bar {
   height: 5px;
   background: linear-gradient(90deg, #3b82f6, #6366f1);
+  transform-origin: left;
+  animation: ticketBarSlide .6s ease .35s both;
 }
 
 .ticket-is-paid .ticket-accent-bar {
@@ -139,6 +312,8 @@
   background: linear-gradient(90deg, #3b82f6, #6366f1);
   border-radius: 10px;
   transition: width .4s ease;
+  transition: width .8s cubic-bezier(.4,0,.2,1);
+  animation: fadeSlideRight .6s ease .5s both;
 }
 
 .ticket-is-paid .ticket-progress-fill {
@@ -218,6 +393,10 @@
   transition: opacity .18s, transform .15s;
   white-space: nowrap;
   width: 100%;
+  transition: opacity .2s, transform .2s, box-shadow .2s;
+  white-space: nowrap;
+  width: 100%;
+  animation: pulseGlow 2.5s ease-in-out infinite;
 }
 
 .btn-pay-ticket:hover:not(:disabled) {
@@ -270,6 +449,169 @@
   padding: 2rem;
   color: var(--muted, #94a3b8);
   font-size: .9rem;
+}
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: .75rem 0 .5rem;
+}
+
+.pg-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: all .15s;
+}
+.pg-btn:hover:not(:disabled) { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,.04); }
+.pg-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+.pg-num {
+  min-width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: none;
+  font-size: .8rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all .15s;
+}
+.pg-num:hover { background: #f1f5f9; color: #1e293b; }
+.pg-num.pg-active {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+  pointer-events: none;
+}
+
+.pg-info {
+  font-size: .72rem;
+  color: var(--muted, #94a3b8);
+  margin-left: 8px;
+}
+
+/* Dark mode — Pagination */
+:host-context([data-theme="dark"]) .pg-btn {
+  border-color: #334155;
+  background: #0f172a;
+  color: #94a3b8;
+}
+:host-context([data-theme="dark"]) .pg-btn:hover:not(:disabled) {
+  border-color: #3b82f6;
+  color: #60a5fa;
+  background: rgba(59,130,246,.1);
+}
+:host-context([data-theme="dark"]) .pg-num { color: #94a3b8; }
+:host-context([data-theme="dark"]) .pg-num:hover { background: #1e293b; color: #e2e8f0; }
+:host-context([data-theme="dark"]) .pg-num.pg-active {
+  background: #3b82f6;
+  color: #fff;
+}
+
+/* ── History toolbar (search + sort) ── */
+.history-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .6rem .75rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.history-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 5px 10px;
+  transition: border-color .2s;
+}
+.history-search:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.1);
+}
+.history-search svg { color: #94a3b8; flex-shrink: 0; }
+
+.history-search-input {
+  border: none;
+  background: transparent;
+  font-size: .8rem;
+  color: var(--text, #1e293b);
+  outline: none;
+  font-family: inherit;
+  width: 140px;
+}
+.history-search-input::-webkit-calendar-picker-indicator {
+  opacity: .5;
+  cursor: pointer;
+}
+
+.history-search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color .15s, background .15s;
+}
+.history-search-clear:hover { color: #ef4444; background: rgba(239,68,68,.08); }
+
+.history-count {
+  font-size: .72rem;
+  color: var(--muted, #94a3b8);
+}
+
+/* Sortable header */
+.th-sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.th-sortable:hover { color: #3b82f6; }
+
+.th-sort-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 3px;
+  transition: transform .2s;
+}
+.th-sort-icon.th-sort-asc {
+  transform: rotate(180deg);
+}
+
+/* Dark mode — toolbar */
+:host-context([data-theme="dark"]) .history-toolbar {
+  border-color: #1e293b;
+}
+:host-context([data-theme="dark"]) .history-search {
+  background: #0f172a;
+  border-color: #334155;
+}
+:host-context([data-theme="dark"]) .history-search:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+}
+:host-context([data-theme="dark"]) .history-search-input {
+  color: #e2e8f0;
+}
+:host-context([data-theme="dark"]) .th-sortable:hover {
+  color: #60a5fa;
 }
 
 /* ════════════════════════════════════════════
@@ -405,6 +747,16 @@
 .stripe-card-el:focus-within {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+}
+
+.stripe-card-hidden {
+  opacity: 0;
+  height: 0;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  overflow: hidden;
 }
 
 .stripe-card-loading {
@@ -623,6 +975,205 @@
   text-align: center;
 }
 
+/* ═══════════════════════════════════════════════════
+   3D Credit Card Flip Animation
+   ═══════════════════════════════════════════════════ */
+.credit-card-scene {
+  perspective: 800px;
+  padding: 1rem 1.4rem .5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.credit-card {
+  width: 320px;
+  height: 200px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .7s cubic-bezier(.4, .2, .2, 1);
+}
+
+/* Front */
+.credit-card-front {
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 40%, #1a365d 100%);
+  padding: 1.2rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 12px 35px rgba(15, 39, 68, .4), 0 0 0 1px rgba(255,255,255,.08) inset;
+}
+
+.cc-chip { position: absolute; top: 1.1rem; left: 1.4rem; }
+
+.cc-contactless { position: absolute; top: 1.2rem; left: 4.2rem; transform: rotate(90deg); }
+
+.cc-number {
+  margin-top: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,.85);
+  text-shadow: 0 1px 2px rgba(0,0,0,.3);
+  padding-top: 2.5rem;
+}
+
+.cc-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: .6rem;
+}
+
+.cc-holder-label, .cc-expiry-label {
+  font-size: .55rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.4);
+  margin-bottom: 2px;
+}
+
+.cc-holder-name, .cc-expiry-val {
+  font-size: .75rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.8);
+  letter-spacing: .06em;
+}
+
+.cc-brand {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+}
+
+.cc-brand-visa {
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-style: italic;
+  color: rgba(255,255,255,.9);
+  letter-spacing: .03em;
+  text-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Spinning Counter — Grace Period Form
+   ═══════════════════════════════════════════════════ */
+.spin-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: .5rem 0;
+}
+
+.spin-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: all .2s ease;
+}
+
+.spin-btn:hover:not(:disabled) {
+  border-color: #f59e0b;
+  color: #f59e0b;
+  background: rgba(245,158,11,.06);
+  transform: scale(1.1);
+}
+
+.spin-btn:active:not(:disabled) {
+  transform: scale(.92);
+}
+
+.spin-btn:disabled {
+  opacity: .3;
+  cursor: not-allowed;
+}
+
+.spin-btn-minus:hover:not(:disabled) {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: rgba(239,68,68,.06);
+}
+
+.spin-display {
+  min-width: 80px;
+  text-align: center;
+}
+
+.spin-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text, #1e293b);
+  line-height: 1;
+  transition: transform .15s ease, color .15s;
+  animation: spinPop .3s ease;
+}
+
+@keyframes spinPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.spin-label {
+  font-size: .7rem;
+  color: var(--muted, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: 2px;
+}
+
+.spin-track {
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: .25rem;
+  margin-bottom: .15rem;
+}
+
+.spin-track-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #f97316);
+  border-radius: 4px;
+  transition: width .25s ease;
+}
+
+/* Dark mode — 3D Card */
+:host-context([data-theme="dark"]) .credit-card-front {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 40%, #1e293b 100%);
+  box-shadow: 0 12px 35px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.05) inset;
+}
+
+/* Dark mode — Spinning counter */
+:host-context([data-theme="dark"]) .spin-btn {
+  border-color: #334155;
+  background: #0f172a;
+  color: #94a3b8;
+}
+:host-context([data-theme="dark"]) .spin-btn:hover:not(:disabled) {
+  background: rgba(245,158,11,.1);
+}
+:host-context([data-theme="dark"]) .spin-btn-minus:hover:not(:disabled) {
+  background: rgba(239,68,68,.1);
+}
+:host-context([data-theme="dark"]) .spin-track {
+  background: #1e293b;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .spin-value { animation: none; }
+}
+
 /* ── Calendar header ── */
 .cal-header {
   display: flex;
@@ -785,6 +1336,7 @@
   min-width: 310px;
   border-style: solid;
   border-color: #3b82f6;
+  animation: scaleIn .3s ease both;
   box-shadow: 0 6px 24px rgba(59,130,246,.15);
 }
 
@@ -881,6 +1433,82 @@
 }
 .tc-close:hover { background: #fef2f2; }
 
+.tc-goto {
+  background: none;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 0 8px;
+  height: 26px;
+  cursor: pointer;
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .68rem;
+  font-weight: 600;
+  transition: background .15s;
+}
+.tc-goto:hover { background: #eff6ff; }
+
+/* Monthly summary bar */
+.tc-month-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: .72rem;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tc-ms-installment {
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tc-ms-badge {
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+.tc-ms-paid    { background: #dcfce7; color: #16a34a; }
+.tc-ms-pending { background: #fef9c3; color: #a16207; }
+.tc-ms-due     { color: #64748b; font-size: .68rem; }
+.tc-ms-none    { color: #94a3b8; font-style: italic; font-size: .7rem; }
+
+/* Tooltip panel */
+.tc-tooltip {
+  margin: 4px 8px;
+  background: #1e293b;
+  color: #f8fafc;
+  font-size: .7rem;
+  line-height: 1.6;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.18);
+  pointer-events: none;
+  animation: fadeInTooltip .15s ease;
+}
+@keyframes fadeInTooltip {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* paid-due: subtle dot on due date of paid installment */
+.tc-paid-due {
+  background: rgba(34,197,94,.08);
+  color: #16a34a;
+  border: 1.5px solid rgba(34,197,94,.35);
+  border-radius: 50%;
+  font-weight: 600;
+}
+.tcd-paid-due { background: rgba(34,197,94,.08); border: 1.5px solid rgba(34,197,94,.35); }
+
 .tc-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -915,6 +1543,13 @@
   cursor: default;
   background: #f8fafc;
   transition: transform .12s;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.tc-cell:not(.tc-out):hover {
+  transform: scale(1.18);
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  z-index: 2;
 }
 .tc-cell:hover { transform: scale(1.15); z-index: 1; }
 
@@ -1472,4 +2107,641 @@
 
 :host-context([data-theme="dark"]) .stripe-success-sub {
   color: #8BA4BD;
+}
+
+/* ════════════════════════════════════════════════════════
+   GRACE PERIOD REQUEST — Banner, Cards, Modal
+   ════════════════════════════════════════════════════════ */
+
+/* ── Banner ── */
+.s3-grace { margin-top: 1rem; }
+
+.grace-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px dashed #f59e0b44;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+:host-context([data-theme="dark"]) .grace-banner {
+  background: linear-gradient(135deg, rgba(245,158,11,.08) 0%, rgba(245,158,11,.04) 100%);
+  border-color: rgba(245,158,11,.2);
+}
+
+.grace-banner-left {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.grace-banner-title {
+  font-weight: 700;
+  font-size: .88rem;
+  color: var(--text, #1e293b);
+}
+
+.grace-banner-desc {
+  font-size: .78rem;
+  color: var(--muted, #64748b);
+}
+
+.btn-grace-request {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: .5rem 1rem;
+  border-radius: 8px;
+  font-size: .8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  background: #f59e0b;
+  color: #fff;
+  transition: background .2s;
+  white-space: nowrap;
+}
+
+.btn-grace-request:hover:not(:disabled) { background: #d97706; }
+.btn-grace-request:disabled { opacity: .6; cursor: not-allowed; background: #94a3b8; }
+
+/* ── Grace Request Cards ── */
+.s3-grace-list { margin-top: 1.25rem; }
+
+.grace-requests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: .75rem;
+}
+
+.grace-req-card {
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  transition: transform .2s ease, box-shadow .2s ease;
+  animation: fadeSlideUp .4s ease both;
+}
+.grace-req-card:nth-child(1) { animation-delay: .05s; }
+.grace-req-card:nth-child(2) { animation-delay: .1s; }
+.grace-req-card:nth-child(3) { animation-delay: .15s; }
+.grace-req-card:nth-child(4) { animation-delay: .2s; }
+
+:host-context([data-theme="dark"]) .grace-req-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.grace-req-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+}
+
+.grace-req-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .5rem;
+}
+
+.grace-req-badge {
+  display: inline-block;
+  font-size: .68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.grace-req-date {
+  font-size: .72rem;
+  color: var(--muted, #64748b);
+}
+
+.grace-req-days {
+  font-size: .88rem;
+  font-weight: 700;
+  color: var(--text, #1e293b);
+  margin-bottom: 4px;
+}
+
+.grace-req-reason {
+  font-size: .78rem;
+  color: var(--muted, #64748b);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.grace-req-docs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .72rem;
+  color: var(--muted, #64748b);
+}
+
+.grace-req-rejection {
+  margin-top: 6px;
+  font-size: .75rem;
+  color: #ef4444;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #fef2f2;
+}
+
+:host-context([data-theme="dark"]) .grace-req-rejection {
+  background: rgba(239,68,68,.1);
+}
+
+/* ── Grace Modal Form ── */
+.grace-modal {
+  max-width: 460px;
+  position: relative;
+  overflow: visible;
+}
+.grace-modal::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 23px;
+  padding: 3px;
+  background: conic-gradient(
+    from var(--grace-border-angle, 0deg),
+    #f59e0b,
+    #fbbf24,
+    #fde68a,
+    #fbbf24,
+    #f59e0b
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: graceGlow 3s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@property --grace-border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes graceGlow {
+  to { --grace-border-angle: 360deg; }
+}
+
+.grace-form { padding: 0 1.25rem 1.25rem; }
+
+.grace-field { margin-bottom: 1rem; }
+
+.grace-label {
+  display: block;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--text, #1e293b);
+  margin-bottom: 6px;
+}
+
+.grace-input {
+  width: 100%;
+  padding: .55rem .75rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: .85rem;
+  background: var(--bg, #fff);
+  color: var(--text, #1e293b);
+  outline: none;
+  transition: border-color .2s;
+  box-sizing: border-box;
+}
+
+.grace-input:focus { border-color: #f59e0b; }
+
+:host-context([data-theme="dark"]) .grace-input {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+.grace-textarea {
+  width: 100%;
+  padding: .55rem .75rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: .82rem;
+  background: var(--bg, #fff);
+  color: var(--text, #1e293b);
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color .2s;
+  box-sizing: border-box;
+}
+
+.grace-textarea:focus { border-color: #f59e0b; }
+
+:host-context([data-theme="dark"]) .grace-textarea {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+.grace-hint {
+  display: block;
+  font-size: .7rem;
+  color: var(--muted, #94a3b8);
+  margin-top: 4px;
+}
+
+/* Upload zone */
+.grace-upload-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1.5px dashed #cbd5e1;
+  cursor: pointer;
+  color: var(--muted, #64748b);
+  font-size: .8rem;
+  transition: border-color .2s, background .2s;
+}
+
+.grace-upload-zone:hover {
+  border-color: #f59e0b;
+  background: rgba(245,158,11,.04);
+}
+
+:host-context([data-theme="dark"]) .grace-upload-zone {
+  border-color: #334155;
+}
+
+.grace-file-list { margin-top: .5rem; }
+
+.grace-file-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: .76rem;
+  color: var(--text, #1e293b);
+  background: #f8fafc;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+:host-context([data-theme="dark"]) .grace-file-item {
+  background: #1e293b;
+}
+
+.grace-file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grace-file-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ef4444;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+/* Actions */
+.grace-actions {
+  display: flex;
+  gap: .5rem;
+  justify-content: flex-end;
+  margin-top: .5rem;
+}
+
+.btn-grace-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: .55rem 1.25rem;
+  border-radius: 8px;
+  font-size: .82rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  background: #f59e0b;
+  color: #fff;
+  transition: background .2s;
+}
+
+.btn-grace-submit:hover:not(:disabled) { background: #d97706; }
+.btn-grace-submit:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Badge colors reused */
+.b-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+:host-context([data-theme="dark"]) .b-pending {
+  background: rgba(245,158,11,.15);
+  color: #fbbf24;
+}
+
+/* ════════════════════════════════════════════════════════
+   PENALTY STYLES — Ticket, Calendar, Amortization
+   ════════════════════════════════════════════════════════ */
+
+/* ── Penalty alert inside ticket ── */
+.ticket-penalty {
+  margin: 0 1.5rem;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(239,68,68,.2);
+  background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%);
+  margin-bottom: 1rem;
+  animation: fadeSlideUp .4s ease .4s both;
+}
+
+:host-context([data-theme="dark"]) .ticket-penalty {
+  background: linear-gradient(135deg, rgba(239,68,68,.08) 0%, rgba(239,68,68,.03) 100%);
+  border-color: rgba(239,68,68,.2);
+}
+
+.ticket-penalty-bar {
+  height: 3px;
+  background: linear-gradient(90deg, #ef4444, #f97316);
+  transform-origin: left;
+  animation: ticketBarSlide .5s ease .55s both;
+}
+
+.ticket-penalty-body {
+  padding: .75rem 1rem;
+}
+
+.ticket-penalty-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.ticket-penalty-title {
+  font-size: .78rem;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+:host-context([data-theme="dark"]) .ticket-penalty-title {
+  color: #f87171;
+}
+
+.ticket-penalty-tier {
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-left: auto;
+}
+
+.tier-1 { background: #fef3c3; color: #92400e; }
+.tier-2 { background: #fed7aa; color: #9a3412; }
+.tier-3 { background: #fecaca; color: #991b1b; }
+.tier-4 { background: #ffe4e6; color: #9f1239; }
+.tier-5 { background: #4c0519; color: #fda4af; }
+
+:host-context([data-theme="dark"]) .tier-1 { background: rgba(245,158,11,.15); color: #fbbf24; }
+:host-context([data-theme="dark"]) .tier-2 { background: rgba(249,115,22,.15); color: #fb923c; }
+:host-context([data-theme="dark"]) .tier-3 { background: rgba(239,68,68,.15); color: #f87171; }
+:host-context([data-theme="dark"]) .tier-4 { background: rgba(190,18,60,.25);  color: #fb7185; }
+:host-context([data-theme="dark"]) .tier-5 { background: rgba(76,5,25,.6);     color: #fda4af; }
+
+.ticket-penalty-details {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .74rem;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+:host-context([data-theme="dark"]) .ticket-penalty-details { color: #8BA4BD; }
+
+.tpd-sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  flex-shrink: 0;
+}
+
+:host-context([data-theme="dark"]) .tpd-sep { background: #334155; }
+
+.ticket-penalty-total {
+  margin-top: 6px;
+  font-size: .8rem;
+  color: #dc2626;
+}
+
+:host-context([data-theme="dark"]) .ticket-penalty-total { color: #f87171; }
+
+.ticket-penalty-total strong {
+  font-weight: 800;
+}
+
+.ticket-penalty-cap {
+  font-size: .68rem;
+  color: #94a3b8;
+  margin-left: 4px;
+}
+
+/* ── Ticket amount with penalty ── */
+.ticket-amount-old {
+  font-size: .82rem;
+  color: #94a3b8;
+  text-decoration: line-through;
+  margin-bottom: 2px;
+}
+
+:host-context([data-theme="dark"]) .ticket-amount-old { color: #5A7A9B; }
+
+.ticket-amount-penalty {
+  color: #dc2626 !important;
+}
+
+:host-context([data-theme="dark"]) .ticket-amount-penalty { color: #f87171 !important; }
+
+/* ── Stripe modal penalty line ── */
+.stripe-recap-penalty {
+  font-size: .78rem;
+  font-weight: 600;
+  color: #ef4444;
+  margin-top: 4px;
+}
+
+.stripe-confirm-penalty {
+  font-size: .82rem;
+  color: #ef4444;
+  font-weight: 600;
+}
+
+:host-context([data-theme="dark"]) .stripe-recap-penalty { color: #f87171; }
+
+/* ── Calendar month summary penalty ── */
+.tc-ms-penalty {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .72rem;
+  font-weight: 600;
+  color: #ef4444;
+  margin-top: 4px;
+}
+
+:host-context([data-theme="dark"]) .tc-ms-penalty { color: #f87171; }
+
+/* ── Amortization table penalty mini badge ── */
+.badge-penalty-mini {
+  display: inline-block;
+  font-size: .62rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid rgba(239,68,68,.2);
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+:host-context([data-theme="dark"]) .badge-penalty-mini {
+  background: rgba(239,68,68,.1);
+  color: #f87171;
+  border-color: rgba(239,68,68,.2);
+}
+
+/* ── Payment history — Penalty column ── */
+.td-penalty-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.badge-penalty-tier {
+  display: inline-block;
+  font-size: .62rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  width: fit-content;
+}
+.badge-penalty-tier.tier-1 { background: #fef9c3; color: #a16207; border: 1px solid rgba(234,179,8,.3); }
+.badge-penalty-tier.tier-2 { background: #ffedd5; color: #c2410c; border: 1px solid rgba(249,115,22,.3); }
+.badge-penalty-tier.tier-3 { background: #fee2e2; color: #b91c1c; border: 1px solid rgba(239,68,68,.3); }
+.badge-penalty-tier.tier-4 { background: #ffe4e6; color: #9f1239; border: 1px solid rgba(190,18,60,.3); }
+.badge-penalty-tier.tier-5 { background: #4c0519; color: #fda4af; border: 1px solid rgba(253,164,175,.2); }
+
+.td-penalty-amount {
+  font-size: .78rem;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.td-penalty-detail {
+  font-size: .65rem;
+  color: var(--muted, #94a3b8);
+}
+
+.badge-penalty-status {
+  display: inline-block;
+  font-size: .58rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 3px;
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+.bps-paid    { background: #dcfce7; color: #15803d; }
+.bps-applied { background: #fee2e2; color: #b91c1c; }
+.bps-waived  { background: #e0e7ff; color: #4338ca; }
+
+.td-no-penalty {
+  color: var(--muted, #94a3b8);
+  font-size: .82rem;
+}
+
+:host-context([data-theme="dark"]) .badge-penalty-tier.tier-1 { background: rgba(234,179,8,.12);  color: #fbbf24; border-color: rgba(234,179,8,.25); }
+:host-context([data-theme="dark"]) .badge-penalty-tier.tier-2 { background: rgba(249,115,22,.12); color: #fb923c; border-color: rgba(249,115,22,.25); }
+:host-context([data-theme="dark"]) .badge-penalty-tier.tier-3 { background: rgba(239,68,68,.12);  color: #f87171; border-color: rgba(239,68,68,.25); }
+:host-context([data-theme="dark"]) .badge-penalty-tier.tier-4 { background: rgba(190,18,60,.2);   color: #fb7185; border-color: rgba(190,18,60,.3); }
+:host-context([data-theme="dark"]) .badge-penalty-tier.tier-5 { background: rgba(76,5,25,.7);     color: #fda4af; border-color: rgba(253,164,175,.15); }
+:host-context([data-theme="dark"]) .td-penalty-amount { color: #f87171; }
+:host-context([data-theme="dark"]) .bps-paid    { background: rgba(22,163,74,.12); color: #4ade80; }
+:host-context([data-theme="dark"]) .bps-applied { background: rgba(239,68,68,.12); color: #f87171; }
+:host-context([data-theme="dark"]) .bps-waived  { background: rgba(99,102,241,.12); color: #a5b4fc; }
+
+/* ── Late badge (overdue) ── */
+.b-late {
+  background: rgba(239,68,68,.1);
+  color: #dc2626;
+  border: 1px solid rgba(239,68,68,.25);
+  padding: 3px 9px;
+}
+
+:host-context([data-theme="dark"]) .b-late {
+  background: rgba(239,68,68,.12);
+  color: #f87171;
+  border-color: rgba(239,68,68,.2);
+}
+
+/* ════════════════════════════════════════════════════════
+   TABLE ROW ANIMATIONS
+   ════════════════════════════════════════════════════════ */
+
+.tbl-wrap tbody tr {
+  animation: fadeIn .3s ease both;
+  transition: background .15s ease;
+}
+
+.tbl-wrap tbody tr:hover {
+  background: rgba(59,130,246,.03);
+}
+
+:host-context([data-theme="dark"]) .tbl-wrap tbody tr:hover {
+  background: rgba(59,130,246,.06);
+}
+
+/* ── Amortization KPI cards ── */
+.amort-kpi {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.amort-kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+}
+
+/* ── Grace banner ── */
+.grace-banner {
+  animation: fadeSlideUp .4s ease .3s both;
+}
+
+/* ── Reduce motion for accessibility ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

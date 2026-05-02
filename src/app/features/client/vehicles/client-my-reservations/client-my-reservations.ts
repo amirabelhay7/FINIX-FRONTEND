@@ -23,6 +23,8 @@ export class ClientMyReservations implements OnInit {
   error = '';
   private loadingGuard: ReturnType<typeof setTimeout> | null = null;
   private readonly reservationsCacheKey = 'finix-client-my-reservations';
+  /** From notification deep-link (`finix_focus_reservation_id`). */
+  focusedReservationId: number | null = null;
 
   constructor(
     private reservationService: ReservationService,
@@ -97,6 +99,12 @@ export class ClientMyReservations implements OnInit {
       void this.router.navigate(['/login-client']);
       return;
     }
+    const rawFocusRes = sessionStorage.getItem('finix_focus_reservation_id');
+    const fid = Number(rawFocusRes);
+    sessionStorage.removeItem('finix_focus_reservation_id');
+    if (Number.isFinite(fid) && fid > 0) {
+      this.focusedReservationId = fid;
+    }
     this.hydrateReservationsFromCache();
     this.loadData();
   }
@@ -133,6 +141,13 @@ export class ClientMyReservations implements OnInit {
         if (this.loadingGuard) {
           clearTimeout(this.loadingGuard);
           this.loadingGuard = null;
+        }
+        if (this.focusedReservationId) {
+          requestAnimationFrame(() => {
+            document
+              .getElementById('cmr-res-' + this.focusedReservationId)
+              ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
         }
       });
 

@@ -1,4 +1,4 @@
-<article class="vehicle-card">
+﻿<article class="vehicle-card">
   <div class="vehicle-card__media">
     <img
       *ngIf="showImage"
@@ -42,9 +42,9 @@
   <div class="vehicle-card__body">
     <p class="vehicle-card__brand">{{ vehicle.marque }}</p>
     <h3 class="vehicle-card__model">{{ vehicle.modele }}</h3>
-    <p class="vehicle-card__cond">Etat: {{ conditionLabel }}</p>
-    <p class="vehicle-card__meta">Localisation: {{ vehicle.localisation || '—' }}</p>
-    <p class="vehicle-card__meta">Serie: {{ vehicle.serieVehicule || '—' }}</p>
+    <p class="vehicle-card__cond">Condition: {{ conditionLabel }}</p>
+    <p class="vehicle-card__meta">Location: {{ vehicle.localisation || '—' }}</p>
+    <p class="vehicle-card__meta">Serial: {{ vehicle.serieVehicule || '—' }}</p>
 
     <p class="vehicle-card__price">
       <span class="vehicle-card__price-value">{{ vehicle.prixTnd | number : '1.0-0' }}</span>
@@ -73,3 +73,4 @@
     </div>
   </div>
 </article>
+

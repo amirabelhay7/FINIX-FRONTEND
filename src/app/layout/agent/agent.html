@@ -94,6 +94,18 @@
             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
           </svg>
           <svg
+            *ngIf="item.icon === 'clock'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          <svg
             *ngIf="item.icon === 'users'"
             width="15"
             height="15"
@@ -118,6 +130,19 @@
             <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
             <circle cx="5.5" cy="18.5" r="2.5" />
             <circle cx="18.5" cy="18.5" r="2.5" />
+          </svg>
+          <svg
+            *ngIf="item.icon === 'warning'"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
           <svg
             *ngIf="item.icon === 'alert-triangle'"
@@ -200,10 +225,10 @@
   <!-- User footer -->
   <div class="cfm-rail-footer">
     <div class="cfm-user" (click)="showUserMenu = !showUserMenu">
-      <div class="cfm-user-avatar">SA</div>
+      <div class="cfm-user-avatar">{{ agentInitials }}</div>
       <div class="cfm-user-info">
-        <div class="cfm-user-name">Sami Allani</div>
-        <div class="cfm-user-role">Super Admin · Tunis</div>
+        <div class="cfm-user-name">{{ agentFirstName }} {{ agentLastName }}</div>
+        <div class="cfm-user-role">{{ agentRole }}</div>
       </div>
       <svg
         width="14"
@@ -320,20 +345,40 @@
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
       </button>
-      <button class="cfm-tb-icon">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
-        <span class="cfm-tb-notif-dot"></span>
-      </button>
+      <div class="cfm-notif-wrap">
+        <button class="cfm-tb-icon" (click)="toggleNotifDropdown()" [attr.aria-expanded]="notifDropdownOpen">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          <span class="cfm-notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+        </button>
+        <div class="cfm-notif-dropdown" *ngIf="notifDropdownOpen">
+          <div class="cfm-notif-head">
+            <span class="cfm-notif-title">Notifications</span>
+            <button type="button" class="cfm-notif-markall" *ngIf="notifications.length" (click)="markAllNotificationsRead()">Mark all read</button>
+          </div>
+          <div class="cfm-notif-state" *ngIf="notificationsLoading">Loading...</div>
+          <div class="cfm-notif-state" *ngIf="!notificationsLoading && notifications.length === 0">No notifications.</div>
+          <ul class="cfm-notif-list" *ngIf="!notificationsLoading && notifications.length > 0">
+            <li class="cfm-notif-item" *ngFor="let n of notifications" [class.unread]="!n.read" (click)="onSelectNotification(n)">
+              <div class="cfm-notif-item-title">{{ n.title }}</div>
+              <div class="cfm-notif-item-msg">{{ n.message }}</div>
+              <div class="cfm-notif-item-meta">
+                <span class="cfm-notif-cat">{{ notificationCategoryLabel(n.category) }}</span>
+                <span>{{ notificationRelativeTime(n.createdAt) }}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
       <button class="cfm-tb-icon">
         <svg
           width="16"
@@ -735,11 +780,13 @@
             <!-- Step 2 — Installment details (auto-populated) -->
             <div class="pay-section-title" style="margin-top:1.5rem">
               <span class="pay-step">2</span> Details de la mensualite
+              <span class="pay-step">2</span> Installment details
             </div>
 
             <div class="pay-form-grid">
               <div class="pay-field">
                 <label class="pay-label">Mensualite N°</label>
+                <label class="pay-label">Installment N°</label>
                 <input class="pay-input" type="text" [value]="nextInstallment.installmentNumber + ' / ' + nextInstallment.totalInstallments" disabled/>
               </div>
               <div class="pay-field">
@@ -861,7 +908,9 @@
                 <th>Client</th>
                 <th>Contrat</th>
                 <th>Mens.</th>
-                <th>Montant</th>
+                <th>Montant base</th>
+                <th>Pénalité</th>
+                <th>Total payé</th>
                 <th>Échéance</th>
                 <th>Date paiement</th>
                 <th>Statut</th>
@@ -870,10 +919,45 @@
             <tbody>
               <tr *ngFor="let p of agentHistory">
                 <td class="hist-ref">#{{ p.id }}</td>
-                <td>{{ p.username }}</td>
+                <td>{{ p.clientFirstName }} {{ p.clientLastName }}</td>
                 <td class="hist-contract">{{ p.numeroContrat }}</td>
-                <td style="text-align:center">{{ p.installmentNumber }}</td>
-                <td class="hist-amount">{{ p.amountPaid | number:'1.2-2' }} TND</td>
+                <td style="text-align:center">#{{ p.installmentNumber }}</td>
+                <td class="hist-amount">
+                  {{ (p.baseInstallmentAmount ?? p.amountPaid) | number:'1.2-2' }} TND
+                </td>
+                <td>
+                  <ng-container *ngIf="p.penaltyAmount; else noPenalty">
+                    <div style="display:flex;flex-direction:column;gap:2px">
+                      <span style="font-size:.7rem;font-weight:700;padding:2px 6px;border-radius:4px;width:fit-content"
+                        [style.background]="p.penaltyTier === 'TIER_5' ? '#4c0519' : p.penaltyTier === 'TIER_4' ? '#ffe4e6' : p.penaltyTier === 'TIER_3' ? '#fef2f2' : p.penaltyTier === 'TIER_2' ? '#fff7ed' : '#fefce8'"
+                        [style.color]="p.penaltyTier === 'TIER_5' ? '#fda4af' : p.penaltyTier === 'TIER_4' ? '#9f1239' : p.penaltyTier === 'TIER_3' ? '#dc2626' : p.penaltyTier === 'TIER_2' ? '#ea580c' : '#ca8a04'">
+                        {{ p.penaltyTierLabel }}
+                      </span>
+                      <span style="font-size:.8rem;color:#ef4444;font-weight:700">
+                        +{{ p.penaltyAmount | number:'1.2-2' }} TND
+                      </span>
+                      <span style="font-size:.68rem;color:var(--g400)">{{ p.penaltyDaysOverdue }}j late</span>
+                    </div>
+                  </ng-container>
+                  <ng-template #noPenalty>
+                    <span style="color:var(--g400);font-size:.8rem">—</span>
+                  </ng-template>
+                </td>
+                <td>
+                  <ng-container *ngIf="p.penaltyAmount; else totalNoPenalty">
+                    <div style="display:flex;flex-direction:column;gap:1px">
+                      <span style="font-size:.68rem;color:var(--g400)">
+                        {{ (p.baseInstallmentAmount ?? 0) | number:'1.2-2' }} + {{ p.penaltyAmount | number:'1.2-2' }}
+                      </span>
+                      <span class="hist-amount" style="color:#ef4444;font-weight:800">
+                        {{ p.amountPaid | number:'1.2-2' }} TND
+                      </span>
+                    </div>
+                  </ng-container>
+                  <ng-template #totalNoPenalty>
+                    <span class="hist-amount">{{ p.amountPaid | number:'1.2-2' }} TND</span>
+                  </ng-template>
+                </td>
                 <td class="hist-date">{{ p.dueDate }}</td>
                 <td class="hist-date">{{ p.paymentDate | date:'dd/MM/yyyy HH:mm' }}</td>
                 <td><span class="hist-badge">PAID</span></td>
@@ -1082,10 +1166,659 @@
           </div>
         </div>
       </div>
+
+    </ng-container>
+
+    <!-- ═══════════ GRACE PERIOD REQUESTS PAGE ═══════════ -->
+    <ng-container *ngIf="selectedPage === 'grace-requests'">
+      <div class="cfm-page-head">
+        <div>
+          <div class="cfm-ph-eyebrow">Operations</div>
+          <div class="cfm-ph-title">Grace Period Requests</div>
+          <div class="cfm-ph-desc">Review and process client grace period requests</div>
+        </div>
+        <div class="cfm-ph-actions">
+          <select class="gpr-filter-select" [ngModel]="graceFilterStatus" (ngModelChange)="onGraceFilterChange($event)">
+            <option value="">All Requests</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- KPI cards -->
+      <div class="gpr-kpi-row">
+        <div class="gpr-kpi" style="border-left:3px solid #f59e0b">
+          <div class="gpr-kpi-val">{{ graceRequests.length }}</div>
+          <div class="gpr-kpi-label">Total Requests</div>
+        </div>
+        <div class="gpr-kpi" style="border-left:3px solid #f59e0b">
+          <div class="gpr-kpi-val" style="color:#f59e0b">{{ pendingGraceCount }}</div>
+          <div class="gpr-kpi-label">Pending</div>
+        </div>
+        <div class="gpr-kpi" style="border-left:3px solid #22c55e">
+          <div class="gpr-kpi-val" style="color:#22c55e">{{ approvedGraceCount }}</div>
+          <div class="gpr-kpi-label">Approved</div>
+        </div>
+        <div class="gpr-kpi" style="border-left:3px solid #ef4444">
+          <div class="gpr-kpi-val" style="color:#ef4444">{{ rejectedGraceCount }}</div>
+          <div class="gpr-kpi-label">Rejected</div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="graceRequestsLoading" style="text-align:center;padding:2rem;color:var(--muted)">
+        Loading grace period requests...
+      </div>
+
+      <!-- Table -->
+      <div class="gpr-table-wrap" *ngIf="!graceRequestsLoading">
+        <table class="gpr-table">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Contract</th>
+              <th>Installment</th>
+              <th>Days</th>
+              <th>Affected</th>
+              <th>Reason</th>
+              <th>Date</th>
+              <th>Docs</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="graceRequests.length === 0">
+              <td colspan="10" style="text-align:center;padding:2rem;color:var(--muted)">No grace period requests found.</td>
+            </tr>
+            <tr *ngFor="let req of graceRequests">
+              <td>
+                <div class="gpr-client-name">{{ req.clientFirstName }} {{ req.clientLastName }}</div>
+                <div class="gpr-client-cin">CIN {{ req.clientCin || '—' }}</div>
+              </td>
+              <td><span class="gpr-ref">{{ req.numeroContrat || '—' }}</span></td>
+              <td>
+                <div class="gpr-client-name">#{{ req.installmentNumber }}</div>
+                <div class="gpr-client-cin">{{ req.installmentDueDate | date:'dd/MM/yyyy' }}</div>
+              </td>
+              <td><strong>{{ req.requestedGraceDays }}d</strong></td>
+              <td><strong>{{ req.numberOfAffectedInstallments }}</strong></td>
+              <td>
+                <div class="gpr-reason-cell" title="{{ req.reason }}">{{ req.reason }}</div>
+              </td>
+              <td>{{ req.createdAt | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <span class="gpr-doc-count" *ngIf="req.documents?.length" (click)="openGraceDetail(req)">
+                  {{ req.documents.length }} file(s)
+                </span>
+                <span *ngIf="!req.documents?.length" style="color:var(--muted)">—</span>
+              </td>
+              <td>
+                <span class="gpr-badge"
+                  [class.gpr-badge-pending]="req.status === 'PENDING'"
+                  [class.gpr-badge-approved]="req.status === 'APPROVED'"
+                  [class.gpr-badge-rejected]="req.status === 'REJECTED'">
+                  {{ req.status }}
+                </span>
+              </td>
+              <td>
+                <div class="gpr-actions" *ngIf="req.status === 'PENDING'">
+                  <button class="gpr-btn gpr-btn-approve"
+                    (click)="approveGraceRequest(req.id)"
+                    [disabled]="graceActionLoading === req.id">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    Approve
+                  </button>
+                  <button class="gpr-btn gpr-btn-reject"
+                    (click)="openRejectModal(req.id)"
+                    [disabled]="graceActionLoading === req.id">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Reject
+                  </button>
+                </div>
+                <div *ngIf="req.status !== 'PENDING'" style="color:var(--muted);font-size:.75rem">
+                  {{ req.reviewerFirstName }} {{ req.reviewerLastName }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Reject modal -->
+      <div class="gpr-overlay" *ngIf="graceRejectId !== null" (click)="graceRejectId = null">
+        <div class="gpr-reject-modal" (click)="$event.stopPropagation()">
+          <div class="gpr-reject-title">Reject Grace Period Request</div>
+          <label class="gpr-reject-label">Reason for rejection (optional)</label>
+          <textarea class="gpr-reject-textarea" [(ngModel)]="graceRejectReason" rows="3" placeholder="Provide a reason..."></textarea>
+          <div class="gpr-reject-actions">
+            <button class="gpr-btn gpr-btn-cancel" (click)="graceRejectId = null">Cancel</button>
+            <button class="gpr-btn gpr-btn-reject" (click)="confirmRejectGraceRequest()" [disabled]="graceActionLoading !== null">
+              Confirm Rejection
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail modal (documents) -->
+      <div class="gpr-overlay" *ngIf="graceDetailRequest" (click)="closeGraceDetail()">
+        <div class="gpr-detail-modal" (click)="$event.stopPropagation()">
+          <div class="gpr-detail-head">
+            <div class="gpr-detail-title">Request Details</div>
+            <button class="gpr-detail-close" (click)="closeGraceDetail()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="gpr-detail-body">
+            <div class="gpr-detail-row"><strong>Client:</strong> {{ graceDetailRequest.clientFirstName }} {{ graceDetailRequest.clientLastName }} (CIN: {{ graceDetailRequest.clientCin }})</div>
+            <div class="gpr-detail-row"><strong>Contract:</strong> {{ graceDetailRequest.numeroContrat }}</div>
+            <div class="gpr-detail-row"><strong>Installment:</strong> #{{ graceDetailRequest.installmentNumber }} — Due {{ graceDetailRequest.installmentDueDate | date:'dd/MM/yyyy' }}</div>
+            <div class="gpr-detail-row"><strong>Grace Days:</strong> {{ graceDetailRequest.requestedGraceDays }}</div>
+            <div class="gpr-detail-row"><strong>Affected Installments:</strong> {{ graceDetailRequest.numberOfAffectedInstallments }}</div>
+            <div class="gpr-detail-row"><strong>Reason:</strong> {{ graceDetailRequest.reason }}</div>
+            <div class="gpr-detail-row"><strong>Date:</strong> {{ graceDetailRequest.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+            <div class="gpr-detail-row" *ngIf="graceDetailRequest.documents?.length > 0">
+              <strong>Documents:</strong>
+              <div class="gpr-doc-list">
+                <a *ngFor="let doc of graceDetailRequest.documents"
+                  class="gpr-doc-link"
+                  [href]="'http://localhost:8082' + doc.fileUrl"
+                  target="_blank">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  {{ doc.fileName }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ═══════════ PAGE LOAN APPLICATIONS ═══════════ -->
+    <ng-container *ngIf="selectedPage === 'dossiers'">
+      <div class="cfm-page-head">
+        <div>
+          <div class="cfm-ph-eyebrow">Operations</div>
+          <div class="cfm-ph-title">Loan Applications</div>
+          <div class="cfm-ph-desc">Tracking of credit applications currently being processed.</div>
+        </div>
+      </div>
+      <div style="padding:0 24px;text-align:center;color:var(--cfm-muted);padding-top:60px">
+        <span class="material-symbols-outlined" style="font-size:48px;display:block;margin-bottom:12px;opacity:.4">folder_open</span>
+        <div style="font-size:.9rem;opacity:.5">Content of loan applications currently in development.</div>
+      </div>
+
+      <!-- ── LISTE DES DOSSIERS (quand aucun dossier sélectionné) ── -->
+      <ng-container *ngIf="false">
+        <div class="cfm-page-head">
+          <div>
+            <div class="cfm-ph-eyebrow">Recovery</div>
+            <div class="cfm-ph-title">My Cases</div>
+            <div class="cfm-ph-desc">{{ dossiers.length }} Case(s) assigned</div>
+          </div>
+        </div>
+
+        <!-- KPIs rapides -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 24px 20px">
+          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:12px;padding:16px">
+            <div style="font-size:1.5rem;font-weight:800;color:var(--cfm-text)">{{ dossiers.length }}</div>
+            <div style="font-size:.75rem;color:var(--cfm-muted);margin-top:2px">Total</div>
+          </div>
+          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:12px;padding:16px">
+            <div style="font-size:1.5rem;font-weight:800;color:#ef4444">
+              {{ countByRisk('CRITICAL') }}
+            </div>
+            <div style="font-size:.75rem;color:var(--cfm-muted);margin-top:2px">Critiques</div>
+          </div>
+          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:12px;padding:16px">
+            <div style="font-size:1.5rem;font-weight:800;color:#f97316">
+              {{ countByRisk('HIGH') }}
+            </div>
+            <div style="font-size:.75rem;color:var(--cfm-muted);margin-top:2px">Élevés</div>
+          </div>
+          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:12px;padding:16px">
+            <div style="font-size:1.5rem;font-weight:800;color:#22c55e">
+              {{ countByRisk('LOW') }}
+            </div>
+            <div style="font-size:.75rem;color:var(--cfm-muted);margin-top:2px">Faibles</div>
+          </div>
+        </div>
+
+        <!-- Liste -->
+        <div style="padding:0 24px;display:flex;flex-direction:column;gap:10px">
+          <div *ngFor="let d of dossiers"
+            (click)="openDossier(d)"
+            style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:14px;padding:18px 20px;cursor:pointer;transition:all .15s"
+            onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='var(--cfm-border)'">
+
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+              <!-- Gauche : client + données -->
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                  <div style="width:36px;height:36px;border-radius:50%;background:#3b82f6/10;display:flex;align-items:center;justify-content:center;background:#eff6ff">
+                    <span class="material-symbols-outlined" style="font-size:18px;color:#3b82f6">person</span>
+                  </div>
+                  <div>
+                    <div style="font-weight:700;color:var(--cfm-text);font-size:.9rem">{{ d.clientFullName }}</div>
+                    <div style="font-size:.72rem;color:var(--cfm-muted)">Contrat #{{ d.loanContractId }}</div>
+                  </div>
+                  <!-- Badge statut -->
+                  <span style="margin-left:auto;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:6px;background:#eff6ff;color:#3b82f6">
+                    {{ dossierStatusLabel(d.status) }}
+                  </span>
+                </div>
+
+                <!-- Métriques financières -->
+                <div style="display:flex;gap:20px;flex-wrap:wrap">
+                  <div>
+                    <div style="font-size:.7rem;color:var(--cfm-muted)">Impayé</div>
+                    <div style="font-size:.85rem;font-weight:700;color:#ef4444">{{ d.totalOverdueAmount | number:'1.0-0' }} TND</div>
+                  </div>
+                  <div>
+                    <div style="font-size:.7rem;color:var(--cfm-muted)">Mensualités</div>
+                    <div style="font-size:.85rem;font-weight:700;color:var(--cfm-text)">{{ d.overdueInstallmentsCount }}</div>
+                  </div>
+                  <div>
+                    <div style="font-size:.7rem;color:var(--cfm-muted)">Retard max</div>
+                    <div style="font-size:.85rem;font-weight:700;color:var(--cfm-text)">{{ d.maxDaysOverdue }}j</div>
+                  </div>
+                  <div>
+                    <div style="font-size:.7rem;color:var(--cfm-muted)">Actions</div>
+                    <div style="font-size:.85rem;font-weight:700;color:var(--cfm-text)">{{ d.recoveryActionsCount }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Droite : niveau de risque -->
+              <div style="text-align:center;padding:10px 16px;border-radius:10px;" [ngClass]="dossierRiskBg(d.riskLevel)">
+                <span class="material-symbols-outlined" style="font-size:20px;display:block" [ngClass]="dossierRiskClass(d.riskLevel)">warning</span>
+                <div style="font-size:.7rem;font-weight:800;margin-top:2px" [ngClass]="dossierRiskClass(d.riskLevel)">{{ d.riskLevel }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aucun dossier -->
+          <div *ngIf="dossiers.length === 0" style="text-align:center;padding:48px;color:var(--cfm-muted)">
+            <span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px">folder_open</span>
+            Aucun dossier assigné pour le moment.
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ── DÉTAIL D'UN DOSSIER (masqué dans Loan Applications) ── -->
+      <ng-container *ngIf="false && !dossiersLoading && selectedDossier">
+
+        <div class="cfm-page-head">
+          <div>
+            <div class="cfm-ph-eyebrow">
+              <button (click)="backToDossierList()" style="background:none;border:none;cursor:pointer;color:#3b82f6;font-size:.75rem;font-weight:600;padding:0;display:flex;align-items:center;gap:4px">
+                <span class="material-symbols-outlined" style="font-size:14px">arrow_back</span>
+                Mes dossiers
+              </button>
+            </div>
+            <div class="cfm-ph-title">{{ selectedDossier.clientFullName }}</div>
+            <div class="cfm-ph-desc">Dossier #{{ selectedDossier.id }} · {{ selectedDossier.maxDaysOverdue }} jours de retard</div>
+          </div>
+          <div class="cfm-ph-actions">
+            <button *ngIf="selectedDossier.status !== 'CLOSED' && selectedDossier.status !== 'RECOVERED'"
+              (click)="openActionForm()"
+              style="background:#3b82f6;color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
+              <span class="material-symbols-outlined" style="font-size:16px">add</span>
+              New recovery action
+            </button>
+          </div>
+        </div>
+
+        <div style="padding:0 24px;display:grid;grid-template-columns:1fr 1.6fr;gap:16px;align-items:start">
+
+          <!-- Carte info dossier -->
+          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px">
+            <div style="font-size:.7rem;font-weight:700;color:var(--cfm-muted);text-transform:uppercase;letter-spacing:.05em">Informations</div>
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span style="padding:4px 12px;border-radius:8px;font-size:.72rem;font-weight:700" [ngClass]="[dossierRiskBg(selectedDossier.riskLevel), dossierRiskClass(selectedDossier.riskLevel)]">
+                {{ selectedDossier.riskLevel }}
+              </span>
+              <span style="padding:4px 12px;border-radius:8px;font-size:.72rem;font-weight:700;background:#eff6ff;color:#3b82f6">
+                {{ selectedDossier.category }}
+              </span>
+              <span style="padding:4px 12px;border-radius:8px;font-size:.72rem;font-weight:700;background:#f0fdf4;color:#16a34a">
+                {{ dossierStatusLabel(selectedDossier.status) }}
+              </span>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;font-size:.82rem">
+                <span style="color:var(--cfm-muted)">Overdue Amount</span>
+                <span style="font-weight:700;color:#ef4444">{{ selectedDossier.totalOverdueAmount | number:'1.2-2' }} TND</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:.82rem">
+                <span style="color:var(--cfm-muted)">Penalities</span>
+                <span style="font-weight:700;color:#f97316">{{ selectedDossier.totalPenaltyAmount | number:'1.2-2' }} TND</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:.82rem;border-top:1px solid var(--cfm-border);padding-top:10px">
+                <span style="color:var(--cfm-text);font-weight:600">Total due</span>
+                <span style="font-weight:800;color:var(--cfm-text)">{{ (selectedDossier.totalOverdueAmount + selectedDossier.totalPenaltyAmount) | number:'1.2-2' }} TND</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:.82rem">
+                <span style="color:var(--cfm-muted)">Overdue Installments</span>
+                <span style="font-weight:700;color:var(--cfm-text)">{{ selectedDossier.overdueInstallmentsCount }}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:.82rem">
+                <span style="color:var(--cfm-muted)">Max Delay</span>
+                <span style="font-weight:700;color:var(--cfm-text)">{{ selectedDossier.maxDaysOverdue }} days</span>
+              </div>
+            </div>
+
+            <div *ngIf="selectedDossier.notes" style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:.78rem;color:#92400e">
+              {{ selectedDossier.notes }}
+            </div>
+          </div>
+
+          <!-- Colonne droite : formulaire + timeline -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+
+            <!-- Formulaire ajout action -->
+            <div *ngIf="showActionForm" style="background:var(--cfm-card);border:1px solid #3b82f6;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px">
+              <div style="font-size:.82rem;font-weight:700;color:var(--cfm-text)">Save recovery action</div>
+              <div *ngIf="actionFormError" style="color:#ef4444;font-size:.75rem">{{ actionFormError }}</div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div>
+                  <label style="display:block;font-size:.72rem;font-weight:600;color:var(--cfm-muted);margin-bottom:4px">Action Type *</label>
+                  <select [(ngModel)]="actionForm.actionType" style="width:100%;background:var(--cfm-bg);border:1px solid var(--cfm-border);border-radius:8px;padding:8px 10px;font-size:.8rem;color:var(--cfm-text)">
+                    <option value="">Choose...</option>
+                    <option *ngFor="let t of actionTypeOptions" [value]="t">{{ t }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display:block;font-size:.72rem;font-weight:600;color:var(--cfm-muted);margin-bottom:4px">Result *</label>
+                  <select [(ngModel)]="actionForm.result" style="width:100%;background:var(--cfm-bg);border:1px solid var(--cfm-border);border-radius:8px;padding:8px 10px;font-size:.8rem;color:var(--cfm-text)">
+                    <option value="">Choose...</option>
+                    <option *ngFor="let r of resultOptions" [value]="r">{{ r }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style="display:block;font-size:.72rem;font-weight:600;color:var(--cfm-muted);margin-bottom:4px">Description *</label>
+                <textarea [(ngModel)]="actionForm.description" rows="2"
+                  
+                  style="width:100%;background:var(--cfm-bg);border:1px solid var(--cfm-border);border-radius:8px;padding:8px 10px;font-size:.8rem;color:var(--cfm-text);resize:none;box-sizing:border-box"></textarea>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div>
+                  <label style="display:block;font-size:.72rem;font-weight:600;color:var(--cfm-muted);margin-bottom:4px">Coming action</label>
+                  <input type="text" [(ngModel)]="actionForm.nextActionNote"
+                    
+                    style="width:100%;background:var(--cfm-bg);border:1px solid var(--cfm-border);border-radius:8px;padding:8px 10px;font-size:.8rem;color:var(--cfm-text);box-sizing:border-box"/>
+                </div>
+                <div>
+                  <label style="display:block;font-size:.72rem;font-weight:600;color:var(--cfm-muted);margin-bottom:4px">Scheduled date</label>
+                  <input type="datetime-local" [(ngModel)]="actionForm.nextActionDate"
+                    style="width:100%;background:var(--cfm-bg);border:1px solid var(--cfm-border);border-radius:8px;padding:8px 10px;font-size:.8rem;color:var(--cfm-text);box-sizing:border-box"/>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:10px;justify-content:flex-end">
+                <button (click)="showActionForm = false" style="background:none;border:1px solid var(--cfm-border);border-radius:8px;padding:7px 16px;font-size:.8rem;font-weight:600;color:var(--cfm-muted);cursor:pointer">
+                  Cancel
+                </button>
+                <button (click)="submitAction()" [disabled]="savingAction"
+                  style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:7px 20px;font-size:.8rem;font-weight:700;cursor:pointer;opacity:1"
+                  [style.opacity]="savingAction ? '0.6' : '1'">
+                  {{ savingAction ? 'Saving...' : 'Save' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Timeline actions -->
+            <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:14px;overflow:hidden">
+              <div style="padding:14px 18px;border-bottom:1px solid var(--cfm-border);font-size:.82rem;font-weight:700;color:var(--cfm-text)">
+                Recovery action history
+                <span style="margin-left:8px;font-size:.7rem;background:var(--cfm-bg);padding:2px 8px;border-radius:6px;color:var(--cfm-muted)">{{ dossierActions.length }}</span>
+              </div>
+
+              <div *ngIf="dossierActionsLoading" style="display:flex;justify-content:center;padding:24px">
+                <div style="width:24px;height:24px;border:3px solid #3b82f6;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div>
+              </div>
+
+              <div *ngIf="!dossierActionsLoading">
+                <div *ngFor="let a of dossierActions"
+                  style="padding:14px 18px;border-bottom:1px solid var(--cfm-border);display:flex;gap:12px;align-items:flex-start">
+                  <div style="width:34px;height:34px;flex-shrink:0;background:#eff6ff;border-radius:50%;display:flex;align-items:center;justify-content:center">
+                    <span class="material-symbols-outlined" style="font-size:16px;color:#3b82f6">{{ actionIconName(a.actionType) }}</span>
+                  </div>
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                      <span style="font-size:.8rem;font-weight:700;color:var(--cfm-text)">{{ a.actionType }}</span>
+                      <span style="font-size:.7rem;font-weight:700" [ngClass]="actionResultClass(a.result)">{{ a.result }}</span>
+                    </div>
+                    <div style="font-size:.78rem;color:var(--cfm-muted)">{{ a.description }}</div>
+                    <div *ngIf="a.nextActionNote" style="font-size:.72rem;color:#3b82f6;margin-top:4px;display:flex;align-items:center;gap:4px">
+                      <span class="material-symbols-outlined" style="font-size:13px">schedule</span>
+                      {{ a.nextActionNote }}
+                      <span *ngIf="a.nextActionDate" style="color:var(--cfm-muted)">— {{ a.nextActionDate | date:'dd/MM HH:mm' }}</span>
+                    </div>
+                    <div style="font-size:.7rem;color:var(--cfm-muted);margin-top:4px">
+                      {{ a.actionDate | date:'dd/MM/yyyy HH:mm' }}
+                      <span *ngIf="a.performedByFullName"> · {{ a.performedByFullName }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="dossierActions.length === 0" style="padding:32px;text-align:center;color:var(--cfm-muted);font-size:.8rem">
+                  No actions recorded. Start by adding an action.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <!-- ═══════════ PAGE DELINQUENCY CASES ═══════════ -->
+    <ng-container *ngIf="selectedPage === 'delinquency'">
+
+      <!-- Chargement -->
+      <div *ngIf="dossiersLoading" class="flex justify-center items-center py-20">
+        <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+
+      <!-- Erreur -->
+      <div *ngIf="dossiersError" class="mx-6 mt-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-700 text-sm">
+        {{ dossiersError }}
+      </div>
+
+      <!-- ── LISTE des dossiers ── -->
+      <ng-container *ngIf="!dossiersLoading && !selectedDossier">
+        <div class="cfm-page-head">
+          <div>
+            <div class="cfm-ph-eyebrow">Recovery</div>
+            <div class="cfm-ph-title">Delinquency Cases</div>
+            <div class="cfm-ph-desc">{{ dossiers.length }} Assigned Cases</div>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 24px 20px">
+          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:12px;padding:16px">
+            <div style="font-size:1.5rem;font-weight:800;color:var(--cfm-text)">{{ dossiers.length }}</div>
+            <div style="font-size:.75rem;color:var(--cfm-muted);margin-top:2px">Total</div>
+          </div>
+          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:12px;padding:16px">
+            <div style="font-size:1.5rem;font-weight:800;color:#ef4444">{{ countByRisk('CRITICAL') }}</div>
+            <div style="font-size:.75rem;color:var(--cfm-muted);margin-top:2px">Critical</div>
+          </div>
+          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:12px;padding:16px">
+            <div style="font-size:1.5rem;font-weight:800;color:#f97316">{{ countByRisk('HIGH') }}</div>
+            <div style="font-size:.75rem;color:var(--cfm-muted);margin-top:2px">High</div>
+          </div>
+          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:12px;padding:16px">
+            <div style="font-size:1.5rem;font-weight:800;color:#22c55e">{{ countByRisk('LOW') }}</div>
+            <div style="font-size:.75rem;color:var(--cfm-muted);margin-top:2px">Low</div>
+          </div>
+        </div>
+
+        <!-- Liste cartes -->
+        <div style="padding:0 24px;display:flex;flex-direction:column;gap:10px">
+          <div *ngFor="let d of dossiers"
+            (click)="openDossier(d)"
+            style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:14px;padding:18px 20px;cursor:pointer;transition:all .15s"
+            onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='var(--cfm-border)'">
+
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                  <div style="width:36px;height:36px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center">
+                    <span class="material-symbols-outlined" style="font-size:18px;color:#3b82f6">person</span>
+                  </div>
+                  <div>
+                    <div style="font-weight:700;color:var(--cfm-text);font-size:.9rem">{{ d.clientFullName }}</div>
+                    <div style="font-size:.72rem;color:var(--cfm-muted)">Contract #{{ d.loanContractId }}</div>
+                  </div>
+                  <span style="margin-left:auto;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:6px;background:#eff6ff;color:#3b82f6">
+                    {{ dossierStatusLabel(d.status) }}
+                  </span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+                  <div style="background:var(--cfm-bg);border-radius:8px;padding:8px 10px">
+                    <div style="font-size:.68rem;color:var(--cfm-muted)">Amount Due</div>
+                    <div style="font-size:.85rem;font-weight:700;color:#ef4444">{{ d.totalOverdueAmount | number:'1.2-2' }} TND</div>
+                  </div>
+                  <div style="background:var(--cfm-bg);border-radius:8px;padding:8px 10px">
+                    <div style="font-size:.68rem;color:var(--cfm-muted)">Delay</div>
+                    <div style="font-size:.85rem;font-weight:700" [ngClass]="dossierRiskClass(d.riskLevel)">{{ d.maxDaysOverdue }}j</div>
+                  </div>
+                  <div style="background:var(--cfm-bg);border-radius:8px;padding:8px 10px">
+                    <div style="font-size:.68rem;color:var(--cfm-muted)">Risk</div>
+                    <div style="font-size:.85rem;font-weight:700" [ngClass]="dossierRiskClass(d.riskLevel)">{{ d.riskLevel }}</div>
+                  </div>
+                </div>
+              </div>
+              <span class="material-symbols-outlined" style="color:var(--cfm-muted);font-size:18px">chevron_right</span>
+            </div>
+          </div>
+
+          <div *ngIf="dossiers.length === 0" style="text-align:center;padding:48px;color:var(--cfm-muted)">
+            <span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px">check_circle</span>
+            No delinquency cases assigned.
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ── DÉTAIL d'un dossier ── -->
+      <ng-container *ngIf="!dossiersLoading && selectedDossier">
+        <div class="cfm-page-head" style="padding-bottom:0">
+          <div style="display:flex;align-items:center;gap:12px">
+            <button (click)="backToDossierList()"
+              style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:8px;padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--cfm-text);cursor:pointer;display:flex;align-items:center;gap:6px">
+              <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span> My Cases
+            </button>
+            <div>
+              <div class="cfm-ph-title" style="font-size:1.1rem">{{ selectedDossier.clientFullName }}</div>
+              <div class="cfm-ph-desc">Contract #{{ selectedDossier.loanContractId }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:16px 24px;display:flex;flex-direction:column;gap:16px">
+
+          <!-- Carte infos -->
+          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:14px;padding:18px">
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;font-size:.83rem;line-height:2">
+              <div><span style="color:var(--cfm-muted)">Amount Due   :</span> <b style="color:#ef4444">{{ selectedDossier.totalOverdueAmount | number:'1.2-2' }} TND</b></div>
+              <div><span style="color:var(--cfm-muted)">Penalties :</span> <b style="color:#f97316">{{ selectedDossier.totalPenaltyAmount | number:'1.2-2' }} TND</b></div>
+              <div><span style="color:var(--cfm-muted)">Max Delay :</span> <b [ngClass]="dossierRiskClass(selectedDossier.riskLevel)">{{ selectedDossier.maxDaysOverdue }}j</b></div>
+              <div><span style="color:var(--cfm-muted)">Unpaid Installments :</span> <b>{{ selectedDossier.overdueInstallmentsCount }}</b></div>
+              <div><span style="color:var(--cfm-muted)">Status :</span> <b>{{ dossierStatusLabel(selectedDossier.status) }}</b></div>
+              <div><span style="color:var(--cfm-muted)">Phase :</span> <b>{{ selectedDossier.category }}</b></div>
+              <div *ngIf="selectedDossier.notes" style="grid-column:span 2;color:var(--cfm-muted);font-size:.78rem">{{ selectedDossier.notes }}</div>
+            </div>
+          </div>
+
+          <!-- Bouton nouvelle action -->
+          <button *ngIf="!showActionForm" (click)="openActionForm()"
+            style="background:#3b82f6;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:.85rem;font-weight:700;cursor:pointer;align-self:flex-start;display:flex;align-items:center;gap:8px">
+            <span class="material-symbols-outlined" style="font-size:18px">add</span> new recovery Action
+          </button>
+
+          <!-- Formulaire action -->
+          <div *ngIf="showActionForm"
+            style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:14px;padding:18px">
+            <div style="font-weight:700;font-size:.9rem;margin-bottom:14px;color:var(--cfm-text)">Save Action</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+              <select [(ngModel)]="actionForm.actionType"
+                style="padding:9px 12px;border-radius:8px;border:1px solid var(--cfm-border);background:var(--cfm-bg);color:var(--cfm-text);font-size:.83rem">
+                <option value="">— Action Type —</option>
+                <option *ngFor="let t of actionTypeOptions" [value]="t">{{ t }}</option>
+              </select>
+              <select [(ngModel)]="actionForm.result"
+                style="padding:9px 12px;border-radius:8px;border:1px solid var(--cfm-border);background:var(--cfm-bg);color:var(--cfm-text);font-size:.83rem">
+                <option value="">— Result —</option>
+                <option *ngFor="let r of resultOptions" [value]="r">{{ r }}</option>
+              </select>
+            </div>
+            <textarea [(ngModel)]="actionForm.description" rows="2"
+              placeholder="Description of the action taken..."
+              style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--cfm-border);background:var(--cfm-bg);color:var(--cfm-text);font-size:.83rem;resize:vertical;box-sizing:border-box;margin-bottom:10px"></textarea>
+            <input [(ngModel)]="actionForm.nextActionNote" type="text"
+              placeholder="Next action note (optional)"
+              style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--cfm-border);background:var(--cfm-bg);color:var(--cfm-text);font-size:.83rem;box-sizing:border-box;margin-bottom:10px"/>
+            <div *ngIf="actionFormError" style="color:#ef4444;font-size:.78rem;margin-bottom:8px">{{ actionFormError }}</div>
+            <div style="display:flex;gap:8px">
+              <button (click)="submitAction()" [disabled]="savingAction"
+                style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:.83rem;font-weight:700;cursor:pointer">
+                {{ savingAction ? 'Saving…' : 'Save' }}
+              </button>
+              <button (click)="showActionForm = false"
+                style="background:var(--cfm-bg);border:1px solid var(--cfm-border);border-radius:8px;padding:9px 18px;font-size:.83rem;color:var(--cfm-text);cursor:pointer">
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:14px;padding:18px">
+            <div style="font-weight:700;font-size:.83rem;color:var(--cfm-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">
+              Actions history ({{ dossierActions.length }})
+            </div>
+            <div *ngIf="dossierActionsLoading" style="text-align:center;padding:1rem;opacity:.4">Loading…</div>
+            <div *ngIf="!dossierActionsLoading && dossierActions.length === 0" style="text-align:center;padding:1.5rem;color:var(--cfm-muted);font-size:.83rem">
+              No actions recorded for this file.
+            </div>
+            <div *ngFor="let a of dossierActions; let last = last"
+              style="display:flex;gap:12px;padding:12px 0"
+              [style.borderBottom]="last ? 'none' : '1px solid var(--cfm-border)'">
+              <div style="width:32px;height:32px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <span class="material-symbols-outlined" style="font-size:16px;color:#3b82f6">{{ actionIconName(a.actionType) }}</span>
+              </div>
+              <div style="flex:1">
+                <div style="font-weight:700;font-size:.83rem;color:var(--cfm-text)">
+                  {{ a.actionType }} — <span [ngClass]="actionResultClass(a.result)">{{ a.result }}</span>
+                </div>
+                <div style="font-size:.78rem;color:var(--cfm-muted);margin-top:2px">{{ a.description }}</div>
+                <div style="font-size:.7rem;color:var(--cfm-muted);margin-top:4px">
+                  {{ a.actionDate | date:'dd/MM/yyyy HH:mm' }}
+                  <span *ngIf="a.performedByFullName"> · {{ a.performedByFullName }}</span>
+                </div>
+                <div *ngIf="a.nextActionNote" style="font-size:.72rem;color:#3b82f6;margin-top:4px">
+                  <span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle">schedule</span>
+                  {{ a.nextActionNote }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
     </ng-container>
 
     <!-- Placeholder for other pages -->
-    <ng-container *ngIf="selectedPage !== 'dashboard' && selectedPage !== 'remboursements' && selectedPage !== 'vehicules'">
+    <ng-container *ngIf="selectedPage !== 'dashboard' && selectedPage !== 'remboursements' && selectedPage !== 'grace-requests' && selectedPage !== 'vehicules' && selectedPage !== 'dossiers' && selectedPage !== 'delinquency'">
       <div class="cfm-page-head">
         <div>
           <div class="cfm-ph-eyebrow">CAPITAL FLOW MONITOR</div>
