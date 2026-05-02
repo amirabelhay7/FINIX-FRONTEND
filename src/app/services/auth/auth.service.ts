@@ -56,6 +56,7 @@ export interface NeedsRoleSelectionResponse {
   picture?: string;
 }
 
+
 export interface JwtPayload {
   sub: string;
   role: string;
@@ -121,6 +122,7 @@ export class AuthService {
       catchError((err) => this.handleError(err)),
     );
   }
+
 
   /* ── REGISTER ── */
   register(payload: RegisterPayload): Observable<any> {

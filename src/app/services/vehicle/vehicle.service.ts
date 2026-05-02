@@ -103,6 +103,19 @@ export class VehicleService {
     });
   }
 
+  /** Véhicules en attente de validation admin (modération). */
+  getPendingVehicles(): Observable<VehicleDto[]> {
+    return this.http.get<VehicleDto[]>(`${this.API}/pending`, this.withAuthHeaders());
+  }
+
+  approveVehicle(id: number): Observable<VehicleDto> {
+    return this.http.put<VehicleDto>(`${this.API}/${id}/approve`, {}, this.withAuthHeaders());
+  }
+
+  rejectVehicle(id: number, reason: string): Observable<VehicleDto> {
+    return this.http.put<VehicleDto>(`${this.API}/${id}/reject`, { reason }, this.withAuthHeaders());
+  }
+
   getVehicleStats(): Observable<VehicleStatsDto> {
     return this.http.get<VehicleStatsDto>(`${this.API}/stats`, this.withAuthHeaders());
   }

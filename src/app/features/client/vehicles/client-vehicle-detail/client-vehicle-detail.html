@@ -1,4 +1,4 @@
-<div class="cvd-page" *ngIf="!isLoading && vehicle">
+﻿<div class="cvd-page" *ngIf="!isLoading && vehicle">
   <nav class="cvd-breadcrumb">
     <a routerLink="/client/vehicles">← Catalog</a>
   </nav>
@@ -48,12 +48,12 @@
       <div class="cvd-meta">
         <span class="cvd-badge" [attr.data-st]="vehicle.status">{{ statusLabels[vehicle.status] }}</span>
         <span class="cvd-badge cvd-badge-soft">{{ vehicle.active ? 'Active listing' : 'Hidden' }}</span>
-        <span class="cvd-badge cvd-badge-soft">Etat: {{ conditionLabel }}</span>
+        <span class="cvd-badge cvd-badge-soft">Condition: {{ conditionLabel }}</span>
       </div>
       <div class="cvd-price">{{ vehicle.prixTnd | number : '1.0-0' }} <small>TND</small></div>
       <div class="cvd-kv">
-        <span>Localisation: {{ vehicle.localisation || '—' }}</span>
-        <span>Serie: {{ vehicle.serieVehicule || '—' }}</span>
+        <span>Location: {{ vehicle.localisation || '—' }}</span>
+        <span>Serial: {{ vehicle.serieVehicule || '—' }}</span>
       </div>
       <p class="cvd-desc">
         Ref. #{{ vehicle.id }} · Explore IMF financing and submit your application in just a few steps.
@@ -226,3 +226,4 @@
     </p>
   </div>
 </div>
+

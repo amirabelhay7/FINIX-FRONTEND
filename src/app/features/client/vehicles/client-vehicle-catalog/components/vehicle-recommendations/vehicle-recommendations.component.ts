@@ -19,11 +19,11 @@ export class VehicleRecommendationsComponent implements OnChanges {
   hasImageError: Record<number, boolean> = {};
 
   readonly conditionLabels: Record<VehicleCondition, string> = {
-    NEUF: 'Neuf',
-    TRES_BON: 'Tres bon',
-    BON: 'Bon',
-    MOYEN: 'Moyen',
-    MAUVAIS: 'Mauvais',
+    NEUF: 'New',
+    TRES_BON: 'Very good',
+    BON: 'Good',
+    MOYEN: 'Fair',
+    MAUVAIS: 'Poor',
   };
 
   ngOnChanges(_: SimpleChanges): void {
@@ -61,7 +61,7 @@ export class VehicleRecommendationsComponent implements OnChanges {
 
   conditionLabel(v: RecommendedVehicleDto): string {
     const c = v.etatVehicule;
-    if (!c) return 'Non renseigne';
+    if (!c) return 'Not specified';
     return this.conditionLabels[c] ?? c;
   }
 

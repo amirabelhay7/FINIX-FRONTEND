@@ -8,7 +8,30 @@
  
   <div class="tb-right">
     
-    <button class="tb-btn">🔔<span class="notif-dot"></span></button>
+    <div class="tb-notif-wrap">
+      <button class="tb-btn" (click)="toggleNotifDropdown()" [attr.aria-expanded]="showNotifDropdown">
+        🔔
+        <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+      </button>
+      <div class="tb-notif-dropdown" *ngIf="showNotifDropdown" (click)="$event.stopPropagation()">
+        <div class="tb-notif-head">
+          <span class="tb-notif-title">Notifications</span>
+          <button class="tb-notif-markall" *ngIf="notifications.length > 0" (click)="markAllRead()">Mark all read</button>
+        </div>
+        <div class="tb-notif-state" *ngIf="notificationsLoading">Loading...</div>
+        <div class="tb-notif-state" *ngIf="!notificationsLoading && notifications.length === 0">No notifications.</div>
+        <ul class="tb-notif-list" *ngIf="!notificationsLoading && notifications.length > 0">
+          <li *ngFor="let n of notifications" class="tb-notif-item" [class.unread]="!n.read" (click)="onSelectNotification(n)">
+            <div class="tb-notif-item-title">{{ n.title }}</div>
+            <div class="tb-notif-item-msg">{{ n.message }}</div>
+            <div class="tb-notif-item-meta">
+              <span class="tb-notif-cat">{{ notificationCategoryLabel(n.category) }}</span>
+              <span>{{ notificationRelativeTime(n.createdAt) }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
     <button class="tb-btn">⚙️</button>
     <button class="tb-theme-toggle" (click)="toggleTheme()" title="Change the theme">
       {{ currentTheme === 'dark' ? '☀️' : '🌙' }}

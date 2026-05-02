@@ -1,4 +1,4 @@
-<section class="rec-section" aria-labelledby="rec-title">
+﻿<section class="rec-section" aria-labelledby="rec-title">
   <div class="rec-section__head">
     <h2 id="rec-title" class="rec-section__title">
       <span class="rec-section__icon" aria-hidden="true">✦</span>
@@ -67,7 +67,7 @@
       <div class="rec-card__body">
         <p class="rec-card__brand">{{ v.marque }}</p>
         <h3 class="rec-card__model">{{ v.modele }}</h3>
-        <p class="rec-card__cond">Etat: {{ conditionLabel(v) }}</p>
+        <p class="rec-card__cond">Condition: {{ conditionLabel(v) }}</p>
         <p class="rec-card__price">
           <span class="rec-card__price-value">{{ v.prixTnd | number : '1.0-0' }}</span>
           <span class="rec-card__currency">TND</span>
@@ -108,3 +108,4 @@
     </article>
   </div>
 </section>
+

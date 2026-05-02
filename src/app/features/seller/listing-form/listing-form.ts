@@ -18,6 +18,8 @@ export class ListingForm {
   readonly pageTitle = 'Vehicule a vendre';
   readonly pageSubtitle = "Ajoutez les details de votre vehicule comme sur Marketplace.";
   readonly backRoute = '/seller/listings';
+  readonly saveLabel = 'Enregistrer';
+  readonly cancelLabel = 'Annuler';
   readonly sellerName = 'Koussay Ben Attia';
   readonly location = 'Ariana';
   readonly selectedVehicleType = 'Voiture/Camion';

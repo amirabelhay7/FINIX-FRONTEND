@@ -15,6 +15,20 @@ export const authGuard: CanActivateFn = (route, state) => {
   return false;
 };
 
+const roleToRoute: Record<string, string> = {
+  admin: '/backoffice',
+  agent: '/agent',
+  insurer: '/insurer',
+  client: '/client',
+  seller: '/seller',
+  ADMIN: '/backoffice',
+  AGENT: '/agent',
+  INSURER: '/insurer',
+  CLIENT: '/client',
+  SELLER: '/seller',
+};
+
+
 export function roleGuard(...allowedRoles: string[]): CanActivateFn {
   return (route, state) => {
     const router = inject(Router);

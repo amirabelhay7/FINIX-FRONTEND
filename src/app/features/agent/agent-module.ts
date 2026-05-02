@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 import { AgentRoutingModule } from './agent-routing-module';
 import { Dashboard } from './dashboard/dashboard';
@@ -21,6 +22,7 @@ import { ClientDetail } from './client-detail/client-detail';
   imports: [
     CommonModule,
     RouterModule,
+    FormsModule,
     AgentRoutingModule
   ]
 })

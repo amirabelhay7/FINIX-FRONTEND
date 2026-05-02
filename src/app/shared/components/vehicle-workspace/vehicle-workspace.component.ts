@@ -1,4 +1,4 @@
-import {
+﻿import {
   ChangeDetectorRef,
   Component,
   Input,
@@ -10,6 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { VehicleService } from '../../../services/vehicle/vehicle.service';
 import { ReservationService } from '../../../services/vehicle/reservation.service';
 import { AuthService } from '../../../services/auth/auth.service';
+import { apiUrl } from '../../../core/config/api-url';
 import {
   DeliveryVehicleDto,
   DeliveryVehiclePayload,
@@ -27,14 +28,16 @@ import {
   StatusTracker,
   TypeDocument,
   VehicleDto,
+  VehicleModerationStatus,
   VehiclePayload,
   VehicleSearchQuery,
   VehicleStatsDto,
   VehicleStatus,
   VehicleWorkspaceMode,
 } from '../../../models';
-import { Subject, Subscription, of } from 'rxjs';
+import { Observable, Subject, Subscription, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, switchMap } from 'rxjs/operators';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 @Component({
   selector: 'app-vehicle-workspace',
@@ -47,6 +50,8 @@ export class VehicleWorkspaceComponent implements OnInit, OnDestroy {
   @Input() showSubEntities = true;
   @Input() headingEyebrow = 'My Vehicles';
   @Input() headingTitle = 'Vehicle Fleet';
+  /** Hide primary “create listing” CTA (e.g. admin fleet moderation only). Row actions unaffected. */
+  @Input() showCreateVehicleButton = true;
   /** client = lecture seule ; seller = mes véhicules ; admin = parc + stats */
   @Input() workspaceMode: VehicleWorkspaceMode = 'admin';
 
@@ -168,9 +173,28 @@ export class VehicleWorkspaceComponent implements OnInit, OnDestroy {
     visible: '' | 'true' | 'false';
   } = { feedbackType: '', authorUserId: '', visible: '' };
 
+  /** Onglets modération (admin back-office). */
+  adminModerationFilter: 'all' | 'pending' | 'approved' | 'rejected' = 'all';
+  moderationActionPending = false;
+  showRejectModal = false;
+  rejectTarget: VehicleDto | null = null;
+  rejectReason = '';
+  private pendingFocusVehicleId: number | null = null;
+  private pendingFocusReservationId: number | null = null;
+  private readonly backendBase = apiUrl('/').replace(/\/$/, '');
+
   readonly feedbackTypeLabels: Record<FeedbackType, string> = {
     CLIENT_SERVICE: 'Client - Customer service',
     SELLER_SERVICE: 'Seller - Customer service',
+  };
+
+  readonly moderationStatusLabels: Record<VehicleModerationStatus, string> = {
+    PENDING_AI_REVIEW: 'Pending (AI)',
+    APPROVED_BY_AI: 'Approved (AI)',
+    REJECTED_BY_AI: 'Rejected (AI)',
+    PENDING_ADMIN_REVIEW: 'Pending validation',
+    APPROVED_BY_ADMIN: 'Approved',
+    REJECTED_BY_ADMIN: 'Rejected',
   };
 
   constructor(
@@ -180,6 +204,7 @@ export class VehicleWorkspaceComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef,
+    private notificationService: NotificationService,
   ) {}
 
   get canManageVehicles(): boolean {
@@ -238,6 +263,25 @@ export class VehicleWorkspaceComponent implements OnInit, OnDestroy {
     }));
   }
 
+  /** Liste affichée selon l’onglet modération (admin). */
+  get displayedVehicles(): VehicleDto[] {
+    if (this.workspaceMode !== 'admin') return this.vehicles;
+    if (this.adminModerationFilter === 'all' || this.adminModerationFilter === 'pending') {
+      return this.vehicles;
+    }
+    return this.vehicles.filter((v) => {
+      const m = v.moderationStatus;
+      if (!m) return false;
+      if (this.adminModerationFilter === 'approved') {
+        return m === 'APPROVED_BY_ADMIN' || m === 'APPROVED_BY_AI';
+      }
+      if (this.adminModerationFilter === 'rejected') {
+        return m === 'REJECTED_BY_ADMIN' || m === 'REJECTED_BY_AI';
+      }
+      return true;
+    });
+  }
+
   get documentsScoped(): DocumentVehicleDto[] {
     if (!this.selectedVehicle) return this.documents;
     return this.documents.filter((d) => d.vehicleId === this.selectedVehicle!.id);
@@ -272,6 +316,18 @@ export class VehicleWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const rawFocusVehicleId = sessionStorage.getItem('finix_focus_vehicle_id');
+    const focusVehicleId = Number(rawFocusVehicleId);
+    if (Number.isFinite(focusVehicleId) && focusVehicleId > 0) {
+      this.pendingFocusVehicleId = focusVehicleId;
+      sessionStorage.removeItem('finix_focus_vehicle_id');
+    }
+    const rawFocusReservationId = sessionStorage.getItem('finix_focus_reservation_id');
+    const focusReservationId = Number(rawFocusReservationId);
+    if (Number.isFinite(focusReservationId) && focusReservationId > 0) {
+      this.pendingFocusReservationId = focusReservationId;
+      sessionStorage.removeItem('finix_focus_reservation_id');
+    }
     this.qSub = this.qDebounced
       .pipe(debounceTime(350), distinctUntilChanged())
       .subscribe(() => this.loadVehicles(true));
@@ -392,10 +448,14 @@ export class VehicleWorkspaceComponent implements OnInit, OnDestroy {
     }
     this.loadError = '';
     const query = this.buildSearchQuery();
-    const req$ =
-      this.workspaceMode === 'seller'
-        ? this.vehicleService.getMyVehicles(query)
-        : this.vehicleService.searchVehicles(query);
+    let req$: Observable<VehicleDto[]>;
+    if (this.workspaceMode === 'admin' && this.adminModerationFilter === 'pending') {
+      req$ = this.vehicleService.getPendingVehicles();
+    } else if (this.workspaceMode === 'seller') {
+      req$ = this.vehicleService.getMyVehicles(query);
+    } else {
+      req$ = this.vehicleService.searchVehicles(query);
+    }
 
     req$
       .pipe(
@@ -407,6 +467,28 @@ export class VehicleWorkspaceComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (rows) => {
           this.vehicles = rows;
+          if (this.pendingFocusReservationId) {
+            const rid = this.pendingFocusReservationId;
+            this.pendingFocusReservationId = null;
+            this.reservationService.getById(rid).subscribe({
+              next: (res) => {
+                if (res?.vehicleId) {
+                  const veh = rows.find((v) => v.id === res.vehicleId);
+                  if (veh) {
+                    this.openDetail(veh);
+                  }
+                }
+                this.cdr.markForCheck();
+              },
+              error: () => this.cdr.markForCheck(),
+            });
+          } else if (this.pendingFocusVehicleId) {
+            const focused = rows.find((v) => v.id === this.pendingFocusVehicleId);
+            if (focused) {
+              this.openDetail(focused);
+              this.pendingFocusVehicleId = null;
+            }
+          }
           if (this.selectedVehicle) {
             this.selectedVehicle = rows.find((v) => v.id === this.selectedVehicle!.id) ?? null;
           }
@@ -609,6 +691,116 @@ export class VehicleWorkspaceComponent implements OnInit, OnDestroy {
         error: (err) => {
           this.submitError = this.httpErrorMessage(err);
           this.cdr.markForCheck();
+        },
+      });
+  }
+
+  setAdminModerationFilter(f: 'all' | 'pending' | 'approved' | 'rejected'): void {
+    if (this.adminModerationFilter === f) return;
+    this.adminModerationFilter = f;
+    this.loadVehicles(false);
+  }
+
+  moderationLabel(m?: VehicleModerationStatus | null): string {
+    if (!m) return '—';
+    return this.moderationStatusLabels[m] ?? m;
+  }
+
+  resolveImageUrl(raw?: string | null): string {
+    if (!raw) return '';
+    const trimmed = raw.trim().replace(/\\/g, '/');
+    if (!trimmed) return '';
+    if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('data:') || trimmed.startsWith('blob:')) {
+      return trimmed;
+    }
+    if (trimmed.startsWith('/')) return `${this.backendBase}${trimmed}`;
+    return `${this.backendBase}/${trimmed}`;
+  }
+
+  primaryImageUrl(raw?: string | null): string {
+    if (!raw) return '';
+    const first = raw
+      .split(',')
+      .map((p) => p.trim())
+      .find((p) => p.length > 0);
+    return this.resolveImageUrl(first ?? '');
+  }
+
+  canModerateVehicle(v: VehicleDto): boolean {
+    return this.workspaceMode === 'admin' && this.isAdminRole && v.moderationStatus === 'PENDING_ADMIN_REVIEW';
+  }
+
+  approveVehicleRow(v: VehicleDto): void {
+    this.submitError = '';
+    this.submitSuccess = '';
+    this.moderationActionPending = true;
+    this.vehicleService
+      .approveVehicle(v.id)
+      .pipe(
+        finalize(() => {
+          this.moderationActionPending = false;
+          this.cdr.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.submitSuccess = 'Listing approved.';
+          this.notificationService.requestRefresh();
+          this.loadVehicles(true);
+          if (this.showAdminStats) this.loadStats();
+        },
+        error: (err) => {
+          this.submitError = this.httpErrorMessage(err);
+        },
+      });
+  }
+
+  openRejectModal(v: VehicleDto): void {
+    this.submitError = '';
+    this.rejectTarget = v;
+    this.rejectReason = '';
+    this.showRejectModal = true;
+  }
+
+  closeRejectModal(): void {
+    if (this.moderationActionPending) return;
+    this.resetRejectModal();
+  }
+
+  private resetRejectModal(): void {
+    this.showRejectModal = false;
+    this.rejectTarget = null;
+    this.rejectReason = '';
+  }
+
+  confirmReject(): void {
+    const v = this.rejectTarget;
+    const reason = this.rejectReason.trim();
+    if (!v) return;
+    if (reason.length < 3) {
+      this.submitError = 'Please provide a reason (at least 3 characters).';
+      return;
+    }
+    this.submitError = '';
+    this.moderationActionPending = true;
+    this.vehicleService
+      .rejectVehicle(v.id, reason)
+      .pipe(
+        finalize(() => {
+          this.moderationActionPending = false;
+          this.cdr.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.submitSuccess = 'Listing rejected.';
+          this.notificationService.requestRefresh();
+          this.resetRejectModal();
+          this.loadVehicles(true);
+          if (this.showAdminStats) this.loadStats();
+        },
+        error: (err) => {
+          this.submitError = this.httpErrorMessage(err);
         },
       });
   }
@@ -1035,3 +1227,4 @@ export class VehicleWorkspaceComponent implements OnInit, OnDestroy {
     this.gpsForm = { statusTracker: 'ASSIGNED', serialNumber: '', installationDate: '', active: true };
   }
 }
+

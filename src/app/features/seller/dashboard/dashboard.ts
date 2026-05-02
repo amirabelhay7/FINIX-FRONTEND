@@ -6,6 +6,9 @@ import { finalize, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import * as L from 'leaflet';
 
+/**
+ * ViewModel: seller dashboard (MVVM).
+ */
 @Component({
   selector: 'app-dashboard',
   standalone: false,

@@ -1,11 +1,11 @@
-<div class="vehicle-workspace-root page-body">
+﻿<div class="vehicle-workspace-root page-body">
   <div class="ph s1">
     <div>
       <div class="ph-eyebrow">{{ headingEyebrow }}</div>
       <div class="ph-title">{{ headingTitle }}</div>
-      <div class="ph-desc">{{ vehicles.length }} vehicle(s) - mode {{ workspaceMode }}</div>
+      <div class="ph-desc">{{ displayedVehicles.length }} vehicle(s) shown · mode {{ workspaceMode }}</div>
     </div>
-    <div class="ph-actions" *ngIf="canManageVehicles">
+    <div class="ph-actions" *ngIf="canManageVehicles && showCreateVehicleButton">
       <button type="button" class="btn btn-primary" (click)="openCreateModal()">+ Add vehicle</button>
     </div>
   </div>
@@ -82,6 +82,15 @@
     </div>
   </div>
 
+  <div class="panel s2 vw-mod-tabs" *ngIf="workspaceMode === 'admin' && isAdminRole">
+    <div class="vw-mod-tabs-inner">
+      <button type="button" class="btn btn-xs" [class.btn-primary]="adminModerationFilter === 'all'" [class.btn-outline]="adminModerationFilter !== 'all'" (click)="setAdminModerationFilter('all')">All</button>
+      <button type="button" class="btn btn-xs" [class.btn-primary]="adminModerationFilter === 'pending'" [class.btn-outline]="adminModerationFilter !== 'pending'" (click)="setAdminModerationFilter('pending')">Pending</button>
+      <button type="button" class="btn btn-xs" [class.btn-primary]="adminModerationFilter === 'approved'" [class.btn-outline]="adminModerationFilter !== 'approved'" (click)="setAdminModerationFilter('approved')">Approved</button>
+      <button type="button" class="btn btn-xs" [class.btn-primary]="adminModerationFilter === 'rejected'" [class.btn-outline]="adminModerationFilter !== 'rejected'" (click)="setAdminModerationFilter('rejected')">Rejected</button>
+    </div>
+  </div>
+
   <div class="panel s2">
     <div class="panel-head">
       <div class="panel-title"><span class="ptdot"></span>Vehicle list</div>
@@ -98,17 +107,18 @@
             <th>Model</th>
             <th>Price</th>
             <th>Status</th>
+            <th *ngIf="workspaceMode === 'admin'">Moderation</th>
             <th>Active</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="vehicles.length === 0">
-            <td colspan="8" style="text-align:center;color:var(--muted);padding:1rem">No vehicle available.</td>
+          <tr *ngIf="displayedVehicles.length === 0">
+            <td [attr.colspan]="workspaceMode === 'admin' ? 9 : 8" style="text-align:center;color:var(--muted);padding:1rem">No vehicle available.</td>
           </tr>
-          <tr *ngFor="let vehicle of vehicles">
+          <tr *ngFor="let vehicle of displayedVehicles">
             <td style="width:52px">
-              <img *ngIf="vehicle.imageUrl" class="vw-thumb" [src]="vehicle.imageUrl" alt="" />
+              <img *ngIf="vehicle.imageUrl" class="vw-thumb" [src]="primaryImageUrl(vehicle.imageUrl)" alt="" />
               <span *ngIf="!vehicle.imageUrl" class="vw-thumb-fallback">🚗</span>
             </td>
             <td class="td-ref">#{{ vehicle.id }}</td>
@@ -116,11 +126,21 @@
             <td>{{ vehicle.modele }}</td>
             <td class="td-amount">{{ vehicle.prixTnd | number:'1.2-2' }} TND</td>
             <td><span class="badge b-blue">{{ statusLabels[vehicle.status] }}</span></td>
+            <td *ngIf="workspaceMode === 'admin'">
+              <span class="badge" [ngClass]="vehicle.moderationStatus === 'PENDING_ADMIN_REVIEW' ? 'b-review' : (vehicle.moderationStatus === 'REJECTED_BY_ADMIN' || vehicle.moderationStatus === 'REJECTED_BY_AI') ? 'b-danger' : 'b-actif'">
+                {{ moderationLabel(vehicle.moderationStatus) }}
+              </span>
+              <div *ngIf="vehicle.rejectionReason" style="font-size:.7rem;color:var(--danger);max-width:12rem;margin-top:.25rem" [title]="vehicle.rejectionReason">{{ vehicle.rejectionReason }}</div>
+            </td>
             <td>
               <span class="badge" [ngClass]="vehicle.active ? 'b-actif' : 'b-danger'">{{ vehicle.active ? 'Yes' : 'No' }}</span>
             </td>
-            <td style="display:flex;gap:.4rem;flex-wrap:wrap">
+            <td style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center">
               <button type="button" class="btn btn-ghost btn-xs" (click)="openDetail(vehicle)">Details</button>
+              <ng-container *ngIf="canModerateVehicle(vehicle)">
+                <button type="button" class="btn btn-success btn-xs" [disabled]="moderationActionPending" (click)="approveVehicleRow(vehicle)">Approve</button>
+                <button type="button" class="btn btn-danger btn-xs" [disabled]="moderationActionPending" (click)="openRejectModal(vehicle)">Reject</button>
+              </ng-container>
               <ng-container *ngIf="canManageVehicles">
                 <button type="button" class="btn btn-outline btn-xs" (click)="openEditModal(vehicle)">Edit</button>
                 <button type="button" class="btn btn-danger btn-xs" (click)="deleteVehicle(vehicle)">Delete</button>
@@ -144,9 +164,11 @@
       <div><strong>Active:</strong> {{ selectedVehicle.active ? 'Yes' : 'No' }}</div>
       <div><strong>Created at:</strong> {{ selectedVehicle.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
       <div><strong>Updated at:</strong> {{ selectedVehicle.updatedAt | date:'dd/MM/yyyy HH:mm' }}</div>
+      <div *ngIf="workspaceMode === 'admin'"><strong>Moderation:</strong> {{ moderationLabel(selectedVehicle.moderationStatus) }}</div>
+      <div *ngIf="selectedVehicle.rejectionReason" style="grid-column:1/-1"><strong>Rejection reason:</strong> {{ selectedVehicle.rejectionReason }}</div>
       <div style="grid-column:1/-1" *ngIf="selectedVehicle.imageUrl">
         <strong>Image:</strong><br />
-        <img class="vw-detail-img" [src]="selectedVehicle.imageUrl" alt="Vehicle preview" />
+        <img class="vw-detail-img" [src]="primaryImageUrl(selectedVehicle.imageUrl)" alt="Vehicle preview" />
       </div>
     </div>
   </div>
@@ -174,12 +196,12 @@
         <input class="form-input" placeholder="Fichier / URL document" [(ngModel)]="docForm.fileUrl" />
         <input class="form-input" placeholder="Vehicle image (ref.)" [(ngModel)]="docForm.imageVeh" />
         <select class="form-input" [(ngModel)]="docForm.vehicleId">
-          <option [ngValue]="0">— Vehicule —</option>
+          <option [ngValue]="0">- Vehicle -</option>
           <option *ngFor="let o of vehicleIdsForSelect" [ngValue]="o.id">{{ o.label }}</option>
         </select>
       </div>
       <div class="crud-actions" *ngIf="canMutateSub">
-        <label><input type="checkbox" [(ngModel)]="docForm.verified" /> Verifie</label>
+        <label><input type="checkbox" [(ngModel)]="docForm.verified" /> Verified</label>
         <button type="button" class="btn btn-primary btn-xs" (click)="submitDocument()">Save</button>
         <button type="button" class="btn btn-outline btn-xs" (click)="resetDocumentForm()">New</button>
       </div>
@@ -199,10 +221,10 @@
         <input class="form-input" type="datetime-local" [(ngModel)]="deliveryForm.dateDeliveryPlanned" />
         <input class="form-input" type="datetime-local" [(ngModel)]="deliveryForm.dateDeliveryRealized" />
         <input class="form-input" type="datetime-local" [(ngModel)]="deliveryForm.dateDeliveryCancelled" />
-        <input class="form-input" placeholder="Adresse" [(ngModel)]="deliveryForm.addressDelivery" />
+        <input class="form-input" placeholder="Address" [(ngModel)]="deliveryForm.addressDelivery" />
         <select class="form-input" [(ngModel)]="deliveryForm.statusDelivery"><option *ngFor="let s of deliveryStatuses" [ngValue]="s">{{ s }}</option></select>
         <select class="form-input" [(ngModel)]="deliveryForm.vehicleId">
-          <option [ngValue]="0">— Vehicule —</option>
+          <option [ngValue]="0">- Vehicle -</option>
           <option *ngFor="let o of vehicleIdsForSelect" [ngValue]="o.id">{{ o.label }}</option>
         </select>
       </div>
@@ -230,7 +252,7 @@
         </select>
         <input class="form-input" type="number" min="1" placeholder="Auteur ID" [(ngModel)]="adminFeedbackFilter.authorUserId" />
         <select class="form-input" [(ngModel)]="adminFeedbackFilter.visible">
-          <option [ngValue]="''">Visibilite (tous)</option>
+          <option [ngValue]="''">Visibility (all)</option>
           <option [ngValue]="'true'">Visible</option>
           <option [ngValue]="'false'">Hidden</option>
         </select>
@@ -274,7 +296,7 @@
           <td>
             <div>
               #{{ f.id }} — {{ feedbackTypeLabel(f.feedbackType) }}
-              <span *ngIf="isAdminRole && f.authorId != null">— auteur #{{ f.authorId }} {{ f.authorName || '' }}</span>
+              <span *ngIf="isAdminRole && f.authorId != null">- author #{{ f.authorId }} {{ f.authorName || '' }}</span>
               — {{ f.visible ? 'visible' : 'hidden' }}
             </div>
             <div class="feedback-row-rating">
@@ -319,7 +341,7 @@
     <div class="panel-body" *ngIf="activeCrudTab === 'gps'">
       <div class="crud-grid" *ngIf="canMutateSub">
         <select class="form-input" [(ngModel)]="gpsForm.statusTracker"><option *ngFor="let s of trackerStatuses" [ngValue]="s">{{ s }}</option></select>
-        <input class="form-input" placeholder="N° serie" [(ngModel)]="gpsForm.serialNumber" />
+        <input class="form-input" placeholder="Serial number" [(ngModel)]="gpsForm.serialNumber" />
         <input class="form-input" type="datetime-local" [(ngModel)]="gpsForm.installationDate" />
       </div>
       <div class="crud-actions" *ngIf="canMutateSub">
@@ -336,6 +358,27 @@
           </td>
         </tr>
       </table>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="showRejectModal" (click)="closeRejectModal()">
+    <div class="modal-card" style="max-width:440px" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Reject listing</div>
+          <div class="modal-sub" *ngIf="rejectTarget">#{{ rejectTarget.id }} {{ rejectTarget.marque }} {{ rejectTarget.modele }}</div>
+        </div>
+        <button type="button" class="modal-close" (click)="closeRejectModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Reason (required)</label>
+        <textarea class="form-input" rows="4" [(ngModel)]="rejectReason" placeholder="Explain the rejection reason..."></textarea>
+        <div *ngIf="submitError" style="color:var(--danger);font-size:.8rem;margin-top:.5rem">{{ submitError }}</div>
+      </div>
+      <div class="modal-footer modal-footer--sticky">
+        <button type="button" class="btn btn-outline btn-sm" (click)="closeRejectModal()" [disabled]="moderationActionPending">Cancel</button>
+        <button type="button" class="btn btn-danger btn-sm" [disabled]="moderationActionPending" (click)="confirmReject()">{{ moderationActionPending ? 'Sending...' : 'Confirm rejection' }}</button>
+      </div>
     </div>
   </div>
 
@@ -418,7 +461,7 @@
       <div class="catalog-grid">
         <div class="cat-card" *ngFor="let v of catalogPreview">
           <div class="cat-img">
-            <img *ngIf="v.imageUrl" [src]="v.imageUrl" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px" />
+            <img *ngIf="v.imageUrl" [src]="primaryImageUrl(v.imageUrl)" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px" />
             <span *ngIf="!v.imageUrl">🚗</span>
           </div>
           <div class="cat-body">
@@ -434,3 +477,4 @@
     </div>
   </div>
 </div>
+

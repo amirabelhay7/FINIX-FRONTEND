@@ -1,18 +1,43 @@
 <!-- ═══════════ TOPBAR ═══════════ -->
 <div class="sl-topbar">
   <div class="sl-tb-brand">
-    <img class="sl-tb-logo-img" src="/assets/logo.png" alt="FIN'IX Logo">
+    <img class="sl-tb-logo-img" src="/assets/logo.png" alt="FIN'IX Logo" />
     <div class="sl-tb-name">FIN<span>'IX</span></div>
   </div>
   <div class="sl-tb-divider"></div>
   <div class="sl-tb-sub">Espace Vendeur · Gestion des offres véhicules</div>
+
   <div class="sl-tb-right">
-    <button type="button" class="sl-tb-btn">🔔<span class="sl-notif-dot"></span></button>
+    <div class="sl-notif-wrap">
+      <button type="button" class="sl-tb-btn" (click)="toggleNotifDropdown()" [attr.aria-expanded]="showNotifDropdown">
+        🔔
+        <span class="sl-notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+      </button>
+      <div class="sl-notif-dropdown" *ngIf="showNotifDropdown" (click)="$event.stopPropagation()">
+        <div class="sl-notif-head">
+          <span class="sl-notif-title">Notifications</span>
+          <button type="button" class="sl-notif-markall" *ngIf="notifications.length > 0" (click)="markAllRead()">Mark all read</button>
+        </div>
+        <div class="sl-notif-state" *ngIf="notificationsLoading">Loading...</div>
+        <div class="sl-notif-state" *ngIf="!notificationsLoading && notifications.length === 0">No notifications.</div>
+        <ul class="sl-notif-list" *ngIf="!notificationsLoading && notifications.length > 0">
+          <li *ngFor="let n of notifications" class="sl-notif-item" [class.unread]="!n.read" (click)="onSelectNotification(n)">
+            <div class="sl-notif-item-title">{{ n.title }}</div>
+            <div class="sl-notif-item-msg">{{ n.message }}</div>
+            <div class="sl-notif-item-meta">
+              <span class="sl-notif-cat">{{ notificationCategoryLabel(n.category) }}</span>
+              <span>{{ notificationRelativeTime(n.createdAt) }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
     <button type="button" class="sl-tb-btn">⚙️</button>
     <button type="button" class="sl-theme-toggle" (click)="toggleTheme()" title="Changer le thème">
       {{ currentTheme === 'dark' ? '☀️' : '🌙' }}
     </button>
-    <div class="sl-tb-user" (click)="toggleUserDropdown()" style="position:relative;">
+
+    <div class="sl-tb-user" (click)="toggleUserDropdown()" style="position: relative;">
       <div class="sl-tb-avatar">
         <img *ngIf="userImageUrl; else sellerInitials" [src]="userImageUrl" class="sl-avatar-img" alt="Profile" />
         <ng-template #sellerInitials>{{ userInitials }}</ng-template>
@@ -21,7 +46,8 @@
         <div class="sl-tb-uname">{{ userName }}</div>
         <div class="sl-tb-urole">Vendeur</div>
       </div>
-      <span style="color:rgba(255,255,255,.3);font-size:.65rem;margin-left:.25rem;">▾</span>
+      <span style="color: rgba(255,255,255,.3); font-size: .65rem; margin-left: .25rem;">▾</span>
+
       <div class="sl-dropdown" [class.sl-dropdown-hidden]="!showUserDropdown" (click)="$event.stopPropagation()">
         <div class="sl-dp-head">
           <div class="sl-dp-av">
@@ -33,7 +59,7 @@
             <div class="sl-dp-email">{{ userEmail }}</div>
           </div>
         </div>
-        <div style="padding:.25rem 0;">
+        <div style="padding: .25rem 0;">
           <button type="button" class="sl-dp-item" (click)="goToMyProfile()">👤 My Profile</button>
           <button type="button" class="sl-dp-item">📊 Statistics</button>
           <div class="sl-dp-sep"></div>

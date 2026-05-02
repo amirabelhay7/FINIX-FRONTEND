@@ -308,6 +308,16 @@
   color: #64748b;
 }
 
+.vw-mod-tabs {
+  padding: 0.65rem 1rem !important;
+}
+
+.vw-mod-tabs-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
 @media (max-width: 900px) {
   .crud-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

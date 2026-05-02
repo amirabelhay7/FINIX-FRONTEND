@@ -290,3 +290,9 @@
   outline: 2px solid #2563eb;
   outline-offset: 2px;
 }
+
+.cmr-card--focused {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+  border-radius: 12px;
+}

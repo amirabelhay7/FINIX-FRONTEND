@@ -31,6 +31,8 @@ export class LoginClient implements OnDestroy {
   regTerms = false;
 
   otpDigits: string[] = ['', '', '', '', '', ''];
+  private otpBusy = false;
+  trackByIndex = (i: number) => i;
   otpCountdown = '01:30';
   otpSeconds = 90;
   otpTimerRef: any = null;

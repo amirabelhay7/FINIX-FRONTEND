@@ -8,6 +8,7 @@ export * from './credit.model';
 export * from './insurance.model';
 export * from './repayment.model';
 export * from './vehicle.model';
+export * from './notification.model';
 export * from './user.model';
 export * from './profile.model';
 export * from './agent.model';

@@ -76,10 +76,12 @@ export interface PaymentHistoryResponseDto {
 
 @Injectable({ providedIn: 'root' })
 export class Credit {
-  private readonly API         = apiUrl('/api/loans');
-  private readonly PAY_API     = apiUrl('/api/payments');
-  private readonly HISTORY_API = apiUrl('/api/payment-history');
-  private readonly STRIPE_API  = apiUrl('/api/stripe');
+  private readonly API          = apiUrl('/api/loans');
+  private readonly PAY_API      = apiUrl('/api/payments');
+  private readonly HISTORY_API  = apiUrl('/api/payment-history');
+  private readonly STRIPE_API   = apiUrl('/api/stripe');
+  private readonly SCHEDULE_API = apiUrl('/api/schedule-repayment');
+  private readonly PENALTY_API  = apiUrl('/api/penalties');
 
   constructor(private http: HttpClient) {}
 
@@ -117,4 +119,53 @@ export class Credit {
   createStripePaymentIntent(dto: StripePaymentIntentRequestDto): Observable<StripePaymentIntentResponseDto> {
     return this.http.post<StripePaymentIntentResponseDto>(`${this.STRIPE_API}/create-payment-intent`, dto);
   }
+
+  getInstallments(loanContractId: number): Observable<InstallmentDto[]> {
+    return this.http.get<InstallmentDto[]>(`${this.SCHEDULE_API}/installments/${loanContractId}`);
+  }
+
+  getPenaltiesByContract(loanContractId: number): Observable<PenaltyDto[]> {
+    return this.http.get<PenaltyDto[]>(`${this.PENALTY_API}/by-contract/${loanContractId}`);
+  }
+
+  applyPenaltiesForContract(loanContractId: number): Observable<PenaltyDto[]> {
+    return this.http.post<PenaltyDto[]>(`${this.PENALTY_API}/apply-by-contract/${loanContractId}`, {});
+  }
+
+  applyAllPenalties(): Observable<string> {
+    return this.http.post(`${this.PENALTY_API}/apply-all`, {}, { responseType: 'text' });
+  }
+}
+
+export interface InstallmentDto {
+  id: number;
+  installmentNumber: number;
+  dueDate: string;   // 'YYYY-MM-DD'
+  amountDue: number;
+  principalPart: number;
+  interestPart: number;
+  remainingBalance: number;
+  status: string;    // 'PENDING' | 'PAID' | 'OVERDUE'
+}
+
+export interface PenaltyDto {
+  id: number;
+  installmentId: number;
+  installmentNumber: number;
+  installmentDueDate: string;
+  installmentAmountDue: number;
+  penaltyTier: string;       // 'TIER_1' | 'TIER_2' | 'TIER_3'
+  tierLabel: string;          // 'Retard leger' | 'Retard modere' | 'Retard grave'
+  daysOverdue: number;
+  penaltyRate: number;
+  penaltyAmount: number;
+  relanceFee: number;
+  totalPenalty: number;
+  cappedAt: number;
+  status: string;             // 'APPLIED' | 'PAID' | 'WAIVED'
+  appliedDate: string;
+  paidDate: string | null;
+  waivedByName: string | null;
+  waivedAt: string | null;
+  waivedReason: string | null;
 }
