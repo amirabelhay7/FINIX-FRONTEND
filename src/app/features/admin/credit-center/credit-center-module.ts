@@ -5,19 +5,15 @@ import { RouterModule } from '@angular/router';
 import { CreditCenterRoutingModule } from './credit-center-routing-module';
 import { List } from './list/list';
 import { LoanRequestsList } from './loan-requests-list/loan-requests-list';
-import { ContractsList } from './contracts-list/contracts-list';
-
+import { LoanContractsExplorerModule } from './loan-contracts-explorer.module';
 
 @NgModule({
-  declarations: [
-    List,
-    LoanRequestsList,
-    ContractsList
-  ],
+  declarations: [List, LoanRequestsList],
   imports: [
     CommonModule,
     RouterModule,
-    CreditCenterRoutingModule
-  ]
+    LoanContractsExplorerModule,
+    CreditCenterRoutingModule,
+  ],
 })
-export class CreditCenterModule { }
+export class CreditCenterModule {}

@@ -1,37 +1,117 @@
-<div class="space-y-8 pb-10">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="contracts-shell" [class.embed]="embeddedLayout">
+    <div class="contracts-hero" *ngIf="!embeddedLayout">
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
+            <h1 class="contracts-title">{{ pageTitle }}</h1>
+            <p class="contracts-subtitle">{{ pageSubtitle }}</p>
         </div>
-        <a routerLink="/admin/credit" class="inline-flex items-center px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all">
-            <span class="material-symbols-outlined mr-2 text-[18px]">arrow_back</span>Back
+        <a routerLink="/admin/credit" class="contracts-back-btn">
+            <span class="material-symbols-outlined">arrow_back</span>Back
         </a>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b border-gray-100">
+
+    <div *ngIf="error" class="contracts-error-banner">
+        {{ error }}
+    </div>
+
+    <div class="contracts-toolbar" *ngIf="!loading && totalElements >= 0">
+        <div class="contracts-chip-group">
+            <div class="contracts-chip">
+                <span>Showing</span>
+                <strong>{{ paginationLabel() }}</strong>
+            </div>
+            <div class="contracts-chip">
+                <span>Total</span>
+                <strong>{{ totalElements }}</strong>
+            </div>
+        </div>
+        <div class="contracts-pagination">
+            <button type="button"
+                    class="contracts-page-btn"
+                    (click)="prevPage()"
+                    [disabled]="page <= 0">Previous</button>
+            <span class="contracts-page-label">Page {{ page + 1 }} / {{ totalPages || 1 }}</span>
+            <button type="button"
+                    class="contracts-page-btn"
+                    (click)="nextPage()"
+                    [disabled]="page >= totalPages - 1">Next</button>
+        </div>
+    </div>
+
+    <div class="contracts-table-wrap">
+        <div *ngIf="loading" class="contracts-loading-overlay">
+            <span>Loading contracts…</span>
+        </div>
+        <div class="contracts-table-scroll">
+            <table class="contracts-table">
+                <thead>
                     <tr>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Contract #</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Client</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Principal</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Status</th>
-                        <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
+                        <th>Contract #</th>
+                        <th>Client</th>
+                        <th>Request</th>
+                        <th>Principal</th>
+                        <th>Status</th>
+                        <th class="align-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
-                    <tr class="hover:bg-gray-50 transition-colors" *ngFor="let contract of contracts">
-                        <td class="py-4 px-6 font-mono text-gray-500">{{ contract.contractNumber }}</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">{{ contract.clientName }}</td>
-                        <td class="py-4 px-6 font-bold" [ngClass]="contract.status === 'CLOSED' ? 'text-gray-600' : 'text-[#135bec]'">{{ contract.principal }}</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="contract.statusClass">{{ contract.status }}</span></td>
-                        <td class="py-4 px-6 text-right">
-                            <button type="button" class="text-[#135bec] font-bold hover:underline" (click)="onViewContract(contract)">View</button>
+                <tbody>
+                    <tr *ngIf="!loading && contracts.length === 0">
+                        <td colspan="6" class="contracts-empty">No loan contracts yet.</td>
+                    </tr>
+                    <tr *ngFor="let contract of contracts">
+                        <td class="contracts-contract-id">{{ contract.numeroContrat }}</td>
+                        <td>
+                            <div class="contracts-client">
+                                <div class="contracts-avatar">{{ clientInitials(contract) }}</div>
+                                <div class="contracts-client-name">{{ clientName(contract) }}</div>
+                            </div>
+                        </td>
+                        <td class="contracts-request-id">#{{ contract.requestLoanId ?? '—' }}</td>
+                        <td class="contracts-principal" [class.closed]="contract.statutContrat === 'CLOSED'">
+                            {{ formatPrincipal(contract.montantCredit) }}
+                        </td>
+                        <td>
+                            <span class="contracts-status" [ngClass]="contractStatusClass(contract.statutContrat)">
+                                {{ contractStatusDisplay(contract.statutContrat) }}
+                            </span>
+                        </td>
+                        <td class="contracts-actions">
+                            <button type="button" class="contracts-action-btn primary" (click)="onViewContract(contract)">View</button>
+                            <button type="button"
+                                    class="contracts-action-btn"
+                                    [disabled]="pdfLoadingId === contract.idContrat"
+                                    (click)="onDownloadPdf(contract)">
+                                PDF
+                            </button>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<div *ngIf="detailOpen"
+     class="contracts-modal-overlay"
+     role="dialog"
+     aria-modal="true"
+     (click)="closeDetail()">
+    <div class="contracts-modal"
+         (click)="$event.stopPropagation()">
+        <div class="contracts-modal-head">
+            <h2>Contract details</h2>
+            <button type="button" class="contracts-close-btn" (click)="closeDetail()" aria-label="Close">✕</button>
+        </div>
+        <div class="contracts-modal-loading" *ngIf="detailLoading">Loading…</div>
+        <div class="contracts-modal-error" *ngIf="detailError">{{ detailError }}</div>
+        <dl class="contracts-modal-grid" *ngIf="selectedDetail && !detailLoading">
+            <div class="contracts-modal-row"><dt>Contract #</dt><dd class="mono">{{ selectedDetail.numeroContrat }}</dd></div>
+            <div class="contracts-modal-row"><dt>Client</dt><dd>{{ selectedDetail.clientPrenom }} {{ selectedDetail.clientNom }}</dd></div>
+            <div class="contracts-modal-row"><dt>Credit amount</dt><dd>{{ formatPrincipal(selectedDetail.montantCredit) }}</dd></div>
+            <div class="contracts-modal-row"><dt>Rate / Term</dt><dd>{{ selectedDetail.tauxInteret ?? '—' }}% · {{ selectedDetail.dureeMois ?? '—' }} mo.</dd></div>
+            <div class="contracts-modal-row"><dt>Status</dt><dd><span class="contracts-status" [ngClass]="contractStatusClass(selectedDetail.statutContrat)">{{ contractStatusDisplay(selectedDetail.statutContrat) }}</span></dd></div>
+            <div class="contracts-modal-row" *ngIf="selectedDetail.objectifCredit"><dt>Purpose</dt><dd>{{ selectedDetail.objectifCredit }}</dd></div>
+            <div class="contracts-modal-row" *ngIf="selectedDetail.vehiculeMarque || selectedDetail.vehiculeModele">
+                <dt>Vehicle</dt><dd>{{ selectedDetail.vehiculeMarque }} {{ selectedDetail.vehiculeModele }}</dd></div>
+        </dl>
     </div>
 </div>
