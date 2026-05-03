@@ -276,6 +276,7 @@
                 [class.tc-due-today]="cell.status === 'due-today'"
                 [class.tc-future-due]="cell.status === 'future-due'"
                 [class.tc-past-unpaid]="cell.status === 'past-unpaid'"
+                [class.tc-tzone]="cell.status === 'tolerance-zone'"
                 [class.tc-paid-due]="cell.status === 'paid-due'"
                 (mouseenter)="activeTooltip = cell.tooltip || null"
               >{{ cell.day }}</div>
@@ -372,7 +373,9 @@
         <button class="tab-btn" [class.active]="activeTab === 'amortization'" (click)="activeTab = 'amortization'">
           Amortization Table
         </button>
-        <button class="tab-btn" [class.active]="activeTab === 'delinquency'"
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'delinquency'"
           (click)="activeTab = 'delinquency'"
           [style.color]="delinquencyCase ? '#ef4444' : ''"
           [style.fontWeight]="delinquencyCase ? '700' : ''">
@@ -416,6 +419,8 @@
         <thead>
           <tr>
             <th>Reference</th>
+            <th>Installment</th>
+            <th>Amount</th>
             <th class="th-sortable" (click)="toggleHistorySort()">
               Installment
               <svg class="th-sort-icon" [class.th-sort-asc]="historySortDir === 'asc'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
@@ -567,11 +572,11 @@
               <td>
                 <span
                   class="badge"
-                  [class.b-paid]="row.status === 'PAID'"
-                  [class.b-pending]="row.status === 'PENDING'"
+                  [class.b-paid]="row.status === 'PAID' || isRowPaid(row.num)"
+                  [class.b-pending]="row.status === 'PENDING' && !isRowPaid(row.num)"
                   [class.b-late]="row.status === 'OVERDUE'"
                 >
-                  {{ row.status === 'PAID' ? 'Paid' : (row.status === 'OVERDUE' ? 'Overdue' : 'Pending') }}
+                  {{ row.status === 'PAID' || isRowPaid(row.num) ? 'Paid' : (row.status === 'OVERDUE' ? 'Overdue' : 'Pending') }}
                 </span>
                 <span class="badge-penalty-mini" *ngIf="getPenaltyForInstallment(row.num) as p">
                   +{{ p.totalPenalty | number:'1.2-2' }} TND
@@ -581,7 +586,7 @@
           </tbody>
         </table>
         <!-- Pagination Amortization -->
-        <div class="pagination" *ngIf="amortizationRows.length > amortPageSize">
+        <div class="pagination" *ngIf="activeTab === 'amortization' && amortizationRows.length > amortPageSize">
           <button class="pg-btn" (click)="goAmortPage(amortPage - 1)" [disabled]="amortPage === 1">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
@@ -706,7 +711,7 @@
 
 <!-- ════════════════════════════════════════════════════
      Modal Stripe — Paiement sécurisé par carte
-     ══════════════════════════════════════════════════ -->
+     ════════════════════════════════════════════════════ -->
 <div class="stripe-overlay" *ngIf="stripeModalOpen" (click)="closeStripeModal()">
   <div class="stripe-modal" (click)="$event.stopPropagation()">
 
@@ -827,7 +832,6 @@
       </div>
 
       <div class="stripe-field-label">Bank Card Information</div>
-
       <div class="stripe-card-loading" *ngIf="!stripeReady">
         <span class="pay-spinner"></span> Loading form...
       </div>
@@ -860,6 +864,7 @@
         <div class="stripe-cards">
           <span class="card-chip visa">VISA</span>
           <span class="card-chip mc">MC</span>
+          
         </div>
         <div class="stripe-powered-by">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -3,8 +3,8 @@
   <!-- ── Header ── -->
   <div class="ph s1" style="margin-bottom: 1.5rem;">
     <div>
-      <div class="ph-eyebrow">Configuration : Rate Rules</div>
-      <div class="ph-title">Penalty Tiers</div>
+      <div class="ph-eyebrow">Configuration</div>
+      <div class="ph-title">Business Rules</div>
       <div class="ph-desc">Modify rates and reminder fees without redeployment. Changes take effect starting the next night (02:00 AM)</div>
     </div>
     <div class="ph-actions">
@@ -14,6 +14,30 @@
       </button>
     </div>
   </div>
+
+  <div class="settings-grid s2">
+    <!-- Sections sidebar -->
+    <div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="ptdot"></span>Sections</div>
+        </div>
+        <div class="panel-body" style="padding: 0.5rem">
+          <div class="settings-nav">
+            <button class="sn-item" (click)="goBack()">General</button>
+            <button class="sn-item" (click)="goBack()">Users &amp; Roles</button>
+            <button class="sn-item active">Business Rules</button>
+            <button class="sn-item" (click)="goBack()">Notifications</button>
+            <button class="sn-item" (click)="goBack()">Security</button>
+            <button class="sn-item" (click)="goBack()">Backup</button>
+            <button class="sn-item" (click)="goBack()">Integrations</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div style="display: flex; flex-direction: column; gap: 1.25rem">
 
   <!-- ── Info banner ── -->
   <div style="display:flex; align-items:center; gap:0.75rem; background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:0.875rem 1.25rem; margin-bottom:1.75rem;">
@@ -42,7 +66,7 @@
   <!-- ── Empty state ── -->
   <div *ngIf="!loading && !errorMsg && tiers.length === 0"
        style="text-align:center; padding:5rem 0; color:#9ca3af; font-size:0.875rem;">
-    Aucun palier trouvé. Vérifiez que le serveur Spring est démarré sur le port 8081.
+    Aucun palier trouvé. Vérifiez que le serveur Spring est démarré sur le port 8082.
   </div>
 
   <!-- ── Tiers table ── -->
@@ -221,6 +245,11 @@
       </table>
     </div>
   </div>
+
+    </div>
+    <!-- /main content -->
+  </div>
+  <!-- /settings-grid -->
 
 </div>
 

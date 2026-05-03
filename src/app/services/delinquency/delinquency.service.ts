@@ -62,7 +62,7 @@ export interface CreateRecoveryActionDto {
 
 @Injectable({ providedIn: 'root' })
 export class DelinquencyService {
-  private readonly BASE = 'http://localhost:8081/api';
+  private readonly BASE = 'http://localhost:8082/api';
   private readonly CASE_API     = `${this.BASE}/delinquency-case`;
   private readonly RECOVERY_API = `${this.BASE}/recovery-action`;
 

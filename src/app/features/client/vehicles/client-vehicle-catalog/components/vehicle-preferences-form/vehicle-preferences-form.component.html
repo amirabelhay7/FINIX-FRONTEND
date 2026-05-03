@@ -1,0 +1,83 @@
+﻿<section class="pref-section" aria-labelledby="pref-title">
+  <div class="pref-section__head" (click)="toggle()" role="button" tabindex="0" (keydown.enter)="toggle()" (keydown.space)="toggle()">
+    <h3 id="pref-title" class="pref-section__title">
+      <span class="pref-section__icon" aria-hidden="true">⚙</span>
+      My vehicle preferences
+    </h3>
+    <span class="pref-section__chevron" [class.pref-section__chevron--open]="!collapsed">▾</span>
+  </div>
+
+  <form class="pref-form" [class.pref-form--hidden]="collapsed" (ngSubmit)="save()" #prefForm="ngForm" novalidate>
+
+    <div class="pref-form__row">
+      <div class="pref-form__field">
+        <label class="pref-form__label" for="budgetMax">Max budget (TND)</label>
+        <input
+          id="budgetMax"
+          type="number"
+          class="pref-form__input"
+          [(ngModel)]="budgetMax"
+          name="budgetMax"
+          min="0"
+          placeholder="e.g. 30000"
+        />
+      </div>
+
+      <div class="pref-form__field">
+        <label class="pref-form__label" for="city">Your city</label>
+        <input
+          id="city"
+          type="text"
+          class="pref-form__input"
+          [(ngModel)]="city"
+          name="city"
+          placeholder="e.g. Tunis"
+        />
+      </div>
+    </div>
+
+    <div class="pref-form__row">
+      <div class="pref-form__field">
+        <label class="pref-form__label" for="vehicleType">Preferred vehicle type</label>
+        <select id="vehicleType" class="pref-form__select" [(ngModel)]="preferredVehicleType" name="preferredVehicleType">
+          <option value="">-- Any type --</option>
+          <option *ngFor="let t of vehicleTypes" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+
+      <div class="pref-form__field">
+        <label class="pref-form__label" for="vehicleUsage">Vehicle usage</label>
+        <select id="vehicleUsage" class="pref-form__select" [(ngModel)]="vehicleUsage" name="vehicleUsage">
+          <option value="">-- Any usage --</option>
+          <option *ngFor="let u of usageOptions" [value]="u">{{ u }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="pref-form__field">
+      <label class="pref-form__label" for="preferredBrands">Preferred brands</label>
+      <input
+        id="preferredBrands"
+        type="text"
+        class="pref-form__input"
+        [(ngModel)]="preferredBrands"
+        name="preferredBrands"
+        placeholder="e.g. Toyota, Hyundai, Volkswagen (comma-separated)"
+      />
+      <small class="pref-form__hint">Separate multiple brands with commas.</small>
+    </div>
+
+    <div *ngIf="saveError" class="pref-form__alert pref-form__alert--error" role="alert">{{ saveError }}</div>
+    <div *ngIf="saveSuccess" class="pref-form__alert pref-form__alert--success" role="status">
+      Preferences saved! Recommendations will update.
+    </div>
+
+    <div class="pref-form__actions">
+      <button type="submit" class="pref-form__btn pref-form__btn--primary" [disabled]="saving">
+        {{ saving ? 'Saving...' : 'Save preferences' }}
+      </button>
+    </div>
+
+  </form>
+</section>
+

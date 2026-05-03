@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { apiUrl } from '../../core/config/api-url';
 
 export interface GracePeriodRequestCreateDto {
   requestedGraceDays: number;
@@ -54,7 +55,7 @@ export interface GracePeriodRequestResponseDto {
 @Injectable({ providedIn: 'root' })
 export class GracePeriodRequestService {
 
-  private readonly API = 'http://localhost:8081/api/grace-period-requests';
+  private readonly API = apiUrl('/api/grace-period-requests');
 
   constructor(private http: HttpClient) {}
 

@@ -1,0 +1,42 @@
+:host {
+  display: block;
+}
+
+.catalog-footer {
+  border-top: 1px solid #d9e5fb;
+  margin-top: 2rem;
+  padding-top: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.catalog-footer__copy {
+  margin: 0;
+  color: #5d74a0;
+  font-size: 0.82rem;
+}
+
+.catalog-footer__links {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.catalog-footer__links a {
+  color: #4464a1;
+  text-decoration: none;
+  font-size: 0.82rem;
+}
+
+.catalog-footer__links a:hover {
+  text-decoration: underline;
+}
+
+.catalog-footer__links a:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 4px;
+}

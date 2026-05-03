@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { RepaymentsAdminRoutingModule } from './repayments-admin-routing-module';
@@ -14,6 +15,7 @@ import { RecoveryList } from './recovery-list/recovery-list';
 import { PenaltiesList } from './penalties-list/penalties-list';
 import { RiskScore } from './risk-score/risk-score';
 
+import { PenaltyTiers } from './penalty-tiers/penalty-tiers';
 
 @NgModule({
   declarations: [
@@ -27,11 +29,9 @@ import { RiskScore } from './risk-score/risk-score';
     RecoveryList,
     PenaltiesList,
     RiskScore,
+    PenaltyTiers,
   ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    RepaymentsAdminRoutingModule
-  ]
+  imports: [CommonModule, RouterModule, FormsModule, RepaymentsAdminRoutingModule],
+  exports: [PenaltyTiers],
 })
-export class RepaymentsAdminModule { }
+export class RepaymentsAdminModule {}

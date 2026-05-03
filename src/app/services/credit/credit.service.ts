@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { apiUrl } from '../../core/config/api-url';
 
 export interface LoanContractDto {
   id: number;
@@ -12,6 +13,7 @@ export interface LoanContractDto {
   datePremiereEcheance: string;
   firstPaymentDate: string;
   gracePeriodDays: number;
+  penaltyRatePerDay: number;
   monthlyPayment?: number;
 }
 
@@ -74,12 +76,12 @@ export interface PaymentHistoryResponseDto {
 
 @Injectable({ providedIn: 'root' })
 export class Credit {
-  private readonly API          = 'http://localhost:8081/api/loans';
-  private readonly PAY_API      = 'http://localhost:8081/api/payments';
-  private readonly HISTORY_API  = 'http://localhost:8081/api/payment-history';
-  private readonly STRIPE_API   = 'http://localhost:8081/api/stripe';
-  private readonly SCHEDULE_API = 'http://localhost:8081/api/schedule-repayment';
-  private readonly PENALTY_API  = 'http://localhost:8081/api/penalties';
+  private readonly API          = apiUrl('/api/loans');
+  private readonly PAY_API      = apiUrl('/api/payments');
+  private readonly HISTORY_API  = apiUrl('/api/payment-history');
+  private readonly STRIPE_API   = apiUrl('/api/stripe');
+  private readonly SCHEDULE_API = apiUrl('/api/schedule-repayment');
+  private readonly PENALTY_API  = apiUrl('/api/penalties');
 
   constructor(private http: HttpClient) {}
 

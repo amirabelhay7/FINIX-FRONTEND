@@ -9,11 +9,13 @@
   <app-topbar
     [currentPage]="selectedPage"
     [currentTheme]="currentTheme"
+    [notificationModuleFilter]="selectedPage === 'vehicles' ? 'VEHICLE' : null"
     (themeToggled)="toggleTheme()"
     (loggedOut)="logout()"
+    (navigatePage)="navigateTo($event)"
   ></app-topbar>
 
-  <main class="main">
+  <div class="main" role="main">
     <!-- ═══════════════════════════════════════════════════════
          OVERVIEW PAGE — visible seulement si selectedPage === 'dashboard'
          ═══════════════════════════════════════════════════════ -->
@@ -24,6 +26,7 @@
           <div class="ph-eyebrow">28 Février 2026 · Samedi</div>
           <div class="ph-title">Vue d'ensemble</div>
           <div class="ph-desc">
+            1 248 clients actifs · 3 décisions en attente · Système opérationnel
             {{ dash.activeClients }} clients actifs · {{ dash.openDelinquencyCases }} dossiers délinquance · {{ dash.pendingGraceRequests }} demande(s) de grâce en attente
           </div>
         </div>
@@ -61,6 +64,113 @@
             Voir les dossiers
           </button>
           <button class="btn btn-primary btn-sm">Traiter maintenant</button>
+        </div>
+      </div>
+
+      <!-- ── KPI CARDS ── -->
+      <div class="kpi-row s2">
+        <div class="kpi" style="--kc: var(--blue)">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background: rgba(59, 130, 246, 0.12)">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#3B82F6"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <div class="kpi-trend success">↑ +23 ce mois</div>
+          </div>
+          <div class="kpi-val">1 248</div>
+          <div class="kpi-lbl">Clients actifs</div>
+          <div class="kpi-foot">Taux de rétention : <b>96.4%</b></div>
+        </div>
+
+        <div class="kpi" style="--kc: var(--success)">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background: rgba(16, 185, 129, 0.12)">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#10B981"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="12" y1="1" x2="12" y2="23" />
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </div>
+            <div class="kpi-trend success">↑ +8.2%</div>
+          </div>
+          <div class="kpi-val" style="font-size: 1.5rem">
+            TND <span style="font-size: 2rem">14.2M</span>
+          </div>
+          <div class="kpi-lbl">Encours total</div>
+          <div class="kpi-foot">Collecté ce mois : <b>487 200 TND</b></div>
+        </div>
+
+        <div class="kpi" style="--kc: var(--warning)">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background: rgba(245, 158, 11, 0.12)">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#F59E0B"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+              </svg>
+            </div>
+            <div class="kpi-trend warning">⚠ Urgents : 3</div>
+          </div>
+          <div class="kpi-val">47</div>
+          <div class="kpi-lbl">Dossiers en cours</div>
+          <div class="kpi-foot">Taux d'approbation : <b>78.3%</b></div>
+        </div>
+
+        <div class="kpi" style="--kc: var(--danger)">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background: rgba(239, 68, 68, 0.12)">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#EF4444"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </div>
+            <div class="kpi-trend danger">↑ +2 vs hier</div>
+          </div>
+          <div class="kpi-val">12</div>
+          <div class="kpi-lbl">Impayés actifs</div>
+          <div class="kpi-foot">Taux de défaut : <b>1.8%</b></div>
         </div>
       </div>
 
@@ -519,8 +629,9 @@
             </tbody>
           </table>
         </div>
-      </div> </ng-container
-    ><!-- /overview -->
+      </div>
+    </ng-container>
+    <!-- /overview -->
 
     <!-- ═══════════════════════════════════════════════════════
          PAGE : CLIENTS
@@ -705,82 +816,37 @@
     <!-- /page-credits -->
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : REMBOURSEMENTS
+         PAGE : REMBOURSEMENTS (single source of truth)
          ═══════════════════════════════════════════════════════ -->
     <app-repayment-backoffice [selectedPage]="selectedPage" (onNavigate)="navigateTo($event)"></app-repayment-backoffice>
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : VÉHICULES
+         PAGE : VÉHICULES (liste / filtres — panneau entités liées masqué)
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'vehicles'" id="page-vehicles">
-      <div class="ph s1">
-        <div>
-          <div class="ph-eyebrow">Gestion du parc</div>
-          <div class="ph-title">Véhicules</div>
-          <div class="ph-desc">2 148 véhicules enregistrés · 1 890 assurés · 48 à renouveler</div>
-        </div>
-        <div class="ph-actions">
-          <button class="btn btn-outline">Import</button>
-          <button class="btn btn-primary">+ Ajouter véhicule</button>
-        </div>
+      <div class="s1" style="display:flex;justify-content:flex-end;gap:.5rem">
+        <button type="button" class="btn btn-outline btn-sm" (click)="onPageChange('reservations')">
+          Vehicle reservations
+        </button>
       </div>
-
-      <div class="panel s2">
-        <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Registre des véhicules</div>
-          <div class="tb-search" style="width: 200px">
-            <span>🔍</span>
-            <input type="text" placeholder="Plaque, client, modèle…" />
-          </div>
-        </div>
-        <div class="tbl-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Plaque</th>
-                <th>Véhicule</th>
-                <th>Propriétaire</th>
-                <th>Crédit</th>
-                <th>Valeur</th>
-                <th>Kilométrage</th>
-                <th>Assurance</th>
-                <th>Statut</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let vehicle of vehicles">
-                <td>
-                  <span class="td-ref">{{ vehicle.plate }}</span>
-                </td>
-                <td>
-                  <div class="td-primary">{{ vehicle.name }}</div>
-                  <div class="td-sub">{{ vehicle.desc }}</div>
-                </td>
-                <td>
-                  <div class="td-primary">{{ vehicle.owner }}</div>
-                </td>
-                <td>
-                  <span class="td-ref">{{ vehicle.credit }}</span>
-                </td>
-                <td>
-                  <span class="td-amount">{{ vehicle.value }}</span>
-                </td>
-                <td>{{ vehicle.km }}</td>
-                <td>
-                  <span class="badge b-review">{{ vehicle.insurance }}</span>
-                </td>
-                <td>
-                  <span class="badge" [ngClass]="vehicle.statusClass">{{ vehicle.status }}</span>
-                </td>
-                <td><button class="btn btn-ghost btn-xs">Voir</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <app-vehicle-workspace
+        workspaceMode="admin"
+        [showCatalog]="false"
+        [showSubEntities]="false"
+        [showCreateVehicleButton]="false"
+        headingEyebrow="Fleet management"
+        headingTitle="Vehicles"
+      ></app-vehicle-workspace>
     </div>
     <!-- /page-vehicles -->
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE : RÉSERVATIONS VÉHICULES
+         ═══════════════════════════════════════════════════════ -->
+    <div class="page" [class.active]="selectedPage === 'reservations'" id="page-reservations">
+      <app-reservations-admin (backToVehicles)="onPageChange('vehicles')"></app-reservations-admin>
+    </div>
+    <!-- /page-reservations -->
 
     <!-- ═══════════════════════════════════════════════════════
          PAGE : ASSURANCE
@@ -1175,16 +1241,131 @@
     <!-- ═══════════════════════════════════════════════════════
          USERS PAGE
          ═══════════════════════════════════════════════════════ -->
+    <div class="page" [class.active]="selectedPage === 'users'" id="page-users">
+      <div class="ph s1">
+        <div>
+          <div class="ph-eyebrow">Système</div>
+          <div class="ph-title">Users — Agents IMF & Assureurs</div>
+          <div class="ph-desc">Gérer les comptes et consulter l'historique des connexions</div>
+        </div>
+        <div class="ph-actions">
+          <button class="btn btn-primary" *ngIf="usersTab === 'users'" (click)="openAddUser()">+ Ajouter un utilisateur</button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:0;margin-bottom:1.25rem;border-bottom:2px solid var(--border, #e5e7eb)">
+        <button (click)="switchUsersTab('users')"
+          style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
+          [style.color]="usersTab === 'users' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
+          [style.border-bottom]="usersTab === 'users' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
+          Utilisateurs
+        </button>
+        <button (click)="switchUsersTab('logs')"
+          style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
+          [style.color]="usersTab === 'logs' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
+          [style.border-bottom]="usersTab === 'logs' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
+          Historique connexions
+        </button>
+      </div>
+
+      <!-- Users table -->
+      <div class="panel s2" *ngIf="usersTab === 'users'">
+        <div class="panel-head">
+          <div class="panel-title"><span class="ptdot"></span>Liste des utilisateurs</div>
+          <div style="font-size:.75rem;color:var(--muted)">{{ usersList.length }} utilisateur(s)</div>
+        </div>
+        <div class="tbl-wrap">
+          <div *ngIf="usersLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
+          <div *ngIf="!usersLoading && usersList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucun agent ou assureur trouvé.</div>
+          <table *ngIf="!usersLoading && usersList.length > 0">
+            <thead>
+              <tr>
+                <th>Utilisateur</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Téléphone</th>
+                <th>Ville</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of usersList">
+                <td>
+                  <div style="display:flex;align-items:center;gap:.5rem">
+                    <div class="sb-avatar" style="width:30px;height:30px;font-size:.65rem">{{ getUserInitials(user) }}</div>
+                    <div class="td-primary">{{ user.firstName }} {{ user.lastName }}</div>
+                  </div>
+                </td>
+                <td style="font-size:.775rem">{{ user.email }}</td>
+                <td>
+                  <span class="badge" [ngClass]="user.role === 'AGENT' ? 'b-blue' : 'b-purple'">{{ user.role }}</span>
+                </td>
+                <td style="font-size:.775rem">{{ user.phoneNumber || '—' }}</td>
+                <td style="font-size:.775rem">{{ user.city || '—' }}</td>
+                <td>
+                  <div style="display:flex;gap:.35rem">
+                    <button class="btn btn-ghost btn-xs" (click)="openViewUser(user)">Voir</button>
+                    <button class="btn btn-ghost btn-xs" style="color:var(--blue)" (click)="openEditUser(user)">Modifier</button>
+                    <button class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteUser(user.id)">Supprimer</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Logs table -->
+      <div class="panel s2" *ngIf="usersTab === 'logs'">
+        <div class="panel-head">
+          <div class="panel-title"><span class="ptdot"></span>Historique des connexions</div>
+          <div style="font-size:.75rem;color:var(--muted)">{{ logsList.length }} connexion(s)</div>
+        </div>
+        <div class="tbl-wrap">
+          <div *ngIf="logsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
+          <div *ngIf="!logsLoading && logsList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucune connexion enregistrée.</div>
+          <table *ngIf="!logsLoading && logsList.length > 0">
+            <thead>
+              <tr>
+                <th>Utilisateur</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Date & Heure</th>
+                <th>Adresse IP</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let log of logsList">
+                <td>
+                  <div class="td-primary">{{ log.userName || '—' }}</div>
+                </td>
+                <td style="font-size:.775rem">{{ log.userEmail || '—' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="log.userRole === 'AGENT' ? 'b-blue' : log.userRole === 'INSURER' ? 'b-purple' : log.userRole === 'ADMIN' ? 'b-orange' : 'b-green'">{{ log.userRole }}</span>
+                </td>
+                <td style="font-size:.775rem">{{ log.loginDate | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td style="font-size:.775rem">{{ log.ipAddress || '—' }}</td>
+                <td>
+                  <span class="badge b-green">{{ log.action }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <div class="page" [class.active]="selectedPage === 'settings'" id="page-parametres">
       <div class="ph s1">
         <div>
           <div class="ph-eyebrow">Configuration</div>
-          <div class="ph-title">{{ activeSettingsSection === 'users-roles' ? 'Utilisateurs & Rôles' : 'Paramètres' }}</div>
-          <div class="ph-desc">{{ activeSettingsSection === 'users-roles' ? 'Gérer les comptes et consulter l\'historique des connexions' : 'Configuration système, utilisateurs et règles métier' }}</div>
+          <div class="ph-title">{{ activeSettingsSection === 'users-roles' ? 'Users & Roles' : 'Settings' }}</div>
+          <div class="ph-desc">{{ activeSettingsSection === 'users-roles' ? 'Manage accounts and review connection history' : 'System configuration, users and business rules' }}</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-primary" *ngIf="activeSettingsSection === 'users-roles' && usersTab === 'users'" (click)="openAddUser()">+ Ajouter un utilisateur</button>
-          <button class="btn btn-primary" *ngIf="activeSettingsSection !== 'users-roles'">Sauvegarder la configuration</button>
+          <button class="btn btn-primary" *ngIf="activeSettingsSection === 'users-roles' && usersTab === 'users'" (click)="openAddUser()">+ Add User</button>
         </div>
       </div>
 
@@ -1327,7 +1508,10 @@
             <div class="panel s2" *ngIf="usersTab === 'users'">
               <div class="panel-head">
                 <div class="panel-title"><span class="ptdot"></span>List of Users</div>
-                <div style="font-size:.75rem;color:var(--muted)">{{ usersList.length }} user(s)</div>
+                <div style="display:flex;align-items:center;gap:.75rem">
+                  <div style="font-size:.75rem;color:var(--muted)">{{ usersList.length }} user(s)</div>
+                  <button class="btn btn-primary btn-xs" (click)="openAddUser()">+ Add User</button>
+                </div>
               </div>
               <div class="tbl-wrap">
                 <div *ngIf="usersLoading" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</div>
@@ -1408,7 +1592,7 @@
           </ng-container>
 
         </div>
-        <!-- /forms -->
+        <!-- /forms (dynamic section) -->
       </div>
       <!-- /settings-grid -->
     </div>
@@ -1475,7 +1659,9 @@
     </div>
     <!-- /modal -->
 
-  </main>
+  </div>
+  <!-- /.main -->
+
 </div>
 
 <!-- ═══════════════════════════════════════════════════════

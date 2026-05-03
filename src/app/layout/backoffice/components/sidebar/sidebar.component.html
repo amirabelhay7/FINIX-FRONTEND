@@ -20,11 +20,7 @@
   <div class="sb-nav">
     <div class="sb-section">Dashboard</div>
 
-    <button
-      class="sb-item"
-      [ngClass]="{ active: currentPage === 'dashboard' }"
-      (click)="switchPage('dashboard')"
-    >
+    <button class="sb-item" [ngClass]="{ active: currentPage === 'dashboard' }" (click)="switchPage('dashboard')">
       <div class="sb-ico">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -37,11 +33,7 @@
       Overview
     </button>
 
-    <button
-      class="sb-item"
-      [ngClass]="{ active: currentPage === 'notifications' }"
-      (click)="switchPage('notifications')"
-    >
+    <button class="sb-item" [ngClass]="{ active: currentPage === 'notifications' }" (click)="switchPage('notifications')">
       <div class="sb-ico">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -49,16 +41,13 @@
           <path d="M13.73 21a2 2 0 0 1-3.46 0" />
         </svg>
       </div>
-      Alerts & Notifs
+      Alerts &amp; Notifs
     </button>
 
+    <!-- Management -->
     <div class="sb-section">Management</div>
 
-    <button
-      class="sb-item"
-      [ngClass]="{ active: currentPage === 'clients' }"
-      (click)="switchPage('clients')"
-    >
+    <button class="sb-item" [ngClass]="{ active: currentPage === 'clients' }" (click)="switchPage('clients')">
       <div class="sb-ico">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -71,11 +60,7 @@
       Clients
     </button>
 
-    <button
-      class="sb-item"
-      [ngClass]="{ active: currentPage === 'credits' }"
-      (click)="switchPage('credits')"
-    >
+    <button class="sb-item" [ngClass]="{ active: currentPage === 'credits' }" (click)="switchPage('credits')">
       <div class="sb-ico">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -84,14 +69,10 @@
           <line x1="12" y1="17" x2="12" y2="21" />
         </svg>
       </div>
-      Credits & Folders
+      Credits &amp; Folders
     </button>
 
-    <button
-      class="sb-item"
-      [ngClass]="{ active: currentPage === 'repayments' }"
-      (click)="switchPage('repayments')"
-    >
+    <button class="sb-item" [ngClass]="{ active: currentPage === 'repayments' }" (click)="switchPage('repayments')">
       <div class="sb-ico">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -164,11 +145,7 @@
       Vehicles
     </button>
 
-    <button
-      class="sb-item"
-      [ngClass]="{ active: currentPage === 'insurance' }"
-      (click)="switchPage('insurance')"
-    >
+    <button class="sb-item" [ngClass]="{ active: currentPage === 'insurance' }" (click)="switchPage('insurance')">
       <div class="sb-ico">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -178,13 +155,10 @@
       Insurance
     </button>
 
+    <!-- Analysis -->
     <div class="sb-section">Analysis</div>
 
-    <button
-      class="sb-item"
-      [ngClass]="{ active: currentPage === 'risk' }"
-      (click)="switchPage('risk')"
-    >
+    <button class="sb-item" [ngClass]="{ active: currentPage === 'risk' }" (click)="switchPage('risk')">
       <div class="sb-ico">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -193,14 +167,10 @@
           <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
       </div>
-      Risk & Score
+      Risk &amp; Score
     </button>
 
-    <button
-      class="sb-item"
-      [ngClass]="{ active: currentPage === 'rapports' }"
-      (click)="switchPage('rapports')"
-    >
+    <button class="sb-item" [ngClass]="{ active: currentPage === 'rapports' }" (click)="switchPage('rapports')">
       <div class="sb-ico">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -214,13 +184,10 @@
       Reports
     </button>
 
+    <!-- System -->
     <div class="sb-section">System</div>
 
-    <button
-      class="sb-item"
-      [ngClass]="{ active: currentPage === 'settings' }"
-      (click)="switchPage('settings')"
-    >
+    <button class="sb-item" [ngClass]="{ active: currentPage === 'settings' }" (click)="switchPage('settings')">
       <div class="sb-ico">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

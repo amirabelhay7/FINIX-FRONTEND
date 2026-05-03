@@ -1,0 +1,331 @@
+.rec-section {
+  margin-top: 1.5rem;
+  padding: 1.1rem;
+  border-radius: 18px;
+  border: 1px solid #c7dafb;
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  box-shadow: 0 10px 30px rgba(18, 46, 102, 0.06);
+}
+
+.rec-section__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 0.6rem;
+}
+
+.rec-section__title {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #14284f;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rec-section__icon {
+  color: #2463d6;
+  font-size: 1.1rem;
+}
+
+.rec-section__head-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rec-section__loading {
+  margin: 0;
+  color: #516e9e;
+  font-size: 0.87rem;
+}
+
+.rec-section__refresh-btn {
+  background: none;
+  border: 1px solid #c7dafb;
+  color: #2463d6;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.7rem;
+  cursor: pointer;
+  transition: background 0.12s, transform 0.12s;
+}
+
+.rec-section__refresh-btn:hover {
+  background: #e8f0fd;
+  transform: rotate(-15deg) scale(1.05);
+}
+
+.rec-section__alert {
+  border: 1px solid #f2c4c4;
+  border-radius: 10px;
+  background: #fff5f5;
+  color: #b33030;
+  font-size: 0.88rem;
+  padding: 0.65rem 0.85rem;
+}
+
+.rec-section__empty {
+  color: #516e9e;
+  font-size: 0.9rem;
+  margin: 0.4rem 0;
+}
+
+/* ── Grid ── */
+.rec-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .rec-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 900px) {
+  .rec-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1200px) {
+  .rec-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* ── Card ── */
+.rec-card {
+  border-radius: 14px;
+  border: 1px solid #d9e5fb;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(18, 46, 102, 0.05);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.rec-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(36, 99, 214, 0.14);
+}
+
+.rec-card__media {
+  position: relative;
+  height: 148px;
+  background: #e8f0fd;
+  overflow: hidden;
+}
+
+.rec-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rec-card__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(29, 61, 128, 0.25);
+  background: rgba(255, 255, 255, 0.85);
+  color: #1d3d80;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(22, 46, 93, 0.14);
+  z-index: 2;
+}
+
+.rec-card__nav--prev {
+  left: 0.45rem;
+}
+
+.rec-card__nav--next {
+  right: 0.45rem;
+}
+
+.rec-card__nav:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.rec-card__dots {
+  position: absolute;
+  left: 50%;
+  bottom: 0.5rem;
+  transform: translateX(-50%);
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.22rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(29, 61, 128, 0.18);
+  z-index: 2;
+}
+
+.rec-card__dot {
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 999px;
+  border: none;
+  background: #9fb6de;
+  cursor: pointer;
+  padding: 0;
+}
+
+.rec-card__dot.is-active {
+  background: #1e4bb0;
+}
+
+.rec-card__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #8faed8;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.rec-card__score-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.rec-card__body {
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.rec-card__brand {
+  margin: 0;
+  color: #516e9e;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rec-card__model {
+  margin: 0;
+  color: #14284f;
+  font-size: 0.97rem;
+  font-weight: 700;
+}
+
+.rec-card__cond {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #516e9e;
+  font-weight: 600;
+}
+
+.rec-card__price {
+  margin: 0.15rem 0 0.35rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.rec-card__price-value {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #2463d6;
+}
+
+.rec-card__currency {
+  font-size: 0.78rem;
+  color: #516e9e;
+}
+
+/* ── Why tooltip ── */
+.rec-card__why-wrap {
+  position: relative;
+}
+
+.rec-card__why-btn {
+  background: none;
+  border: 1px dashed #8faed8;
+  color: #2463d6;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  padding: 0.22rem 0.55rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.rec-card__why-btn:hover {
+  background: #e8f0fd;
+}
+
+.rec-card__tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #1e3a6e;
+  color: #fff;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+  z-index: 10;
+}
+
+.rec-card__tooltip--visible {
+  display: block;
+}
+
+.rec-card__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.55rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.38rem 0.7rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  border: none;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(30, 72, 168, 0.18);
+}
+
+.btn--primary {
+  background: #2463d6;
+  color: #fff;
+}
+
+.btn--secondary {
+  background: #e8f0fd;
+  color: #1e3a6e;
+}

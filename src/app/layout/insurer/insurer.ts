@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth/auth.service';
 
 interface InsuranceOffer {
   id: number;
@@ -53,10 +54,10 @@ export class InsurerLayout implements OnInit, OnDestroy {
   showAddCatalogModal = false;
 
   stats = [
-    { label: 'Active Policies', value: '248', icon: '', trend: '+12 ce mois', trendClass: 'up' },
-    { label: 'Sinistres en cours', value: '17', icon: '', trend: '-3 vs mois dernier', trendClass: 'up' },
-    { label: 'Renouvellements', value: '34', icon: '', trend: '+8 ce mois', trendClass: 'up' },
-    { label: 'Primes collectées', value: '1.2M', suffix: 'TND', icon: '', trend: '+15.4%', trendClass: 'up' },
+    { label: 'Polices actives', value: '248', icon: '🛡️', trend: '+12 ce mois', trendClass: 'up' },
+    { label: 'Sinistres en cours', value: '17', icon: '⚠️', trend: '-3 vs mois dernier', trendClass: 'up' },
+    { label: 'Renouvellements', value: '34', icon: '🔄', trend: '+8 ce mois', trendClass: 'up' },
+    { label: 'Primes collectées', value: '1.2M', suffix: 'TND', icon: '💰', trend: '+15.4%', trendClass: 'up' },
   ];
 
   offers: InsuranceOffer[] = [
@@ -89,7 +90,11 @@ export class InsurerLayout implements OnInit, OnDestroy {
   newEvent = { title: '', type: 'sinistre', client: '', date: '', description: '' };
   newCatalog = { name: '', category: '', description: '' };
 
-  constructor(private router: Router, private renderer: Renderer2) {}
+  constructor(
+    private router: Router,
+    private renderer: Renderer2,
+    private auth: AuthService,
+  ) {}
 
   ngOnInit(): void {
     const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
@@ -205,9 +210,7 @@ export class InsurerLayout implements OnInit, OnDestroy {
   closeAddCatalogModal(): void { this.showAddCatalogModal = false; }
 
   logout(): void {
-    localStorage.removeItem('finix_access_token');
-    localStorage.removeItem('currentUser');
     this.showUserDropdown = false;
-    this.router.navigate(['/login']);
+    this.auth.logout();
   }
 }

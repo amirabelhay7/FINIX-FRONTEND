@@ -2,6 +2,7 @@ import { Component, OnInit, OnChanges, Input, Output, EventEmitter, SimpleChange
 import { HttpClient } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { DelinquencyService, DelinquencyCaseDto, RecoveryActionDto, CreateRecoveryActionDto } from '../../../services/delinquency/delinquency.service';
+import { apiUrl } from '../../../core/config/api-url';
 
 @Component({
   selector: 'app-repayment-backoffice',
@@ -14,7 +15,7 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
   @Input() selectedPage = '';
   @Output() onNavigate = new EventEmitter<string>();
 
-  private readonly API = 'http://localhost:8081/api';
+  private readonly API = apiUrl('/api');
 
   /* ── Admin payments ── */
   adminPayments: any[] = [];
@@ -305,13 +306,21 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
     this.adminInstError = '';
     this.http.get<any[]>(`${this.API}/users/search?q=${encodeURIComponent(q)}`).subscribe({
       next: (res) => {
-        this.adminClientResults = res;
-        if (res.length === 1 && res[0].cin?.toString().toLowerCase() === q.toLowerCase()) {
-          this.selectAdminClient(res[0]);
+        this.adminClientResults = Array.isArray(res) ? res : [];
+        if (this.adminClientResults.length === 0) {
+          this.adminInstError = 'Aucun client avec contrat de pret actif trouve.';
+          this.cdr.detectChanges();
+          return;
+        }
+        if (this.adminClientResults.length === 1 && this.adminClientResults[0].cin?.toString().toLowerCase() === q.toLowerCase()) {
+          this.selectAdminClient(this.adminClientResults[0]);
         }
         this.cdr.detectChanges();
       },
-      error: () => { this.adminClientResults = []; }
+      error: () => {
+        this.adminClientResults = [];
+        this.adminInstError = 'Recherche client indisponible.';
+      }
     });
   }
 

@@ -149,7 +149,7 @@ body {
   min-height: 100vh;
 }
 
-main.main {
+.main {
   margin-top: var(--topbar-h);
   padding: 2rem;
   display: grid;
@@ -795,10 +795,10 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
 /* ================================================================
    RESPONSIVE
    ================================================================ */
-@media (max-width: 1280px) { main.main { grid-template-columns: 1fr 320px; } }
+@media (max-width: 1280px) { .main { grid-template-columns: 1fr 320px; } }
 
 @media (max-width: 1100px) {
-  main.main { grid-template-columns: 1fr; }
+  .main { grid-template-columns: 1fr; }
   .g13 { grid-column: 1; grid-row: auto; position: static; max-height: none; overflow-y: visible; }
   .kpi-row { grid-template-columns: repeat(2,1fr); }
   .g33 { grid-template-columns: 1fr 1fr; }
@@ -806,7 +806,7 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
 
 @media (max-width: 768px) {
   /* sidebar-w defini en haut: 280px */
-  main.main { padding: 1rem; }
+  .main { padding: 1rem; }
   .kpi-row { grid-template-columns: 1fr 1fr; }
   .g33 { grid-template-columns: 1fr; }
   .form-row, .detail-grid { grid-template-columns: 1fr; }
@@ -919,6 +919,33 @@ tbody td { padding: 1rem 1.1rem; vertical-align: middle; }
   font-size: .82rem; color: #ef4444;
 }
 
+/* ── Admin payment table — full width, no h-scroll ── */
+.admin-pay-tbl {
+  width: 100%; border-collapse: collapse; font-size: .8rem; table-layout: fixed;
+}
+.admin-pay-tbl thead th {
+  padding: .55rem .6rem; font-size: .68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em;
+  color: var(--g400); text-align: left;
+  background: var(--g50); border-bottom: 1px solid var(--g200);
+}
+.admin-pay-tbl tbody tr { border-bottom: 1px solid var(--g100); transition: background .15s; }
+.admin-pay-tbl tbody tr:hover { background: var(--g50); }
+.admin-pay-tbl tbody td {
+  padding: .5rem .6rem; vertical-align: middle;
+  overflow: hidden; text-overflow: ellipsis;
+}
+/* Column widths */
+.admin-pay-tbl th:nth-child(1) { width: 50px; }   /* Réf */
+.admin-pay-tbl th:nth-child(2) { width: 15%; }     /* Client */
+.admin-pay-tbl th:nth-child(3) { width: 9%; }      /* Contrat */
+.admin-pay-tbl th:nth-child(4) { width: 45px; }    /* Mens */
+.admin-pay-tbl th:nth-child(5) { width: 10%; }     /* Montant */
+.admin-pay-tbl th:nth-child(6) { width: 10%; }     /* Date */
+.admin-pay-tbl th:nth-child(7) { width: 8%; }      /* Mode */
+.admin-pay-tbl th:nth-child(8) { width: 8%; }      /* Statut */
+.admin-pay-tbl th:nth-child(9) { width: 13%; }     /* Agent */
+.admin-pay-tbl th:nth-child(10) { width: 100px; }  /* Action */
 /* ── Admin payment table wrapper — horizontal scroll on small screens ── */
 .admin-pay-tbl-wrap {
   overflow-x: auto;

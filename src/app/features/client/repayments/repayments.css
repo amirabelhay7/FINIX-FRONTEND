@@ -206,6 +206,12 @@
   border-radius: 16px;
   overflow: hidden;
   margin-bottom: 1rem;
+  transition: box-shadow .2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+.installment-ticket:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,.1);
   transition: transform .25s ease, box-shadow .25s ease;
   box-shadow: 0 2px 8px rgba(0,0,0,.06);
   animation: scaleIn .45s ease .2s both;
@@ -305,6 +311,7 @@
   height: 100%;
   background: linear-gradient(90deg, #3b82f6, #6366f1);
   border-radius: 10px;
+  transition: width .4s ease;
   transition: width .8s cubic-bezier(.4,0,.2,1);
   animation: fadeSlideRight .6s ease .5s both;
 }
@@ -383,6 +390,9 @@
   font-size: .88rem;
   font-weight: 700;
   cursor: pointer;
+  transition: opacity .18s, transform .15s;
+  white-space: nowrap;
+  width: 100%;
   transition: opacity .2s, transform .2s, box-shadow .2s;
   white-space: nowrap;
   width: 100%;
@@ -1532,6 +1542,7 @@
   color: #334155;
   cursor: default;
   background: #f8fafc;
+  transition: transform .12s;
   transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
 }
 

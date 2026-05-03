@@ -1,0 +1,68 @@
+﻿<main class="catalog-page" aria-labelledby="catalogue-title">
+  <section class="catalog-page__hero">
+    <app-page-header [total]="vehicles.length"></app-page-header>
+    <app-vehicle-stats-card [total]="vehicles.length" [loading]="isLoading"></app-vehicle-stats-card>
+  </section>
+
+  <app-vehicle-filters
+    [filterQ]="filterQ"
+    [filterStatus]="filterStatus"
+    [sortKey]="sortKey"
+    [onlyWithImage]="onlyWithImage"
+    [statuses]="statuses"
+    [statusLabels]="statusLabels"
+    [loading]="isLoading"
+    (qInput)="onQInput($event)"
+    (statusChange)="onStatusChange($event)"
+    (sortChange)="onSortChange($event)"
+    (withImageChange)="onOnlyWithImageChange($event)"
+    (apply)="applyFilters()"
+    (reset)="resetFilters()"
+  ></app-vehicle-filters>
+
+  <app-vehicle-recommendations
+    [recommendations]="recommendations"
+    [loading]="recLoading"
+    [error]="recError"
+    (refresh)="loadRecommendations()"
+  ></app-vehicle-recommendations>
+
+  <section class="catalog-page__section" aria-labelledby="catalog-grid-title">
+    <div class="catalog-page__section-head">
+      <h2 id="catalog-grid-title" class="catalog-page__section-title">Catalog</h2>
+      <p *ngIf="isLoading" class="catalog-page__loading">Loading...</p>
+    </div>
+
+    <div *ngIf="loadError" class="catalog-page__alert" role="alert">{{ loadError }}</div>
+
+    <app-empty-state
+      *ngIf="!isLoading && vehicles.length === 0"
+      title="No vehicles found"
+      description="No vehicle matches your current criteria. Try broadening your filters."
+      actionLabel="Reset filters"
+      (action)="resetFilters()"
+    ></app-empty-state>
+
+    <div class="catalog-page__grid" *ngIf="!isLoading && vehicles.length">
+      <app-vehicle-card
+        *ngFor="let v of pagedVehicles; trackBy: trackByVehicleId"
+        [vehicle]="v"
+        [statusLabels]="statusLabels"
+        [disableReserve]="hasActiveReservation"
+      ></app-vehicle-card>
+    </div>
+
+    <nav class="catalog-page__pager" *ngIf="totalPages > 1" aria-label="Catalog pagination">
+      <button type="button" class="pager-btn" [disabled]="page <= 1" (click)="setPage(page - 1)">
+        Previous
+      </button>
+      <span>Page {{ page }} / {{ totalPages }}</span>
+      <button type="button" class="pager-btn" [disabled]="page >= totalPages" (click)="setPage(page + 1)">
+        Next
+      </button>
+    </nav>
+  </section>
+
+  <app-app-footer></app-app-footer>
+</main>
+

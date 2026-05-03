@@ -26,7 +26,7 @@ export interface PenaltyTierUpdateDTO {
 
 @Injectable({ providedIn: 'root' })
 export class PenaltyTierService {
-  private base = 'http://localhost:8081/api/penalty-tiers';
+  private base = 'http://localhost:8082/api/penalty-tiers';
 
   constructor(private http: HttpClient) {}
 

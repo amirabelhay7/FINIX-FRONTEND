@@ -6,6 +6,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const authService = inject(AuthService);
 
+  authService.syncRoleFromToken();
   if (authService.hasValidToken()) {
     return true;
   }
@@ -27,6 +28,7 @@ const roleToRoute: Record<string, string> = {
   SELLER: '/seller',
 };
 
+
 export function roleGuard(...allowedRoles: string[]): CanActivateFn {
   return (route, state) => {
     const router = inject(Router);
@@ -37,8 +39,15 @@ export function roleGuard(...allowedRoles: string[]): CanActivateFn {
       return false;
     }
 
-    const userRole = authService.getRole();
-    if (userRole && allowedRoles.map(r => r.toLowerCase()).includes(userRole.toLowerCase())) {
+    authService.syncRoleFromToken();
+    const userRole = authService.getEffectiveRole();
+    if (!userRole) {
+      router.navigate(['/login-client']);
+      return false;
+    }
+
+    const allowed = allowedRoles.map((r) => r.toLowerCase());
+    if (allowed.includes(userRole.toLowerCase())) {
       return true;
     }
 

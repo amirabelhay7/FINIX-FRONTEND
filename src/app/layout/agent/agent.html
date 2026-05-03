@@ -228,7 +228,7 @@
       <div class="cfm-user-avatar">{{ agentInitials }}</div>
       <div class="cfm-user-info">
         <div class="cfm-user-name">{{ agentFirstName }} {{ agentLastName }}</div>
-        
+        <div class="cfm-user-role">{{ agentRole }}</div>
       </div>
       <svg
         width="14"
@@ -258,7 +258,7 @@
           <polyline points="16 17 21 12 16 7" />
           <line x1="21" y1="12" x2="9" y2="12" />
         </svg>
-        Logout
+        Déconnexion
       </button>
     </div>
   </div>
@@ -345,20 +345,40 @@
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
       </button>
-      <button class="cfm-tb-icon">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
-        <span class="cfm-tb-notif-dot"></span>
-      </button>
+      <div class="cfm-notif-wrap">
+        <button class="cfm-tb-icon" (click)="toggleNotifDropdown()" [attr.aria-expanded]="notifDropdownOpen">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          <span class="cfm-notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+        </button>
+        <div class="cfm-notif-dropdown" *ngIf="notifDropdownOpen">
+          <div class="cfm-notif-head">
+            <span class="cfm-notif-title">Notifications</span>
+            <button type="button" class="cfm-notif-markall" *ngIf="notifications.length" (click)="markAllNotificationsRead()">Mark all read</button>
+          </div>
+          <div class="cfm-notif-state" *ngIf="notificationsLoading">Loading...</div>
+          <div class="cfm-notif-state" *ngIf="!notificationsLoading && notifications.length === 0">No notifications.</div>
+          <ul class="cfm-notif-list" *ngIf="!notificationsLoading && notifications.length > 0">
+            <li class="cfm-notif-item" *ngFor="let n of notifications" [class.unread]="!n.read" (click)="onSelectNotification(n)">
+              <div class="cfm-notif-item-title">{{ n.title }}</div>
+              <div class="cfm-notif-item-msg">{{ n.message }}</div>
+              <div class="cfm-notif-item-meta">
+                <span class="cfm-notif-cat">{{ notificationCategoryLabel(n.category) }}</span>
+                <span>{{ notificationRelativeTime(n.createdAt) }}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
       <button class="cfm-tb-icon">
         <svg
           width="16"
@@ -437,7 +457,7 @@
           <div class="cfm-ph-title">
             Operational <span class="cfm-ph-grad">overview</span>
           </div>
-          
+          <div class="cfm-ph-desc">Updated 2 min ago</div>
         </div>
         <div class="cfm-ph-actions">
           <button class="cfm-btn cfm-btn-outline">
@@ -759,11 +779,13 @@
 
             <!-- Step 2 — Installment details (auto-populated) -->
             <div class="pay-section-title" style="margin-top:1.5rem">
+              <span class="pay-step">2</span> Details de la mensualite
               <span class="pay-step">2</span> Installment details
             </div>
 
             <div class="pay-form-grid">
               <div class="pay-field">
+                <label class="pay-label">Mensualite N°</label>
                 <label class="pay-label">Installment N°</label>
                 <input class="pay-input" type="text" [value]="nextInstallment.installmentNumber + ' / ' + nextInstallment.totalInstallments" disabled/>
               </div>
@@ -931,7 +953,7 @@
           <table class="gpr2-table" *ngIf="filteredHistory.length > 0">
             <thead>
               <tr>
-                <th>Ref</th>
+                <th>Réf</th>
                 <th>Client</th>
                 <th>Contract</th>
                 <th>Installment</th>
@@ -974,7 +996,6 @@
                   </ng-container>
                   <ng-template #noPenalty><span style="color:#94a3b8">—</span></ng-template>
                 </td>
-
                 <td>
                   <ng-container *ngIf="p.penaltyAmount; else totalNoPenalty">
                     <div style="font-size:.68rem;color:#94a3b8;margin-bottom:1px">{{ (p.baseInstallmentAmount ?? 0) | number:'1.2-2' }} + {{ p.penaltyAmount | number:'1.2-2' }}</div>
@@ -1021,23 +1042,199 @@
         <div class="receipt-icon">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
-        <div class="receipt-title">Payment Confirmed</div>
+        <div class="receipt-title">Paiement confirmé</div>
         <div class="receipt-sub">
-          Installment <strong>#{{ lastPayment?.installmentNumber }}</strong> —
+          Mensualité <strong>#{{ lastPayment?.installmentNumber }}</strong> —
           <strong>{{ lastPayment?.amountPaid | number:'1.2-2' }} TND</strong>
         </div>
-        <div class="receipt-question">Do you want to print a receipt?</div>
+        <div class="receipt-question">Voulez-vous imprimer un reçu ?</div>
         <div class="receipt-actions">
           <button class="cfm-btn cfm-btn-primary receipt-btn-print" (click)="printReceipt(); closePopup()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Yes, print receipt  
+            Oui, imprimer
           </button>
           <button class="cfm-btn cfm-btn-outline receipt-btn-skip" (click)="closePopup()">
-            No, thank you
+            Non, merci
           </button>
         </div>
       </div>
     </div>
+
+    <ng-container *ngIf="selectedPage === 'vehicules'">
+      <div class="cfm-page-head">
+        <div>
+          <div class="cfm-ph-eyebrow">CAPITAL FLOW MONITOR</div>
+          <div class="cfm-ph-title">Vehicles Operations</div>
+          <div class="cfm-ph-desc">Suivi opérationnel IMF des véhicules et réservations</div>
+        </div>
+        <div class="cfm-ph-actions">
+          <button class="cfm-btn cfm-btn-outline" (click)="clearVehicleFilters()">Reset filters</button>
+          <button class="cfm-btn cfm-btn-primary" (click)="loadAgentVehiclesPage()">Refresh</button>
+        </div>
+      </div>
+
+      <div class="agent-vehicle-kpis">
+        <div class="cfm-card">
+          <div class="cfm-card-label">Véhicules suivis</div>
+          <div class="cfm-card-val cfm-card-val-xl">{{ agentVehicles.length }}</div>
+        </div>
+        <div class="cfm-card">
+          <div class="cfm-card-label">Demandes en attente admin</div>
+          <div class="cfm-card-val cfm-card-val-xl">{{ vehiclePendingCount }}</div>
+        </div>
+        <div class="cfm-card">
+          <div class="cfm-card-label">Dossiers en examen</div>
+          <div class="cfm-card-val cfm-card-val-xl">{{ vehicleUnderReviewCount }}</div>
+        </div>
+        <div class="cfm-card">
+          <div class="cfm-card-label">Action client requise</div>
+          <div class="cfm-card-val cfm-card-val-xl">{{ vehicleWaitingCustomerCount }}</div>
+        </div>
+      </div>
+
+      <div class="cfm-card agent-vehicle-filters">
+        <div class="agent-vehicle-filter-grid">
+          <input class="pay-search-input" type="text" placeholder="Recherche globale…" [(ngModel)]="vehicleQuery.q" />
+          <input class="pay-search-input" type="text" placeholder="Marque" [(ngModel)]="vehicleQuery.marque" />
+          <input class="pay-search-input" type="text" placeholder="Modèle" [(ngModel)]="vehicleQuery.modele" />
+          <select class="pay-search-input" [(ngModel)]="vehicleQuery.status">
+            <option [ngValue]="undefined">Statut véhicule</option>
+            <option value="DISPONIBLE">Disponible</option>
+            <option value="RESERVE">Réservé</option>
+            <option value="VENDU">Vendu</option>
+            <option value="INACTIF">Inactif</option>
+          </select>
+          <select class="pay-search-input" [(ngModel)]="vehicleQuery.reservationStatus">
+            <option [ngValue]="undefined">Statut réservation</option>
+            <option value="PENDING_ADMIN_APPROVAL">En attente admin</option>
+            <option value="UNDER_REVIEW">En examen</option>
+            <option value="WAITING_CUSTOMER_ACTION">Action client</option>
+            <option value="APPROVED">Approuvée</option>
+            <option value="REJECTED">Refusée</option>
+          </select>
+          <select class="pay-search-input" [(ngModel)]="vehicleQuery.sort">
+            <option value="created_desc">Plus récent</option>
+            <option value="created_asc">Plus ancien</option>
+            <option value="price_desc">Prix décroissant</option>
+            <option value="price_asc">Prix croissant</option>
+            <option value="status_asc">Statut A→Z</option>
+          </select>
+        </div>
+        <div class="agent-vehicle-filter-actions">
+          <button class="cfm-btn cfm-btn-primary" (click)="onVehicleFilterChange()">Appliquer</button>
+        </div>
+      </div>
+
+      <div class="pay-error" *ngIf="agentVehicleError">{{ agentVehicleError }}</div>
+      <div class="hist-loading" *ngIf="agentVehicleLoading">Chargement véhicules...</div>
+
+      <div class="agent-vehicle-layout" *ngIf="!agentVehicleLoading">
+        <div class="cfm-card">
+          <div class="hist-table-wrap" *ngIf="agentVehicles.length > 0">
+            <table class="hist-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Véhicule</th>
+                  <th>Prix</th>
+                  <th>Statut</th>
+                  <th>Réservation en cours</th>
+                  <th>Client</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let v of agentVehicles">
+                  <td>
+                    <img *ngIf="v.imageUrl" [src]="v.imageUrl" alt="vehicle" class="agent-vehicle-thumb" />
+                    <span *ngIf="!v.imageUrl">—</span>
+                  </td>
+                  <td>
+                    <div class="hist-ref">{{ v.marque }} {{ v.modele }}</div>
+                    <div class="cfm-ph-desc">#{{ v.id }}</div>
+                  </td>
+                  <td class="hist-amount">{{ v.prixTnd | number:'1.0-0' }} TND</td>
+                  <td><span class="hist-badge">{{ vehicleStatusLabel(v.status) }}</span></td>
+                  <td>
+                    <ng-container *ngIf="latestReservation(v.id) as latest; else noReservation">
+                      <span class="res-badge" [ngClass]="reservationStatusClass(latest.status)">
+                        {{ reservationStatusLabel(latest.status) }}
+                      </span>
+                    </ng-container>
+                    <ng-template #noReservation><span>—</span></ng-template>
+                  </td>
+                  <td>{{ latestReservation(v.id)?.clientName || '—' }}</td>
+                  <td>
+                    <button class="cfm-btn cfm-btn-ghost" (click)="selectVehicle(v)">Détails</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pay-empty" *ngIf="agentVehicles.length === 0">Aucun véhicule trouvé avec ces filtres.</div>
+        </div>
+
+        <div class="cfm-card" *ngIf="selectedVehicle">
+          <div class="cfm-card-head-row">
+            <div>
+              <span class="cfm-card-head-title">{{ selectedVehicle.marque }} {{ selectedVehicle.modele }}</span>
+              <span class="cfm-card-head-sub">
+                {{ selectedVehicle.prixTnd | number:'1.0-0' }} TND · {{ vehicleStatusLabel(selectedVehicle.status) }}
+              </span>
+            </div>
+          </div>
+          <div class="agent-vehicle-detail-body">
+            <img *ngIf="selectedVehicle.imageUrl" [src]="selectedVehicle.imageUrl" alt="vehicle" class="agent-vehicle-hero" />
+            <div class="agent-vehicle-reservations">
+              <div class="cfm-section">Réservations liées</div>
+              <div *ngFor="let r of selectedVehicleReservations" class="agent-reservation-row">
+                <div>
+                  <div class="hist-ref">#{{ r.id }} — {{ r.clientName || ('Client #' + r.clientUserId) }}</div>
+                  <div class="agent-reservation-meta">
+                    <span class="res-badge" [ngClass]="reservationStatusClass(r.status)">
+                      {{ reservationStatusLabel(r.status) }}
+                    </span>
+                    <span class="cfm-ph-desc">{{ r.createdAt | date:'short' }}</span>
+                  </div>
+                  <div class="reservation-timeline">
+                    <div
+                      class="timeline-step"
+                      *ngFor="let step of reservationTimelineSteps"
+                      [class.completed]="isTimelineStepReached(r.status, step.status)"
+                      [class.active]="isTimelineStepActive(r.status, step.status)"
+                      [class.blocked]="!isFlowStatus(r.status)"
+                    >
+                      <span class="timeline-dot"></span>
+                      <span class="timeline-label">{{ step.label }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="agent-reservation-actions" *ngIf="canAgentEdit(r.status)">
+                  <button
+                    class="cfm-btn cfm-btn-outline"
+                    [disabled]="agentVehicleActionLoading || !canMarkUnderReview(r.status)"
+                    (click)="markReservationUnderReview(r.id)"
+                  >
+                    Under review
+                  </button>
+                  <button
+                    class="cfm-btn cfm-btn-primary"
+                    [disabled]="agentVehicleActionLoading || !canMarkWaitingCustomerAction(r.status)"
+                    (click)="markReservationWaitingCustomerAction(r.id)"
+                  >
+                    Waiting client
+                  </button>
+                </div>
+              </div>
+              <div class="pay-empty" *ngIf="selectedVehicleReservations.length === 0">
+                Aucune réservation sur ce véhicule.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
 
     <!-- ═══════════ GRACE PERIOD REQUESTS PAGE ═══════════ -->
     <ng-container *ngIf="selectedPage === 'grace-requests'">
@@ -1347,7 +1544,7 @@
               <div class="gpr-doc-list">
                 <a *ngFor="let doc of graceDetailRequest.documents"
                   class="gpr-doc-link"
-                  [href]="'http://localhost:8081' + doc.fileUrl"
+                  [href]="'http://localhost:8082' + doc.fileUrl"
                   target="_blank">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                   {{ doc.fileName }}
@@ -1919,7 +2116,7 @@
     </ng-container>
 
     <!-- Placeholder for other pages -->
-    <ng-container *ngIf="selectedPage !== 'dashboard' && selectedPage !== 'remboursements' && selectedPage !== 'grace-requests' && selectedPage !== 'dossiers' && selectedPage !== 'delinquency'">
+    <ng-container *ngIf="selectedPage !== 'dashboard' && selectedPage !== 'remboursements' && selectedPage !== 'grace-requests' && selectedPage !== 'vehicules' && selectedPage !== 'dossiers' && selectedPage !== 'delinquency'">
       <div class="cfm-page-head">
         <div>
           <div class="cfm-ph-eyebrow">CAPITAL FLOW MONITOR</div>
