@@ -113,12 +113,12 @@
                 <line x1="16" y1="13" x2="8" y2="13"/>
               </svg>
             </div>
-            <div class="kpi-trend warning" *ngIf="dash.pendingGraceRequests > 0">⚠ {{ dash.pendingGraceRequests }} grâce en attente</div>
-            <div class="kpi-trend success" *ngIf="dash.pendingGraceRequests === 0">Aucune demande</div>
+            <div class="kpi-trend warning" *ngIf="dash.pendingGraceRequests > 0">⚠ {{ dash.pendingGraceRequests }} Pending grace period request(s)</div>
+            <div class="kpi-trend success" *ngIf="dash.pendingGraceRequests === 0">No requests</div>
           </div>
           <div class="kpi-val">{{ dash.openDelinquencyCases }}</div>
-          <div class="kpi-lbl">Dossiers délinquance</div>
-          <div class="kpi-foot">Encours impayé : <b>{{ dash.totalOverdueAmount | number:'1.0-0' }} TND</b></div>
+          <div class="kpi-lbl">Delinquency Cases</div>
+          <div class="kpi-foot">Overdue Balance : <b>{{ dash.totalOverdueAmount | number:'1.0-0' }} TND</b></div>
         </div>
 
         <!-- Impayés actifs -->
@@ -132,11 +132,11 @@
               </svg>
             </div>
             <div class="kpi-trend danger" *ngIf="dash.clientsWithPenalties > 0">{{ dash.clientsWithPenalties }} clients pénalisés</div>
-            <div class="kpi-trend success" *ngIf="dash.clientsWithPenalties === 0">Aucune pénalité</div>
+            <div class="kpi-trend success" *ngIf="dash.clientsWithPenalties === 0">No penalties</div>
           </div>
           <div class="kpi-val">{{ dash.pendingInstallmentsCount }}</div>
-          <div class="kpi-lbl">Mensualités en attente</div>
-          <div class="kpi-foot">Échéances ce mois : <b>{{ dash.dueThisMonth | number:'1.0-0' }} TND</b></div>
+          <div class="kpi-lbl">Pending Installments</div>
+          <div class="kpi-foot">Due this month : <b>{{ dash.dueThisMonth | number:'1.0-0' }} TND</b></div>
         </div>
       </div>
       <!-- /kpi-row -->
@@ -153,8 +153,8 @@
             <div class="kpi-trend success">Repayment</div>
           </div>
           <div class="kpi-val" style="font-size:2rem">{{ dash.recoveryRate }}<span style="font-size:1rem">%</span></div>
-          <div class="kpi-lbl">Taux de recouvrement</div>
-          <div class="kpi-foot">Collecté / encours impayé</div>
+          <div class="kpi-lbl">Recovery Rate</div>
+          <div class="kpi-foot">Collected / Outstanding</div>
         </div>
 
         <!-- Grace period -->
@@ -164,12 +164,12 @@
               <span class="material-symbols-outlined" style="font-size:20px;color:#8B5CF6">schedule</span>
             </div>
             <div class="kpi-trend" [style.color]="dash.pendingGraceRequests > 0 ? '#F59E0B' : '#10B981'">
-              {{ dash.pendingGraceRequests > 0 ? (dash.pendingGraceRequests + ' en attente') : 'À jour' }}
+              {{ dash.pendingGraceRequests > 0 ? (dash.pendingGraceRequests + ' Pending') : 'Up to date' }}
             </div>
           </div>
           <div class="kpi-val">{{ dash.pendingGraceRequests }}</div>
-          <div class="kpi-lbl">Demandes de grâce</div>
-          <div class="kpi-foot">Requêtes en attente d'approbation</div>
+          <div class="kpi-lbl">Grace Period Requests</div>
+          <div class="kpi-foot">Requests pending approval</div>
         </div>
 
         <!-- Pénalités actives -->
@@ -179,11 +179,11 @@
               <span class="material-symbols-outlined" style="font-size:20px;color:#EF4444">gavel</span>
             </div>
             <div class="kpi-trend danger" *ngIf="dash.clientsWithPenalties > 0">{{ dash.clientsWithPenalties }} clients</div>
-            <div class="kpi-trend success" *ngIf="dash.clientsWithPenalties === 0">Aucune</div>
+            <div class="kpi-trend success" *ngIf="dash.clientsWithPenalties === 0">No penalties</div>
           </div>
           <div class="kpi-val" style="font-size:1.5rem">{{ dash.totalPenaltyAmount | number:'1.0-0' }}<span style="font-size:0.85rem"> TND</span></div>
-          <div class="kpi-lbl">Pénalités actives</div>
-          <div class="kpi-foot">{{ dash.clientsWithPenalties }} client(s) pénalisé(s)</div>
+          <div class="kpi-lbl">Active Penalties</div>
+          <div class="kpi-foot">{{ dash.clientsWithPenalties }} client(s) penalized</div>
         </div>
 
         <!-- Mensualités PENDING ce mois -->
@@ -192,11 +192,11 @@
             <div class="kpi-ico" style="background: rgba(245,158,11,0.1)">
               <span class="material-symbols-outlined" style="font-size:20px;color:#F59E0B">calendar_month</span>
             </div>
-            <div class="kpi-trend warning">{{ dash.pendingInstallmentsCount }} échéances</div>
+            <div class="kpi-trend warning">{{ dash.pendingInstallmentsCount }} due dates</div>
           </div>
           <div class="kpi-val" style="font-size:1.5rem">{{ dash.dueThisMonth | number:'1.0-0' }}<span style="font-size:0.85rem"> TND</span></div>
-          <div class="kpi-lbl">Dû ce mois</div>
-          <div class="kpi-foot">Mensualités PENDING en cours</div>
+          <div class="kpi-lbl">Due this month</div>
+          <div class="kpi-foot">Pending installments</div>
         </div>
       </div>
       <!-- /repayment-stats-row -->
@@ -1197,13 +1197,13 @@
             </div>
             <div class="panel-body" style="padding: 0.5rem">
               <div class="settings-nav">
-                <button class="sn-item" [class.active]="activeSettingsSection === 'general'" (click)="setSettingsSection('general')">Général</button>
-                <button class="sn-item" [class.active]="activeSettingsSection === 'users-roles'" (click)="setSettingsSection('users-roles')">Utilisateurs & Rôles</button>
-                <button class="sn-item" [class.active]="activeSettingsSection === 'business-rules'" (click)="goToBusinessRules()">Règles métier</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'general'" (click)="setSettingsSection('general')">General</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'users-roles'" (click)="setSettingsSection('users-roles')">Users & Roles</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'business-rules'" (click)="goToBusinessRules()">Business Rules</button>
                 <button class="sn-item" [class.active]="activeSettingsSection === 'notifications'" (click)="setSettingsSection('notifications')">Notifications</button>
-                <button class="sn-item" [class.active]="activeSettingsSection === 'security'" (click)="setSettingsSection('security')">Sécurité</button>
-                <button class="sn-item" [class.active]="activeSettingsSection === 'backup'" (click)="setSettingsSection('backup')">Sauvegarde</button>
-                <button class="sn-item" [class.active]="activeSettingsSection === 'integrations'" (click)="setSettingsSection('integrations')">Intégrations</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'security'" (click)="setSettingsSection('security')">Security</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'backup'" (click)="setSettingsSection('backup')">Backup</button>
+                <button class="sn-item" [class.active]="activeSettingsSection === 'integrations'" (click)="setSettingsSection('integrations')">Integrations</button>
               </div>
             </div>
           </div>
@@ -1216,29 +1216,29 @@
           <ng-container *ngIf="activeSettingsSection === 'general'">
             <div class="panel">
               <div class="panel-head">
-                <div class="panel-title"><span class="ptdot"></span>Paramètres généraux</div>
+                <div class="panel-title"><span class="ptdot"></span>General Settings</div>
               </div>
               <div class="panel-body">
                 <div class="form-row">
                   <div class="form-group">
-                    <label class="form-label">Nom de l'institution</label>
+                    <label class="form-label">Institution Name</label>
                     <input class="form-input" type="text" value="FIN'IX — Crédit & Assurance" />
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Identifiant fiscal</label>
+                    <label class="form-label">Fiscal Identifier</label>
                     <input class="form-input" type="text" value="TN-2019-00182741" />
                   </div>
                 </div>
                 <div class="form-row">
                   <div class="form-group">
-                    <label class="form-label">Devise</label>
+                    <label class="form-label">Currency</label>
                     <select class="form-input">
                       <option>TND — Dinar Tunisien</option>
                       <option>EUR</option>
                     </select>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Fuseau horaire</label>
+                    <label class="form-label">Time Zone</label>
                     <select class="form-input">
                       <option>Africa/Tunis (UTC+1)</option>
                     </select>
@@ -1249,26 +1249,26 @@
 
             <div class="panel">
               <div class="panel-head">
-                <div class="panel-title"><span class="ptdot"></span>Règles de scoring</div>
+                <div class="panel-title"><span class="ptdot"></span>Scoring Rules</div>
               </div>
               <div class="panel-body">
                 <div class="form-row">
                   <div class="form-group">
-                    <label class="form-label">Score min. approbation auto</label>
+                    <label class="form-label">Minimum Score for Auto-Approval</label>
                     <input class="form-input" type="number" value="700" />
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Score min. dossier standard</label>
+                    <label class="form-label">Minimum Score for Standard Application</label>
                     <input class="form-input" type="number" value="600" />
                   </div>
                 </div>
                 <div class="form-row">
                   <div class="form-group">
-                    <label class="form-label">Taux endettement max (%)</label>
+                    <label class="form-label">Maximum Debt-to-Income Ratio (%)</label>
                     <input class="form-input" type="number" value="40" />
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Montant max non garanti (TND)</label>
+                    <label class="form-label">Maximum Unguaranteed Amount (TND)</label>
                     <input class="form-input" type="number" value="15000" />
                   </div>
                 </div>
@@ -1313,33 +1313,33 @@
                 style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
                 [style.color]="usersTab === 'users' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
                 [style.border-bottom]="usersTab === 'users' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
-                Utilisateurs
+                Users
               </button>
               <button (click)="switchUsersTab('logs')"
                 style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
                 [style.color]="usersTab === 'logs' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
                 [style.border-bottom]="usersTab === 'logs' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
-                Historique connexions
+                Connection History
               </button>
             </div>
 
             <!-- Users table -->
             <div class="panel s2" *ngIf="usersTab === 'users'">
               <div class="panel-head">
-                <div class="panel-title"><span class="ptdot"></span>Liste des utilisateurs</div>
-                <div style="font-size:.75rem;color:var(--muted)">{{ usersList.length }} utilisateur(s)</div>
+                <div class="panel-title"><span class="ptdot"></span>List of Users</div>
+                <div style="font-size:.75rem;color:var(--muted)">{{ usersList.length }} user(s)</div>
               </div>
               <div class="tbl-wrap">
-                <div *ngIf="usersLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
-                <div *ngIf="!usersLoading && usersList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucun agent ou assureur trouvé.</div>
+                <div *ngIf="usersLoading" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</div>
+                <div *ngIf="!usersLoading && usersList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">No agent or insurer found.</div>
                 <table *ngIf="!usersLoading && usersList.length > 0">
                   <thead>
                     <tr>
-                      <th>Utilisateur</th>
+                      <th>User</th>
                       <th>Email</th>
-                      <th>Rôle</th>
-                      <th>Téléphone</th>
-                      <th>Ville</th>
+                      <th>Role</th>
+                      <th>Phone</th>
+                      <th>City</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -1359,9 +1359,9 @@
                       <td style="font-size:.775rem">{{ user.city || '—' }}</td>
                       <td>
                         <div style="display:flex;gap:.35rem">
-                          <button class="btn btn-ghost btn-xs" (click)="openViewUser(user)">Voir</button>
-                          <button class="btn btn-ghost btn-xs" style="color:var(--blue)" (click)="openEditUser(user)">Modifier</button>
-                          <button class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteUser(user.id)">Supprimer</button>
+                          <button class="btn btn-ghost btn-xs" (click)="openViewUser(user)">View</button>
+                          <button class="btn btn-ghost btn-xs" style="color:var(--blue)" (click)="openEditUser(user)">Edit</button>
+                          <button class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteUser(user.id)">Delete</button>
                         </div>
                       </td>
                     </tr>
@@ -1373,20 +1373,20 @@
             <!-- Logs table -->
             <div class="panel s2" *ngIf="usersTab === 'logs'">
               <div class="panel-head">
-                <div class="panel-title"><span class="ptdot"></span>Historique des connexions</div>
-                <div style="font-size:.75rem;color:var(--muted)">{{ logsList.length }} connexion(s)</div>
+                <div class="panel-title"><span class="ptdot"></span>Connection History</div>
+                <div style="font-size:.75rem;color:var(--muted)">{{ logsList.length }} connection(s)</div>
               </div>
               <div class="tbl-wrap">
-                <div *ngIf="logsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
-                <div *ngIf="!logsLoading && logsList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucune connexion enregistrée.</div>
+                <div *ngIf="logsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</div>
+                <div *ngIf="!logsLoading && logsList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">No connections recorded.</div>
                 <table *ngIf="!logsLoading && logsList.length > 0">
                   <thead>
                     <tr>
-                      <th>Utilisateur</th>
+                      <th>User</th>
                       <th>Email</th>
-                      <th>Rôle</th>
-                      <th>Date & Heure</th>
-                      <th>Adresse IP</th>
+                      <th>Role</th>
+                      <th>Date & Time</th>
+                      <th>IP Address</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -1496,12 +1496,12 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Prénom *</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.firstName" placeholder="Prénom">
+          <label class="form-label">First name *</label>
+          <input class="form-input" type="text" [(ngModel)]="newUser.firstName" placeholder="First name">
         </div>
         <div class="form-group">
-          <label class="form-label">Nom *</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.lastName" placeholder="Nom">
+          <label class="form-label">Last name *</label>
+          <input class="form-input" type="text" [(ngModel)]="newUser.lastName" placeholder="Last name">
         </div>
       </div>
       <div class="form-row">
@@ -1516,14 +1516,14 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Rôle *</label>
+          <label class="form-label">Role *</label>
           <select class="form-input" [(ngModel)]="newUser.role">
             <option value="AGENT">Agent IMF</option>
-            <option value="INSURER">Assureur</option>
+            <option value="INSURER">Insurer</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Téléphone</label>
+          <label class="form-label">Phone</label>
           <input class="form-input" type="text" [(ngModel)]="newUser.phoneNumber" placeholder="+216 XX XXX XXX">
         </div>
       </div>
@@ -1533,39 +1533,39 @@
           <input class="form-input" type="text" [(ngModel)]="newUser.cin" placeholder="Ex: 08123456">
         </div>
         <div class="form-group">
-          <label class="form-label">Adresse</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.address" placeholder="Adresse">
+          <label class="form-label">Address</label>
+          <input class="form-input" type="text" [(ngModel)]="newUser.address" placeholder="Address">
         </div>
         <div class="form-group">
-          <label class="form-label">Ville</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.city" placeholder="Ville">
+          <label class="form-label">City</label>
+          <input class="form-input" type="text" [(ngModel)]="newUser.city" placeholder="City">
         </div>
       </div>
       <div *ngIf="newUser.role === 'AGENT'" class="form-row">
         <div class="form-group">
-          <label class="form-label">Code Agence</label>
+          <label class="form-label">Agency Code</label>
           <input class="form-input" type="text" [(ngModel)]="newUser.agenceCode" placeholder="Code agence">
         </div>
         <div class="form-group">
-          <label class="form-label">Région</label>
+          <label class="form-label">Region</label>
           <input class="form-input" type="text" [(ngModel)]="newUser.region" placeholder="Numéro région">
         </div>
       </div>
       <div *ngIf="newUser.role === 'INSURER'" class="form-row">
         <div class="form-group">
-          <label class="form-label">Nom Assureur</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.insurerName" placeholder="Nom société">
+          <label class="form-label">Insurer Name</label>
+          <input class="form-input" type="text" [(ngModel)]="newUser.insurerName" placeholder="Company name">
         </div>
         <div class="form-group">
-          <label class="form-label">Email Assureur</label>
+          <label class="form-label">Insurer Email</label>
           <input class="form-input" type="email" [(ngModel)]="newUser.insurerEmail" placeholder="contact@assureur.tn">
         </div>
       </div>
     </div>
     <div class="decision-bar" style="justify-content:flex-end">
-      <button class="btn btn-outline" (click)="closeUserModal()">Annuler</button>
+      <button class="btn btn-outline" (click)="closeUserModal()">Cancel</button>
       <button class="btn btn-primary" (click)="submitUser()" [disabled]="addUserLoading">
-        {{ addUserLoading ? (editingUserId ? 'Mise à jour...' : 'Création...') : (editingUserId ? 'Enregistrer' : 'Créer le compte') }}
+        {{ addUserLoading ? (editingUserId ? 'Mise à jour...' : 'Creation..') : (editingUserId ? 'Enregistrer' : 'Create Account') }}
       </button>
     </div>
   </div>

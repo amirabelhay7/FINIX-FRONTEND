@@ -24,6 +24,7 @@ export interface DelinquencyCaseDto {
   closureReason: string | null;
   notes: string | null;
   recoveryActionsCount: number;
+  clientDelinquencyCaseCount: number;  // historique total pour le score de risque
 }
 
 export interface RecoveryActionDto {
@@ -132,6 +133,16 @@ export class DelinquencyService {
   /** Clôturer un dossier */
   closeCase(caseId: number, reason: string): Observable<DelinquencyCaseDto> {
     return this.http.put<DelinquencyCaseDto>(`${this.CASE_API}/${caseId}/close?reason=${reason}`, {});
+  }
+
+  /** Client paie en ligne → dossier passe à RECOVERED */
+  payOverdue(caseId: number): Observable<DelinquencyCaseDto> {
+    return this.http.post<DelinquencyCaseDto>(`${this.CASE_API}/${caseId}/pay-overdue`, {});
+  }
+
+  /** Agent enregistre un paiement en agence → dossier passe à RECOVERED */
+  payByAgent(caseId: number): Observable<DelinquencyCaseDto> {
+    return this.http.post<DelinquencyCaseDto>(`${this.CASE_API}/${caseId}/pay-by-agent`, {});
   }
 
   // ── RecoveryAction ───────────────────────────────────────────────────────

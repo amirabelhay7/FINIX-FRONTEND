@@ -396,6 +396,10 @@ td { padding:.75rem 1rem; font-size:.8375rem; color:var(--g700); vertical-align:
 .b-late     { color:#dc2626; background:rgba(220,38,38,.1); }
 .b-insured  { color:#16a34a; background:rgba(22,163,74,.1); }
 .b-expired  { color:#dc2626; background:rgba(220,38,38,.1); }
+.b-warning  { color:#f97316; background:rgba(249,115,22,.1); }
+.b-danger   { color:#dc2626; background:rgba(220,38,38,.1); }
+.b-blue     { color:#2563eb; background:rgba(59,130,246,.1); }
+.b-teal     { color:#0891b2; background:rgba(6,182,212,.1); }
 
 /* ═══════════════════════════════════════════════
    BUTTONS

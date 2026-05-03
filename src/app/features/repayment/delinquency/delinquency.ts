@@ -5,10 +5,6 @@ import {
   DelinquencyCaseDto,
 } from '../../../services/delinquency/delinquency.service';
 
-/**
- * ViewModel: delinquency — vue client (MVVM).
- * Affiche le dossier de délinquance du client connecté s'il en a un.
- */
 @Component({
   selector: 'app-delinquency',
   standalone: false,
@@ -24,24 +20,52 @@ export class Delinquency implements OnInit {
   /** Dossier actif du client (null = aucun dossier = client à jour) */
   activeCase: DelinquencyCaseDto | null = null;
 
+  paying = false;
+  payError = '';
+
   constructor(
     private authService: AuthService,
     private delinquencyService: DelinquencyService,
   ) {}
 
   ngOnInit(): void {
+    this.loadCase();
+  }
+
+  private loadCase(): void {
     const userId = this.authService.getPayload()?.userId;
     if (!userId) { this.loading = false; return; }
 
     this.delinquencyService.getCasesByClient(userId).subscribe({
       next: (cases) => {
-        // Prendre le premier dossier non-clôturé, s'il existe
-        this.activeCase = cases.find(c => c.status !== 'CLOSED' && c.status !== 'RECOVERED') ?? null;
+        // Show any non-CLOSED case, including RECOVERED (situation réglée)
+        this.activeCase = cases.find(c => c.status !== 'CLOSED') ?? null;
         this.loading = false;
       },
       error: () => {
         this.error = 'Impossible de charger les informations de votre dossier.';
         this.loading = false;
+      }
+    });
+  }
+
+  get isRecovered(): boolean {
+    return this.activeCase?.status === 'RECOVERED';
+  }
+
+  payNow(): void {
+    if (!this.activeCase || this.paying) return;
+    this.paying = true;
+    this.payError = '';
+
+    this.delinquencyService.payOverdue(this.activeCase.id).subscribe({
+      next: (updated) => {
+        this.activeCase = updated;
+        this.paying = false;
+      },
+      error: () => {
+        this.payError = 'Le paiement a échoué. Veuillez réessayer.';
+        this.paying = false;
       }
     });
   }
@@ -74,7 +98,7 @@ export class Delinquency implements OnInit {
     const map: Record<string, string> = {
       NEW: 'Nouveau', CONTACTED: 'Contacté', IN_PROGRESS: 'En cours',
       PLAN_ACTIVE: 'Plan de paiement actif', LEGAL: 'Procédure juridique',
-      RECOVERED: 'Régularisé', CLOSED: 'Clôturé',
+      RECOVERED: 'Situation réglée', CLOSED: 'Clôturé',
     };
     return map[this.activeCase?.status ?? ''] ?? '';
   }

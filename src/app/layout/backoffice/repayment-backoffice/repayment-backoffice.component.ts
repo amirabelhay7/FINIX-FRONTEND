@@ -20,16 +20,21 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
   adminPayments: any[] = [];
   adminPaymentsLoading = false;
 
-  /* ── KPI "Due this month" (depuis la table installment) ── */
-  kpiDueThisMonthValue = 0;
-  kpiTotalScheduledThisMonth = 0;
-  kpiNextDueDateValue: Date | null = null;
-  kpiDueCount = 0;
+  /* ── KPI repayment (depuis backend /api/dashboard/kpi) ── */
+  kpiCollectedThisMonth = 0;
+  kpiUnpaidTotal = 0;
+  kpiUnpaidCases = 0;
+  kpiRecoveryRate = 0;
+  kpiDefaultRate = 0;
+  kpiContractsFollowed = 0;
+  kpiDueThisMonth = 0;
+  kpiNextDueDate: Date | null = null;
 
   statusOptions = ['PAID', 'PENDING', 'CANCELLED', 'DONE'];
   paymentFilter = '';
   paymentStatusFilter = '';
   paymentMethodFilter = '';
+  paymentMonthFilter = '';
 
   /* ── Pagination payments admin ── */
   adminPayPage = 1;
@@ -53,6 +58,14 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
     if (this.paymentMethodFilter) {
       list = list.filter((p: any) => p.paymentMethod === this.paymentMethodFilter);
     }
+    if (this.paymentMonthFilter) {
+      list = list.filter((p: any) => {
+        if (!p.paymentDate) return false;
+        const d = new Date(p.paymentDate);
+        const month = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        return month === this.paymentMonthFilter;
+      });
+    }
     return list;
   }
 
@@ -75,59 +88,8 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
     return pages;
   }
 
-  /* ── KPI dynamiques ── */
-
-  get kpiCollectedThisMonth(): number {
-    const now = new Date();
-    const m = now.getMonth(), y = now.getFullYear();
-    return this.adminPayments
-      .filter(p => p.paymentStatus === 'PAID' && p.paymentDate)
-      .filter(p => { const d = new Date(p.paymentDate); return d.getMonth() === m && d.getFullYear() === y; })
-      .reduce((s, p) => s + Number(p.amountPaid ?? 0), 0);
-  }
-
-  get kpiUnpaidTotal(): number {
-    return (this.allCases || [])
-      .filter((c: any) => c.status !== 'CLOSED' && c.status !== 'RECOVERED')
-      .reduce((s: number, c: any) => s + Number(c.totalOverdueAmount ?? 0), 0);
-  }
-
-  get kpiUnpaidCases(): number {
-    return (this.allCases || [])
-      .filter((c: any) => c.status !== 'CLOSED' && c.status !== 'RECOVERED')
-      .length;
-  }
-
-  get kpiDueThisMonth(): number { return this.kpiDueThisMonthValue; }
-  get kpiNextDueDate(): Date | null { return this.kpiNextDueDateValue; }
   get kpiCurrentMonthLabel(): string {
     return new Date().toLocaleDateString('en-US', { month: 'long' });
-  }
-
-  get kpiContractsFollowed(): number {
-    const set = new Set<string>();
-    for (const p of this.adminPayments) {
-      if (p.numeroContrat) set.add(p.numeroContrat);
-    }
-    return set.size;
-  }
-
-  get kpiRecoveryRate(): number {
-    const now = new Date();
-    const m = now.getMonth(), y = now.getFullYear();
-    const recovered = this.adminPayments
-      .filter(p => p.paymentStatus === 'PAID' && p.paymentDate)
-      .filter(p => { const d = new Date(p.paymentDate); return d.getMonth() === m && d.getFullYear() === y; })
-      .reduce((s, p) => s + Number(p.amountPaid ?? 0), 0);
-    const enDefaut = this.kpiUnpaidTotal;
-    if (enDefaut === 0) return 0;
-    return Math.round((recovered / enDefaut) * 1000) / 10;
-  }
-
-  get kpiDefaultRate(): number {
-    const total = this.kpiContractsFollowed;
-    if (total === 0) return 0;
-    return Math.round((this.kpiUnpaidCases / total) * 1000) / 10;
   }
 
   goAdminPayPage(page: number): void {
@@ -144,6 +106,100 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
   graceRejectId: number | null = null;
   graceRejectReason = '';
   graceDetailRequest: any = null;
+
+  gracePage = 1;
+  readonly gracePageSize = 8;
+
+  get graceTotalPages(): number { return Math.ceil(this.graceRequests.length / this.gracePageSize) || 1; }
+  get gracePagesList(): number[] { return Array.from({ length: this.graceTotalPages }, (_, i) => i + 1); }
+  get pagedGraceRequests(): any[] {
+    const start = (this.gracePage - 1) * this.gracePageSize;
+    return this.graceRequests.slice(start, start + this.gracePageSize);
+  }
+  goGracePage(n: number): void { if (n >= 1 && n <= this.graceTotalPages) this.gracePage = n; }
+
+  /* ── AI Decision Modal ── */
+  decisionRequest: any = null;
+  decisionMlResult: any = null;
+  decisionMlLoading = false;
+  decisionMlError: string | null = null;
+  decisionRejectReason = '';
+  decisionError: string | null = null;
+
+  /* ── Analytics / Charts ── */
+  chartYear = new Date().getFullYear();
+  monthlyCollected: number[] = Array(12).fill(0);
+  chartLoading = false;
+
+  readonly MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  readonly PAYMENT_STATUS_COLORS: Record<string, string> = {
+    PAID:      '#10B981', PENDING: '#F59E0B',
+    CANCELLED: '#EF4444', DONE:    '#6366F1',
+  };
+  readonly INSTALLMENT_STATUS_COLORS: Record<string, string> = {
+    PAID:    '#10B981', PENDING: '#F59E0B',
+    OVERDUE: '#EF4444', WAIVED:  '#6366F1',
+  };
+  readonly GRACE_STATUS_COLORS: Record<string, string> = {
+    PENDING:  '#F59E0B', APPROVED: '#10B981', REJECTED: '#EF4444',
+  };
+
+  paymentStatusSegments:     { label: string; value: number; color: string; path: string; percent: number }[] = [];
+  installmentStatusSegments: { label: string; value: number; color: string; path: string; percent: number }[] = [];
+  graceStatusSegments:       { label: string; value: number; color: string; path: string; percent: number }[] = [];
+
+  get barMaxValue(): number { return Math.max(...this.monthlyCollected, 1); }
+  get paymentStatusTotal(): number { return this.paymentStatusSegments.reduce((s, x) => s + x.value, 0); }
+  get installmentStatusTotal(): number { return this.installmentStatusSegments.reduce((s, x) => s + x.value, 0); }
+  get graceStatusTotal(): number { return this.graceStatusSegments.reduce((s, x) => s + x.value, 0); }
+  get barChartBars() {
+    return this.monthlyCollected.map((v, i) => ({
+      x: i * 30 + 6,
+      y: 140 - Math.round((v / this.barMaxValue) * 120),
+      h: Math.round((v / this.barMaxValue) * 120),
+      w: 22,
+      label: this.MONTHS[i],
+      amount: v,
+      current: i === new Date().getMonth(),
+    }));
+  }
+
+  loadChartData(): void {
+    this.chartLoading = true;
+    this.http.get<any>(`${this.API}/dashboard/charts`).pipe(
+      finalize(() => { this.chartLoading = false; this.cdr.detectChanges(); })
+    ).subscribe({
+      next: (d) => {
+        this.monthlyCollected = Array.isArray(d.monthlyCollected) ? d.monthlyCollected : Array(12).fill(0);
+        this.paymentStatusSegments     = this.buildDonut(d.paymentStatusBreakdown     || {}, this.PAYMENT_STATUS_COLORS);
+        this.installmentStatusSegments = this.buildDonut(d.installmentStatusBreakdown || {}, this.INSTALLMENT_STATUS_COLORS);
+        this.graceStatusSegments       = this.buildDonut(d.graceStatusBreakdown       || {}, this.GRACE_STATUS_COLORS);
+        this.cdr.detectChanges();
+      },
+      error: () => {},
+    });
+  }
+
+  private buildDonut(raw: Record<string, number>, colors: Record<string, string>) {
+    const entries = Object.entries(raw).filter(([, v]) => v > 0);
+    const total = entries.reduce((s, [, v]) => s + v, 0) || 1;
+    const cx = 80, cy = 80, r = 65, ri = 44;
+    let cumAngle = -Math.PI / 2;
+    return entries.map(([label, value]) => {
+      const sweep = (value / total) * 2 * Math.PI;
+      const startA = cumAngle;
+      cumAngle += sweep;
+      const endA = cumAngle;
+      const large = sweep > Math.PI ? 1 : 0;
+      const x1 = cx + r  * Math.cos(startA), y1 = cy + r  * Math.sin(startA);
+      const x2 = cx + r  * Math.cos(endA),   y2 = cy + r  * Math.sin(endA);
+      const x3 = cx + ri * Math.cos(endA),   y3 = cy + ri * Math.sin(endA);
+      const x4 = cx + ri * Math.cos(startA), y4 = cy + ri * Math.sin(startA);
+      const path = `M${x1} ${y1} A${r} ${r} 0 ${large} 1 ${x2} ${y2} L${x3} ${y3} A${ri} ${ri} 0 ${large} 0 ${x4} ${y4}Z`;
+      return { label, value, color: colors[label] || '#94A3B8', path, percent: Math.round(value / total * 100) };
+    });
+  }
 
   /* ── Délinquance ── */
   allCases: DelinquencyCaseDto[] = [];
@@ -175,6 +231,9 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
   showCloseModal = false;
   closeCaseId: number | null = null;
   closeReason = 'PAID';
+
+  registeringCashPayment = false;
+  cashPaymentSuccess = false;
 
   readonly caseActionTypes = ['PHONE_CALL','SMS','EMAIL','HOME_VISIT','WORK_VISIT','DEMAND_LETTER','NEGOTIATION','PAYMENT_PLAN','LEGAL_ACTION'];
   readonly caseResultOptions = ['CONTACTED','NOT_CONTACTED','PROMISE_MADE','PAYMENT_RECEIVED','REFUSED','NO_ANSWER','ESCALATED'];
@@ -213,6 +272,8 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
         this.loadDelinquencyCases();
       } else if (page === 'grace-requests') {
         this.loadGraceRequests();
+      } else if (page === 'analytics') {
+        this.loadChartData();
       }
     }
   }
@@ -303,24 +364,23 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
       next: (res) => { this.adminPayments = Array.isArray(res) ? res : []; },
       error: (err) => { console.error('[Admin] payments error:', err); this.adminPayments = []; },
     });
-    this.loadDueThisMonthKpi();
+    this.loadRepaymentKpi();
   }
 
-  loadDueThisMonthKpi(): void {
-    this.http.get<any>(`${this.API}/schedule-repayment/kpi/due-this-month`).subscribe({
-      next: (res) => {
-        this.kpiDueThisMonthValue = Number(res?.totalDue ?? 0);
-        this.kpiTotalScheduledThisMonth = Number(res?.totalScheduled ?? 0);
-        this.kpiDueCount = Number(res?.count ?? 0);
-        this.kpiNextDueDateValue = res?.nextDueDate ? new Date(res.nextDueDate) : null;
+  loadRepaymentKpi(): void {
+    this.http.get<any>(`${this.API}/dashboard/kpi`).subscribe({
+      next: (kpi) => {
+        this.kpiCollectedThisMonth = Number(kpi.collectedThisMonth ?? 0);
+        this.kpiUnpaidTotal        = Number(kpi.totalOverdueAmount ?? 0);
+        this.kpiUnpaidCases        = Number(kpi.openDelinquencyCases ?? 0);
+        this.kpiRecoveryRate       = Number(kpi.recoveryRate ?? 0);
+        this.kpiDefaultRate        = Number(kpi.defaultRate ?? 0);
+        this.kpiContractsFollowed  = Number(kpi.activeContracts ?? 0);
+        this.kpiDueThisMonth       = Number(kpi.dueThisMonth ?? 0);
+        this.kpiNextDueDate        = kpi.nextDueDate ? new Date(kpi.nextDueDate) : null;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.kpiDueThisMonthValue = 0;
-        this.kpiTotalScheduledThisMonth = 0;
-        this.kpiDueCount = 0;
-        this.kpiNextDueDateValue = null;
-      },
+      error: () => {},
     });
   }
 
@@ -351,6 +411,7 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
 
   onGraceFilterChange(status: string): void {
     this.graceFilterStatus = status;
+    this.gracePage = 1;
     this.loadGraceRequests();
   }
 
@@ -361,7 +422,7 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
       finalize(() => { this.graceActionLoading = null; this.cdr.detectChanges(); })
     ).subscribe({
       next: () => this.loadGraceRequests(),
-      error: (err) => alert(err.error?.message || 'Error approving request'),
+      error: (err) => alert(err.error?.message || `Error ${err.status}: approving request`),
     });
   }
 
@@ -378,12 +439,98 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
       finalize(() => { this.graceActionLoading = null; this.graceRejectId = null; this.cdr.detectChanges(); })
     ).subscribe({
       next: () => this.loadGraceRequests(),
-      error: (err) => alert(err.error?.message || 'Error rejecting request'),
+      error: (err) => alert(err.error?.message || `Error ${err.status}: rejecting request`),
     });
   }
 
   openGraceDetail(req: any): void { this.graceDetailRequest = req; }
   closeGraceDetail(): void { this.graceDetailRequest = null; }
+
+  /* ── AI Decision modal ── */
+  openDecisionModal(req: any): void {
+    this.decisionRequest = req;
+    this.decisionMlResult = null;
+    this.decisionMlError = null;
+    this.decisionError = null;
+    this.decisionRejectReason = '';
+    this.fetchDecisionMl(req);
+  }
+
+  closeDecisionModal(): void {
+    this.decisionRequest = null;
+    this.decisionMlResult = null;
+    this.decisionMlError = null;
+  }
+
+  fetchDecisionMl(req: any): void {
+    this.decisionMlLoading = true;
+    const url = `${this.API}/risk/evaluate/client/${req.clientId}/contract/${req.loanContractId}`;
+    this.http.get<any>(url).pipe(
+      finalize(() => { this.decisionMlLoading = false; this.cdr.detectChanges(); })
+    ).subscribe({
+      next: (res) => { this.decisionMlResult = res; },
+      error: (err) => {
+        if (err?.status === 0) this.decisionMlError = 'Backend Spring inaccessible (port 8081).';
+        else if (err?.status === 500) this.decisionMlError = 'Verifie que l\'API Python tourne sur localhost:8000.';
+        else this.decisionMlError = err?.error?.message || 'Erreur lors de l\'analyse IA.';
+      },
+    });
+  }
+
+  decisionApprove(): void {
+    if (!this.decisionRequest) return;
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    this.graceActionLoading = this.decisionRequest.id;
+    this.decisionError = null;
+    this.http.put<any>(`${this.API}/grace-period-requests/${this.decisionRequest.id}/approve`,
+      { reviewedById: user.userId }).pipe(
+      finalize(() => { this.graceActionLoading = null; this.cdr.detectChanges(); })
+    ).subscribe({
+      next: () => { this.closeDecisionModal(); this.loadGraceRequests(); },
+      error: (err) => { this.decisionError = err.error?.message || `Error ${err.status}: approving request`; },
+    });
+  }
+
+  decisionReject(): void {
+    if (!this.decisionRequest) return;
+    if (!this.decisionRejectReason.trim()) {
+      this.decisionError = 'Rejection reason is required';
+      return;
+    }
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    this.graceActionLoading = this.decisionRequest.id;
+    this.decisionError = null;
+    this.http.put<any>(`${this.API}/grace-period-requests/${this.decisionRequest.id}/reject`, {
+      reviewedById: user.userId,
+      rejectionReason: this.decisionRejectReason
+    }).pipe(
+      finalize(() => { this.graceActionLoading = null; this.cdr.detectChanges(); })
+    ).subscribe({
+      next: () => { this.closeDecisionModal(); this.loadGraceRequests(); },
+      error: (err) => { this.decisionError = err.error?.message || `Error ${err.status}: rejecting request`; },
+    });
+  }
+
+  decisionRiskClass(): string {
+    if (!this.decisionMlResult) return '';
+    switch (this.decisionMlResult.riskLevel) {
+      case 'LOW':      return 'ai-low';
+      case 'MODERATE': return 'ai-moderate';
+      case 'HIGH':     return 'ai-high';
+      case 'CRITICAL': return 'ai-critical';
+      default:         return '';
+    }
+  }
+
+  decisionSolvabilityClass(): string {
+    if (!this.decisionMlResult) return '';
+    return this.decisionMlResult.solvability === 'SOLVABLE' ? 'ai-solvable' : 'ai-non-solvable';
+  }
+
+  decisionGraceClass(): string {
+    if (!this.decisionMlResult) return '';
+    return this.decisionMlResult.graceRecommendation === 'APPROVE' ? 'ai-approve' : 'ai-reject';
+  }
 
   get pendingGraceCount(): number { return this.graceRequests.filter((r: any) => r.status === 'PENDING').length; }
   get approvedGraceCount(): number { return this.graceRequests.filter((r: any) => r.status === 'APPROVED').length; }
@@ -468,6 +615,26 @@ export class RepaymentBackofficeComponent implements OnInit, OnChanges {
         this.showAssignModal = false;
         this.cdr.detectChanges();
       }
+    });
+  }
+
+  /** Enregistre un paiement en agence pour le dossier sélectionné */
+  registerCashPayment(): void {
+    if (!this.selectedCase || this.registeringCashPayment) return;
+    this.registeringCashPayment = true;
+    this.cashPaymentSuccess = false;
+    this.delinquencyService.payByAgent(this.selectedCase.id).subscribe({
+      next: (updated) => {
+        this.selectedCase = updated;
+        const idx = this.allCases.findIndex(c => c.id === updated.id);
+        if (idx !== -1) this.allCases[idx] = updated;
+        this.applyDelinquencyFilters();
+        this.registeringCashPayment = false;
+        this.cashPaymentSuccess = true;
+        this.cdr.detectChanges();
+        setTimeout(() => { this.cashPaymentSuccess = false; this.cdr.detectChanges(); }, 4000);
+      },
+      error: () => { this.registeringCashPayment = false; this.cdr.detectChanges(); }
     });
   }
 

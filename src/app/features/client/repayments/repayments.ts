@@ -108,6 +108,9 @@ export class ClientRepayments implements OnInit {
   delinquencyCase: DelinquencyCaseDto | null = null;
   delinquencyLoading = false;
   delinquencyError = '';
+  dlqPaying = false;
+  dlqPayError = '';
+  dlqStripeMode = false;  // true = modal Stripe utilisé pour payer la délinquance
 
   // ── Grace Period Request ───────────────────────────────
   graceModalOpen = false;
@@ -379,6 +382,13 @@ export class ClientRepayments implements OnInit {
     if (page >= 1 && page <= this.amortTotalPages) this.amortPage = page;
   }
 
+  /** Ouvre le modal Stripe en mode "paiement délinquance" (montant total overdue) */
+  openDlqStripeModal(): void {
+    if (!this.delinquencyCase || this.overdueCount === 0) return;
+    this.dlqStripeMode = true;
+    this.openStripeModal();
+  }
+
   // ── Ouverture modal → étape confirmation ─────────────
   openStripeModal(): void {
     if (!this.currentInstallment) return;
@@ -396,9 +406,48 @@ export class ClientRepayments implements OnInit {
 
   // ── Étape 1 → 2 : l'utilisateur a cliqué "Oui" ───────
   initStripePayment(): void {
-    if (!this.currentInstallment || !this.contract) return;
+    if (!this.contract) return;
     const userId = this.authService.getPayload()?.userId;
     if (!userId) return;
+
+    // En mode délinquance : montant = total overdue, pas la mensualité courante
+    if (this.dlqStripeMode) {
+      if (!this.delinquencyCase || this.overdueCount === 0) return;
+      this.stripeStep          = 'processing';
+      this.stripeLoadingIntent = true;
+      this.stripeError         = null;
+      this.cdr.detectChanges();
+      const today = new Date();
+      const dueDate = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+      const req: StripePaymentIntentRequestDto = {
+        amount:            Math.round(this.overdueTotal * 100),
+        currency:          'eur',
+        installmentNumber: 0,
+        userId,
+        loanContractId:    this.contract.id,
+        dueDate,
+        description:       `Régularisation dossier délinquance #${this.delinquencyCase.id} — ${this.overdueCount} mensualité(s) — ${this.contract.numeroContrat ?? ''}`,
+      };
+      this.creditService.createStripePaymentIntent(req).subscribe({
+        next: (res) => {
+          this.stripeClientSecret  = res.clientSecret;
+          this.stripeLoadingIntent = false;
+          this.stripeStep          = 'card';
+          if (!this.stripeInstance) this.stripeInstance = Stripe(res.publishableKey);
+          this.cdr.detectChanges();
+          setTimeout(() => this.mountCardElement(), 300);
+        },
+        error: () => {
+          this.stripeLoadingIntent = false;
+          this.stripeError = 'Unable to initialize payment. Please try again.';
+          this.stripeStep  = 'confirm';
+          this.cdr.detectChanges();
+        },
+      });
+      return;
+    }
+
+    if (!this.currentInstallment) return;
 
     this.stripeStep          = 'processing';
     this.stripeLoadingIntent = true;
@@ -537,6 +586,37 @@ export class ClientRepayments implements OnInit {
 
   // ── Enregistrement en DB après succès Stripe ──────────
   private savePaymentToDb(stripePaymentIntentId: string): void {
+    // Mode délinquance : marquer tous les impayés + RECOVERED
+    if (this.dlqStripeMode && this.delinquencyCase) {
+      this.delinquencyService.payOverdue(this.delinquencyCase.id).subscribe({
+        next: () => {
+          this.stripePaymentSuccess = true;
+          this.stripePaymentLoading = false;
+          this.stripeStep           = 'success';
+          this.cdr.detectChanges();
+          setTimeout(() => {
+            this.closeStripeModal();
+            if (this.contract) {
+              this.creditService.getInstallments(this.contract.id).subscribe({
+                next: (inst) => { this.amortizationRows = this.buildRowsFromDB(inst); this.cdr.detectChanges(); }
+              });
+            }
+            this.loadPaymentHistory();
+            this.loadDelinquencyStatus();
+          }, 2500);
+        },
+        error: () => {
+          // Stripe a débité, on affiche quand même le succès
+          this.stripePaymentSuccess = true;
+          this.stripePaymentLoading = false;
+          this.stripeStep           = 'success';
+          this.cdr.detectChanges();
+          setTimeout(() => { this.closeStripeModal(); this.loadDelinquencyStatus(); }, 2500);
+        }
+      });
+      return;
+    }
+
     if (!this.currentInstallment || !this.contract) return;
     const userId = this.authService.getPayload()?.userId;
     if (!userId) return;
@@ -595,6 +675,7 @@ export class ClientRepayments implements OnInit {
     this.stripeReady          = false;
     this.stripeClientSecret   = null;
     this.stripeStep           = 'confirm';
+    this.dlqStripeMode        = false;
     // Si paiement vient de réussir, loadPaymentHistory() va recalculer l'état
     // Ne pas appeler checkCurrentInstallmentPaid() ici pour éviter de réafficher le bouton
     if (!justPaid) {
@@ -755,6 +836,60 @@ export class ClientRepayments implements OnInit {
         this.cdr.detectChanges();
       },
       error: () => { this.delinquencyLoading = false; this.cdr.detectChanges(); }
+    });
+  }
+
+  /** Mensualités réellement en retard selon le statut en BD (temps réel, pas la valeur cached du dossier) */
+  get overdueRows(): AmortizationRow[] {
+    return this.amortizationRows.filter(r => r.status === 'OVERDUE');
+  }
+
+  get overdueCount(): number {
+    return this.overdueRows.length;
+  }
+
+  get overdueTotal(): number {
+    return this.overdueRows.reduce((s, r) => s + r.mensualite, 0);
+  }
+
+  get maxDaysOverdueCalc(): number {
+    if (this.overdueRows.length === 0) return 0;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    return Math.max(...this.overdueRows.map(r => {
+      const due = new Date(r.dateObj); due.setHours(0, 0, 0, 0);
+      return Math.floor((today.getTime() - due.getTime()) / 86400000);
+    }));
+  }
+
+  payNowDelinquency(): void {
+    if (!this.delinquencyCase || this.dlqPaying) return;
+    this.dlqPaying = true;
+    this.dlqPayError = '';
+
+    this.delinquencyService.payOverdue(this.delinquencyCase.id).subscribe({
+      next: () => {
+        this.dlqPaying = false;
+        // Reload tout : installments + historique + statut délinquance
+        if (this.contract) {
+          this.creditService.getInstallments(this.contract.id).subscribe({
+            next: (inst) => {
+              this.amortizationRows = this.buildRowsFromDB(inst);
+              this.loadPaymentHistory();
+              this.loadDelinquencyStatus();
+              this.cdr.detectChanges();
+            },
+            error: () => {
+              this.loadDelinquencyStatus();
+              this.cdr.detectChanges();
+            }
+          });
+        }
+      },
+      error: () => {
+        this.dlqPayError = 'Payment failed. Please try again.';
+        this.dlqPaying = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 

@@ -72,6 +72,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   logout(): void {
     localStorage.removeItem('finix_access_token');
     localStorage.removeItem('currentUser');
+    sessionStorage.removeItem('finix_page');
     this.router.navigate(['/login']);
   }
 
