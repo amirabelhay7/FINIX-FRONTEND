@@ -1,0 +1,66 @@
+<div class="page-body" style="max-width:900px;margin:0 auto">
+  <app-insurance-nav></app-insurance-nav>
+
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Insurance</div>
+      <div class="ph-title">{{ pageTitle }}</div>
+      <div class="ph-desc">{{ pageSubtitle }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="panel s2" style="padding:1.5rem;text-align:center">
+    <p style="color:var(--muted);margin:0;font-size:.875rem">Loading your policies...</p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="panel s2" style="padding:1.25rem;border-color:rgba(239,68,68,.35)">
+    <p style="color:var(--danger);margin:0 0 .75rem;font-size:.875rem">{{ loadError }}</p>
+    <button type="button" class="btn btn-outline btn-sm" (click)="loadPolicies()">Retry</button>
+  </div>
+
+  <div *ngIf="!loading && !loadError && !policies.length" class="panel s2" style="text-align:center;padding:2rem;color:var(--muted)">
+    <p style="margin:0 0 1rem;font-size:.9rem">No active policy. You can create an insurance credit request from an offer.</p>
+    <p style="margin:0 0 1rem;font-size:.82rem">Your policy will appear here after backoffice approval.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center">
+      <a routerLink="/client/insurance/products" class="btn btn-outline btn-sm">View Offers</a>
+      <a routerLink="/client/insurance/credit-requests" class="btn btn-primary btn-sm">My Insurance Requests</a>
+    </div>
+  </div>
+
+  <div
+    *ngFor="let p of policies"
+    class="panel s2 ins-policy-card"
+    (click)="goDetail(p.id)"
+    style="cursor:pointer;margin-bottom:1rem"
+  >
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
+      <div>
+        <div style="font-size:.72rem;text-transform:uppercase;color:var(--g500);font-weight:700">{{ p.partnerCompanyName }}</div>
+        <div style="font-family:'Sora',sans-serif;font-size:1.15rem;font-weight:800;color:var(--navy)">{{ p.insuranceProductName }}</div>
+        <div style="font-size:.8rem;color:var(--g500);margin-top:.25rem">Policy <span style="font-family:monospace">{{ p.policyNumber }}</span></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:.35rem;justify-content:flex-end">
+        <span *ngFor="let b of badgeForPolicy(p)" class="badge" [ngClass]="b.css">{{ b.label }}</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-top:1rem;font-size:.82rem">
+      <div><span style="color:var(--g500)">Status</span><br /><b>{{ p.status }}</b></div>
+      <div><span style="color:var(--g500)">Start Date</span><br /><b>{{ p.effectiveDate }}</b></div>
+      <div><span style="color:var(--g500)">Expiration</span><br /><b>{{ p.expirationDate }}</b></div>
+      <div *ngIf="p.daysRemaining != null"><span style="color:var(--g500)">Days Remaining</span><br /><b>{{ p.daysRemaining }}</b></div>
+      <div><span style="color:var(--g500)">Total Premium</span><br /><b>{{ p.premiumTotal | number:'1.0-3' }} {{ p.currencyCode }}</b></div>
+      <div><span style="color:var(--g500)">Installment</span><br /><b>{{ p.installmentAmount | number:'1.0-3' }} {{ p.currencyCode }}</b></div>
+      <div><span style="color:var(--g500)">Frequency</span><br /><b>{{ paymentFreqLabel(p.paymentFrequency) }}</b></div>
+      <div><span style="color:var(--g500)">Vehicle Type</span><br /><b>{{ vehicleTypeLabel(p.vehicleType) }}</b></div>
+      <div *ngIf="p.subscriptionDurationMonths != null"><span style="color:var(--g500)">Duration subscription</span><br /><b>{{ p.subscriptionDurationMonths }} months</b></div>
+      <div *ngIf="p.cancellationAllowedUntil"><span style="color:var(--g500)">Cancellation allowed until</span><br /><b>{{ p.cancellationAllowedUntil }}</b></div>
+    </div>
+    <p style="font-size:.76rem;color:var(--g500);margin:1rem 0 0;line-height:1.4;border-top:1px solid var(--border,#e5e7eb);padding-top:.75rem">
+      <strong>Garanties :</strong> le details des coverages souscrites figure sur la fiche policy (rules product).
+    </p>
+    <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.85rem" (click)="$event.stopPropagation()">
+      <a [routerLink]="['/client/insurance/policy', p.id]" class="btn btn-outline btn-sm">Fiche policy &amp; coverages</a>
+      <button type="button" class="btn btn-primary btn-sm" (click)="goSimForPolicy(p.id, $event)">Simuler un claim</button>
+    </div>
+  </div>
+</div>

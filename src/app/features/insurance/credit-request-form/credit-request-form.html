@@ -1,0 +1,50 @@
+<div class="page-body" style="max-width:760px;margin:0 auto">
+  <app-insurance-nav></app-insurance-nav>
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Insurance</div>
+      <div class="ph-title">{{ pageTitle }}</div>
+      <div class="ph-desc">{{ pageSubtitle }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="panel s2" style="padding:1rem;color:var(--g500)">Loading product...</div>
+  <div *ngIf="loadError" class="panel s2" style="padding:1rem;color:var(--danger)">{{ loadError }}</div>
+
+  <form class="panel s2" [formGroup]="form" (ngSubmit)="submit()" *ngIf="!loadError">
+    <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Formulaire</div></div>
+    <div style="padding:1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem">
+      <label>Product
+        <input class="form-control" [value]="product?.name || 'Selected from offer'" readonly />
+      </label>
+      <label>Vehicle Type
+        <select class="form-control" formControlName="vehicleType">
+          <option *ngFor="let t of vehicleTypes" [value]="t.value">{{ t.label }}</option>
+        </select>
+      </label>
+      <label>Insured Value
+        <input class="form-control" type="number" min="100" formControlName="insuredValue" />
+      </label>
+      <label>Vehicle Age (years)
+        <input class="form-control" type="number" min="0" formControlName="vehicleAgeYears" />
+      </label>
+      <label>Duration (months)
+        <input class="form-control" type="number" min="1" formControlName="durationMonths" />
+      </label>
+      <label>Frequency de paiement
+        <select class="form-control" formControlName="paymentFrequency">
+          <option *ngFor="let f of frequencies" [value]="f.value">{{ f.label }}</option>
+        </select>
+      </label>
+    </div>
+    <div style="padding:0 1rem 1rem;color:var(--g600);font-size:.84rem">
+      Estimated Premium: <strong>{{ estimatedPremiumTotal | number:'1.0-3' }} TND</strong> ·
+      Estimated Installment: <strong>{{ estimatedInstallmentAmount | number:'1.0-3' }} TND</strong>
+    </div>
+    <div *ngIf="apiError" style="padding:0 1rem 1rem;color:var(--danger)">{{ apiError }}</div>
+    <div style="padding:0 1rem 1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+      <button type="submit" class="btn btn-primary btn-sm" [disabled]="submitting || loading">Envoyer la demande</button>
+      <a [routerLink]="backRoute" class="btn btn-outline btn-sm">Back</a>
+    </div>
+  </form>
+</div>

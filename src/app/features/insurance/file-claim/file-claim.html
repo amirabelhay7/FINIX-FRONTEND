@@ -1,0 +1,106 @@
+<div class="page-body" style="max-width:720px;margin:0 auto">
+  <app-insurance-nav></app-insurance-nav>
+
+  <div class="ph s1">
+    <div style="display:flex;align-items:flex-start;gap:1rem">
+      <a [routerLink]="backRoute" class="btn btn-outline btn-sm">←</a>
+      <div>
+        <div class="ph-eyebrow">Insurance</div>
+        <div class="ph-title">{{ pageTitle }}</div>
+        <div class="ph-desc">{{ pageSubtitle }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel s2" style="background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.35)">
+    <div style="padding:1rem 1.25rem;font-size:.82rem;line-height:1.45;color:var(--navy)">
+      <strong>Attention — estimation uniquement.</strong> {{ warningText }}
+    </div>
+  </div>
+
+  <div *ngIf="initLoadError" class="panel s2" style="padding:1.25rem;border-color:rgba(239,68,68,.35);margin-top:1rem">
+    <p style="color:var(--danger);margin:0 0 .75rem;font-size:.875rem">{{ initLoadError }}</p>
+    <button type="button" class="btn btn-outline btn-sm" (click)="retryBootstrap()">Retry</button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="panel s2" style="margin-top:1rem">
+    <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Parameters</div></div>
+    <div style="padding:1.25rem;display:flex;flex-direction:column;gap:1rem">
+      <div>
+        <label class="form-label">{{ policyLabel }}</label>
+        <select formControlName="insurancePolicyId" class="form-control" [disabled]="policiesLoading">
+          <option *ngFor="let p of policies" [value]="p.value">{{ p.label }}</option>
+        </select>
+        <p *ngIf="policiesLoading" style="font-size:.75rem;color:var(--g500);margin-top:.25rem">Loading policies...</p>
+      </div>
+      <div>
+        <label class="form-label">{{ coverageLabel }}</label>
+        <select formControlName="coverageId" class="form-control" [disabled]="coveragesLoading">
+          <option *ngFor="let c of coverageOptions" [value]="c.value">{{ c.label }}</option>
+        </select>
+        <p *ngIf="coveragesLoading" style="font-size:.75rem;color:var(--g500);margin-top:.25rem">Loading coverages...</p>
+      </div>
+      <div>
+        <label class="form-label">{{ incidentLabel }}</label>
+        <input type="date" class="form-control" formControlName="incidentDate" />
+      </div>
+      <div>
+        <label class="form-label">{{ amountLabel }}</label>
+        <input type="number" class="form-control" formControlName="estimatedDamageAmount" placeholder="0.00" />
+      </div>
+      <div>
+        <label class="form-label">{{ descriptionLabel }}</label>
+        <textarea class="form-control" rows="3" formControlName="notes" [placeholder]="descriptionPlaceholder"></textarea>
+      </div>
+      <p *ngIf="validationHint" style="color:var(--warning);font-size:.8rem">{{ validationHint }}</p>
+      <p *ngIf="apiError" style="color:var(--danger);font-size:.8rem">{{ apiError }}</p>
+      <button type="submit" class="btn btn-primary" [disabled]="submitting || policiesLoading || coveragesLoading">{{ submitLabel }}</button>
+    </div>
+  </form>
+
+  <div class="panel s3" *ngIf="lastResult">
+    <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Latest Result</div></div>
+    <div style="padding:1rem 1.25rem;font-size:.85rem">
+      Estimated Amount : <strong>{{ lastResult.estimatedPayoutAmount | number:'1.0-3' }} TND</strong> ·
+      <a [routerLink]="['/client/insurance/claims', lastResult.id]" style="color:var(--blue)">Ouvrir le details</a>
+    </div>
+  </div>
+
+  <div class="panel s3">
+    <div class="panel-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+      <div class="panel-title"><span class="ptdot"></span>Historique des simulations</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.35rem">
+        <a routerLink="/client/insurance/my-claims" class="btn btn-ghost btn-sm">Full List View</a>
+        <button type="button" class="btn btn-outline btn-sm" (click)="refreshHistory()" [disabled]="historyLoading">Actualiser</button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <p *ngIf="historyLoading" style="padding:1rem;color:var(--g500);font-size:.85rem">Loading...</p>
+      <table *ngIf="!historyLoading && history.length">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Policy</th>
+            <th>Garantie</th>
+            <th>Date</th>
+            <th>Damage</th>
+            <th>Estimation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let h of history" style="cursor:pointer" (click)="goDetail(h.id)">
+            <td style="font-family:monospace;font-size:.75rem;color:var(--g500)">{{ h.id }}</td>
+            <td class="td-primary">{{ h.policyNumber }}</td>
+            <td>{{ h.coverageCode }}</td>
+            <td>{{ h.incidentDate }}</td>
+            <td class="td-amount">{{ h.estimatedDamageAmount | number:'1.0-3' }}</td>
+            <td class="td-amount">{{ h.estimatedPayoutAmount | number:'1.0-3' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!historyLoading && !history.length" style="padding:1.25rem;color:var(--g500);font-size:.85rem">
+        No simulations saved yet.
+      </div>
+    </div>
+  </div>
+</div>

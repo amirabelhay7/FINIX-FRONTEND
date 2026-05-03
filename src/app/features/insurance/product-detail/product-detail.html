@@ -1,0 +1,77 @@
+<div class="page-body">
+  <app-insurance-nav></app-insurance-nav>
+
+  <div class="ph s1">
+    <div style="display:flex;align-items:flex-start;gap:1rem;flex:1">
+      <a [routerLink]="backRoute" class="btn btn-outline btn-sm" style="margin-top:.2rem">←</a>
+      <div>
+        <div class="ph-eyebrow">Product</div>
+        <div class="ph-title">{{ pageTitle }}</div>
+        <div class="ph-desc">{{ pageSubtitle }}</div>
+      </div>
+    </div>
+  </div>
+
+  <p *ngIf="loading" style="color:var(--g500)">Loading...</p>
+  <p *ngIf="loadError" style="color:var(--danger)">{{ loadError }}</p>
+
+  <div class="panel s2" *ngIf="!loading && !loadError">
+    <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Fiche product</div></div>
+    <div style="padding:1.25rem;display:flex;flex-direction:column;gap:1rem">
+      <div class="g2">
+        <div>
+          <div style="font-size:.69rem;font-weight:700;text-transform:uppercase;color:var(--g400)">{{ premiumLabel }}</div>
+          <div style="font-weight:800;color:var(--blue);margin-top:.25rem">{{ premiumValue }}</div>
+        </div>
+        <div>
+          <div style="font-size:.69rem;font-weight:700;text-transform:uppercase;color:var(--g400)">{{ partnerLabel }}</div>
+          <div style="font-weight:600;color:var(--navy);margin-top:.25rem">{{ partnerName }}</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--g100);padding-top:1rem">
+        <div style="font-size:.69rem;font-weight:700;text-transform:uppercase;color:var(--g400)">{{ eligibilityLabel }}</div>
+        <ul style="font-size:.84rem;color:var(--g600);margin:.35rem 0 0 1.1rem;line-height:1.5">
+          <li *ngFor="let line of eligibilityLines">{{ line }}</li>
+        </ul>
+      </div>
+      <div style="border-top:1px solid var(--g100);padding-top:1rem">
+        <div style="font-size:.69rem;font-weight:700;text-transform:uppercase;color:var(--g400)">{{ descriptionLabel }}</div>
+        <p style="font-size:.84rem;color:var(--g500);margin-top:.35rem;line-height:1.5">{{ descriptionText }}</p>
+      </div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <a *ngIf="productId" [routerLink]="getQuoteRoute" [queryParams]="{ productId: productId }" class="btn btn-primary btn-sm">{{ getQuoteLabel }}</a>
+        <a *ngIf="productId" [routerLink]="creditRequestRoute" [queryParams]="{ productId: productId }" class="btn btn-primary btn-sm">{{ creditRequestLabel }}</a>
+        <a [routerLink]="backRoute" class="btn btn-outline btn-sm">{{ backToProductsLabel }}</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel s3" *ngIf="!loading && !loadError">
+    <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>{{ coveragesTitle }}</div></div>
+    <div class="tbl-wrap" style="padding:0">
+      <table *ngIf="productRules.length">
+        <thead>
+          <tr>
+            <th>Garantie</th>
+            <th>%</th>
+            <th>Franchise</th>
+            <th>Plafond</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of productRules">
+            <td class="td-primary">{{ r.coverageCode }}</td>
+            <td>{{ r.coveragePct }}%</td>
+            <td>{{ r.deductibleAmount ?? '—' }}</td>
+            <td>{{ r.limitAmount ?? '—' }}</td>
+            <td style="font-size:.78rem;color:var(--g500)">{{ r.ruleDescription || r.ruleCode || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!productRules.length" style="padding:1.25rem;color:var(--g500);font-size:.85rem">
+        No published coverage rule for this product. Check the terms PDF or contact the partner.
+      </div>
+    </div>
+  </div>
+</div>

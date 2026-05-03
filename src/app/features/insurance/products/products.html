@@ -1,0 +1,67 @@
+<div class="page-body">
+  <app-insurance-nav></app-insurance-nav>
+
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Insurance</div>
+      <div class="ph-title">{{ pageTitle }}</div>
+      <div class="ph-desc">{{ pageSubtitle }}</div>
+    </div>
+    <div class="ph-actions" style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
+      <label style="font-size:.78rem;color:var(--g500);display:flex;align-items:center;gap:.35rem">
+        Vehicle Type
+        <select class="form-control" style="min-width:180px;padding:.35rem .5rem;font-size:.85rem" [(ngModel)]="vehicleFilter" (ngModelChange)="onVehicleFilterChange()">
+          <option *ngFor="let o of vehicleFilterOptions" [ngValue]="o.value">{{ o.label }}</option>
+        </select>
+      </label>
+      <a routerLink="/client/insurance/quote" class="btn btn-primary btn-sm">Devis estimatif</a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="panel s2" style="padding:1.25rem;text-align:center">
+    <p style="color:var(--g500);margin:0;font-size:.875rem">Loading offers...</p>
+  </div>
+  <div *ngIf="!loading && loadError" class="panel s2" style="padding:1.25rem;border-color:rgba(239,68,68,.35)">
+    <p style="color:var(--danger);margin:0 0 .75rem;font-size:.875rem">{{ loadError }}</p>
+    <button type="button" class="btn btn-outline btn-sm" (click)="retryProducts()">Retry</button>
+  </div>
+
+  <div *ngIf="!loading && !loadError && products.length === 0" class="panel s2" style="padding:1.5rem;text-align:center;color:var(--g500)">
+    No products for this filter. An administrator can create partners, products, and rules in <strong>Backoffice -> Insurance</strong>.
+  </div>
+
+  <div class="catalog-grid s2" *ngIf="!loading && products.length">
+    <div class="cat-card" *ngFor="let product of products">
+      <div style="text-decoration:none;color:inherit;display:block;cursor:pointer" (click)="openProduct(product.route)">
+        <div class="cat-img">{{ product.icon }}</div>
+        <div class="cat-body">
+          <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.35rem" *ngIf="product.badges?.length">
+            <span *ngFor="let badge of product.badges" class="badge" [ngClass]="badge.class">{{ badge.label }}</span>
+          </div>
+          <div class="cat-name">{{ product.name }}</div>
+          <div class="cat-sub">{{ product.description }}</div>
+          <div class="cat-price" style="font-size:.85rem;margin-top:.5rem;color:var(--g600)">{{ product.priceNote }}</div>
+        </div>
+        <div class="cat-foot">
+          <div style="display:flex;gap:.45rem;flex-wrap:wrap">
+            <span class="btn btn-outline btn-sm" style="pointer-events:none">View details →</span>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              (click)="openCreditRequest(product.id, $event)"
+            >
+              Insurance Credit Request
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel s3" *ngIf="!loading">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot"></span>Why Subscribe Here?</div>
+    </div>
+    <div style="padding:1rem 1.25rem;font-size:.84rem;color:var(--g500);line-height:1.5">{{ whyMicroCopy }}</div>
+  </div>
+</div>

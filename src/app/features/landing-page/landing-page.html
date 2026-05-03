@@ -1,0 +1,202 @@
+<div class="landing-hero-mesh min-h-screen">
+  <!-- Hero -->
+  <section class="relative pt-24 pb-20 px-4 md:px-8 overflow-hidden" data-animate>
+    <div class="max-w-7xl mx-auto relative">
+      <div class="landing-reveal in-view max-w-3xl">
+        <p class="inline-block px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-[#135bec] bg-[#135bec]/10 border border-[#135bec]/20 mb-6">
+          {{ heroBadge }}
+        </p>
+        <h1 class="font-['Plus_Jakarta_Sans'] text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1] mb-6">
+          {{ heroTitlePart1 }}<span class="text-[#135bec]">{{ heroTitleHighlight }}</span>
+        </h1>
+        <p class="text-lg sm:text-xl text-slate-600 font-medium max-w-xl mb-10 leading-relaxed">
+          {{ heroSubtitle }}
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a [routerLink]="ctaPrimaryRoute" class="landing-cta inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-[#135bec] text-white font-bold text-sm shadow-lg">
+            {{ ctaPrimaryLabel }}
+            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+          </a>
+          <a [routerLink]="ctaSecondaryRoute" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-white text-slate-700 font-bold text-sm border border-slate-200 hover:border-[#135bec]/40 hover:bg-slate-50 transition-colors">
+            {{ ctaSecondaryLabel }}
+          </a>
+        </div>
+      </div>
+      <!-- Decorative blob -->
+      <div class="absolute top-0 right-0 w-[min(80vw,520px)] h-[min(60vw,400px)] bg-[#135bec]/10 rounded-full blur-[80px] landing-gradient-pulse pointer-events-none" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- Trust strip -->
+  <section class="py-8 border-y border-slate-200/80 bg-white/60 backdrop-blur-sm" data-animate>
+    <div class="max-w-7xl mx-auto px-4 md:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center landing-reveal in-view">
+        <div *ngFor="let stat of trustStats">
+          <p class="font-['Plus_Jakarta_Sans'] text-3xl md:text-4xl font-extrabold" [ngClass]="stat.valueClass || 'text-slate-800'">{{ stat.value }}</p>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-1">{{ stat.label }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bento: product highlights -->
+  <section class="py-20 px-4 md:px-8" data-animate>
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-14 landing-reveal">
+        <h2 class="font-['Plus_Jakarta_Sans'] text-3xl md:text-4xl font-extrabold text-slate-900 mb-3">Built for real workflows</h2>
+        <p class="text-slate-600 font-medium max-w-xl mx-auto">Loans, insurance, repayments, and vehicle financing—orchestrated in one platform.</p>
+      </div>
+      <div class="landing-bento">
+        <div class="col-span-12 lg:col-span-8 landing-reveal landing-reveal-delay-1">
+          <div class="landing-card-hover h-full bg-white rounded-3xl p-8 md:p-10 border border-slate-100 shadow-sm overflow-hidden relative">
+            <div class="relative z-10">
+              <div class="flex items-center gap-3 mb-6">
+                <span class="w-12 h-12 rounded-2xl bg-[#135bec]/10 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[#135bec] text-2xl">account_balance_wallet</span>
+                </span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Wallet &amp; payments</span>
+              </div>
+              <h3 class="font-['Plus_Jakarta_Sans'] text-2xl md:text-3xl font-extrabold text-slate-900 mb-4">Load, send, repay</h3>
+              <p class="text-slate-600 font-medium leading-relaxed mb-6 max-w-lg">Digital wallet for everyday use. Top up online or via an agent—designed for unbanked and underbanked users.</p>
+              <a routerLink="/wallet" class="inline-flex items-center gap-1 text-[#135bec] font-bold text-sm hover:underline">
+                Open wallet
+                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </a>
+            </div>
+            <div class="absolute -right-16 -bottom-16 w-64 h-64 bg-[#135bec]/5 rounded-full blur-2xl" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="col-span-12 lg:col-span-4 landing-reveal landing-reveal-delay-2">
+          <div class="landing-card-hover h-full bg-slate-900 rounded-3xl p-8 flex flex-col justify-between text-white relative overflow-hidden">
+            <div class="absolute top-4 right-4 opacity-20">
+              <span class="material-symbols-outlined text-4xl">insights</span>
+            </div>
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-[#93c5fd] mb-2">Scoring</p>
+              <h3 class="font-['Plus_Jakarta_Sans'] text-2xl font-extrabold mb-4">Earn your tier</h3>
+              <p class="text-slate-400 text-sm font-medium">Documents, tutorials, guarantees—boost your score and unlock better rates.</p>
+            </div>
+            <div class="mt-8">
+              <div class="h-2 w-full bg-slate-700 rounded-full overflow-hidden">
+                <div class="h-full bg-[#135bec] rounded-full transition-all duration-1000" style="width: 72%"></div>
+              </div>
+              <p class="text-xs font-bold text-slate-400 mt-2">Example score: 718 / 1000</p>
+            </div>
+            <a routerLink="/score" class="mt-6 inline-flex items-center gap-1 text-[#93c5fd] font-bold text-sm hover:underline">
+              See scoring
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+        <div class="col-span-12 md:col-span-6 lg:col-span-4 landing-reveal landing-reveal-delay-3">
+          <div class="landing-card-hover landing-float h-full bg-white rounded-3xl p-8 border border-slate-100 shadow-sm flex flex-col items-center text-center">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#135bec] to-blue-700 flex items-center justify-center text-white shadow-lg mb-6">
+              <span class="material-symbols-outlined text-4xl">credit_score</span>
+            </div>
+            <h3 class="font-['Plus_Jakarta_Sans'] text-xl font-extrabold text-slate-900 mb-2">Credit</h3>
+            <p class="text-slate-500 text-sm font-medium mb-6">Apply for loans. Preliminary approval, agent verification, contract.</p>
+            <a routerLink="/credit" class="text-[#135bec] font-bold text-sm hover:underline">Apply for credit</a>
+          </div>
+        </div>
+        <div class="col-span-12 md:col-span-6 lg:col-span-8 landing-reveal landing-reveal-delay-4">
+          <div class="landing-card-hover h-full bg-slate-50 rounded-3xl p-8 md:p-10 border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="flex gap-4">
+              <span class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined">shield</span>
+              </span>
+              <div>
+                <h4 class="font-['Plus_Jakarta_Sans'] font-bold text-slate-900 mb-1">Insurance</h4>
+                <p class="text-slate-500 text-sm font-medium">Micro-health and coverage. File claims and track policies.</p>
+                <a routerLink="/insurance" class="text-[#135bec] font-bold text-sm mt-2 inline-block hover:underline">Insurance</a>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <span class="w-11 h-11 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined">directions_car</span>
+              </span>
+              <div>
+                <h4 class="font-['Plus_Jakarta_Sans'] font-bold text-slate-900 mb-1">Vehicle financing</h4>
+                <p class="text-slate-500 text-sm font-medium">From approval to delivery. Down payment from wallet, ownership when repaid.</p>
+                <a routerLink="/vehicles" class="text-[#135bec] font-bold text-sm mt-2 inline-block hover:underline">Vehicles</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="py-20 px-4 md:px-8 bg-white" data-animate>
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-14 landing-reveal">
+        <h2 class="font-['Plus_Jakarta_Sans'] text-3xl md:text-4xl font-extrabold text-slate-900 mb-3">How it works</h2>
+        <p class="text-slate-600 font-medium max-w-xl mx-auto">From sign-up to first loan or insurance—simple steps.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+        <div class="landing-reveal landing-reveal-delay-1 text-center">
+          <div class="w-14 h-14 rounded-2xl bg-[#135bec]/10 text-[#135bec] flex items-center justify-center font-bold text-xl mx-auto mb-4">1</div>
+          <h3 class="font-['Plus_Jakarta_Sans'] font-bold text-slate-900 mb-2">Sign up &amp; complete profile</h3>
+          <p class="text-slate-500 text-sm font-medium">Register, add your details, and upload documents to build your score.</p>
+        </div>
+        <div class="landing-reveal landing-reveal-delay-2 text-center">
+          <div class="w-14 h-14 rounded-2xl bg-[#135bec]/10 text-[#135bec] flex items-center justify-center font-bold text-xl mx-auto mb-4">2</div>
+          <h3 class="font-['Plus_Jakarta_Sans'] font-bold text-slate-900 mb-2">Get scored &amp; fund your wallet</h3>
+          <p class="text-slate-500 text-sm font-medium">Earn points with tutorials and guarantees. Top up your wallet online or via an agent.</p>
+        </div>
+        <div class="landing-reveal landing-reveal-delay-3 text-center">
+          <div class="w-14 h-14 rounded-2xl bg-[#135bec]/10 text-[#135bec] flex items-center justify-center font-bold text-xl mx-auto mb-4">3</div>
+          <h3 class="font-['Plus_Jakarta_Sans'] font-bold text-slate-900 mb-2">Apply for credit or insurance</h3>
+          <p class="text-slate-500 text-sm font-medium">Request a loan or get covered. Agents and sellers complete the flow when needed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modules strip (horizontal scroll on mobile) -->
+  <section class="py-16 px-4 md:px-8" data-animate>
+    <div class="max-w-7xl mx-auto mb-10 landing-reveal">
+      <h2 class="font-['Plus_Jakarta_Sans'] text-2xl md:text-3xl font-extrabold text-slate-900 mb-2">One platform, 11 modules</h2>
+      <p class="text-slate-600 font-medium">Steering, credit, repayment, insurance, scoring, marketing, vehicles, and more.</p>
+    </div>
+    <div class="flex gap-4 overflow-x-auto pb-4 landing-scrollbar-hide">
+      <div class="landing-reveal landing-reveal-delay-1 flex-none w-72 bg-white rounded-2xl p-6 border border-slate-100 shadow-sm landing-card-hover">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Steering</span>
+        <h4 class="font-['Plus_Jakarta_Sans'] font-bold text-slate-900 mt-2 mb-1">Control tower</h4>
+        <p class="text-slate-500 text-sm font-medium">Treasury, indicators, simulations.</p>
+      </div>
+      <div class="landing-reveal landing-reveal-delay-2 flex-none w-72 bg-white rounded-2xl p-6 border border-slate-100 shadow-sm landing-card-hover">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Repayment</span>
+        <h4 class="font-['Plus_Jakarta_Sans'] font-bold text-slate-900 mt-2 mb-1">Recovery &amp; schedules</h4>
+        <p class="text-slate-500 text-sm font-medium">Payments, delinquency, grace, penalties.</p>
+      </div>
+      <div class="landing-reveal landing-reveal-delay-3 flex-none w-72 bg-white rounded-2xl p-6 border border-slate-100 shadow-sm landing-card-hover">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Marketing</span>
+        <h4 class="font-['Plus_Jakarta_Sans'] font-bold text-slate-900 mt-2 mb-1">Campaigns &amp; events</h4>
+        <p class="text-slate-500 text-sm font-medium">Segments, events, conversions.</p>
+      </div>
+      <div class="landing-reveal landing-reveal-delay-4 flex-none w-72 bg-[#135bec] rounded-2xl p-6 text-white landing-card-hover">
+        <span class="text-[10px] font-bold text-blue-200 uppercase tracking-wider">All integrated</span>
+        <h4 class="font-['Plus_Jakarta_Sans'] font-bold mt-2 mb-1">FINIX engine</h4>
+        <p class="text-blue-100 text-sm font-medium">One backend. Client, agent, seller, admin.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="py-24 px-4 md:px-8" data-animate>
+    <div class="max-w-4xl mx-auto">
+      <div class="landing-reveal bg-slate-900 rounded-[2rem] p-10 md:p-16 text-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-[#135bec]/20 rounded-[2rem] landing-gradient-pulse pointer-events-none" aria-hidden="true"></div>
+        <div class="relative z-10">
+          <h2 class="font-['Plus_Jakarta_Sans'] text-3xl md:text-4xl font-extrabold text-white mb-4">Ready to get started?</h2>
+          <p class="text-slate-400 font-medium mb-8 max-w-lg mx-auto">Join FINIX as a client, or explore credit, wallet, and insurance in one place.</p>
+          <a routerLink="/auth" class="landing-cta inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-[#135bec] text-white font-bold shadow-lg">
+            Create account
+            <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

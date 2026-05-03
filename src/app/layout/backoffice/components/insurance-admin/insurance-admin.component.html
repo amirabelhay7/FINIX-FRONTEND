@@ -1,0 +1,867 @@
+<div class="ph s1">
+  <div>
+    <div class="ph-eyebrow">Insurance Management</div>
+    <div class="ph-title">Insurance - Operations &amp; Catalog</div>
+    <div class="ph-desc">Backoffice hub (dashboard, renewals, alerts, stats) + CRUD connected to <code>/api/insurance</code>.</div>
+  </div>
+  <div class="ph-actions">
+    <button type="button" class="btn btn-outline btn-sm" (click)="refreshCurrentTab()" [disabled]="isCurrentTabLoading()">Refresh</button>
+  </div>
+</div>
+
+<p *ngIf="errorMsg" style="color:var(--danger);font-size:.85rem;margin-bottom:1rem;padding:.75rem 1rem;background:rgba(239,68,68,.08);border-radius:8px">{{ errorMsg }}</p>
+
+<div style="display:flex;gap:0;margin-bottom:1.25rem;border-bottom:2px solid var(--border,#e5e7eb)">
+  <button type="button" class="ins-tab-btn" [class.active]="tab === 'dashboard'" (click)="setTab('dashboard')">Dashboard</button>
+  <button type="button" class="ins-tab-btn" [class.active]="tab === 'renewals'" (click)="setTab('renewals')">Renewals</button>
+  <button type="button" class="ins-tab-btn" [class.active]="tab === 'alerts'" (click)="setTab('alerts')">Alerts</button>
+  <button type="button" class="ins-tab-btn" [class.active]="tab === 'statistics'" (click)="setTab('statistics')">Statistics</button>
+  <button type="button" class="ins-tab-btn" [class.active]="tab === 'partners'" (click)="setTab('partners')">Partners</button>
+  <button type="button" class="ins-tab-btn" [class.active]="tab === 'products'" (click)="setTab('products')">Products</button>
+  <button type="button" class="ins-tab-btn" [class.active]="tab === 'coverages'" (click)="setTab('coverages')">Coverages</button>
+  <button type="button" class="ins-tab-btn" [class.active]="tab === 'rules'" (click)="setTab('rules')">Product Rules</button>
+  <button type="button" class="ins-tab-btn" [class.active]="tab === 'pricing'" (click)="setTab('pricing')">Pricing Rules</button>
+  <button type="button" class="ins-tab-btn" [class.active]="tab === 'creditRequests'" (click)="setTab('creditRequests')">Insurance Credit Requests</button>
+  <button type="button" class="ins-tab-btn" [class.active]="tab === 'policies'" (click)="setTab('policies')">Policies</button>
+  <button type="button" class="ins-tab-btn" [class.active]="tab === 'claims'" (click)="setTab('claims')">Claim sims</button>
+</div>
+
+<!-- Credit requests -->
+<div class="panel s2" *ngIf="tab === 'creditRequests'">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--blue)"></span>Insurance Credit Requests</div>
+  </div>
+  <div class="tbl-wrap">
+    <p *ngIf="creditRequestsLoading" style="padding:1rem;color:var(--muted)">Loading...</p>
+    <div *ngIf="!creditRequestsLoading && creditRequestsError" style="padding:1rem;color:var(--danger);font-size:.85rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem">
+      <span>{{ creditRequestsError }}</span>
+      <button type="button" class="btn btn-outline btn-sm" (click)="loadCreditRequests()">Retry</button>
+    </div>
+    <table *ngIf="!creditRequestsLoading && !creditRequestsError && creditRequests.length">
+      <thead>
+        <tr>
+          <th>Client</th><th>Product</th><th>Type</th><th>Value</th><th>Duration</th><th>Frequency</th>
+          <th>Premium</th><th>Installment</th><th>Status</th>
+          <th>Subscription Score</th><th>Risk Score</th><th>AI Decision</th><th>AI Reason</th>
+          <th>Created At</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of creditRequests">
+          <td>
+            <div style="font-weight:700;color:var(--navy)">{{ getCreditRequestClientName(r) }}</div>
+            <div *ngIf="getCreditRequestClientSecondary(r)" style="font-size:.76rem;color:var(--g500)">
+              {{ getCreditRequestClientSecondary(r) }}
+            </div>
+          </td>
+          <td class="td-primary">{{ r.insuranceProductName }}</td>
+          <td>{{ r.vehicleType }}</td>
+          <td class="td-amount">{{ r.insuredValue | number:'1.0-3' }} {{ r.currencyCode }}</td>
+          <td>{{ r.durationMonths }}</td>
+          <td>{{ r.paymentFrequency }}</td>
+          <td class="td-amount">{{ r.estimatedPremiumTotal | number:'1.0-3' }} {{ r.currencyCode || 'TND' }}</td>
+          <td class="td-amount">{{ r.estimatedInstallmentAmount | number:'1.0-3' }} {{ r.currencyCode || 'TND' }}</td>
+          <td><span class="badge" [ngClass]="getCreditRequestStatus(r) === 'APPROVED' ? 'b-insured' : getCreditRequestStatus(r) === 'REJECTED' ? 'b-danger' : getCreditRequestStatus(r) === 'CANCELLED' ? 'b-g500' : 'b-review'">{{ getCreditRequestStatus(r) }}</span></td>
+          <td class="td-amount">{{ r.purchasePropensityScore != null ? (r.purchasePropensityScore | number:'1.0-2') : '—' }}</td>
+          <td class="td-amount">{{ r.claimRiskScore != null ? (r.claimRiskScore | number:'1.0-2') : '—' }}</td>
+          <td>
+            <span [title]="r.aiReason || ''" style="font-size:.78rem;color:var(--navy);font-weight:700">
+              {{ r.aiDecision || '—' }}
+            </span>
+          </td>
+          <td>
+            <div
+              [title]="r.aiReason || ''"
+              style="max-width:320px;display:flex;flex-direction:column;gap:.35rem"
+            >
+              <span *ngIf="r.isAnomaly" class="badge b-danger" style="width:max-content">Anomaly detected</span>
+              <span style="font-size:.78rem;color:var(--g600);line-height:1.35">
+                {{ getCreditRequestAiReasonPreview(r) }}
+              </span>
+            </div>
+          </td>
+          <td>{{ r.createdAt ? (r.createdAt | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
+          <td>
+            <ng-container *ngIf="isPendingCreditRequest(r); else lockedActions">
+              <button type="button" class="btn btn-ghost btn-xs" (click)="approveCreditRequest(r)">Approve</button>
+              <button type="button" class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="rejectCreditRequest(r)">Reject</button>
+            </ng-container>
+            <ng-template #lockedActions>
+              <span style="font-size:.75rem;color:var(--g500)">{{ getCreditRequestActionText(r) }}</span>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!creditRequestsLoading && !creditRequestsError && !creditRequests.length" style="padding:1rem;color:var(--muted)">
+      No insurance credit requests.
+    </div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div class="panel s2" *ngIf="tab === 'dashboard'">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--blue)"></span>KPIs</div>
+  </div>
+  <div style="padding:1rem 1.25rem">
+    <p *ngIf="dashboardLoading" style="color:var(--muted,#64748b);font-size:.85rem">Loading dashboard...</p>
+    <div *ngIf="!dashboardLoading && dashboardError" style="color:var(--danger);font-size:.85rem;padding:.75rem;background:rgba(239,68,68,.08);border-radius:8px;display:flex;justify-content:space-between;align-items:center;gap:.75rem">
+      <span>{{ dashboardError }}</span>
+      <button type="button" class="btn btn-outline btn-sm" (click)="loadDashboard()">Retry</button>
+    </div>
+    <div *ngIf="!dashboardLoading && !dashboardError && !dashboardKpis" style="color:var(--muted)">No Data Available.</div>
+    <div *ngIf="dashboardKpis" class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem">
+      <div class="kpi" style="--kc: var(--blue)">
+        <div class="kpi-val">{{ dashboardKpis.totalPolicies }}</div>
+        <div class="kpi-lbl">Total policies</div>
+      </div>
+      <div class="kpi" style="--kc: var(--success)">
+        <div class="kpi-val">{{ dashboardKpis.expiringIn7Days }}</div>
+        <div class="kpi-lbl">Expiring (7d)</div>
+      </div>
+      <div class="kpi" style="--kc: var(--warning)">
+        <div class="kpi-val">{{ dashboardKpis.expiringIn30Days }}</div>
+        <div class="kpi-lbl">Expiring (30d)</div>
+      </div>
+      <div class="kpi" style="--kc: var(--purple)">
+        <div class="kpi-val" style="font-size:1.2rem">{{ dashboardKpis.totalPremiumAmount | number:'1.0-3' }}</div>
+        <div class="kpi-lbl">Total premium</div>
+      </div>
+    </div>
+    <div *ngIf="dashboardKpis" class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem;margin-top:.75rem">
+      <div class="kpi" style="--kc: var(--blue)">
+        <div class="kpi-val">{{ dashboardKpis.dueIn7DaysCount }}</div>
+        <div class="kpi-lbl">Due in 7 days</div>
+      </div>
+      <div class="kpi" style="--kc: var(--warning)">
+        <div class="kpi-val">{{ dashboardKpis.dueIn30DaysCount }}</div>
+        <div class="kpi-lbl">Due in 30 days</div>
+      </div>
+      <div class="kpi" style="--kc: var(--danger)">
+        <div class="kpi-val">{{ dashboardKpis.overdueCount }}</div>
+        <div class="kpi-lbl">Overdue</div>
+      </div>
+      <div class="kpi" style="--kc: var(--g400)">
+        <div class="kpi-val">{{ dashboardKpis.totalClaimSimulations }}</div>
+        <div class="kpi-lbl">Claim simulations</div>
+      </div>
+    </div>
+    <div *ngIf="dashboardKpis" style="margin-top:.75rem;color:var(--g500);font-size:.8rem;line-height:1.4">
+      Avg payout: <b>{{ dashboardKpis.averageEstimatedPayout | number:'1.0-3' }}</b> · Payout ratio:
+      <b>{{ dashboardKpis.payoutRatio | number:'1.0-6' }}</b>
+    </div>
+  </div>
+</div>
+
+<div class="panel s2" *ngIf="tab === 'dashboard'" style="margin-top:1rem">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--warning)"></span>Upcoming Payments (7 Days)</div>
+  </div>
+  <div class="tbl-wrap">
+    <table *ngIf="dueSoon7.length">
+      <thead>
+      <tr>
+        <th>Client</th><th>Policy</th><th>Product</th><th>Amount</th><th>Installment Date</th><th>Frequency</th><th>Status</th><th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let x of dueSoon7">
+        <td class="td-primary">{{ x.clientFullName }}</td>
+        <td style="font-family:monospace;font-size:.75rem;color:var(--g500)">{{ x.policyNumber }}</td>
+        <td>{{ x.insuranceProductName }}</td>
+        <td class="td-amount">{{ x.amountDue | number:'1.0-3' }}</td>
+        <td>{{ x.dueDate | date:'dd/MM/yyyy' }}</td>
+        <td>{{ x.paymentFrequency }}</td>
+        <td><span class="badge" [ngClass]="x.status === 'PAID' ? 'b-insured' : x.status === 'LATE' ? 'b-danger' : x.status === 'MISSED' ? 'b-g500' : 'b-review'">{{ x.status }}</span></td>
+        <td>
+          <button type="button" class="btn btn-ghost btn-xs" (click)="markInstallmentPaid(x)">Mark as Paid</button>
+          <button type="button" class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="markInstallmentMissed(x)">Mark as Missed</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!dueSoon7.length" style="padding:1rem 1.25rem;color:var(--muted)">No upcoming payments (7 days).</div>
+  </div>
+</div>
+
+<div class="panel s2" *ngIf="tab === 'dashboard'" style="margin-top:1rem">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--danger)"></span>Overdue Payments</div>
+  </div>
+  <div class="tbl-wrap">
+    <table *ngIf="overdueInstallments.length">
+      <thead>
+      <tr>
+        <th>Client</th><th>Policy</th><th>Product</th><th>Amount</th><th>Installment Date</th><th>Days Late</th><th>Status</th><th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let x of overdueInstallments">
+        <td class="td-primary">{{ x.clientFullName }}</td>
+        <td style="font-family:monospace;font-size:.75rem;color:var(--g500)">{{ x.policyNumber }}</td>
+        <td>{{ x.insuranceProductName }}</td>
+        <td class="td-amount">{{ x.amountDue | number:'1.0-3' }}</td>
+        <td>{{ x.dueDate | date:'dd/MM/yyyy' }}</td>
+        <td>{{ daysLate(x) }}</td>
+        <td><span class="badge" [ngClass]="x.status === 'LATE' ? 'b-danger' : x.status === 'MISSED' ? 'b-g500' : 'b-review'">{{ x.status }}</span></td>
+        <td>
+          <button type="button" class="btn btn-ghost btn-xs" (click)="markInstallmentPaid(x)">Mark as Paid</button>
+          <button type="button" class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="markInstallmentMissed(x)">Mark as Missed</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!overdueInstallments.length" style="padding:1rem 1.25rem;color:var(--muted)">No overdue payments.</div>
+  </div>
+</div>
+
+<!-- Renewals -->
+<div class="panel s2" *ngIf="tab === 'renewals'">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--warning)"></span>Renewals</div>
+  </div>
+  <div class="tbl-wrap">
+    <p *ngIf="renewalsLoading" style="padding:1rem;color:var(--muted)">Loading...</p>
+    <div *ngIf="!renewalsLoading && renewalsError" style="color:var(--danger);padding:1rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem">
+      <span>{{ renewalsError }}</span>
+      <button type="button" class="btn btn-outline btn-sm" (click)="loadRenewals()">Retry</button>
+    </div>
+    <ng-container *ngIf="!renewalsLoading && !renewalsError">
+    <div style="padding:.75rem 1.25rem;font-weight:700;color:var(--navy)">Expiring in 7 days</div>
+    <table *ngIf="renewals7.length">
+      <thead>
+        <tr><th>Policy</th><th>Product</th><th>Expiry</th><th>Status</th><th>Premium</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of renewals7">
+          <td class="td-primary">{{ r.policyNumber }}</td>
+          <td>{{ r.productName }}</td>
+          <td>{{ r.expirationDate }}</td>
+          <td><span class="badge b-review">{{ r.status }}</span></td>
+          <td class="td-amount">{{ r.premiumTotal }} {{ r.currencyCode || 'TND' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!renewals7.length" style="padding:1rem 1.25rem;color:var(--muted)">No renewals in 7 days.</div>
+
+    <div style="padding:.75rem 1.25rem;font-weight:700;color:var(--navy);border-top:1px solid var(--g100)">Expiring in 30 days</div>
+    <table *ngIf="renewals30.length">
+      <thead>
+        <tr><th>Policy</th><th>Product</th><th>Expiry</th><th>Status</th><th>Premium</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of renewals30">
+          <td class="td-primary">{{ r.policyNumber }}</td>
+          <td>{{ r.productName }}</td>
+          <td>{{ r.expirationDate }}</td>
+          <td><span class="badge b-blue">{{ r.status }}</span></td>
+          <td class="td-amount">{{ r.premiumTotal }} {{ r.currencyCode || 'TND' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!renewals30.length" style="padding:1rem 1.25rem;color:var(--muted)">No renewals in 30 days.</div>
+    </ng-container>
+  </div>
+</div>
+
+<!-- Alerts -->
+<div class="panel s2" *ngIf="tab === 'alerts'">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--danger)"></span>Alerts</div>
+  </div>
+  <div class="tbl-wrap">
+    <p *ngIf="alertsLoading" style="padding:1rem;color:var(--muted)">Loading...</p>
+    <div *ngIf="!alertsLoading && alertsError" style="color:var(--danger);padding:1rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem">
+      <span>{{ alertsError }}</span>
+      <button type="button" class="btn btn-outline btn-sm" (click)="loadAlerts()">Retry</button>
+    </div>
+    <table *ngIf="!alertsLoading && alerts.length">
+      <thead>
+        <tr><th>Severity</th><th>Title</th><th>Description</th><th>Entity</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of alerts">
+          <td><span class="badge" [ngClass]="a.severity === 'CRITICAL' ? 'b-danger' : a.severity === 'WARNING' ? 'b-review' : 'b-blue'">{{ a.severity }}</span></td>
+          <td class="td-primary">{{ a.title }}</td>
+          <td style="font-size:.78rem;color:var(--g500)">{{ a.description }}</td>
+          <td style="font-family:monospace;font-size:.75rem;color:var(--g500)">{{ a.entityType }} #{{ a.entityId ?? '—' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!alertsLoading && !alertsError && !alerts.length" style="padding:1rem 1.25rem;color:var(--muted)">No alerts (empty data or nothing to report).</div>
+  </div>
+</div>
+
+<!-- Statistics -->
+<div *ngIf="tab === 'statistics'">
+  <p *ngIf="statisticsLoading" style="padding:1rem;color:var(--muted)">Loading statistics...</p>
+  <div *ngIf="!statisticsLoading && statisticsError" style="color:var(--danger);padding:1rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem">
+    <span>{{ statisticsError }}</span>
+    <button type="button" class="btn btn-outline btn-sm" (click)="loadStatistics()">Retry</button>
+  </div>
+  <div class="panel s2">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot" style="background:var(--purple,#8b5cf6)"></span>Portfolio</div>
+    </div>
+    <div style="padding:1rem 1.25rem;font-size:.85rem" *ngIf="portfolioStats">
+      Quotes: <b>{{ portfolioStats.totalQuoteCount }}</b> · Subscriptions: <b>{{ portfolioStats.totalSubscriptionsCount }}</b> · Active policies: <b>{{ portfolioStats.activePoliciesCount }}</b><br/>
+      Q→S: <b>{{ portfolioStats.conversionRateQuotesToSubscriptionsPct }}%</b> · S→Active: <b>{{ portfolioStats.conversionRateSubscriptionsToActivePoliciesPct }}%</b> · Payout ratio: <b>{{ portfolioStats.payoutRatio }}</b>
+    </div>
+      <div *ngIf="!portfolioStats" style="padding:1rem 1.25rem;color:var(--muted)">No portfolio stats.</div>
+  </div>
+
+  <div class="panel s3">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot" style="background:var(--navy,#0f172a)"></span>Par type de vehicle</div>
+    </div>
+    <div class="tbl-wrap">
+      <table *ngIf="vehicleTypeStats.length">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Devis</th>
+            <th>Simul. couverture</th>
+            <th>Policys</th>
+            <th>Premium (quote)</th>
+            <th>Premium (simul.)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let v of vehicleTypeStats">
+            <td class="td-primary">{{ v.vehicleType }}</td>
+            <td>{{ v.quoteCount }}</td>
+            <td>{{ v.coverageSimulationCount }}</td>
+            <td>{{ v.policyCount }}</td>
+            <td class="td-amount">{{ v.totalPremiumFromQuotes | number:'1.0-3' }}</td>
+            <td class="td-amount">{{ v.totalPremiumFromSimulations | number:'1.0-3' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!vehicleTypeStats.length" style="padding:1rem 1.25rem;color:var(--muted)">No data by vehicle type.</div>
+    </div>
+  </div>
+
+  <div class="panel s3">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot" style="background:var(--blue)"></span>Partners</div>
+    </div>
+    <div class="tbl-wrap">
+      <table *ngIf="partnerStats.length">
+        <thead>
+          <tr><th>Partner</th><th>Products</th><th>Active</th><th>Expiring (30d)</th><th>Premium</th><th>Quotes</th><th>Simulations</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of partnerStats">
+            <td class="td-primary">{{ p.companyName }}</td>
+            <td>{{ p.productsCount }}</td>
+            <td>{{ p.activePoliciesCount }}</td>
+            <td>{{ p.expiringPoliciesCount }}</td>
+            <td class="td-amount">{{ p.totalPremiumAmount | number:'1.0-3' }}</td>
+            <td>{{ p.quoteCount }}</td>
+            <td>{{ p.claimSimulationCount }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!partnerStats.length" style="padding:1rem 1.25rem;color:var(--muted)">No partner stats.</div>
+    </div>
+  </div>
+
+  <div class="panel s3">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot" style="background:var(--success,#10b981)"></span>Products</div>
+    </div>
+    <div class="tbl-wrap">
+      <table *ngIf="productStats.length">
+        <thead>
+          <tr><th>Product</th><th>Partner</th><th>Quotes</th><th>Subs</th><th>Active</th><th>Q→S</th><th>Avg premium</th><th>Avg payout</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of productStats">
+            <td class="td-primary">{{ p.productName }}</td>
+            <td>{{ p.partnerCompanyName }}</td>
+            <td>{{ p.quoteCount }}</td>
+            <td>{{ p.subscriptionCount }}</td>
+            <td>{{ p.activePoliciesCount }}</td>
+            <td>{{ p.conversionRateQuotesToSubscriptionsPct }}%</td>
+            <td class="td-amount">{{ p.averagePremium | number:'1.0-3' }}</td>
+            <td class="td-amount">{{ p.averageEstimatedPayout | number:'1.0-3' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!productStats.length" style="padding:1rem 1.25rem;color:var(--muted)">No product stats.</div>
+    </div>
+  </div>
+
+  <div class="panel s3">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot" style="background:var(--warning)"></span>Coverages</div>
+    </div>
+    <div class="tbl-wrap">
+      <table *ngIf="coverageStats.length">
+        <thead>
+          <tr><th>Coverage</th><th>Products using</th><th>Simulations</th><th>Avg payout</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of coverageStats">
+            <td class="td-primary">{{ c.coverageCode }} — {{ c.coverageName }}</td>
+            <td>{{ c.productsUsingCount }}</td>
+            <td>{{ c.claimSimulationCount }}</td>
+            <td class="td-amount">{{ c.averageEstimatedPayout | number:'1.0-3' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!coverageStats.length" style="padding:1rem 1.25rem;color:var(--muted)">No coverage stats.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Partners -->
+<div class="panel s2" *ngIf="tab === 'partners'">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--blue)"></span>Partners insurance</div>
+    <button type="button" class="btn btn-primary btn-sm" (click)="openNewPartner()">+ Partner</button>
+  </div>
+  <div class="tbl-wrap">
+    <p *ngIf="partnersLoading" style="padding:1rem;color:var(--muted)">Loading...</p>
+    <div *ngIf="!partnersLoading && partnersError" style="padding:1rem;color:var(--danger);font-size:.85rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem">
+      <span>{{ partnersError }}</span>
+      <button type="button" class="btn btn-outline btn-sm" (click)="loadPartners(true)">Retry</button>
+    </div>
+    <table *ngIf="!partnersLoading && !partnersError && partners.length">
+      <thead>
+        <tr><th>Company</th><th>Commission %</th><th>Status</th><th>Contact</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of partners">
+          <td class="td-primary">{{ p.companyName }}</td>
+          <td>{{ p.commissionPct }}</td>
+          <td><span class="badge b-review">{{ p.status }}</span></td>
+          <td style="font-size:.75rem">{{ p.contactEmail || '—' }}</td>
+          <td>
+            <button type="button" class="btn btn-ghost btn-xs" (click)="openEditPartner(p)">Modifier</button>
+            <button type="button" class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deletePartner(p)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!partnersLoading && !partnersError && !partners.length" style="padding:2rem;text-align:center;color:var(--muted)">No Data Available. Create a partner to add products.</div>
+  </div>
+</div>
+
+<!-- Products -->
+<div class="panel s2" *ngIf="tab === 'products'">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--success,#10b981)"></span>Products</div>
+    <button type="button" class="btn btn-primary btn-sm" (click)="openNewProduct()">+ Product</button>
+  </div>
+  <div class="tbl-wrap">
+    <p *ngIf="productsLoading" style="padding:1rem;color:var(--muted)">Loading...</p>
+    <div *ngIf="!productsLoading && productsError" style="padding:1rem;color:var(--danger);font-size:.85rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem">
+      <span>{{ productsError }}</span>
+      <button type="button" class="btn btn-outline btn-sm" (click)="loadProducts(true)">Retry</button>
+    </div>
+    <table *ngIf="!productsLoading && !productsError && products.length">
+      <thead>
+        <tr><th>Name</th><th>Partner</th><th>Rate %</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of products">
+          <td class="td-primary">{{ p.name }}</td>
+          <td>{{ p.partnerCompanyName }}</td>
+          <td>{{ p.baseRatePct }}</td>
+          <td><span class="badge b-blue">{{ p.status }}</span></td>
+          <td>
+            <button type="button" class="btn btn-ghost btn-xs" (click)="openEditProduct(p)">Modifier</button>
+            <button type="button" class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteProduct(p)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!productsLoading && !productsError && !products.length" style="padding:2rem;text-align:center;color:var(--muted)">No Data Available.</div>
+  </div>
+</div>
+
+<!-- Coverages -->
+<div class="panel s2" *ngIf="tab === 'coverages'">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--warning)"></span>Coverages</div>
+    <button type="button" class="btn btn-primary btn-sm" (click)="openNewCoverage()">+ Coverage</button>
+  </div>
+  <div class="tbl-wrap">
+    <p *ngIf="coveragesLoading" style="padding:1rem;color:var(--muted)">Loading...</p>
+    <div *ngIf="!coveragesLoading && coveragesError" style="padding:1rem;color:var(--danger);font-size:.85rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem">
+      <span>{{ coveragesError }}</span>
+      <button type="button" class="btn btn-outline btn-sm" (click)="loadCoverages(true)">Retry</button>
+    </div>
+    <table *ngIf="!coveragesLoading && !coveragesError && coverages.length">
+      <thead>
+        <tr><th>Code</th><th>Name</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of coverages">
+          <td class="td-primary">{{ c.code }}</td>
+          <td>{{ c.name }}</td>
+          <td><span class="badge b-review">{{ c.status }}</span></td>
+          <td>
+            <button type="button" class="btn btn-ghost btn-xs" (click)="openEditCoverage(c)">Modifier</button>
+            <button type="button" class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteCoverage(c)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!coveragesLoading && !coveragesError && !coverages.length" style="padding:2rem;text-align:center;color:var(--muted)">No Data Available.</div>
+  </div>
+</div>
+
+<!-- Rules -->
+<div class="panel s2" *ngIf="tab === 'rules'">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--purple,#8b5cf6)"></span>Product Rules x Coverage</div>
+    <button type="button" class="btn btn-primary btn-sm" (click)="openNewRule()">+ Rule</button>
+  </div>
+  <div class="tbl-wrap">
+    <p *ngIf="rulesLoading" style="padding:1rem;color:var(--muted)">Loading...</p>
+    <div *ngIf="!rulesLoading && rulesError" style="padding:1rem;color:var(--danger);font-size:.85rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem">
+      <span>{{ rulesError }}</span>
+      <button type="button" class="btn btn-outline btn-sm" (click)="loadRulesTab(true)">Retry</button>
+    </div>
+    <table *ngIf="!rulesLoading && !rulesError && rules.length">
+      <thead>
+        <tr><th>Product</th><th>Coverage</th><th>%</th><th>Deductible</th><th>Limit</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of rules">
+          <td class="td-primary">{{ r.insuranceProductName }}</td>
+          <td>{{ r.coverageCode }}</td>
+          <td>{{ r.coveragePct }}</td>
+          <td>{{ r.deductibleAmount ?? '—' }}</td>
+          <td>{{ r.limitAmount ?? '—' }}</td>
+          <td>
+            <button type="button" class="btn btn-ghost btn-xs" (click)="openEditRule(r)">Modifier</button>
+            <button type="button" class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteRule(r)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!rulesLoading && !rulesError && !rules.length" style="padding:2rem;text-align:center;color:var(--muted)">No Data Available.</div>
+  </div>
+</div>
+
+<!-- Pricing rules (vehicle) -->
+<div class="panel s2" *ngIf="tab === 'pricing'">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--navy,#0f172a)"></span>Pricing Rules vehicle</div>
+    <button type="button" class="btn btn-primary btn-sm" (click)="openNewPricingRule()">+ Rule</button>
+  </div>
+  <div style="padding:.75rem 1.25rem;display:flex;flex-wrap:wrap;gap:.75rem;align-items:center">
+    <label class="form-label" style="margin:0">Product</label>
+    <select class="form-control" style="max-width:320px" [(ngModel)]="pricingProductId" (ngModelChange)="onPricingProductChange()" name="ppr">
+      <option *ngFor="let p of products" [ngValue]="p.id">{{ p.name }}</option>
+    </select>
+  </div>
+  <div class="tbl-wrap">
+    <p *ngIf="pricingLoading" style="padding:1rem;color:var(--muted)">Loading...</p>
+    <div *ngIf="!pricingLoading && pricingError" style="padding:1rem;color:var(--danger);font-size:.85rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem">
+      <span>{{ pricingError }}</span>
+      <button type="button" class="btn btn-outline btn-sm" (click)="loadPricingTab(true)">Retry</button>
+    </div>
+    <table *ngIf="!pricingLoading && !pricingError && pricingRules.length">
+      <thead>
+        <tr>
+          <th>Vehicle Type</th>
+          <th>Min-Max Age</th>
+          <th>Valeur min–max</th>
+          <th>Rate x</th>
+          <th>Surcharge</th>
+          <th>Eligible</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of pricingRules">
+          <td class="td-primary">{{ r.vehicleType }}</td>
+          <td style="font-size:.78rem">{{ r.minVehicleAge ?? '—' }} – {{ r.maxVehicleAge ?? '—' }}</td>
+          <td style="font-size:.78rem">{{ r.minVehicleValue ?? '—' }} – {{ r.maxVehicleValue ?? '—' }}</td>
+          <td>{{ r.rateMultiplier }}</td>
+          <td class="td-amount">{{ r.fixedSurcharge }}</td>
+          <td><span class="badge" [ngClass]="r.eligible ? 'b-insured' : 'b-danger'">{{ r.eligible ? 'oui' : 'non' }}</span></td>
+          <td>
+            <button type="button" class="btn btn-ghost btn-xs" (click)="openEditPricingRule(r)">Modifier</button>
+            <button type="button" class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deletePricingRule(r)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!pricingLoading && !pricingError && !pricingRules.length" style="padding:2rem;text-align:center;color:var(--muted)">
+      No rules for this product. Quotes use base rate only.
+    </div>
+  </div>
+</div>
+
+<!-- Policies -->
+<div class="panel s2" *ngIf="tab === 'policies'">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--g400)"></span>Policies</div>
+  </div>
+  <div class="tbl-wrap">
+    <p *ngIf="policiesLoading" style="padding:1rem;color:var(--muted)">Loading...</p>
+    <div *ngIf="!policiesLoading && policiesError" style="color:var(--danger);padding:1rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem">
+      <span>{{ policiesError }}</span>
+      <button type="button" class="btn btn-outline btn-sm" (click)="loadPolicies()">Retry</button>
+    </div>
+    <table *ngIf="!policiesLoading && policies.length">
+      <thead>
+        <tr><th>#</th><th>Policy</th><th>Product</th><th>Effective</th><th>Expiry</th><th>Status</th><th>Premium</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of policies">
+          <td style="font-family:monospace;font-size:.75rem;color:var(--g500)">{{ p.id }}</td>
+          <td class="td-primary">{{ p.policyNumber }}</td>
+          <td>{{ p.insuranceProductName }}</td>
+          <td>{{ p.effectiveDate }}</td>
+          <td>{{ p.expirationDate }}</td>
+          <td><span class="badge b-review">{{ p.status }}</span></td>
+          <td class="td-amount">{{ p.premiumTotal }} {{ p.currencyCode || 'TND' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!policiesLoading && !policiesError && !policies.length" style="padding:1rem 1.25rem;color:var(--muted)">No Data Available.</div>
+  </div>
+</div>
+
+<!-- Claim sims (top expensive) -->
+<div class="panel s2" *ngIf="tab === 'claims'">
+  <div class="panel-head">
+    <div class="panel-title"><span class="ptdot" style="background:var(--danger)"></span>Top expensive claim simulations</div>
+  </div>
+  <div class="tbl-wrap">
+    <p *ngIf="claimsLoading" style="padding:1rem;color:var(--muted)">Loading...</p>
+    <div *ngIf="!claimsLoading && claimsError" style="color:var(--danger);padding:1rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem">
+      <span>{{ claimsError }}</span>
+      <button type="button" class="btn btn-outline btn-sm" (click)="loadTopExpensiveClaims()">Retry</button>
+    </div>
+    <table *ngIf="!claimsLoading && topExpensiveClaims.length">
+      <thead>
+        <tr><th>#</th><th>Policy</th><th>Coverage</th><th>Incident</th><th>Damage</th><th>Payout</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of topExpensiveClaims">
+          <td style="font-family:monospace;font-size:.75rem;color:var(--g500)">{{ c.id }}</td>
+          <td class="td-primary">{{ c.policyNumber }}</td>
+          <td>{{ c.coverageCode }}</td>
+          <td>{{ c.incidentDate }}</td>
+          <td class="td-amount">{{ c.estimatedDamageAmount | number:'1.0-3' }}</td>
+          <td class="td-amount" style="color:var(--danger)">{{ c.estimatedPayoutAmount | number:'1.0-3' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!claimsLoading && !claimsError && !topExpensiveClaims.length" style="padding:1rem 1.25rem;color:var(--muted)">No Data Available.</div>
+  </div>
+</div>
+
+<!-- Partner modal -->
+<div class="bk-modal-overlay" *ngIf="showPartnerModal" (click)="closeModals()">
+  <div class="bk-modal" (click)="$event.stopPropagation()" style="max-width:520px">
+    <div class="bk-modal-header">
+      <div class="bk-modal-title">{{ editingPartnerId ? 'Edit Partner' : 'New Partner' }}</div>
+      <button type="button" class="bk-modal-close" (click)="closeModals()">✕</button>
+    </div>
+    <div class="bk-modal-body" style="display:flex;flex-direction:column;gap:.75rem">
+      <label class="form-label">Company *</label>
+      <input class="form-control" [(ngModel)]="partnerForm.companyName" name="pcn" />
+      <label class="form-label">Commission % *</label>
+      <input type="number" class="form-control" [(ngModel)]="partnerForm.commissionPct" name="pcp" />
+      <label class="form-label">Note (optionnel)</label>
+      <input type="number" class="form-control" [(ngModel)]="partnerForm.rating" name="prt" />
+      <label class="form-label">Email contact</label>
+      <input class="form-control" [(ngModel)]="partnerForm.contactEmail" name="pem" />
+      <label class="form-label">Phone</label>
+      <input class="form-control" [(ngModel)]="partnerForm.contactPhone" name="pph" />
+      <label class="form-label">Status</label>
+      <select class="form-control" [(ngModel)]="partnerForm.status" name="pst">
+        <option *ngFor="let s of partnerStatusOptions" [value]="s">{{ s }}</option>
+      </select>
+    </div>
+    <div class="bk-modal-footer" style="display:flex;justify-content:flex-end;gap:.5rem;padding:1rem;border-top:1px solid var(--g200)">
+      <button type="button" class="btn btn-outline btn-sm" (click)="closeModals()">Cancel</button>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        (click)="savePartner()"
+        [disabled]="savingPartner"
+      >
+        {{ savingPartner ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Product modal -->
+<div class="bk-modal-overlay" *ngIf="showProductModal" (click)="closeModals()">
+  <div class="bk-modal" (click)="$event.stopPropagation()" style="max-width:520px">
+    <div class="bk-modal-header">
+      <div class="bk-modal-title">{{ editingProductId ? 'Edit Product' : 'New Product' }}</div>
+      <button type="button" class="bk-modal-close" (click)="closeModals()">✕</button>
+    </div>
+    <div class="bk-modal-body" style="display:flex;flex-direction:column;gap:.75rem">
+      <label class="form-label">Name *</label>
+      <input class="form-control" [(ngModel)]="productForm.name" name="prn" />
+      <label class="form-label">Description</label>
+      <textarea class="form-control" rows="2" [(ngModel)]="productForm.description" name="prd"></textarea>
+      <label class="form-label">Partner *</label>
+      <select class="form-control" [(ngModel)]="productForm.partnerId" name="prp">
+        <option *ngFor="let x of partners" [ngValue]="x.id">{{ x.companyName }}</option>
+      </select>
+      <label class="form-label">Taux de base % *</label>
+      <input type="number" step="0.01" class="form-control" [(ngModel)]="productForm.baseRatePct" name="prb" />
+      <label class="form-label">Status</label>
+      <select class="form-control" [(ngModel)]="productForm.status" name="prs">
+        <option *ngFor="let s of productStatusOptions" [value]="s">{{ s }}</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:.5rem;font-size:.8rem">
+        <input type="checkbox" [(ngModel)]="productForm.popular" name="prpop" /> Popular
+      </label>
+      <label style="display:flex;align-items:center;gap:.5rem;font-size:.8rem">
+        <input type="checkbox" [(ngModel)]="productForm.recommended" name="prrec" /> Recommended
+      </label>
+      <div style="font-size:.75rem;font-weight:700;color:var(--g500);margin-top:.25rem">Allowed vehicle types (empty = all)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.75rem">
+        <label *ngFor="let vt of vehicleTypeOptions" style="display:flex;align-items:center;gap:.35rem;font-size:.8rem">
+          <input
+            type="checkbox"
+            [checked]="hasVehicleType(productForm.allowedVehicleTypes, vt)"
+            (change)="toggleVehicleType(vt, $any($event.target).checked)"
+          />
+          {{ vt === 'CAR' ? 'Voiture' : vt === 'MOTORCYCLE' ? 'Moto' : 'Utilitaire' }}
+        </label>
+      </div>
+    </div>
+    <div class="bk-modal-footer" style="display:flex;justify-content:flex-end;gap:.5rem;padding:1rem;border-top:1px solid var(--g200)">
+      <button type="button" class="btn btn-outline btn-sm" (click)="closeModals()">Cancel</button>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        (click)="saveProduct()"
+        [disabled]="savingProduct"
+      >
+        {{ savingProduct ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Coverage modal -->
+<div class="bk-modal-overlay" *ngIf="showCoverageModal" (click)="closeModals()">
+  <div class="bk-modal" (click)="$event.stopPropagation()" style="max-width:480px">
+    <div class="bk-modal-header">
+      <div class="bk-modal-title">{{ editingCoverageId ? 'Edit Coverage' : 'New Coverage' }}</div>
+      <button type="button" class="bk-modal-close" (click)="closeModals()">✕</button>
+    </div>
+    <div class="bk-modal-body" style="display:flex;flex-direction:column;gap:.75rem">
+      <label class="form-label">Code *</label>
+      <input class="form-control" [(ngModel)]="coverageForm.code" name="cc" />
+      <label class="form-label">Name *</label>
+      <input class="form-control" [(ngModel)]="coverageForm.name" name="cn" />
+      <label class="form-label">Description</label>
+      <input class="form-control" [(ngModel)]="coverageForm.description" name="cd" />
+      <label class="form-label">Status</label>
+      <select class="form-control" [(ngModel)]="coverageForm.status" name="cst">
+        <option value="ACTIVE">ACTIVE</option>
+        <option value="INACTIVE">INACTIVE</option>
+      </select>
+    </div>
+    <div class="bk-modal-footer" style="display:flex;justify-content:flex-end;gap:.5rem;padding:1rem;border-top:1px solid var(--g200)">
+      <button type="button" class="btn btn-outline btn-sm" (click)="closeModals()">Cancel</button>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        (click)="saveCoverage()"
+        [disabled]="savingCoverage"
+      >
+        {{ savingCoverage ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Rule modal -->
+<div class="bk-modal-overlay" *ngIf="showRuleModal" (click)="closeModals()">
+  <div class="bk-modal" (click)="$event.stopPropagation()" style="max-width:520px">
+    <div class="bk-modal-header">
+      <div class="bk-modal-title">{{ editingRuleId ? 'Edit Rule' : 'New Rule' }}</div>
+      <button type="button" class="bk-modal-close" (click)="closeModals()">✕</button>
+    </div>
+    <div class="bk-modal-body" style="display:flex;flex-direction:column;gap:.75rem">
+      <label class="form-label">Product</label>
+      <select class="form-control" [(ngModel)]="ruleForm.insuranceProductId" name="rp">
+        <option *ngFor="let x of products" [ngValue]="x.id">{{ x.name }}</option>
+      </select>
+      <label class="form-label">Coverage</label>
+      <select class="form-control" [(ngModel)]="ruleForm.coverageId" name="rc">
+        <option *ngFor="let x of coverages" [ngValue]="x.id">{{ x.code }} — {{ x.name }}</option>
+      </select>
+      <label class="form-label">% couverture</label>
+      <input type="number" step="0.01" class="form-control" [(ngModel)]="ruleForm.coveragePct" name="rpc" />
+      <label class="form-label">Franchise (TND)</label>
+      <input type="number" step="0.01" class="form-control" [(ngModel)]="ruleForm.deductibleAmount" name="rpd" />
+      <label class="form-label">Plafond (optionnel)</label>
+      <input type="number" step="0.01" class="form-control" [(ngModel)]="ruleForm.limitAmount" name="rpl" />
+      <label class="form-label">Rule Code</label>
+      <input class="form-control" [(ngModel)]="ruleForm.ruleCode" name="rpk" />
+      <label class="form-label">Description</label>
+      <input class="form-control" [(ngModel)]="ruleForm.ruleDescription" name="rpr" />
+    </div>
+    <div class="bk-modal-footer" style="display:flex;justify-content:flex-end;gap:.5rem;padding:1rem;border-top:1px solid var(--g200)">
+      <button type="button" class="btn btn-outline btn-sm" (click)="closeModals()">Cancel</button>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        (click)="saveRule()"
+        [disabled]="savingRule"
+      >
+        {{ savingRule ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Pricing rule modal -->
+<div class="bk-modal-overlay" *ngIf="showPricingRuleModal" (click)="closeModals()">
+  <div class="bk-modal" (click)="$event.stopPropagation()" style="max-width:520px">
+    <div class="bk-modal-header">
+      <div class="bk-modal-title">{{ editingPricingRuleId ? 'Edit Rule tarifaire' : 'New Rule tarifaire' }}</div>
+      <button type="button" class="bk-modal-close" (click)="closeModals()">✕</button>
+    </div>
+    <div class="bk-modal-body" style="display:flex;flex-direction:column;gap:.75rem">
+      <p *ngIf="errorMsg" style="color:var(--danger);font-size:.82rem;margin:0;line-height:1.35">{{ errorMsg }}</p>
+      <label class="form-label">Vehicle Type</label>
+      <select class="form-control" [(ngModel)]="pricingRuleForm.vehicleType" name="pvt">
+        <option *ngFor="let vt of vehicleTypeOptions" [ngValue]="vt">{{ vt }}</option>
+      </select>
+      <label class="form-label">Min Age (years)</label>
+      <input type="number" class="form-control" [(ngModel)]="pricingRuleForm.minVehicleAge" name="pminage" />
+      <label class="form-label">Max Age (years)</label>
+      <input type="number" class="form-control" [(ngModel)]="pricingRuleForm.maxVehicleAge" name="pmaxage" />
+      <label class="form-label">Valeur min (TND)</label>
+      <input type="number" class="form-control" [(ngModel)]="pricingRuleForm.minVehicleValue" name="pminv" />
+      <label class="form-label">Valeur max (TND)</label>
+      <input type="number" class="form-control" [(ngModel)]="pricingRuleForm.maxVehicleValue" name="pmaxv" />
+      <label class="form-label">Multiplicateur de taux</label>
+      <input type="number" step="0.01" class="form-control" [(ngModel)]="pricingRuleForm.rateMultiplier" name="prm" />
+      <label class="form-label">Surcharge fixe (TND)</label>
+      <input type="number" step="0.01" class="form-control" [(ngModel)]="pricingRuleForm.fixedSurcharge" name="pfs" />
+      <label style="display:flex;align-items:center;gap:.5rem;font-size:.8rem">
+        <input type="checkbox" [(ngModel)]="pricingRuleForm.eligible" name="pelig" /> Eligible
+      </label>
+      <label class="form-label">Description</label>
+      <input class="form-control" [(ngModel)]="pricingRuleForm.description" name="pdesc" />
+    </div>
+    <div class="bk-modal-footer" style="display:flex;justify-content:flex-end;gap:.5rem;padding:1rem;border-top:1px solid var(--g200)">
+      <button type="button" class="btn btn-outline btn-sm" (click)="closeModals()">Cancel</button>
+      <button type="button" class="btn btn-primary btn-sm" (click)="savePricingRule()" [disabled]="savingPricingRule">
+        {{ savingPricingRule ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </div>
+</div>

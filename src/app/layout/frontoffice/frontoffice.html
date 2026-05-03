@@ -1,0 +1,80 @@
+<!-- TOPBAR - dark navy bar -->
+<div class="topbar">
+  <div class="tb-brand">
+    <img class="tb-logo-img" src="/assets/logo.png" alt="FIN'IX Logo">
+    <div class="tb-name">FIN<span>'IX</span></div>
+  </div>
+  <div class="tb-divider"></div>
+ 
+  <div class="tb-right">
+    
+    <button class="tb-btn">🔔<span class="notif-dot"></span></button>
+    <button class="tb-btn">⚙️</button>
+    <button class="tb-theme-toggle" (click)="toggleTheme()" title="Change the theme">
+      {{ currentTheme === 'dark' ? '☀️' : '🌙' }}
+    </button>
+    <div class="tb-user" (click)="toggleUserDropdown()" style="position:relative;">
+      <div class="tb-avatar">{{ userInitials }}</div>
+      <div>
+        <div class="tb-uname">{{ userName }}</div>
+        <div class="tb-urole">{{ userRole }}</div>
+      </div>
+      <span style="color:rgba(255,255,255,.3);font-size:.65rem;margin-left:.25rem;">▾</span>
+      <!-- User dropdown -->
+      <div class="dropdown" [class.dropdown-hidden]="!showUserDropdown" (click)="$event.stopPropagation()">
+        <div class="dp-head">
+          <div class="dp-av">{{ userInitials }}</div>
+          <div>
+            <div class="dp-name">{{ userName }}</div>
+            <div class="dp-email">{{ userEmail }}</div>
+          </div>
+        </div>
+        <div style="padding:.25rem 0;">
+          <button class="dp-item">👤 My Profile</button>
+          <button class="dp-item">🔐 Security</button>
+          <button class="dp-item">🔔 Notifications</button>
+          <div class="dp-sep"></div>
+          <button class="dp-item">📞 Contact an agent</button>
+          <button class="dp-item">❓ Help & Support</button>
+          <div class="dp-sep"></div>
+          <button class="dp-item red" (click)="logout()">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT NAVBAR with routerLink tabs -->
+<nav class="client-nav">
+  <a *ngFor="let tab of navTabs"
+     class="nav-tab"
+     [routerLink]="tab.route"
+     routerLinkActive="active">
+    {{tab.icon}} {{tab.label}}
+    <span *ngIf="tab.badge" class="nav-tab-badge" [class.warn]="tab.badgeClass === 'warn'">{{tab.badge}}</span>
+  </a>
+  <div class="nav-actions">
+    <div class="search-wrap">
+      <input type="text" placeholder="Search...">
+    </div>
+    <button class="btn-new">+ New Request</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+  <router-outlet></router-outlet>
+  <!-- FOOTER -->
+  <footer>
+    <div>
+      <div class="ft-brand">FIN<span>'IX</span></div>
+      <div class="ft-copy" style="margin-top:.25rem;">© 2026 FIN'IX </div>
+    </div>
+    <div class="ft-links">
+      <a href="#" class="ft-link">Confidentiality</a>
+      <a href="#" class="ft-link">Terms of Service</a>
+      <a href="#" class="ft-link">Help</a>
+      <a href="#" class="ft-link">Contact</a>
+    </div>
+  </footer>
+</main>

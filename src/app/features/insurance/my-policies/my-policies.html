@@ -1,0 +1,63 @@
+<div class="page-body">
+  <app-insurance-nav></app-insurance-nav>
+
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Insurance</div>
+      <div class="ph-title">{{ pageTitle }}</div>
+      <div class="ph-desc">{{ pageSubtitle }}</div>
+    </div>
+    <div class="ph-actions" style="display:flex;flex-wrap:wrap;gap:.5rem">
+      <a routerLink="/client/insurance/quote" class="btn btn-primary btn-sm">Devis estimatif</a>
+      <a routerLink="/client/insurance/my-policy" class="btn btn-outline btn-sm">My Subscription</a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="panel s2" style="padding:1.25rem;text-align:center">
+    <p style="color:var(--g500);margin:0;font-size:.875rem">Loading...</p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="panel s2" style="padding:1.25rem;border-color:rgba(239,68,68,.35)">
+    <p style="color:var(--danger);margin:0 0 .75rem;font-size:.875rem">{{ loadError }}</p>
+    <button type="button" class="btn btn-outline btn-sm" (click)="loadPolicies()">Retry</button>
+  </div>
+
+  <div class="panel s2" *ngIf="!loading && !loadError">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot" style="background:var(--success)"></span>{{ activeSectionTitle }}</div>
+    </div>
+    <div *ngIf="activePolicies.length === 0" style="padding:1.5rem;text-align:center;color:var(--g500);font-size:.85rem">
+      No policy active.
+    </div>
+    <div class="transactions-list" *ngIf="activePolicies.length">
+      <a *ngFor="let policy of activePolicies" [routerLink]="policy.route" class="tx-item" style="text-decoration:none;color:inherit">
+        <div class="tx-ico" style="background:var(--soft);font-size:1.25rem">{{ policy.emoji }}</div>
+        <div style="flex:1;min-width:0">
+          <div class="tx-title">{{ policy.productName }} · {{ policy.policyNumber }}</div>
+          <div class="tx-sub">{{ policy.detail }}</div>
+        </div>
+        <span class="btn btn-outline btn-xs">Voir</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="panel s3" *ngIf="!loading && !loadError">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot" style="background:var(--g400)"></span>{{ pastSectionTitle }}</div>
+    </div>
+    <div *ngIf="pastPolicies.length === 0" style="padding:1.5rem;text-align:center;color:var(--g500);font-size:.85rem">
+      No past policies.
+    </div>
+    <div class="transactions-list" *ngIf="pastPolicies.length">
+      <div *ngFor="let policy of pastPolicies" class="tx-item" style="opacity:.9">
+        <div class="tx-ico" style="background:var(--g100);font-size:1.25rem">{{ policy.emoji }}</div>
+        <div style="flex:1;min-width:0">
+          <div class="tx-title">{{ policy.productName }} · {{ policy.policyNumber }}</div>
+          <div class="tx-sub">{{ policy.detail }}</div>
+        </div>
+        <span class="badge b-expired" style="margin-right:.5rem">{{ policy.statusLabel }}</span>
+        <a [routerLink]="policy.route" class="btn btn-ghost btn-xs">Voir</a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,74 @@
+.ins-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Use app theme tokens so light/dark both get solid card surface + readable text (legacy --navy/--g500 on #fff broke dark mode). */
+.ins-hub-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 1.15rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--fx-border);
+  background: var(--fx-card-bg);
+  text-decoration: none;
+  color: var(--fx-txt-1);
+  box-shadow: var(--fx-sh-sm);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease,
+    background 0.15s ease;
+}
+
+.ins-hub-card:hover {
+  border-color: var(--fx-accent);
+  box-shadow: var(--fx-sh-md);
+  transform: translateY(-2px);
+}
+
+.ins-hub-card:active {
+  transform: translateY(0);
+  box-shadow: var(--fx-sh-sm);
+}
+
+.ins-hub-card:focus-visible {
+  outline: 2px solid var(--fx-accent);
+  outline-offset: 2px;
+}
+
+/* Same base as other cards; slightly emphasized border/glow only */
+.ins-hub-card--primary {
+  border-color: var(--fx-accent);
+  box-shadow:
+    0 0 0 1px var(--fx-accent-soft),
+    var(--fx-sh-sm);
+}
+
+.ins-hub-card--primary:hover {
+  box-shadow:
+    0 0 0 1px var(--fx-accent-soft),
+    var(--fx-sh-md);
+}
+
+.ins-hub-ico {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.ins-hub-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--fx-txt-1);
+}
+
+.ins-hub-desc {
+  font-size: 0.78rem;
+  color: var(--fx-txt-2);
+  line-height: 1.4;
+}

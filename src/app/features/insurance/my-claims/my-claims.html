@@ -1,0 +1,57 @@
+<div class="page-body">
+  <app-insurance-nav></app-insurance-nav>
+
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Insurance</div>
+      <div class="ph-title">{{ pageTitle }}</div>
+      <div class="ph-desc">{{ pageSubtitle }}</div>
+    </div>
+    <div class="ph-actions" style="display:flex;flex-wrap:wrap;gap:.5rem">
+      <a [routerLink]="fileClaimRoute" class="btn btn-primary btn-sm">{{ fileClaimLabel }}</a>
+      <a routerLink="/client/insurance/my-policy" class="btn btn-outline btn-sm">My Subscription</a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="panel s2" style="padding:1.25rem;text-align:center">
+    <p style="color:var(--g500);margin:0;font-size:.875rem">Loading...</p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="panel s2" style="padding:1.25rem;border-color:rgba(239,68,68,.35)">
+    <p style="color:var(--danger);margin:0 0 .75rem;font-size:.875rem">{{ loadError }}</p>
+    <button type="button" class="btn btn-outline btn-sm" (click)="loadClaims()">Retry</button>
+  </div>
+
+  <div *ngIf="!loading && !loadError && claims.length === 0" class="panel s2" style="padding:1.5rem;text-align:center;color:var(--g500)">
+    <p style="margin:0 0 .75rem">No simulations found.</p>
+    <a [routerLink]="fileClaimRoute" class="btn btn-primary btn-sm">Lancer une simulation</a>
+  </div>
+
+  <div class="panel s2" *ngIf="!loading && !loadError && claims.length">
+    <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Simulations</div></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Policy / coverage</th>
+            <th>Estimated Amount</th>
+            <th>Type</th>
+            <th>Date</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of claims">
+            <td style="font-family:monospace;font-size:.75rem;color:var(--g500)">{{ c.id }}</td>
+            <td class="td-primary">{{ c.policy }}</td>
+            <td style="font-weight:700;color:var(--blue)">{{ c.amount }}</td>
+            <td><span class="badge b-review">{{ c.status }}</span></td>
+            <td style="color:var(--g500);font-size:.8rem">{{ c.date }}</td>
+            <td style="text-align:right"><a [routerLink]="c.viewRoute" class="btn btn-ghost btn-xs">Voir</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

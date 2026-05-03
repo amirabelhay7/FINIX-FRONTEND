@@ -1,0 +1,54 @@
+<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+
+    <div class="flex items-center gap-4">
+        <a [routerLink]="backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50 bg-gray-50/50">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">description</span>
+                {{ termsTitle }}
+            </h4>
+        </div>
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div *ngFor="let t of terms">
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ t.label }}</p>
+                <p class="text-xl font-black mt-1" [ngClass]="t.label === 'Total to repay' ? 'text-[#135bec]' : 'text-gray-900'">{{ t.value }}</p>
+            </div>
+        </div>
+        <div class="px-6 pb-6 flex flex-wrap gap-3">
+            <a [routerLink]="scheduleRoute" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">
+                <span class="material-symbols-outlined mr-2 text-[18px]">calendar_month</span>{{ scheduleLabel }}
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50">
+            <h4 class="font-bold text-gray-800 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-orange-500 text-[20px]">folder</span>
+                {{ documentsTitle }}
+            </h4>
+        </div>
+        <div class="divide-y divide-gray-50">
+            <div class="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors" *ngFor="let doc of documents">
+                <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
+                    <span class="material-symbols-outlined text-orange-500 text-[18px]">picture_as_pdf</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-800">{{ doc.title }}</p>
+                    <p class="text-xs text-gray-400 font-medium">{{ doc.uploadedAt }}</p>
+                </div>
+                <span class="text-xs font-bold text-[#135bec] cursor-pointer hover:underline">{{ downloadLabel }}</span>
+            </div>
+        </div>
+    </div>
+
+</div>
