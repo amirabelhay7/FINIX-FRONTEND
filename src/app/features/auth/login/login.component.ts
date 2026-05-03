@@ -382,6 +382,7 @@ export class LoginComponent {
           this.cdr.detectChanges();
           return;
         }
+        sessionStorage.removeItem('finix_page');
         if (this.currentRole === 'admin') {
           this.router.navigate(['/backoffice']);
         } else {

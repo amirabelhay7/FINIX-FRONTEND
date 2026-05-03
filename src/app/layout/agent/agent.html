@@ -850,33 +850,85 @@
       </div><!-- end pay-layout -->
 
       <!-- FULL-WIDTH: Historique des transactions agent -->
-      <div class="hist-card">
-        <div class="hist-card-header">
-          <div class="hist-card-title">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="12 8 12 12 16 14"/><circle cx="12" cy="12" r="10"/></svg>
-            Transactions history
+      <div class="hist2-section">
+
+        <!-- Header -->
+        <div class="hist2-header">
+          <div>
+            <div class="hist2-title">
+              <span class="material-symbols-outlined" style="font-size:18px">history</span>
+              Transactions History
+            </div>
+            <div class="hist2-sub">{{ agentHistory.length }} transaction(s) recorded</div>
           </div>
-          
+          <div style="display:flex;gap:8px;align-items:center">
+            <!-- Search filter -->
+            <div class="hist2-search">
+              <span class="material-symbols-outlined" style="font-size:16px;color:var(--fx-txt-3)">search</span>
+              <input [(ngModel)]="histFilter" (ngModelChange)="histPage = 1"
+                placeholder="Client, contract, ref, dd/mm/yyyy…" class="hist2-search-input"/>
+              <button *ngIf="histFilter" (click)="histFilter=''; histPage=1"
+                style="background:none;border:none;cursor:pointer;color:var(--fx-txt-3);font-size:16px;line-height:1;padding:0">✕</button>
+            </div>
+            <!-- Export PDF -->
+            <button class="hist2-export-btn" (click)="exportHistPdf()" [disabled]="filteredHistory.length === 0">
+              <span class="material-symbols-outlined" style="font-size:15px">picture_as_pdf</span>
+              Export PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI row -->
+        <div class="hist2-kpi-row">
+          <div class="hist2-kpi hist2-kpi-total">
+            <div class="hist2-kpi-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+            <div class="hist2-kpi-val">{{ agentHistory.length }}</div>
+            <div class="hist2-kpi-lbl">Total Transactions</div>
+          </div>
+          <div class="hist2-kpi hist2-kpi-collected">
+            <div class="hist2-kpi-icon"><span class="material-symbols-outlined">payments</span></div>
+            <div class="hist2-kpi-val" style="font-size:1.3rem">{{ histTotalCollected | number:'1.0-0' }}<span style="font-size:.8rem;font-weight:600"> TND</span></div>
+            <div class="hist2-kpi-lbl">Total Collected</div>
+          </div>
+          <div class="hist2-kpi hist2-kpi-penalty">
+            <div class="hist2-kpi-icon"><span class="material-symbols-outlined">gavel</span></div>
+            <div class="hist2-kpi-val">{{ histWithPenalty }}</div>
+            <div class="hist2-kpi-lbl">With Penalty</div>
+          </div>
+          <div class="hist2-kpi hist2-kpi-clean">
+            <div class="hist2-kpi-icon"><span class="material-symbols-outlined">check_circle</span></div>
+            <div class="hist2-kpi-val">{{ agentHistory.length - histWithPenalty }}</div>
+            <div class="hist2-kpi-lbl">On Time</div>
+          </div>
         </div>
 
         <!-- Loading -->
-        <div *ngIf="historyLoading" class="hist-loading">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-          Loading history…
+        <div *ngIf="historyLoading" class="gpr2-loading">
+          <div class="dlq-spinner"></div>
+          <span style="font-size:.85rem;color:var(--fx-txt-3)">Loading history…</span>
         </div>
 
         <!-- Error -->
-        <div *ngIf="historyError" class="pay-error" style="margin:.75rem 0">{{ historyError }}</div>
+        <div *ngIf="historyError" style="margin:0 24px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:12px 16px;color:#dc2626;font-size:.83rem">
+          {{ historyError }}
+        </div>
 
         <!-- Empty -->
-        <div *ngIf="!historyLoading && !historyError && agentHistory.length === 0" class="pay-empty" style="padding:2rem">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span>Aucune transaction enregistrée</span>
+        <div *ngIf="!historyLoading && !historyError && agentHistory.length === 0" class="gpr2-empty">
+          <span class="material-symbols-outlined" style="font-size:36px;color:#94a3b8;display:block;margin-bottom:8px">receipt_long</span>
+          No transactions recorded yet.
         </div>
 
         <!-- Table -->
-        <div class="hist-table-wrap" *ngIf="!historyLoading && agentHistory.length > 0">
-          <table class="hist-table">
+        <div class="gpr2-table-wrap" *ngIf="!historyLoading && agentHistory.length > 0" style="margin:0 24px 24px">
+
+          <!-- No results after filter -->
+          <div *ngIf="filteredHistory.length === 0" class="gpr2-empty">
+            <span class="material-symbols-outlined" style="font-size:32px;color:#94a3b8;display:block;margin-bottom:6px">search_off</span>
+            No results for "{{ histFilter }}".
+          </div>
+
+          <table class="gpr2-table" *ngIf="filteredHistory.length > 0">
             <thead>
               <tr>
                 <th>Ref</th>
@@ -884,7 +936,7 @@
                 <th>Contract</th>
                 <th>Installment</th>
                 <th>Base Amount</th>
-                <th>PPenalty</th>
+                <th>Penalty</th>
                 <th>Total Paid</th>
                 <th>Due Date</th>
                 <th>Payment Date</th>
@@ -892,60 +944,72 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let p of agentHistory">
-                <td class="hist-ref">#{{ p.id }}</td>
-                <td>{{ p.clientFirstName }} {{ p.clientLastName }}</td>
-                <td class="hist-contract">{{ p.numeroContrat }}</td>
-                <td style="text-align:center">#{{ p.installmentNumber }}</td>
-
-                <!-- Montant base mensualité -->
-                <td class="hist-amount">
-                  {{ (p.baseInstallmentAmount ?? p.amountPaid) | number:'1.2-2' }} TND
+              <tr *ngFor="let p of pagedHistory" class="gpr2-row">
+                <td><span class="gpr2-ref">#{{ p.id }}</span></td>
+                <td>
+                  <div class="gpr2-client">
+                    <div class="gpr2-avatar" style="background:linear-gradient(135deg,#10b981,#059669)">
+                      {{ p.clientFirstName?.charAt(0) }}
+                    </div>
+                    <div>
+                      <div class="gpr2-client-name">{{ p.clientFirstName }} {{ p.clientLastName }}</div>
+                    </div>
+                  </div>
                 </td>
+                <td><span class="gpr2-ref">{{ p.numeroContrat }}</span></td>
+                <td style="text-align:center"><span class="gpr2-days">#{{ p.installmentNumber }}</span></td>
 
-                <!-- Pénalité -->
+                <td><span style="font-weight:700;color:var(--fx-txt-1)">{{ (p.baseInstallmentAmount ?? p.amountPaid) | number:'1.2-2' }} TND</span></td>
+
                 <td>
                   <ng-container *ngIf="p.penaltyAmount; else noPenalty">
                     <div style="display:flex;flex-direction:column;gap:2px">
-                      <span style="font-size:.7rem;font-weight:700;padding:2px 6px;border-radius:4px;width:fit-content"
+                      <span style="font-size:.68rem;font-weight:700;padding:2px 6px;border-radius:4px;width:fit-content"
                         [style.background]="p.penaltyTier === 'TIER_5' ? '#4c0519' : p.penaltyTier === 'TIER_4' ? '#ffe4e6' : p.penaltyTier === 'TIER_3' ? '#fef2f2' : p.penaltyTier === 'TIER_2' ? '#fff7ed' : '#fefce8'"
                         [style.color]="p.penaltyTier === 'TIER_5' ? '#fda4af' : p.penaltyTier === 'TIER_4' ? '#9f1239' : p.penaltyTier === 'TIER_3' ? '#dc2626' : p.penaltyTier === 'TIER_2' ? '#ea580c' : '#ca8a04'">
                         {{ p.penaltyTierLabel }}
                       </span>
-                      <span style="font-size:.8rem;color:#ef4444;font-weight:700">
-                        +{{ p.penaltyAmount | number:'1.2-2' }} TND
-                      </span>
-                      <span style="font-size:.68rem;color:var(--g400)">{{ p.penaltyDaysOverdue }}j late</span>
+                      <span style="font-size:.8rem;color:#ef4444;font-weight:700">+{{ p.penaltyAmount | number:'1.2-2' }} TND</span>
                     </div>
                   </ng-container>
-                  <ng-template #noPenalty>
-                    <span style="color:var(--g400);font-size:.8rem">—</span>
-                  </ng-template>
+                  <ng-template #noPenalty><span style="color:#94a3b8">—</span></ng-template>
                 </td>
 
-                <!-- Total payé = base + pénalité -->
                 <td>
                   <ng-container *ngIf="p.penaltyAmount; else totalNoPenalty">
-                    <div style="display:flex;flex-direction:column;gap:1px">
-                      <span style="font-size:.68rem;color:var(--g400)">
-                        {{ (p.baseInstallmentAmount ?? 0) | number:'1.2-2' }} + {{ p.penaltyAmount | number:'1.2-2' }}
-                      </span>
-                      <span class="hist-amount" style="color:#ef4444;font-weight:800">
-                        {{ p.amountPaid | number:'1.2-2' }} TND
-                      </span>
-                    </div>
+                    <div style="font-size:.68rem;color:#94a3b8;margin-bottom:1px">{{ (p.baseInstallmentAmount ?? 0) | number:'1.2-2' }} + {{ p.penaltyAmount | number:'1.2-2' }}</div>
+                    <span style="font-weight:800;color:#ef4444">{{ p.amountPaid | number:'1.2-2' }} TND</span>
                   </ng-container>
                   <ng-template #totalNoPenalty>
-                    <span class="hist-amount">{{ p.amountPaid | number:'1.2-2' }} TND</span>
+                    <span style="font-weight:700;color:var(--fx-txt-1)">{{ p.amountPaid | number:'1.2-2' }} TND</span>
                   </ng-template>
                 </td>
 
-                <td class="hist-date">{{ p.dueDate }}</td>
-                <td class="hist-date">{{ p.paymentDate | date:'dd/MM/yyyy HH:mm' }}</td>
-                <td><span class="hist-badge">PAID</span></td>
+                <td><span class="gpr2-date">{{ p.dueDate | date:'dd/MM/yyyy' }}</span></td>
+                <td><span class="gpr2-date">{{ p.paymentDate | date:'dd/MM/yyyy HH:mm' }}</span></td>
+                <td><span class="gpr2-badge gpr2-badge-approved">PAID</span></td>
               </tr>
             </tbody>
           </table>
+
+          <!-- Pagination -->
+          <div class="gpr2-pagination" *ngIf="histTotalPages > 1">
+            <div class="gpr2-pag-info">
+              Showing {{ (histPage - 1) * histPageSize + 1 }}–{{ histPage * histPageSize > filteredHistory.length ? filteredHistory.length : histPage * histPageSize }} of {{ filteredHistory.length }}
+            </div>
+            <div class="gpr2-pag-controls">
+              <button class="gpr2-pag-btn" (click)="goHistPage(histPage - 1)" [disabled]="histPage === 1">
+                <span class="material-symbols-outlined" style="font-size:16px">chevron_left</span>
+              </button>
+              <button *ngFor="let p of histPagesList"
+                class="gpr2-pag-btn"
+                [class.gpr2-pag-active]="p === histPage"
+                (click)="goHistPage(p)">{{ p }}</button>
+              <button class="gpr2-pag-btn" (click)="goHistPage(histPage + 1)" [disabled]="histPage === histTotalPages">
+                <span class="material-symbols-outlined" style="font-size:16px">chevron_right</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -994,33 +1058,45 @@
       </div>
 
       <!-- KPI cards -->
-      <div class="gpr-kpi-row">
-        <div class="gpr-kpi" style="border-left:3px solid #f59e0b">
-          <div class="gpr-kpi-val">{{ graceRequests.length }}</div>
-          <div class="gpr-kpi-label">Total Requests</div>
+      <div class="gpr2-kpi-row">
+        <div class="gpr2-kpi gpr2-kpi-total">
+          <div class="gpr2-kpi-icon"><span class="material-symbols-outlined">inbox</span></div>
+          <div class="gpr2-kpi-val">{{ graceRequests.length }}</div>
+          <div class="gpr2-kpi-lbl">Total Requests</div>
         </div>
-        <div class="gpr-kpi" style="border-left:3px solid #f59e0b">
-          <div class="gpr-kpi-val" style="color:#f59e0b">{{ pendingGraceCount }}</div>
-          <div class="gpr-kpi-label">Pending</div>
+        <div class="gpr2-kpi gpr2-kpi-pending">
+          <div class="gpr2-kpi-icon"><span class="material-symbols-outlined">pending</span></div>
+          <div class="gpr2-kpi-val">{{ pendingGraceCount }}</div>
+          <div class="gpr2-kpi-lbl">Pending</div>
         </div>
-        <div class="gpr-kpi" style="border-left:3px solid #22c55e">
-          <div class="gpr-kpi-val" style="color:#22c55e">{{ approvedGraceCount }}</div>
-          <div class="gpr-kpi-label">Approved</div>
+        <div class="gpr2-kpi gpr2-kpi-approved">
+          <div class="gpr2-kpi-icon"><span class="material-symbols-outlined">check_circle</span></div>
+          <div class="gpr2-kpi-val">{{ approvedGraceCount }}</div>
+          <div class="gpr2-kpi-lbl">Approved</div>
         </div>
-        <div class="gpr-kpi" style="border-left:3px solid #ef4444">
-          <div class="gpr-kpi-val" style="color:#ef4444">{{ rejectedGraceCount }}</div>
-          <div class="gpr-kpi-label">Rejected</div>
+        <div class="gpr2-kpi gpr2-kpi-rejected">
+          <div class="gpr2-kpi-icon"><span class="material-symbols-outlined">cancel</span></div>
+          <div class="gpr2-kpi-val">{{ rejectedGraceCount }}</div>
+          <div class="gpr2-kpi-lbl">Rejected</div>
         </div>
       </div>
 
       <!-- Loading -->
-      <div *ngIf="graceRequestsLoading" style="text-align:center;padding:2rem;color:var(--muted)">
-        Loading grace period requests...
+      <div *ngIf="graceRequestsLoading" class="gpr2-loading">
+        <div class="dlq-spinner"></div>
+        <span style="font-size:.85rem;color:var(--fx-txt-3)">Loading requests…</span>
       </div>
 
       <!-- Table -->
-      <div class="gpr-table-wrap" *ngIf="!graceRequestsLoading">
-        <table class="gpr-table">
+      <div class="gpr2-table-wrap" *ngIf="!graceRequestsLoading">
+
+        <!-- Empty state -->
+        <div *ngIf="graceRequests.length === 0" class="gpr2-empty">
+          <span class="material-symbols-outlined" style="font-size:36px;color:#94a3b8;display:block;margin-bottom:8px">inbox</span>
+          No grace period requests found.
+        </div>
+
+        <table class="gpr2-table" *ngIf="graceRequests.length > 0">
           <thead>
             <tr>
               <th>Client</th>
@@ -1036,75 +1112,216 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngIf="graceRequests.length === 0">
-              <td colspan="10" style="text-align:center;padding:2rem;color:var(--muted)">No grace period requests found.</td>
-            </tr>
-            <tr *ngFor="let req of graceRequests">
+            <tr *ngFor="let req of pagedGraceRequests" class="gpr2-row">
               <td>
-                <div class="gpr-client-name">{{ req.clientFirstName }} {{ req.clientLastName }}</div>
-                <div class="gpr-client-cin">CIN {{ req.clientCin || '—' }}</div>
+                <div class="gpr2-client">
+                  <div class="gpr2-avatar">{{ req.clientFirstName?.charAt(0) }}</div>
+                  <div>
+                    <div class="gpr2-client-name">{{ req.clientFirstName }} {{ req.clientLastName }}</div>
+                    <div class="gpr2-client-cin">CIN {{ req.clientCin || '—' }}</div>
+                  </div>
+                </div>
               </td>
-              <td><span class="gpr-ref">{{ req.numeroContrat || '—' }}</span></td>
+              <td><span class="gpr2-ref">{{ req.numeroContrat || '—' }}</span></td>
               <td>
-                <div class="gpr-client-name">#{{ req.installmentNumber }}</div>
-                <div class="gpr-client-cin">{{ req.installmentDueDate | date:'dd/MM/yyyy' }}</div>
+                <div class="gpr2-client-name">#{{ req.installmentNumber }}</div>
+                <div class="gpr2-client-cin">{{ req.installmentDueDate | date:'dd/MM/yyyy' }}</div>
               </td>
-              <td><strong>{{ req.requestedGraceDays }}d</strong></td>
-              <td><strong>{{ req.numberOfAffectedInstallments }}</strong></td>
+              <td><span class="gpr2-days">{{ req.requestedGraceDays }}d</span></td>
+              <td><span class="gpr2-affected">{{ req.numberOfAffectedInstallments }}</span></td>
+              <td><div class="gpr2-reason" title="{{ req.reason }}">{{ req.reason }}</div></td>
+              <td><span class="gpr2-date">{{ req.createdAt | date:'dd/MM/yyyy' }}</span></td>
               <td>
-                <div class="gpr-reason-cell" title="{{ req.reason }}">{{ req.reason }}</div>
-              </td>
-              <td>{{ req.createdAt | date:'dd/MM/yyyy' }}</td>
-              <td>
-                <span class="gpr-doc-count" *ngIf="req.documents?.length" (click)="openGraceDetail(req)">
+                <span class="gpr2-doc-link" *ngIf="req.documents?.length" (click)="openGraceDetail(req)">
+                  <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">attach_file</span>
                   {{ req.documents.length }} file(s)
                 </span>
-                <span *ngIf="!req.documents?.length" style="color:var(--muted)">—</span>
+                <span *ngIf="!req.documents?.length" style="color:#94a3b8">—</span>
               </td>
               <td>
-                <span class="gpr-badge"
-                  [class.gpr-badge-pending]="req.status === 'PENDING'"
-                  [class.gpr-badge-approved]="req.status === 'APPROVED'"
-                  [class.gpr-badge-rejected]="req.status === 'REJECTED'">
+                <span class="gpr2-badge"
+                  [class.gpr2-badge-pending]="req.status === 'PENDING'"
+                  [class.gpr2-badge-approved]="req.status === 'APPROVED'"
+                  [class.gpr2-badge-rejected]="req.status === 'REJECTED'">
                   {{ req.status }}
                 </span>
               </td>
               <td>
-                <div class="gpr-actions" *ngIf="req.status === 'PENDING'">
-                  <button class="gpr-btn gpr-btn-approve"
-                    (click)="approveGraceRequest(req.id)"
-                    [disabled]="graceActionLoading === req.id">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                    Approve
-                  </button>
-                  <button class="gpr-btn gpr-btn-reject"
-                    (click)="openRejectModal(req.id)"
-                    [disabled]="graceActionLoading === req.id">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    Reject
-                  </button>
-                </div>
-                <div *ngIf="req.status !== 'PENDING'" style="color:var(--muted);font-size:.75rem">
-                  {{ req.reviewerFirstName }} {{ req.reviewerLastName }}
+                <button *ngIf="req.status === 'PENDING'"
+                  (click)="openAgentDecisionModal(req)"
+                  class="gpr-btn-decision">
+                  <span class="material-symbols-outlined" style="font-size:14px">psychology</span>
+                  Take Decision
+                </button>
+                <div *ngIf="req.status !== 'PENDING'" class="gpr2-reviewer">
+                  <span class="material-symbols-outlined" style="font-size:13px">person</span>
+                  {{ req.reviewerFirstName || 'Admin' }} {{ req.reviewerLastName || '' }}
                 </div>
               </td>
             </tr>
           </tbody>
         </table>
-      </div>
 
-      <!-- Reject modal -->
-      <div class="gpr-overlay" *ngIf="graceRejectId !== null" (click)="graceRejectId = null">
-        <div class="gpr-reject-modal" (click)="$event.stopPropagation()">
-          <div class="gpr-reject-title">Reject Grace Period Request</div>
-          <label class="gpr-reject-label">Reason for rejection (optional)</label>
-          <textarea class="gpr-reject-textarea" [(ngModel)]="graceRejectReason" rows="3" placeholder="Provide a reason..."></textarea>
-          <div class="gpr-reject-actions">
-            <button class="gpr-btn gpr-btn-cancel" (click)="graceRejectId = null">Cancel</button>
-            <button class="gpr-btn gpr-btn-reject" (click)="confirmRejectGraceRequest()" [disabled]="graceActionLoading !== null">
-              Confirm Rejection
+        <!-- Pagination -->
+        <div class="gpr2-pagination" *ngIf="graceTotalPages > 1">
+          <div class="gpr2-pag-info">
+            Showing {{ (gracePage - 1) * gracePageSize + 1 }}–{{ gracePage * gracePageSize > graceRequests.length ? graceRequests.length : gracePage * gracePageSize }} of {{ graceRequests.length }}
+          </div>
+          <div class="gpr2-pag-controls">
+            <button class="gpr2-pag-btn" (click)="goGracePage(gracePage - 1)" [disabled]="gracePage === 1">
+              <span class="material-symbols-outlined" style="font-size:16px">chevron_left</span>
+            </button>
+            <button *ngFor="let p of gracePagesList"
+              class="gpr2-pag-btn"
+              [class.gpr2-pag-active]="p === gracePage"
+              (click)="goGracePage(p)">{{ p }}</button>
+            <button class="gpr2-pag-btn" (click)="goGracePage(gracePage + 1)" [disabled]="gracePage === graceTotalPages">
+              <span class="material-symbols-outlined" style="font-size:16px">chevron_right</span>
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- AI Decision Modal -->
+      <div class="gpr-overlay" *ngIf="agentDecisionModalOpen" (click)="closeAgentDecisionModal()">
+        <div class="gpr-detail-modal" style="max-width:700px;width:100%;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column"
+             (click)="$event.stopPropagation()">
+
+          <!-- Header -->
+          <div class="gpr-detail-head" style="position:sticky;top:0;background:var(--cfm-card);z-index:10;flex-shrink:0">
+            <div>
+              <div class="gpr-detail-title" style="display:flex;align-items:center;gap:8px">
+                <span class="material-symbols-outlined" style="color:#135bec;font-size:20px">psychology</span>
+                AI Decision Assistant
+              </div>
+              <div style="font-size:.72rem;color:var(--muted);margin-top:3px" *ngIf="agentDecisionRequest">
+                Request #{{ agentDecisionRequest.id }} — {{ agentDecisionRequest.clientFirstName }} {{ agentDecisionRequest.clientLastName }} — {{ agentDecisionRequest.numeroContrat }}
+              </div>
+            </div>
+            <button class="gpr-detail-close" (click)="closeAgentDecisionModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+
+          <!-- Request summary -->
+          <div *ngIf="agentDecisionRequest" style="padding:14px 20px;border-bottom:1px solid var(--cfm-border);background:var(--cfm-surface);flex-shrink:0">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;font-size:.82rem">
+              <div>
+                <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;font-weight:600">Grace Days</div>
+                <div style="font-weight:700;margin-top:2px">{{ agentDecisionRequest.requestedGraceDays }}</div>
+              </div>
+              <div>
+                <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;font-weight:600">Affected</div>
+                <div style="font-weight:700;margin-top:2px">{{ agentDecisionRequest.numberOfAffectedInstallments }}</div>
+              </div>
+              <div>
+                <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;font-weight:600">Installment #</div>
+                <div style="font-weight:700;margin-top:2px">{{ agentDecisionRequest.installmentNumber }}</div>
+              </div>
+              <div>
+                <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;font-weight:600">Submitted</div>
+                <div style="font-weight:700;margin-top:2px">{{ agentDecisionRequest.createdAt | date:'short' }}</div>
+              </div>
+            </div>
+            <div style="margin-top:8px;font-size:.82rem">
+              <span style="font-size:.68rem;color:var(--muted);text-transform:uppercase;font-weight:600">Reason: </span>
+              {{ agentDecisionRequest.reason }}
+            </div>
+          </div>
+
+          <!-- ML Loading -->
+          <div *ngIf="agentDecisionMlLoading" style="padding:40px;text-align:center;color:var(--muted)">
+            <span class="material-symbols-outlined" style="font-size:40px;display:block;animation:spin 1s linear infinite">progress_activity</span>
+            <p style="margin-top:8px;font-size:.85rem">Analyzing client with ML model...</p>
+          </div>
+
+          <!-- ML Error -->
+          <div *ngIf="agentDecisionMlError && !agentDecisionMlLoading" style="padding:20px">
+            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px;color:#b91c1c;font-size:.85rem">
+              <span class="material-symbols-outlined" style="vertical-align:middle;margin-right:6px">error</span>
+              {{ agentDecisionMlError }}
+            </div>
+          </div>
+
+          <!-- ML Result -->
+          <div *ngIf="agentDecisionMlResult && !agentDecisionMlLoading" style="padding:18px 20px;display:flex;flex-direction:column;gap:14px;flex:1">
+            <div style="font-weight:700;font-size:.92rem;display:flex;align-items:center;gap:6px">
+              <span class="material-symbols-outlined" style="color:#135bec">analytics</span>
+              AI Analysis
+            </div>
+
+            <!-- Solvability + Risk -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div [ngStyle]="agentSolvabilityStyle()" style="border:1px solid currentColor;border-radius:12px;padding:14px">
+                <div style="font-size:.65rem;text-transform:uppercase;font-weight:600;opacity:.7">Solvability</div>
+                <div style="font-size:1.4rem;font-weight:900;margin-top:4px">{{ agentDecisionMlResult.solvability }}</div>
+              </div>
+              <div [ngStyle]="agentRiskStyle()" style="border:1px solid currentColor;border-radius:12px;padding:14px">
+                <div style="font-size:.65rem;text-transform:uppercase;font-weight:600;opacity:.7">Risk Level</div>
+                <div style="font-size:1.4rem;font-weight:900;margin-top:4px">{{ agentDecisionMlResult.riskLevel }}</div>
+              </div>
+            </div>
+
+            <!-- Recommendation -->
+            <div [ngStyle]="agentGraceStyle()" style="border:2px solid;border-radius:12px;padding:14px">
+              <div style="font-size:.65rem;text-transform:uppercase;font-weight:600;opacity:.7">AI Recommendation</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+                <div style="font-size:1.6rem;font-weight:900">
+                  {{ agentDecisionMlResult.graceRecommendation === 'APPROVE' ? '✓ APPROVE' : '✗ REJECT' }}
+                </div>
+                <div style="text-align:right">
+                  <div style="font-size:.65rem;opacity:.7">Confidence</div>
+                  <div style="font-size:1.6rem;font-weight:900">{{ agentDecisionMlResult.confidence }}%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recovery suggestion -->
+            <div style="background:var(--cfm-surface);border:1px solid var(--cfm-border);border-radius:10px;padding:12px">
+              <div style="font-size:.65rem;text-transform:uppercase;font-weight:600;color:var(--muted)">If client defaults — suggested recovery action</div>
+              <div style="font-size:1rem;font-weight:700;margin-top:5px">{{ agentDecisionMlResult.recoveryAction }}</div>
+            </div>
+
+            <!-- Reasons -->
+            <div *ngIf="agentDecisionMlResult.reasons?.length">
+              <div style="font-size:.65rem;text-transform:uppercase;font-weight:600;color:var(--muted);margin-bottom:6px">Why this recommendation</div>
+              <ul style="background:var(--cfm-surface);border-radius:10px;padding:10px 14px;list-style:none;margin:0;display:flex;flex-direction:column;gap:4px">
+                <li *ngFor="let r of agentDecisionMlResult.reasons" style="font-size:.82rem;display:flex;align-items:flex-start;gap:6px">
+                  <span class="material-symbols-outlined" style="font-size:15px;color:var(--muted);margin-top:1px">chevron_right</span>
+                  {{ r }}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Decision Section -->
+          <div style="padding:16px 20px;border-top:1px solid var(--cfm-border);background:var(--cfm-surface);display:flex;flex-direction:column;gap:12px;flex-shrink:0">
+            <div style="font-weight:700;font-size:.9rem">Your Decision</div>
+            <div>
+              <label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:5px">Rejection reason (required if rejecting)</label>
+              <textarea [(ngModel)]="agentDecisionRejectReason" rows="2"
+                        placeholder="e.g. Client has too many active grace periods..."
+                        style="width:100%;box-sizing:border-box;border:1px solid var(--cfm-border);border-radius:8px;padding:8px 12px;font-size:.82rem;background:var(--cfm-card);color:var(--cfm-text);resize:vertical;outline:none"></textarea>
+            </div>
+            <div *ngIf="agentDecisionError" style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px;color:#b91c1c;font-size:.82rem">
+              {{ agentDecisionError }}
+            </div>
+            <div style="display:flex;gap:10px">
+              <button (click)="agentDecisionReject()" [disabled]="agentDecisionLoading"
+                      style="flex:1;background:#dc2626;color:white;border:none;border-radius:8px;padding:11px;font-weight:700;font-size:.88rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"
+                      [style.opacity]="agentDecisionLoading ? '0.5' : '1'">
+                <span class="material-symbols-outlined" style="font-size:18px">close</span>
+                Reject Request
+              </button>
+              <button (click)="agentDecisionApprove()" [disabled]="agentDecisionLoading"
+                      style="flex:1;background:#16a34a;color:white;border:none;border-radius:8px;padding:11px;font-weight:700;font-size:.88rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"
+                      [style.opacity]="agentDecisionLoading ? '0.5' : '1'">
+                <span class="material-symbols-outlined" style="font-size:18px">check</span>
+                Approve Request
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -1430,194 +1647,272 @@
     <ng-container *ngIf="selectedPage === 'delinquency'">
 
       <!-- Chargement -->
-      <div *ngIf="dossiersLoading" class="flex justify-center items-center py-20">
-        <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <div *ngIf="dossiersLoading" style="display:flex;align-items:center;justify-content:center;padding:80px 0">
+        <div class="dlq-spinner"></div>
       </div>
 
       <!-- Erreur -->
-      <div *ngIf="dossiersError" class="mx-6 mt-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-700 text-sm">
-        {{ dossiersError }}
+      <div *ngIf="dossiersError" style="margin:20px 24px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px 18px;color:#dc2626;font-size:.85rem;display:flex;align-items:center;gap:8px">
+        <span class="material-symbols-outlined" style="font-size:18px">error</span>{{ dossiersError }}
       </div>
 
-      <!-- ── LISTE des dossiers ── -->
+      <!-- ── LISTE ── -->
       <ng-container *ngIf="!dossiersLoading && !selectedDossier">
+
+        <!-- Page header -->
         <div class="cfm-page-head">
           <div>
             <div class="cfm-ph-eyebrow">Recovery</div>
             <div class="cfm-ph-title">Delinquency Cases</div>
-            <div class="cfm-ph-desc">{{ dossiers.length }} Assigned Cases</div>
+            <div class="cfm-ph-desc">{{ dossiers.length }} case(s) assigned to you</div>
           </div>
         </div>
 
-        <!-- KPIs -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 24px 20px">
-          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:12px;padding:16px">
-            <div style="font-size:1.5rem;font-weight:800;color:var(--cfm-text)">{{ dossiers.length }}</div>
-            <div style="font-size:.75rem;color:var(--cfm-muted);margin-top:2px">Total</div>
+        <!-- KPI cards -->
+        <div class="dlq-kpi-grid">
+          <div class="dlq-kpi-card dlq-kpi-blue" style="animation-delay:0ms">
+            <div class="dlq-kpi-icon"><span class="material-symbols-outlined">folder_open</span></div>
+            <div class="dlq-kpi-val">{{ dossiers.length }}</div>
+            <div class="dlq-kpi-lbl">Total Cases</div>
           </div>
-          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:12px;padding:16px">
-            <div style="font-size:1.5rem;font-weight:800;color:#ef4444">{{ countByRisk('CRITICAL') }}</div>
-            <div style="font-size:.75rem;color:var(--cfm-muted);margin-top:2px">Critical</div>
+          <div class="dlq-kpi-card dlq-kpi-red" style="animation-delay:80ms">
+            <div class="dlq-kpi-icon"><span class="material-symbols-outlined">warning</span></div>
+            <div class="dlq-kpi-val">{{ countByRisk('CRITICAL') }}</div>
+            <div class="dlq-kpi-lbl">Critical</div>
           </div>
-          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:12px;padding:16px">
-            <div style="font-size:1.5rem;font-weight:800;color:#f97316">{{ countByRisk('HIGH') }}</div>
-            <div style="font-size:.75rem;color:var(--cfm-muted);margin-top:2px">High</div>
+          <div class="dlq-kpi-card dlq-kpi-orange" style="animation-delay:160ms">
+            <div class="dlq-kpi-icon"><span class="material-symbols-outlined">priority_high</span></div>
+            <div class="dlq-kpi-val">{{ countByRisk('HIGH') }}</div>
+            <div class="dlq-kpi-lbl">High Risk</div>
           </div>
-          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:12px;padding:16px">
-            <div style="font-size:1.5rem;font-weight:800;color:#22c55e">{{ countByRisk('LOW') }}</div>
-            <div style="font-size:.75rem;color:var(--cfm-muted);margin-top:2px">Low</div>
+          <div class="dlq-kpi-card dlq-kpi-green" style="animation-delay:240ms">
+            <div class="dlq-kpi-icon"><span class="material-symbols-outlined">check_circle</span></div>
+            <div class="dlq-kpi-val">{{ countByRisk('LOW') }}</div>
+            <div class="dlq-kpi-lbl">Low Risk</div>
           </div>
         </div>
 
-        <!-- Liste cartes -->
-        <div style="padding:0 24px;display:flex;flex-direction:column;gap:10px">
-          <div *ngFor="let d of dossiers"
-            (click)="openDossier(d)"
-            style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:14px;padding:18px 20px;cursor:pointer;transition:all .15s"
-            onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='var(--cfm-border)'">
+        <!-- Case cards list -->
+        <div class="dlq-case-list">
+          <div *ngFor="let d of dossiers; let i = index"
+            class="dlq-case-card"
+            [class.dlq-risk-critical]="d.riskLevel === 'CRITICAL'"
+            [class.dlq-risk-high]="d.riskLevel === 'HIGH'"
+            [class.dlq-risk-moderate]="d.riskLevel === 'MODERATE'"
+            [class.dlq-risk-low]="d.riskLevel === 'LOW'"
+            [style.animation-delay]="(i * 60) + 'ms'"
+            (click)="openDossier(d)">
 
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-              <div style="flex:1;min-width:0">
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-                  <div style="width:36px;height:36px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center">
-                    <span class="material-symbols-outlined" style="font-size:18px;color:#3b82f6">person</span>
-                  </div>
-                  <div>
-                    <div style="font-weight:700;color:var(--cfm-text);font-size:.9rem">{{ d.clientFullName }}</div>
-                    <div style="font-size:.72rem;color:var(--cfm-muted)">Contract #{{ d.loanContractId }}</div>
-                  </div>
-                  <span style="margin-left:auto;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:6px;background:#eff6ff;color:#3b82f6">
-                    {{ dossierStatusLabel(d.status) }}
-                  </span>
-                </div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-                  <div style="background:var(--cfm-bg);border-radius:8px;padding:8px 10px">
-                    <div style="font-size:.68rem;color:var(--cfm-muted)">Amount Due</div>
-                    <div style="font-size:.85rem;font-weight:700;color:#ef4444">{{ d.totalOverdueAmount | number:'1.2-2' }} TND</div>
-                  </div>
-                  <div style="background:var(--cfm-bg);border-radius:8px;padding:8px 10px">
-                    <div style="font-size:.68rem;color:var(--cfm-muted)">Delay</div>
-                    <div style="font-size:.85rem;font-weight:700" [ngClass]="dossierRiskClass(d.riskLevel)">{{ d.maxDaysOverdue }}j</div>
-                  </div>
-                  <div style="background:var(--cfm-bg);border-radius:8px;padding:8px 10px">
-                    <div style="font-size:.68rem;color:var(--cfm-muted)">Risk</div>
-                    <div style="font-size:.85rem;font-weight:700" [ngClass]="dossierRiskClass(d.riskLevel)">{{ d.riskLevel }}</div>
-                  </div>
-                </div>
+            <div class="dlq-case-top">
+              <div class="dlq-case-avatar">{{ d.clientFullName?.charAt(0)?.toUpperCase() }}</div>
+              <div class="dlq-case-info">
+                <div class="dlq-case-name">{{ d.clientFullName }}</div>
+                <div class="dlq-case-sub">Contract #{{ d.loanContractId }} · Case #{{ d.id }}</div>
               </div>
-              <span class="material-symbols-outlined" style="color:var(--cfm-muted);font-size:18px">chevron_right</span>
+              <div class="dlq-case-badges">
+                <span class="dlq-badge dlq-badge-status">{{ dossierStatusLabel(d.status) }}</span>
+                <span class="dlq-badge"
+                  [style.background]="d.riskLevel==='CRITICAL'?'#fef2f2':d.riskLevel==='HIGH'?'#fff7ed':d.riskLevel==='MODERATE'?'#fefce8':'#f0fdf4'"
+                  [style.color]="d.riskLevel==='CRITICAL'?'#ef4444':d.riskLevel==='HIGH'?'#f97316':d.riskLevel==='MODERATE'?'#ca8a04':'#16a34a'">
+                  {{ d.riskLevel }}
+                </span>
+              </div>
+              <span class="material-symbols-outlined dlq-chevron">chevron_right</span>
+            </div>
+
+            <div class="dlq-case-metrics">
+              <div class="dlq-metric">
+                <div class="dlq-metric-lbl">Amount Overdue</div>
+                <div class="dlq-metric-val" style="color:#ef4444">{{ d.totalOverdueAmount | number:'1.2-2' }} TND</div>
+              </div>
+              <div class="dlq-metric">
+                <div class="dlq-metric-lbl">Delay</div>
+                <div class="dlq-metric-val" [ngClass]="dossierRiskClass(d.riskLevel)">{{ d.maxDaysOverdue }} days</div>
+              </div>
+              <div class="dlq-metric">
+                <div class="dlq-metric-lbl">Penalties</div>
+                <div class="dlq-metric-val" style="color:#f97316">{{ d.totalPenaltyAmount | number:'1.2-2' }} TND</div>
+              </div>
+              <div class="dlq-metric">
+                <div class="dlq-metric-lbl">Phase</div>
+                <div class="dlq-metric-val">{{ d.category }}</div>
+              </div>
+            </div>
+
+            <!-- Urgency bar -->
+            <div class="dlq-urgency-track">
+              <div class="dlq-urgency-fill"
+                [style.width]="(d.maxDaysOverdue > 90 ? 100 : (d.maxDaysOverdue / 90 * 100)) + '%'"
+                [style.background]="d.riskLevel==='CRITICAL'?'#ef4444':d.riskLevel==='HIGH'?'#f97316':d.riskLevel==='MODERATE'?'#f59e0b':'#22c55e'">
+              </div>
             </div>
           </div>
 
-          <div *ngIf="dossiers.length === 0" style="text-align:center;padding:48px;color:var(--cfm-muted)">
-            <span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px">check_circle</span>
-            No delinquency cases assigned.
+          <!-- Empty state -->
+          <div *ngIf="dossiers.length === 0" class="dlq-empty">
+            <div class="dlq-empty-icon">
+              <span class="material-symbols-outlined">check_circle</span>
+            </div>
+            <div class="dlq-empty-title">No cases assigned</div>
+            <div class="dlq-empty-sub">You currently have no delinquency cases to handle.</div>
           </div>
         </div>
       </ng-container>
 
-      <!-- ── DÉTAIL d'un dossier ── -->
+      <!-- ── DÉTAIL ── -->
       <ng-container *ngIf="!dossiersLoading && selectedDossier">
-        <div class="cfm-page-head" style="padding-bottom:0">
-          <div style="display:flex;align-items:center;gap:12px">
-            <button (click)="backToDossierList()"
-              style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:8px;padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--cfm-text);cursor:pointer;display:flex;align-items:center;gap:6px">
-              <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span> My Cases
-            </button>
+
+        <!-- Header détail -->
+        <div class="dlq-detail-header">
+          <button class="dlq-back-btn" (click)="backToDossierList()">
+            <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span> My Cases
+          </button>
+          <div class="dlq-detail-client" style="flex:1">
             <div>
-              <div class="cfm-ph-title" style="font-size:1.1rem">{{ selectedDossier.clientFullName }}</div>
-              <div class="cfm-ph-desc">Contract #{{ selectedDossier.loanContractId }}</div>
+              <div class="dlq-detail-name">{{ selectedDossier.clientFullName }}</div>
+              <div class="dlq-detail-sub">Contract #{{ selectedDossier.loanContractId }} · Case #{{ selectedDossier.id }}</div>
             </div>
+          </div>
+          <!-- Bouton paiement en agence -->
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+            <div *ngIf="cashPaymentSuccess" style="font-size:.78rem;font-weight:700;color:#16a34a;padding:4px 10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;white-space:nowrap">
+              ✓ Payment recorded
+            </div>
+            <button *ngIf="selectedDossier.status !== 'RECOVERED' && selectedDossier.status !== 'CLOSED'"
+                    class="dlq-add-action-btn"
+                    style="background:#16a34a;display:flex;align-items:center;gap:6px"
+                    (click)="registerCashPayment()" [disabled]="registeringCashPayment">
+              <span *ngIf="registeringCashPayment" style="width:14px;height:14px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;display:inline-block;animation:dlqSpin .7s linear infinite"></span>
+              <span *ngIf="!registeringCashPayment" class="material-symbols-outlined" style="font-size:16px">payments</span>
+              {{ registeringCashPayment ? 'Recording…' : 'Register Agency Payment' }}
+            </button>
           </div>
         </div>
 
-        <div style="padding:16px 24px;display:flex;flex-direction:column;gap:16px">
+        <div style="padding:0 24px 24px;display:flex;flex-direction:column;gap:16px">
 
-          <!-- Carte infos -->
-          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:14px;padding:18px">
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;font-size:.83rem;line-height:2">
-              <div><span style="color:var(--cfm-muted)">Amount Due   :</span> <b style="color:#ef4444">{{ selectedDossier.totalOverdueAmount | number:'1.2-2' }} TND</b></div>
-              <div><span style="color:var(--cfm-muted)">Penalties :</span> <b style="color:#f97316">{{ selectedDossier.totalPenaltyAmount | number:'1.2-2' }} TND</b></div>
-              <div><span style="color:var(--cfm-muted)">Max Delay :</span> <b [ngClass]="dossierRiskClass(selectedDossier.riskLevel)">{{ selectedDossier.maxDaysOverdue }}j</b></div>
-              <div><span style="color:var(--cfm-muted)">Unpaid Installments :</span> <b>{{ selectedDossier.overdueInstallmentsCount }}</b></div>
-              <div><span style="color:var(--cfm-muted)">Status :</span> <b>{{ dossierStatusLabel(selectedDossier.status) }}</b></div>
-              <div><span style="color:var(--cfm-muted)">Phase :</span> <b>{{ selectedDossier.category }}</b></div>
-              <div *ngIf="selectedDossier.notes" style="grid-column:span 2;color:var(--cfm-muted);font-size:.78rem">{{ selectedDossier.notes }}</div>
+          <!-- Métriques en cartes colorées -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+            <div class="dlq-detail-metric" style="--dm-c:#ef4444;--dm-bg:#fef2f2">
+              <div class="dlq-detail-metric-icon"><span class="material-symbols-outlined">payments</span></div>
+              <div class="dlq-detail-metric-val">{{ selectedDossier.totalOverdueAmount | number:'1.2-2' }}<span style="font-size:.7rem;font-weight:600"> TND</span></div>
+              <div class="dlq-detail-metric-lbl">Amount Overdue</div>
+            </div>
+            <div class="dlq-detail-metric" style="--dm-c:#f97316;--dm-bg:#fff7ed">
+              <div class="dlq-detail-metric-icon"><span class="material-symbols-outlined">gavel</span></div>
+              <div class="dlq-detail-metric-val">{{ selectedDossier.totalPenaltyAmount | number:'1.2-2' }}<span style="font-size:.7rem;font-weight:600"> TND</span></div>
+              <div class="dlq-detail-metric-lbl">Penalties</div>
+            </div>
+            <div class="dlq-detail-metric" style="--dm-c:#8b5cf6;--dm-bg:#f5f3ff">
+              <div class="dlq-detail-metric-icon"><span class="material-symbols-outlined">schedule</span></div>
+              <div class="dlq-detail-metric-val">{{ selectedDossier.maxDaysOverdue }}<span style="font-size:.7rem;font-weight:600"> days</span></div>
+              <div class="dlq-detail-metric-lbl">Max Delay</div>
+            </div>
+            <div class="dlq-detail-metric" style="--dm-c:#0ea5e9;--dm-bg:#f0f9ff">
+              <div class="dlq-detail-metric-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+              <div class="dlq-detail-metric-val">{{ selectedDossier.overdueInstallmentsCount }}</div>
+              <div class="dlq-detail-metric-lbl">Unpaid Installments</div>
+            </div>
+          </div>
+
+          <!-- Info card -->
+          <div class="dlq-info-card">
+            <div class="dlq-info-title">Case Details</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div class="dlq-info-row">
+                <span class="dlq-info-lbl">Status</span>
+                <span class="dlq-badge dlq-badge-status">{{ dossierStatusLabel(selectedDossier.status) }}</span>
+              </div>
+              <div class="dlq-info-row">
+                <span class="dlq-info-lbl">Risk Level</span>
+                <span class="dlq-badge"
+                  [style.background]="selectedDossier.riskLevel==='CRITICAL'?'#fef2f2':selectedDossier.riskLevel==='HIGH'?'#fff7ed':selectedDossier.riskLevel==='MODERATE'?'#fefce8':'#f0fdf4'"
+                  [style.color]="selectedDossier.riskLevel==='CRITICAL'?'#ef4444':selectedDossier.riskLevel==='HIGH'?'#f97316':selectedDossier.riskLevel==='MODERATE'?'#ca8a04':'#16a34a'">
+                  {{ selectedDossier.riskLevel }}
+                </span>
+              </div>
+              <div class="dlq-info-row">
+                <span class="dlq-info-lbl">Phase</span>
+                <span class="dlq-info-val">{{ selectedDossier.category }}</span>
+              </div>
+              <div class="dlq-info-row">
+                <span class="dlq-info-lbl">Opened</span>
+                <span class="dlq-info-val">{{ selectedDossier.openedDate | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+            <div *ngIf="selectedDossier.notes" class="dlq-notes">
+              <span class="material-symbols-outlined" style="font-size:15px;color:#64748b">sticky_note_2</span>
+              {{ selectedDossier.notes }}
             </div>
           </div>
 
           <!-- Bouton nouvelle action -->
-          <button *ngIf="!showActionForm" (click)="openActionForm()"
-            style="background:#3b82f6;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:.85rem;font-weight:700;cursor:pointer;align-self:flex-start;display:flex;align-items:center;gap:8px">
-            <span class="material-symbols-outlined" style="font-size:18px">add</span> new recovery Action
+          <button *ngIf="!showActionForm" (click)="openActionForm()" class="dlq-add-action-btn">
+            <span class="material-symbols-outlined" style="font-size:18px">add_circle</span>
+            New Recovery Action
           </button>
 
           <!-- Formulaire action -->
-          <div *ngIf="showActionForm"
-            style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:14px;padding:18px">
-            <div style="font-weight:700;font-size:.9rem;margin-bottom:14px;color:var(--cfm-text)">Save Action</div>
+          <div *ngIf="showActionForm" class="dlq-action-form">
+            <div class="dlq-info-title">Log Recovery Action</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-              <select [(ngModel)]="actionForm.actionType"
-                style="padding:9px 12px;border-radius:8px;border:1px solid var(--cfm-border);background:var(--cfm-bg);color:var(--cfm-text);font-size:.83rem">
+              <select [(ngModel)]="actionForm.actionType" class="dlq-select">
                 <option value="">— Action Type —</option>
                 <option *ngFor="let t of actionTypeOptions" [value]="t">{{ t }}</option>
               </select>
-              <select [(ngModel)]="actionForm.result"
-                style="padding:9px 12px;border-radius:8px;border:1px solid var(--cfm-border);background:var(--cfm-bg);color:var(--cfm-text);font-size:.83rem">
+              <select [(ngModel)]="actionForm.result" class="dlq-select">
                 <option value="">— Result —</option>
                 <option *ngFor="let r of resultOptions" [value]="r">{{ r }}</option>
               </select>
             </div>
-            <textarea [(ngModel)]="actionForm.description" rows="2"
-              placeholder="Description of the action taken..."
-              style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--cfm-border);background:var(--cfm-bg);color:var(--cfm-text);font-size:.83rem;resize:vertical;box-sizing:border-box;margin-bottom:10px"></textarea>
-            <input [(ngModel)]="actionForm.nextActionNote" type="text"
-              placeholder="Next action note (optional)"
-              style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--cfm-border);background:var(--cfm-bg);color:var(--cfm-text);font-size:.83rem;box-sizing:border-box;margin-bottom:10px"/>
-            <div *ngIf="actionFormError" style="color:#ef4444;font-size:.78rem;margin-bottom:8px">{{ actionFormError }}</div>
+            <textarea [(ngModel)]="actionForm.description" rows="3" class="dlq-textarea"
+              placeholder="Description of the action taken..."></textarea>
+            <input [(ngModel)]="actionForm.nextActionNote" type="text" class="dlq-input"
+              placeholder="Next action note (optional)" style="margin-bottom:10px"/>
+            <div *ngIf="actionFormError" style="color:#ef4444;font-size:.78rem;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+              <span class="material-symbols-outlined" style="font-size:15px">error</span>{{ actionFormError }}
+            </div>
             <div style="display:flex;gap:8px">
-              <button (click)="submitAction()" [disabled]="savingAction"
-                style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:.83rem;font-weight:700;cursor:pointer">
-                {{ savingAction ? 'Saving…' : 'Save' }}
+              <button (click)="submitAction()" [disabled]="savingAction" class="dlq-btn-primary">
+                <span class="material-symbols-outlined" style="font-size:16px">{{ savingAction ? 'hourglass_empty' : 'save' }}</span>
+                {{ savingAction ? 'Saving…' : 'Save Action' }}
               </button>
-              <button (click)="showActionForm = false"
-                style="background:var(--cfm-bg);border:1px solid var(--cfm-border);border-radius:8px;padding:9px 18px;font-size:.83rem;color:var(--cfm-text);cursor:pointer">
-                Cancel
-              </button>
+              <button (click)="showActionForm = false" class="dlq-btn-ghost">Cancel</button>
             </div>
           </div>
 
-          <!-- Timeline -->
-          <div style="background:var(--cfm-card);border:1px solid var(--cfm-border);border-radius:14px;padding:18px">
-            <div style="font-weight:700;font-size:.83rem;color:var(--cfm-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">
-              Actions history ({{ dossierActions.length }})
+          <!-- Timeline actions -->
+          <div class="dlq-timeline-card">
+            <div class="dlq-info-title" style="margin-bottom:16px">
+              <span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;margin-right:4px">history</span>
+              Actions History <span style="font-size:.75rem;font-weight:500;color:#64748b">({{ dossierActions.length }})</span>
             </div>
-            <div *ngIf="dossierActionsLoading" style="text-align:center;padding:1rem;opacity:.4">Loading…</div>
-            <div *ngIf="!dossierActionsLoading && dossierActions.length === 0" style="text-align:center;padding:1.5rem;color:var(--cfm-muted);font-size:.83rem">
-              No actions recorded for this file.
+            <div *ngIf="dossierActionsLoading" style="text-align:center;padding:20px;opacity:.5;font-size:.83rem">Loading…</div>
+            <div *ngIf="!dossierActionsLoading && dossierActions.length === 0" style="text-align:center;padding:24px;color:#94a3b8;font-size:.83rem">
+              No actions recorded yet.
             </div>
-            <div *ngFor="let a of dossierActions; let last = last"
-              style="display:flex;gap:12px;padding:12px 0"
-              [style.borderBottom]="last ? 'none' : '1px solid var(--cfm-border)'">
-              <div style="width:32px;height:32px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <span class="material-symbols-outlined" style="font-size:16px;color:#3b82f6">{{ actionIconName(a.actionType) }}</span>
+            <div *ngFor="let a of dossierActions; let last = last" class="dlq-timeline-item" [class.dlq-tl-last]="last">
+              <div class="dlq-tl-line" *ngIf="!last"></div>
+              <div class="dlq-tl-dot">
+                <span class="material-symbols-outlined" style="font-size:14px;color:#3b82f6">{{ actionIconName(a.actionType) }}</span>
               </div>
-              <div style="flex:1">
-                <div style="font-weight:700;font-size:.83rem;color:var(--cfm-text)">
-                  {{ a.actionType }} — <span [ngClass]="actionResultClass(a.result)">{{ a.result }}</span>
+              <div class="dlq-tl-body">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px">
+                  <span style="font-weight:700;font-size:.83rem;color:var(--fx-txt-1)">{{ a.actionType }}</span>
+                  <span style="font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:5px" [ngClass]="actionResultClass(a.result)">{{ a.result }}</span>
                 </div>
-                <div style="font-size:.78rem;color:var(--cfm-muted);margin-top:2px">{{ a.description }}</div>
-                <div style="font-size:.7rem;color:var(--cfm-muted);margin-top:4px">
+                <div style="font-size:.78rem;color:var(--fx-txt-3);margin-bottom:4px">{{ a.description }}</div>
+                <div style="font-size:.7rem;color:#94a3b8">
                   {{ a.actionDate | date:'dd/MM/yyyy HH:mm' }}
                   <span *ngIf="a.performedByFullName"> · {{ a.performedByFullName }}</span>
                 </div>
-                <div *ngIf="a.nextActionNote" style="font-size:.72rem;color:#3b82f6;margin-top:4px">
-                  <span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle">schedule</span>
-                  {{ a.nextActionNote }}
+                <div *ngIf="a.nextActionNote" style="margin-top:6px;font-size:.72rem;color:#3b82f6;display:flex;align-items:center;gap:4px;background:#eff6ff;padding:4px 8px;border-radius:6px">
+                  <span class="material-symbols-outlined" style="font-size:13px">schedule</span>{{ a.nextActionNote }}
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </ng-container>
 

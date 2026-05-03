@@ -12,6 +12,7 @@ import { DelinquencyDetail } from './delinquency-detail/delinquency-detail';
 import { GraceList } from './grace-list/grace-list';
 import { RecoveryList } from './recovery-list/recovery-list';
 import { PenaltiesList } from './penalties-list/penalties-list';
+import { RiskScore } from './risk-score/risk-score';
 
 
 @NgModule({
@@ -25,6 +26,7 @@ import { PenaltiesList } from './penalties-list/penalties-list';
     GraceList,
     RecoveryList,
     PenaltiesList,
+    RiskScore,
   ],
   imports: [
     CommonModule,

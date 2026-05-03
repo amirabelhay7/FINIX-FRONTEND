@@ -633,7 +633,7 @@
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px">
           <div class="cs-stat" style="border-radius:12px;padding:16px">
             <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g400);margin-bottom:4px">Total Overdue</div>
-            <div style="font-size:1.4rem;font-weight:800;color:#ef4444">{{ delinquencyCase.totalOverdueAmount | number:'1.2-2' }} TND</div>
+            <div style="font-size:1.4rem;font-weight:800;color:#ef4444">{{ overdueTotal | number:'1.2-2' }} TND</div>
           </div>
           <div class="cs-stat" style="border-radius:12px;padding:16px">
             <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g400);margin-bottom:4px">Penalties</div>
@@ -641,11 +641,11 @@
           </div>
           <div class="cs-stat" style="border-radius:12px;padding:16px">
             <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g400);margin-bottom:4px">Overdue Installments</div>
-            <div style="font-size:1.4rem;font-weight:800">{{ delinquencyCase.overdueInstallmentsCount }}</div>
+            <div style="font-size:1.4rem;font-weight:800">{{ overdueCount }}</div>
           </div>
           <div class="cs-stat" style="border-radius:12px;padding:16px">
             <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g400);margin-bottom:4px">Max Delay</div>
-            <div style="font-size:1.4rem;font-weight:800" [style.color]="delinquencyRiskColor">{{ delinquencyCase.maxDaysOverdue }}j</div>
+            <div style="font-size:1.4rem;font-weight:800" [style.color]="delinquencyRiskColor">{{ maxDaysOverdueCalc }}j</div>
           </div>
         </div>
 
@@ -656,12 +656,39 @@
           <div *ngIf="delinquencyCase.closedDate"><b>Closed on :</b> {{ delinquencyCase.closedDate | date:'dd/MM/yyyy' }}</div>
         </div>
 
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
-          <div>
-            <div style="font-weight:700;font-size:.9rem">Régularize your situation</div>
-            <div style="font-size:.78rem;color:var(--g500);margin-top:2px">Pay your installments to close this case.</div>
+        <!-- Régularisation : 2 options -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
+          <div style="font-weight:700;font-size:.9rem;margin-bottom:4px">Régularize your situation</div>
+          <div style="font-size:.78rem;color:var(--g500);margin-bottom:12px">
+            {{ overdueCount }} overdue installment(s) — total
+            <strong style="color:#ef4444">{{ overdueTotal | number:'1.2-2' }} TND</strong>
           </div>
-          <button class="btn-grace-submit" style="white-space:nowrap" (click)="activeTab = 'amortization'">Pay now</button>
+          <div *ngIf="dlqPayError" style="font-size:.75rem;color:#ef4444;margin-bottom:8px">{{ dlqPayError }}</div>
+
+          <!-- Option 1 : payer par carte -->
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px">
+            <span class="material-symbols-outlined" style="color:#3b82f6;font-size:22px">credit_card</span>
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:.85rem">Pay by card online</div>
+              <div style="font-size:.75rem;color:var(--g500)">Secure payment — instant processing</div>
+            </div>
+            <button class="btn-grace-submit" style="display:flex;align-items:center;gap:6px;font-size:.8rem;padding:8px 14px"
+                    (click)="openDlqStripeModal()" [disabled]="dlqPaying || overdueCount === 0">
+              <span *ngIf="dlqPaying" style="width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;display:inline-block;animation:spin .7s linear infinite"></span>
+              <span class="material-symbols-outlined" *ngIf="!dlqPaying" style="font-size:16px">lock</span>
+              {{ dlqPaying ? 'Processing…' : 'Pay now' }}
+            </button>
+          </div>
+
+          <!-- Option 2 : payer en agence -->
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:10px;background:#fafafa">
+            <span class="material-symbols-outlined" style="color:#f59e0b;font-size:22px">store</span>
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:.85rem">Pay at your IMF agency</div>
+              <div style="font-size:.75rem;color:var(--g500)">Visit your nearest agency — your agent will register the payment</div>
+            </div>
+            <span style="font-size:.72rem;font-weight:700;color:#f59e0b;background:#fef3c7;border:1px solid #fde68a;border-radius:6px;padding:4px 8px;white-space:nowrap">Contact agency</span>
+          </div>
         </div>
 
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:.82rem;color:var(--g500);line-height:1.7">
@@ -700,15 +727,21 @@
 
     <!-- Récapitulatif montant -->
     <div class="stripe-recap">
-      <div class="stripe-recap-label">Installment #{{ currentInstallment?.num }}</div>
+      <div class="stripe-recap-label">
+        <ng-container *ngIf="dlqStripeMode">Delinquency — {{ overdueCount }} overdue installment(s)</ng-container>
+        <ng-container *ngIf="!dlqStripeMode">Installment #{{ currentInstallment?.num }}</ng-container>
+      </div>
       <div class="stripe-recap-amount">
-        {{ currentInstallment?.mensualite | number:'1.2-2' }}
+        {{ dlqStripeMode ? (overdueTotal | number:'1.2-2') : (currentInstallment?.mensualite | number:'1.2-2') }}
         <span class="stripe-recap-currency">TND</span>
       </div>
-      <div class="stripe-recap-penalty" *ngIf="currentInstallment && getPenaltyForInstallment(currentInstallment.num) as penalty">
+      <div class="stripe-recap-penalty" *ngIf="!dlqStripeMode && currentInstallment && getPenaltyForInstallment(currentInstallment.num) as penalty">
         + {{ penalty.totalPenalty | number:'1.2-2' }} TND penalty ({{ penalty.tierLabel }})
       </div>
-      <div class="stripe-recap-date">Due Date: {{ currentInstallment?.date }}</div>
+      <div class="stripe-recap-date">
+        <ng-container *ngIf="dlqStripeMode">Regularization of overdue balance</ng-container>
+        <ng-container *ngIf="!dlqStripeMode">Due Date: {{ currentInstallment?.date }}</ng-container>
+      </div>
     </div>
 
     <!-- ─── Étape 1 : Confirmation ─── -->
@@ -722,12 +755,19 @@
           </svg>
         </div>
         <p class="stripe-confirm-text">
-          Do you want to confirm the payment of<br>
-          <strong>{{ currentTotalDue | number:'1.2-2' }} TND</strong>
-          for the installment <strong>#{{ currentInstallment?.num }}</strong> ?
-          <span class="stripe-confirm-penalty" *ngIf="currentInstallment && getPenaltyForInstallment(currentInstallment.num) as penalty">
-            <br>({{ currentInstallment?.mensualite | number:'1.2-2' }} TND + {{ penalty.totalPenalty | number:'1.2-2' }} TND penalty)
-          </span>
+          <ng-container *ngIf="dlqStripeMode">
+            Do you want to pay <strong>{{ overdueTotal | number:'1.2-2' }} TND</strong>
+            to settle your <strong>{{ overdueCount }} overdue installment(s)</strong>
+            and close your delinquency case?
+          </ng-container>
+          <ng-container *ngIf="!dlqStripeMode">
+            Do you want to confirm the payment of<br>
+            <strong>{{ currentTotalDue | number:'1.2-2' }} TND</strong>
+            for the installment <strong>#{{ currentInstallment?.num }}</strong> ?
+            <span class="stripe-confirm-penalty" *ngIf="currentInstallment && getPenaltyForInstallment(currentInstallment.num) as penalty">
+              <br>({{ currentInstallment?.mensualite | number:'1.2-2' }} TND + {{ penalty.totalPenalty | number:'1.2-2' }} TND penalty)
+            </span>
+          </ng-container>
         </p>
         <div *ngIf="stripeError" class="stripe-err-msg" style="margin:0 0 .5rem">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">

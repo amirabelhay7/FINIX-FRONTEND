@@ -9,7 +9,7 @@
       <div class="ph-desc">Monthly Collection : {{ kpiCollectedThisMonth | number:'1.0-0' }} TND · Recovery Rate : {{ kpiRecoveryRate }}%</div>
     </div>
     <div class="ph-actions">
-      <button class="btn btn-primary btn-sm" (click)="openAdminPayModal()">+ Saisir paiement</button>
+      <button class="btn btn-primary btn-sm" (click)="openAdminPayModal()">+ Enter payment</button>
     </div>
   </div>
 
@@ -100,6 +100,15 @@
         <option value="CARD">Card</option>
         <option value="CASH_IMF">Cash IMF</option>
       </select>
+      <input type="month" class="form-input pay-filter-select"
+             [(ngModel)]="paymentMonthFilter" (ngModelChange)="onAdminPayFilterChange()"
+             style="cursor:pointer" title="Filter by payment month"/>
+      <button *ngIf="paymentMonthFilter || paymentStatusFilter || paymentMethodFilter || paymentFilter"
+              (click)="paymentMonthFilter=''; paymentStatusFilter=''; paymentMethodFilter=''; paymentFilter=''; onAdminPayFilterChange()"
+              class="form-input pay-filter-select"
+              style="background:var(--g100,#f3f4f6);border:none;cursor:pointer;color:var(--g500);font-size:.75rem;white-space:nowrap">
+        ✕ Reset
+      </button>
       <div class="pay-filter-count">
         {{ filteredPayments.length }} résultat(s)
         <span *ngIf="adminPayTotalPages > 1" style="margin-left:.25rem;opacity:.6">· p.{{ adminPayPage }}/{{ adminPayTotalPages }}</span>
@@ -213,15 +222,15 @@
   <div class="modal-card admin-pay-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div>
-        <div class="modal-title">Saisir un paiement</div>
-        <div class="modal-sub">Méthode : Cash IMF</div>
+        <div class="modal-title">Enter payment</div>
+        <div class="modal-sub">Method : Cash IMF</div>
       </div>
       <button class="modal-close" (click)="closeAdminPayModal()">&times;</button>
     </div>
     <div class="modal-body">
-      <label class="form-label">Rechercher le client (CIN ou nom)</label>
+      <label class="form-label">Search for client (CIN or name)</label>
       <div style="position:relative">
-        <input class="form-input" type="text" placeholder="Saisir le CIN…"
+        <input class="form-input" type="text" placeholder="Enter CIN…"
           [value]="adminCinSearch" (input)="onAdminCinInput($event)"/>
         <div class="admin-search-results" *ngIf="adminClientResults.length > 0">
           <div class="admin-search-item" *ngFor="let c of adminClientResults" (click)="selectAdminClient(c)">
@@ -337,8 +346,6 @@
             <td style="font-size:.75rem">{{ c.assignedAgentFullName ?? '—' }}</td>
             <td style="display:flex;gap:4px;flex-wrap:wrap;padding:8px 12px">
               <button class="btn btn-outline btn-sm" style="font-size:.7rem;padding:.2rem .6rem" (click)="openCaseDetail(c)">Detail</button>
-              <button class="btn btn-outline btn-sm" style="font-size:.7rem;padding:.2rem .6rem" (click)="openAssignModal(c.id)">Assign</button>
-              <button class="btn btn-outline btn-sm" style="font-size:.7rem;padding:.2rem .6rem;color:#ef4444;border-color:#ef4444" (click)="openCloseModal(c.id)">Close</button>
             </td>
           </tr>
         </tbody>
@@ -359,6 +366,15 @@
         <div style="display:flex;gap:8px">
           <button class="btn btn-primary btn-sm" (click)="openCaseActionForm()">+ Add Action</button>
           <button class="btn btn-outline btn-sm" (click)="openAssignModal(selectedCase.id)">Assign Agent</button>
+          <button class="btn btn-outline btn-sm" style="color:#16a34a;border-color:#16a34a;display:flex;align-items:center;gap:5px"
+                  (click)="registerCashPayment()" [disabled]="registeringCashPayment || selectedCase.status === 'RECOVERED' || selectedCase.status === 'CLOSED'">
+            <span *ngIf="registeringCashPayment" style="width:12px;height:12px;border:2px solid #16a34a;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin .7s linear infinite"></span>
+            <span *ngIf="!registeringCashPayment" class="material-symbols-outlined" style="font-size:15px">payments</span>
+            {{ registeringCashPayment ? 'Recording…' : 'Register Payment' }}
+          </button>
+          <div *ngIf="cashPaymentSuccess" style="font-size:.78rem;font-weight:700;color:#16a34a;padding:4px 8px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px">
+            ✓ Payment recorded — case set to RECOVERED
+          </div>
           <button class="btn btn-outline btn-sm" style="color:#ef4444;border-color:#ef4444" (click)="openCloseModal(selectedCase.id)">Close Case</button>
         </div>
       </div>
@@ -451,19 +467,38 @@
     </div>
   </ng-container>
 
+
   <!-- Modal Assign Agent -->
-  <div class="modal-overlay" *ngIf="showAssignModal" (click)="closeAssignModal()"></div>
-  <div class="modal" *ngIf="showAssignModal" style="max-width:400px">
-    <div class="modal-head"><div class="modal-title">Assign an agent</div></div>
-    <div class="modal-body">
-      <select class="form-input" [(ngModel)]="assignAgentId" style="width:100%">
-        <option [value]="null">— Select an agent —</option>
-        <option *ngFor="let ag of agentsList" [value]="ag.id">{{ ag.firstName }} {{ ag.lastName }}</option>
-      </select>
-    </div>
-    <div class="modal-foot" style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn btn-outline btn-sm" (click)="closeAssignModal()">Cancel</button>
-      <button class="btn btn-primary btn-sm" (click)="confirmAssign()" [disabled]="!assignAgentId">Confirm</button>
+  <div class="modal-overlay" *ngIf="showAssignModal" (click)="closeAssignModal()">
+    <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;width:440px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.2);animation:slideUp .25s ease"
+         (click)="$event.stopPropagation()">
+      <div class="modal-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div class="modal-title">Assign an Agent</div>
+        <button class="modal-close" (click)="closeAssignModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:10px;font-size:.83rem;color:var(--g400)">Available agents :</div>
+        <div style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto">
+          <div *ngFor="let ag of agentsList"
+            (click)="assignAgentId = ag.id"
+            [style.background]="assignAgentId === ag.id ? '#eff6ff' : 'var(--bg)'"
+            [style.border]="assignAgentId === ag.id ? '1.5px solid #3b82f6' : '1.5px solid var(--border)'"
+            style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:all .15s">
+            <div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#1d4ed8;flex-shrink:0">
+              {{ ag.firstName?.charAt(0) }}{{ ag.lastName?.charAt(0) }}
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:.85rem;color:var(--text)">{{ ag.firstName }} {{ ag.lastName }}</div>
+              <div style="font-size:.73rem;color:var(--g400)">{{ ag.email }}</div>
+            </div>
+            <span *ngIf="assignAgentId === ag.id" style="margin-left:auto;color:#3b82f6;font-size:1.1rem">✓</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" (click)="closeAssignModal()">Cancel</button>
+        <button class="btn btn-primary btn-sm" (click)="confirmAssign()" [disabled]="!assignAgentId">Confirm</button>
+      </div>
     </div>
   </div>
 
@@ -524,7 +559,7 @@
         <tr *ngIf="graceRequests.length === 0">
           <td colspan="10" style="text-align:center;padding:2rem;color:var(--muted)">No grace period requests found.</td>
         </tr>
-        <tr *ngFor="let req of graceRequests">
+        <tr *ngFor="let req of pagedGraceRequests">
           <td>
             <div class="td-primary">{{ req.clientFirstName }} {{ req.clientLastName }}</div>
             <div class="td-sub">CIN {{ req.clientCin || '—' }}</div>
@@ -550,13 +585,9 @@
           </td>
           <td>
             <div class="gpr-actions" *ngIf="req.status === 'PENDING'">
-              <button class="btn btn-sm gpr-btn-approve-bo" (click)="approveGraceRequest(req.id)" [disabled]="graceActionLoading === req.id">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                Approve
-              </button>
-              <button class="btn btn-sm gpr-btn-reject-bo" (click)="openRejectModal(req.id)" [disabled]="graceActionLoading === req.id">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                Reject
+              <button class="btn btn-sm gpr-btn-decision" (click)="openDecisionModal(req)" [disabled]="graceActionLoading === req.id">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a4 4 0 0 1 4 4c0 1.4-.7 2.6-1.7 3.4 1.4 1 2.4 2.7 2.4 4.6 0 2-1 3.7-2.5 4.7v1.3a2 2 0 0 1-4 0v-1.3c-1.5-1-2.5-2.7-2.5-4.7 0-1.9 1-3.6 2.4-4.6A4 4 0 0 1 8 6a4 4 0 0 1 4-4z"/></svg>
+                Take Decision
               </button>
             </div>
             <div *ngIf="req.status !== 'PENDING'" style="color:var(--muted);font-size:.75rem">{{ req.reviewerFirstName }} {{ req.reviewerLastName }}</div>
@@ -564,6 +595,27 @@
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!graceRequestsLoading && graceRequests.length > gracePageSize"
+       style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:0 4px">
+    <div style="font-size:.78rem;color:var(--muted)">
+      Showing {{ (gracePage - 1) * gracePageSize + 1 }}–{{ gracePage * gracePageSize > graceRequests.length ? graceRequests.length : gracePage * gracePageSize }}
+      of {{ graceRequests.length }} requests
+    </div>
+    <div style="display:flex;gap:4px;align-items:center">
+      <button class="btn btn-outline btn-sm" style="padding:4px 10px;min-width:32px"
+              (click)="goGracePage(gracePage - 1)" [disabled]="gracePage === 1">‹</button>
+      <ng-container *ngFor="let p of gracePagesList">
+        <button class="btn btn-sm" style="padding:4px 10px;min-width:32px"
+                [class.btn-primary]="p === gracePage"
+                [class.btn-outline]="p !== gracePage"
+                (click)="goGracePage(p)">{{ p }}</button>
+      </ng-container>
+      <button class="btn btn-outline btn-sm" style="padding:4px 10px;min-width:32px"
+              (click)="goGracePage(gracePage + 1)" [disabled]="gracePage === graceTotalPages">›</button>
+    </div>
   </div>
 
   <!-- Reject modal -->
@@ -609,6 +661,118 @@
       </div>
     </div>
   </div>
+
+  <!-- ════ AI DECISION MODAL ════ -->
+  <div class="gpr-overlay" *ngIf="decisionRequest" (click)="closeDecisionModal()">
+    <div class="ai-modal" (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="ai-modal-header">
+        <div>
+          <div class="ai-modal-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 1.4-.7 2.6-1.7 3.4 1.4 1 2.4 2.7 2.4 4.6 0 2-1 3.7-2.5 4.7v1.3a2 2 0 0 1-4 0v-1.3c-1.5-1-2.5-2.7-2.5-4.7 0-1.9 1-3.6 2.4-4.6A4 4 0 0 1 8 6a4 4 0 0 1 4-4z"/></svg>
+            AI Decision Assistant
+          </div>
+          <div class="ai-modal-sub">
+            Request #{{ decisionRequest.id }} —
+            {{ decisionRequest.clientFirstName }} {{ decisionRequest.clientLastName }} —
+            {{ decisionRequest.numeroContrat }}
+          </div>
+        </div>
+        <button class="ai-close-btn" (click)="closeDecisionModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Request summary -->
+      <div class="ai-summary">
+        <div class="ai-summary-grid">
+          <div><div class="ai-label">Grace days</div><div class="ai-value">{{ decisionRequest.requestedGraceDays }}</div></div>
+          <div><div class="ai-label">Affected installments</div><div class="ai-value">{{ decisionRequest.numberOfAffectedInstallments }}</div></div>
+          <div><div class="ai-label">Installment #</div><div class="ai-value">{{ decisionRequest.installmentNumber }}</div></div>
+          <div><div class="ai-label">Submitted</div><div class="ai-value">{{ decisionRequest.createdAt | date:'short' }}</div></div>
+        </div>
+        <div class="ai-reason"><span class="ai-label">Reason:</span> {{ decisionRequest.reason }}</div>
+      </div>
+
+      <!-- ML loading -->
+      <div class="ai-loading" *ngIf="decisionMlLoading">
+        <div class="ai-spinner"></div>
+        <p>Analyzing client behavior with ML model...</p>
+      </div>
+
+      <!-- ML error -->
+      <div class="ai-error" *ngIf="decisionMlError && !decisionMlLoading">
+        {{ decisionMlError }}
+      </div>
+
+      <!-- ML result -->
+      <div class="ai-result" *ngIf="decisionMlResult && !decisionMlLoading">
+        <h3 class="ai-section-title">AI Analysis</h3>
+
+        <!-- Solvability + Risk -->
+        <div class="ai-cards-grid">
+          <div class="ai-card" [ngClass]="decisionSolvabilityClass()">
+            <div class="ai-label">Solvability</div>
+            <div class="ai-big">{{ decisionMlResult.solvability }}</div>
+          </div>
+          <div class="ai-card" [ngClass]="decisionRiskClass()">
+            <div class="ai-label">Risk Level</div>
+            <div class="ai-big">{{ decisionMlResult.riskLevel }}</div>
+          </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="ai-recommendation" [ngClass]="decisionGraceClass()">
+          <div>
+            <div class="ai-label">AI Recommendation</div>
+            <div class="ai-huge">
+              {{ decisionMlResult.graceRecommendation === 'APPROVE' ? '✓ APPROVE' : '✗ REJECT' }}
+            </div>
+          </div>
+          <div class="ai-confidence">
+            <div class="ai-label">Confidence</div>
+            <div class="ai-huge">{{ decisionMlResult.confidence }}%</div>
+          </div>
+        </div>
+
+        <!-- Recovery suggestion -->
+        <div class="ai-recovery">
+          <div class="ai-label">If client defaults — suggested recovery action</div>
+          <div class="ai-recovery-value">{{ decisionMlResult.recoveryAction }}</div>
+        </div>
+
+        <!-- Reasons -->
+        <div class="ai-reasons" *ngIf="decisionMlResult.reasons && decisionMlResult.reasons.length">
+          <div class="ai-label">Why this recommendation</div>
+          <ul>
+            <li *ngFor="let r of decisionMlResult.reasons">{{ r }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Decision -->
+      <div class="ai-decision">
+        <h3 class="ai-section-title">Your Decision</h3>
+        <label class="ai-label">Rejection reason (required if rejecting)</label>
+        <textarea class="ai-textarea" [(ngModel)]="decisionRejectReason" rows="2"
+                  placeholder="e.g. Client has too many active grace periods..."></textarea>
+
+        <div class="ai-error" *ngIf="decisionError">{{ decisionError }}</div>
+
+        <div class="ai-buttons">
+          <button class="ai-btn-reject" (click)="decisionReject()" [disabled]="graceActionLoading !== null">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Reject
+          </button>
+          <button class="ai-btn-approve" (click)="decisionApprove()" [disabled]="graceActionLoading !== null">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Approve
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <!-- /page-grace-requests -->
 
@@ -619,3 +783,130 @@
   <app-penalty-tiers (backClicked)="onNavigate.emit('settings')"></app-penalty-tiers>
 </div>
 <!-- /page-penalty-tiers -->
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE : ANALYTICS
+     ═══════════════════════════════════════════════════════ -->
+<div class="page" [class.active]="selectedPage === 'analytics'" id="page-analytics">
+
+  <!-- Header -->
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Repayment Module</div>
+      <div class="ph-title">Analytics</div>
+      <div class="ph-desc">Financial performance and repayment statistics — {{ chartYear }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="chartLoading" style="display:flex;align-items:center;justify-content:center;padding:60px 0;color:var(--muted)">
+    Loading charts…
+  </div>
+
+  
+
+  <ng-container *ngIf="!chartLoading">
+
+    <!-- ── Row 1 : Bar chart Monthly Collections ───────────── -->
+    <div class="panel s2" style="padding:24px 28px">
+      <div class="panel-head" style="margin-bottom:16px">
+        <div class="panel-title"><span class="ptdot"></span>Monthly Collected Amounts — {{ chartYear }}</div>
+        <div style="font-size:.78rem;color:var(--muted)">PAID payments only · TND</div>
+      </div>
+      <svg viewBox="0 0 376 175" width="100%" style="overflow:visible">
+        <!-- Y grid lines -->
+        <line x1="0" y1="20"  x2="376" y2="20"  stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="0" y1="60"  x2="376" y2="60"  stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="0" y1="100" x2="376" y2="100" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="0" y1="140" x2="376" y2="140" stroke="#f1f5f9" stroke-width="1"/>
+        <!-- Bars -->
+        <g *ngFor="let b of barChartBars">
+          <rect [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.w" [attr.height]="b.h"
+                [attr.fill]="b.current ? '#3B82F6' : '#BFDBFE'" rx="4"
+                style="transition:fill .2s"/>
+          <!-- amount label on hover via title -->
+          <title>{{ b.amount | number:'1.0-0' }} TND</title>
+          <!-- month label -->
+          <text [attr.x]="b.x + b.w / 2" y="160" text-anchor="middle"
+                font-size="9" [attr.fill]="b.current ? '#3B82F6' : '#94A3B8'" font-weight="500">
+            {{ b.label }}
+          </text>
+          <!-- amount above bar (only if non-zero) -->
+          <text *ngIf="b.amount > 0"
+                [attr.x]="b.x + b.w / 2" [attr.y]="b.y - 4"
+                text-anchor="middle" font-size="8" fill="#3B82F6" font-weight="600">
+            {{ b.amount | number:'1.0-0' }}
+          </text>
+        </g>
+        <!-- X-axis baseline -->
+        <line x1="0" y1="141" x2="376" y2="141" stroke="#E2E8F0" stroke-width="1"/>
+        <!-- Legend: current month -->
+        <rect x="290" y="6"  width="10" height="10" rx="2" fill="#3B82F6"/>
+        <text x="304" y="15" font-size="9" fill="#64748B">Current month</text>
+        <rect x="290" y="20" width="10" height="10" rx="2" fill="#BFDBFE"/>
+        <text x="304" y="29" font-size="9" fill="#64748B">Other months</text>
+      </svg>
+    </div>
+
+    <!-- ── Row 2 : 3 Donut charts ─────────────────────────── -->
+    <div class="kpi-row s3" style="margin-top:20px;align-items:stretch">
+
+      
+
+      <!-- Installment Status Donut -->
+      <div class="panel" style="padding:20px 24px;flex:1">
+        <div class="panel-head" style="margin-bottom:12px">
+          <div class="panel-title" style="font-size:.82rem"><span class="ptdot"></span>Installment Status</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+          <svg viewBox="0 0 160 160" width="140" height="140" style="flex-shrink:0">
+            <g *ngFor="let s of installmentStatusSegments">
+              <path [attr.d]="s.path" [attr.fill]="s.color" stroke="white" stroke-width="2"/>
+              <title>{{ s.label }}: {{ s.value }} ({{ s.percent }}%)</title>
+            </g>
+            <text x="80" y="76" text-anchor="middle" font-size="11" font-weight="700" fill="#1E293B">{{ installmentStatusTotal }}</text>
+            <text x="80" y="91" text-anchor="middle" font-size="8" fill="#94A3B8">installments</text>
+          </svg>
+          <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+            <div *ngFor="let s of installmentStatusSegments" style="display:flex;align-items:center;gap:7px;font-size:.78rem">
+              <span style="width:10px;height:10px;border-radius:50%;flex-shrink:0"
+                    [style.background]="s.color"></span>
+              <span style="color:#475569;flex:1;white-space:nowrap">{{ s.label }}</span>
+              <span style="font-weight:600;color:#1E293B">{{ s.percent }}%</span>
+            </div>
+            <div *ngIf="installmentStatusSegments.length === 0" style="color:var(--muted);font-size:.8rem">No data</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grace Period Status Donut -->
+      <div class="panel" style="padding:20px 24px;flex:1">
+        <div class="panel-head" style="margin-bottom:12px">
+          <div class="panel-title" style="font-size:.82rem"><span class="ptdot"></span>Grace Period Requests</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+          <svg viewBox="0 0 160 160" width="140" height="140" style="flex-shrink:0">
+            <g *ngFor="let s of graceStatusSegments">
+              <path [attr.d]="s.path" [attr.fill]="s.color" stroke="white" stroke-width="2"/>
+              <title>{{ s.label }}: {{ s.value }} ({{ s.percent }}%)</title>
+            </g>
+            <text x="80" y="76" text-anchor="middle" font-size="11" font-weight="700" fill="#1E293B">{{ graceStatusTotal }}</text>
+            <text x="80" y="91" text-anchor="middle" font-size="8" fill="#94A3B8">requests</text>
+          </svg>
+          <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+            <div *ngFor="let s of graceStatusSegments" style="display:flex;align-items:center;gap:7px;font-size:.78rem">
+              <span style="width:10px;height:10px;border-radius:50%;flex-shrink:0"
+                    [style.background]="s.color"></span>
+              <span style="color:#475569;flex:1;white-space:nowrap">{{ s.label }}</span>
+              <span style="font-weight:600;color:#1E293B">{{ s.percent }}%</span>
+            </div>
+            <div *ngIf="graceStatusSegments.length === 0" style="color:var(--muted);font-size:.8rem">No data</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- /row2 -->
+
+  </ng-container>
+</div>
+<!-- /page-analytics -->

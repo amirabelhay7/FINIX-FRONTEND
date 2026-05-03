@@ -8,6 +8,7 @@ import {
   RecoveryActionDto,
   CreateRecoveryActionDto,
 } from '../../services/delinquency/delinquency.service';
+import { RiskScoreService } from '../../services/risk-score/risk-score.service';
 
 @Component({
   selector: 'app-agent',
@@ -50,15 +51,136 @@ export class AgentLayout implements OnInit, OnDestroy {
   agentHistory: any[] = [];
   historyLoading = false;
   historyError = '';
+  histPage = 1;
+  readonly histPageSize = 10;
+  histFilter = '';
+
+  private fmtDMY(dateStr: string): string {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  }
+
+  get filteredHistory(): any[] {
+    const q = this.histFilter.trim().toLowerCase();
+    if (!q) return this.agentHistory;
+    return this.agentHistory.filter(p => {
+      const name     = (p.clientFirstName + ' ' + p.clientLastName).toLowerCase();
+      const contract = (p.numeroContrat || '').toLowerCase();
+      const ref      = '#' + p.id;
+      const payDate  = this.fmtDMY(p.paymentDate);
+      const dueDate  = this.fmtDMY(p.dueDate);
+      return name.includes(q) || contract.includes(q) || ref.includes(q)
+          || payDate.includes(q) || dueDate.includes(q);
+    });
+  }
+
+  get histTotalPages(): number {
+    return Math.ceil(this.filteredHistory.length / this.histPageSize) || 1;
+  }
+
+  get histPagesList(): number[] {
+    const pages: number[] = [];
+    for (let i = Math.max(1, this.histPage - 2); i <= Math.min(this.histTotalPages, this.histPage + 2); i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  get pagedHistory(): any[] {
+    const start = (this.histPage - 1) * this.histPageSize;
+    return this.filteredHistory.slice(start, start + this.histPageSize);
+  }
+
+  goHistPage(n: number): void {
+    if (n >= 1 && n <= this.histTotalPages) this.histPage = n;
+  }
+
+  get histTotalCollected(): number {
+    return this.agentHistory.reduce((s, p) => s + Number(p.amountPaid ?? 0), 0);
+  }
+
+  get histWithPenalty(): number {
+    return this.agentHistory.filter(p => p.penaltyAmount).length;
+  }
+
+  exportHistPdf(): void {
+    const list = this.filteredHistory;
+    if (!list.length) return;
+    const today = new Date().toLocaleDateString('fr-FR');
+    const rows = list.map((p: any) => {
+      const base = (p.baseInstallmentAmount ?? p.amountPaid ?? 0).toFixed(2);
+      const pen  = p.penaltyAmount ? '+' + Number(p.penaltyAmount).toFixed(2) : '—';
+      const tot  = Number(p.amountPaid ?? 0).toFixed(2);
+      const due  = p.dueDate ? new Date(p.dueDate).toLocaleDateString('fr-FR') : '—';
+      const pay  = p.paymentDate ? new Date(p.paymentDate).toLocaleString('fr-FR') : '—';
+      return `<tr>
+        <td>#${p.id}</td>
+        <td>${p.clientFirstName ?? ''} ${p.clientLastName ?? ''}</td>
+        <td>${p.numeroContrat ?? '—'}</td>
+        <td style="text-align:center">#${p.installmentNumber}</td>
+        <td>${base} TND</td>
+        <td style="color:${p.penaltyAmount ? '#ef4444' : '#94a3b8'}">${pen}${p.penaltyAmount ? ' TND' : ''}</td>
+        <td style="font-weight:700">${tot} TND</td>
+        <td>${due}</td>
+        <td>${pay}</td>
+        <td style="color:#16a34a;font-weight:700">PAID</td>
+      </tr>`;
+    }).join('');
+    const total = this.histTotalCollected.toFixed(2);
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"/>
+<title>Transactions — ${today}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;padding:32px;color:#0f172a;font-size:12px}
+h1{font-size:20px;font-weight:800;margin-bottom:4px}
+.sub{color:#64748b;font-size:12px;margin-bottom:18px}
+.summary{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 18px;margin-bottom:20px;display:flex;gap:32px}
+.summary div{font-size:12px}.summary b{display:block;font-size:17px;color:#0f172a;margin-top:2px}
+table{width:100%;border-collapse:collapse}
+th{background:#f1f5f9;padding:8px;text-align:left;font-weight:700;border-bottom:2px solid #cbd5e1;font-size:11px}
+td{padding:7px 8px;border-bottom:1px solid #f1f5f9}
+tr:nth-child(even) td{background:#fafafa}
+</style></head><body>
+<h1>Transactions History</h1>
+<div class="sub">Generated ${today} · ${list.length} transaction(s)</div>
+<div class="summary">
+  <div>Total transactions<b>${list.length}</b></div>
+  <div>Total collected<b style="color:#16a34a">${total} TND</b></div>
+  <div>With penalties<b style="color:#ef4444">${this.histWithPenalty}</b></div>
+</div>
+<table><thead><tr>
+  <th>Ref</th><th>Client</th><th>Contract</th><th>Installment</th>
+  <th>Base</th><th>Penalty</th><th>Total Paid</th><th>Due Date</th><th>Payment Date</th><th>Status</th>
+</tr></thead><tbody>${rows}</tbody></table>
+</body></html>`;
+    const w = window.open('', '_blank');
+    if (!w) return;
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 300);
+  }
 
   /* ── Grace Period Requests ── */
   graceRequests: any[] = [];
   graceRequestsLoading = false;
   graceFilterStatus = '';
   graceActionLoading: number | null = null;
-  graceRejectId: number | null = null;
-  graceRejectReason = '';
   graceDetailRequest: any = null;
+  gracePage = 1;
+  readonly gracePageSize = 8;
+
+  /* ── AI Decision Modal (grace period) ── */
+  agentDecisionModalOpen = false;
+  agentDecisionRequest: any = null;
+  agentDecisionMlLoading = false;
+  agentDecisionMlResult: any = null;
+  agentDecisionMlError: string | null = null;
+  agentDecisionRejectReason = '';
+  agentDecisionLoading = false;
+  agentDecisionError: string | null = null;
 
   // ── Dossiers de délinquance (agent) ──
   dossiers: DelinquencyCaseDto[] = [];
@@ -67,6 +189,10 @@ export class AgentLayout implements OnInit, OnDestroy {
   selectedDossier: DelinquencyCaseDto | null = null;
   dossierActions: RecoveryActionDto[] = [];
   dossierActionsLoading = false;
+
+  // Paiement en agence
+  registeringCashPayment = false;
+  cashPaymentSuccess = false;
 
   // Formulaire action de recouvrement
   showActionForm = false;
@@ -94,6 +220,7 @@ export class AgentLayout implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private delinquencyService: DelinquencyService,
     private ngZone: NgZone,
+    private riskScoreService: RiskScoreService,
   ) {}
 
   ngOnInit(): void {
@@ -146,13 +273,17 @@ export class AgentLayout implements OnInit, OnDestroy {
   // ── Dossiers de délinquance ──────────────────────────────────────────
 
   loadDossiers(): void {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    const agentId = currentUser.userId;
-    if (!agentId) return;
-
     this.dossiersLoading = true;
     this.dossiersError = '';
     this.selectedDossier = null;
+
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const agentId = user.userId;
+    if (!agentId) {
+      this.dossiersError = 'Impossible de récupérer l\'identifiant de l\'agent.';
+      this.dossiersLoading = false;
+      return;
+    }
 
     this.delinquencyService.getCasesByAgent(agentId).subscribe({
       next: (data) => {
@@ -185,6 +316,26 @@ export class AgentLayout implements OnInit, OnDestroy {
   backToDossierList(): void {
     this.selectedDossier = null;
     this.showActionForm = false;
+    this.cashPaymentSuccess = false;
+  }
+
+  /** Enregistre un paiement effectué par le client en agence */
+  registerCashPayment(): void {
+    if (!this.selectedDossier || this.registeringCashPayment) return;
+    this.registeringCashPayment = true;
+    this.cashPaymentSuccess = false;
+    this.delinquencyService.payByAgent(this.selectedDossier.id).subscribe({
+      next: (updated) => {
+        this.selectedDossier = updated;
+        const idx = this.dossiers.findIndex(d => d.id === updated.id);
+        if (idx !== -1) this.dossiers[idx] = updated;
+        this.registeringCashPayment = false;
+        this.cashPaymentSuccess = true;
+        this.cdr.detectChanges();
+        setTimeout(() => { this.cashPaymentSuccess = false; this.cdr.detectChanges(); }, 4000);
+      },
+      error: () => { this.registeringCashPayment = false; this.cdr.detectChanges(); }
+    });
   }
 
   openActionForm(): void {
@@ -572,40 +723,29 @@ export class AgentLayout implements OnInit, OnDestroy {
 
   onGraceFilterChange(status: string): void {
     this.graceFilterStatus = status;
+    this.gracePage = 1;
     this.loadGraceRequests();
   }
 
-  approveGraceRequest(id: number): void {
-    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    this.graceActionLoading = id;
-    this.http.put<any>(`${this.API}/grace-period-requests/${id}/approve`, {
-      reviewedById: user.userId
-    }).pipe(
-      finalize(() => { this.graceActionLoading = null; this.cdr.detectChanges(); })
-    ).subscribe({
-      next: () => this.loadGraceRequests(),
-      error: (err) => alert(err.error?.message || 'Error approving request'),
-    });
+  get graceTotalPages(): number {
+    return Math.ceil(this.graceRequests.length / this.gracePageSize) || 1;
   }
 
-  openRejectModal(id: number): void {
-    this.graceRejectId = id;
-    this.graceRejectReason = '';
+  get gracePagesList(): number[] {
+    const pages: number[] = [];
+    for (let i = Math.max(1, this.gracePage - 2); i <= Math.min(this.graceTotalPages, this.gracePage + 2); i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 
-  confirmRejectGraceRequest(): void {
-    if (this.graceRejectId === null) return;
-    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    this.graceActionLoading = this.graceRejectId;
-    this.http.put<any>(`${this.API}/grace-period-requests/${this.graceRejectId}/reject`, {
-      reviewedById: user.userId,
-      rejectionReason: this.graceRejectReason
-    }).pipe(
-      finalize(() => { this.graceActionLoading = null; this.graceRejectId = null; this.cdr.detectChanges(); })
-    ).subscribe({
-      next: () => this.loadGraceRequests(),
-      error: (err) => alert(err.error?.message || 'Error rejecting request'),
-    });
+  get pagedGraceRequests(): any[] {
+    const start = (this.gracePage - 1) * this.gracePageSize;
+    return this.graceRequests.slice(start, start + this.gracePageSize);
+  }
+
+  goGracePage(n: number): void {
+    if (n >= 1 && n <= this.graceTotalPages) this.gracePage = n;
   }
 
   openGraceDetail(req: any): void {
@@ -614,6 +754,101 @@ export class AgentLayout implements OnInit, OnDestroy {
 
   closeGraceDetail(): void {
     this.graceDetailRequest = null;
+  }
+
+  // ── AI Decision Modal ──────────────────────────────────────────────────
+
+  openAgentDecisionModal(req: any): void {
+    this.agentDecisionRequest = req;
+    this.agentDecisionModalOpen = true;
+    this.agentDecisionMlResult = null;
+    this.agentDecisionMlError = null;
+    this.agentDecisionError = null;
+    this.agentDecisionRejectReason = '';
+    this.riskScoreService.evaluate(req.clientId, req.loanContractId).subscribe({
+      next: (res) => {
+        this.agentDecisionMlResult = res;
+        this.agentDecisionMlLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.agentDecisionMlError = err?.status === 0
+          ? 'Backend inaccessible (port 8081).'
+          : err?.status === 500
+            ? 'Erreur serveur — vérifiez que l\'API ML Python tourne sur le port 8000.'
+            : err?.error?.message || err?.message || 'Erreur inconnue';
+        this.agentDecisionMlLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+    this.agentDecisionMlLoading = true;
+  }
+
+  closeAgentDecisionModal(): void {
+    this.agentDecisionModalOpen = false;
+    this.agentDecisionRequest = null;
+    this.agentDecisionMlResult = null;
+    this.agentDecisionMlError = null;
+  }
+
+  agentDecisionApprove(): void {
+    if (!this.agentDecisionRequest) return;
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    this.agentDecisionLoading = true;
+    this.agentDecisionError = null;
+    this.http.put<any>(`${this.API}/grace-period-requests/${this.agentDecisionRequest.id}/approve`, {
+      reviewedById: user.userId,
+    }).pipe(
+      finalize(() => { this.agentDecisionLoading = false; this.cdr.detectChanges(); })
+    ).subscribe({
+      next: () => { this.closeAgentDecisionModal(); this.loadGraceRequests(); },
+      error: (err) => { this.agentDecisionError = err?.error?.message || 'Erreur lors de l\'approbation'; },
+    });
+  }
+
+  agentDecisionReject(): void {
+    if (!this.agentDecisionRequest) return;
+    if (!this.agentDecisionRejectReason.trim()) {
+      this.agentDecisionError = 'La raison du rejet est obligatoire.';
+      return;
+    }
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    this.agentDecisionLoading = true;
+    this.agentDecisionError = null;
+    this.http.put<any>(`${this.API}/grace-period-requests/${this.agentDecisionRequest.id}/reject`, {
+      reviewedById: user.userId,
+      rejectionReason: this.agentDecisionRejectReason,
+    }).pipe(
+      finalize(() => { this.agentDecisionLoading = false; this.cdr.detectChanges(); })
+    ).subscribe({
+      next: () => { this.closeAgentDecisionModal(); this.loadGraceRequests(); },
+      error: (err) => { this.agentDecisionError = err?.error?.message || 'Erreur lors du rejet'; },
+    });
+  }
+
+  agentRiskStyle(): Record<string, string> {
+    if (!this.agentDecisionMlResult) return {};
+    const map: Record<string, Record<string, string>> = {
+      LOW:      { background: '#f0fdf4', color: '#15803d' },
+      MODERATE: { background: '#fefce8', color: '#a16207' },
+      HIGH:     { background: '#fff7ed', color: '#c2410c' },
+      CRITICAL: { background: '#fef2f2', color: '#b91c1c' },
+    };
+    return map[this.agentDecisionMlResult.riskLevel] ?? { background: '#f9fafb', color: '#374151' };
+  }
+
+  agentSolvabilityStyle(): Record<string, string> {
+    if (!this.agentDecisionMlResult) return {};
+    return this.agentDecisionMlResult.solvability === 'SOLVABLE'
+      ? { background: '#f0fdf4', color: '#15803d' }
+      : { background: '#fef2f2', color: '#b91c1c' };
+  }
+
+  agentGraceStyle(): Record<string, string> {
+    if (!this.agentDecisionMlResult) return {};
+    return this.agentDecisionMlResult.graceRecommendation === 'APPROVE'
+      ? { background: '#f0fdf4', color: '#15803d', 'border-color': '#86efac' }
+      : { background: '#fef2f2', color: '#b91c1c', 'border-color': '#fca5a5' };
   }
 
   get pendingGraceCount(): number {

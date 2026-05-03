@@ -1,0 +1,195 @@
+<div class="space-y-6 pb-10">
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <a [routerLink]="backRoute" class="text-gray-400 hover:text-gray-600">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <div>
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
+      <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
+    </div>
+  </div>
+
+  <!-- Mode tabs -->
+  <div class="flex gap-2 border-b border-gray-200">
+    <button (click)="mode = 'manual'"
+            [class]="mode === 'manual' ? 'border-b-2 border-[#135bec] text-[#135bec]' : 'text-gray-500'"
+            class="px-4 py-2 font-medium text-sm">
+      Manual features
+    </button>
+    <button (click)="mode = 'auto'"
+            [class]="mode === 'auto' ? 'border-b-2 border-[#135bec] text-[#135bec]' : 'text-gray-500'"
+            class="px-4 py-2 font-medium text-sm">
+      From DB (clientId / contractId)
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- ============= INPUT PANEL ============= -->
+    <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 space-y-4">
+
+      <!-- Mode AUTO -->
+      <div *ngIf="mode === 'auto'" class="space-y-4">
+        <h2 class="font-bold text-gray-800">Auto extraction from database</h2>
+        <p class="text-xs text-gray-500">Spring va lire les penalites, installments, grace requests et delinquency case du client.</p>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Client ID</label>
+          <input type="number" [(ngModel)]="clientId"
+                 class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#135bec]" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Loan Contract ID</label>
+          <input type="number" [(ngModel)]="contractId"
+                 class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#135bec]" />
+        </div>
+
+        <button (click)="predictAuto()" [disabled]="loading"
+                class="w-full bg-[#135bec] hover:bg-[#0f4cc7] disabled:bg-gray-300 text-white font-semibold py-2.5 rounded-lg transition-colors">
+          <span *ngIf="!loading">Predict</span>
+          <span *ngIf="loading">Loading...</span>
+        </button>
+      </div>
+
+      <!-- Mode MANUAL -->
+      <div *ngIf="mode === 'manual'" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-gray-800">Manual feature input</h2>
+        </div>
+
+        <!-- Demo profiles -->
+        <div class="flex flex-wrap gap-2">
+          <button *ngFor="let p of demoProfiles" (click)="loadProfile(p.features)"
+                  class="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700 font-medium">
+            Load: {{ p.name }}
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Overdue count</label>
+            <input type="number" [(ngModel)]="features.overdueCount"
+                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Max days overdue</label>
+            <input type="number" [(ngModel)]="features.maxDaysOverdue"
+                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Nb penalties</label>
+            <input type="number" [(ngModel)]="features.nbPenalties"
+                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Max tier (0=T1 ... 4=T5)</label>
+            <input type="number" min="0" max="4" [(ngModel)]="features.penaltyTierMax"
+                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Grace approved</label>
+            <input type="number" [(ngModel)]="features.nbGraceApproved"
+                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Grace rejected</label>
+            <input type="number" [(ngModel)]="features.nbGraceRejected"
+                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Active case (0/1)</label>
+            <input type="number" min="0" max="1" [(ngModel)]="features.hasActiveCase"
+                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Remaining installments</label>
+            <input type="number" [(ngModel)]="features.remainingInstallments"
+                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-medium text-gray-600 mb-1">Loan amount (TND)</label>
+            <input type="number" [(ngModel)]="features.loanAmount"
+                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+          </div>
+        </div>
+
+        <button (click)="predictManual()" [disabled]="loading"
+                class="w-full bg-[#135bec] hover:bg-[#0f4cc7] disabled:bg-gray-300 text-white font-semibold py-2.5 rounded-lg transition-colors">
+          <span *ngIf="!loading">Predict</span>
+          <span *ngIf="loading">Loading...</span>
+        </button>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error" class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+        <span class="material-symbols-outlined text-base align-middle mr-1">error</span>
+        {{ error }}
+      </div>
+    </div>
+
+    <!-- ============= RESULT PANEL ============= -->
+    <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+      <div *ngIf="!result && !loading" class="text-center py-16 text-gray-400">
+        <span class="material-symbols-outlined text-6xl mb-3">psychology</span>
+        <p class="text-sm">Run a prediction to see the AI recommendation</p>
+      </div>
+
+      <div *ngIf="loading" class="text-center py-16 text-gray-400">
+        <span class="material-symbols-outlined text-6xl mb-3 animate-spin">progress_activity</span>
+        <p class="text-sm">Calling ML model...</p>
+      </div>
+
+      <div *ngIf="result && !loading" class="space-y-5">
+        <h2 class="font-bold text-gray-800 text-lg">Prediction result</h2>
+
+        <!-- Solvability + Risk -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="border rounded-xl p-4" [ngClass]="solvabilityColorClass()">
+            <p class="text-xs font-medium uppercase tracking-wide opacity-70">Solvability</p>
+            <p class="text-2xl font-extrabold mt-1">{{ result.solvability }}</p>
+          </div>
+          <div class="border rounded-xl p-4" [ngClass]="riskColorClass()">
+            <p class="text-xs font-medium uppercase tracking-wide opacity-70">Risk Level</p>
+            <p class="text-2xl font-extrabold mt-1">{{ result.riskLevel }}</p>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="border rounded-xl p-4" [ngClass]="graceColorClass()">
+            <p class="text-xs font-medium uppercase tracking-wide opacity-70">Grace Period</p>
+            <p class="text-xl font-extrabold mt-1">{{ result.graceRecommendation }}</p>
+          </div>
+          <div class="border border-gray-200 bg-gray-50 rounded-xl p-4 text-gray-700">
+            <p class="text-xs font-medium uppercase tracking-wide opacity-70">Recovery Action</p>
+            <p class="text-xl font-extrabold mt-1">{{ result.recoveryAction }}</p>
+          </div>
+        </div>
+
+        <!-- Confidence -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <p class="text-xs font-medium text-gray-600">Confidence</p>
+            <p class="text-xs font-bold text-gray-800">{{ result.confidence }}%</p>
+          </div>
+          <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+            <div class="bg-[#135bec] h-2 rounded-full transition-all"
+                 [style.width.%]="result.confidence"></div>
+          </div>
+        </div>
+
+        <!-- Reasons -->
+        <div *ngIf="result.reasons?.length">
+          <p class="text-xs font-medium text-gray-600 mb-2">Reasons</p>
+          <ul class="space-y-1">
+            <li *ngFor="let reason of result.reasons" class="text-sm text-gray-700 flex items-start">
+              <span class="material-symbols-outlined text-base mr-2 text-gray-400">chevron_right</span>
+              {{ reason }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
