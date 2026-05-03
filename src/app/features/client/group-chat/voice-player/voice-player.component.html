@@ -1,0 +1,18 @@
+<div
+  class="vp-root"
+  [class.vp-root--incoming]="variant === 'incoming'"
+  [class.vp-root--outgoing]="variant === 'outgoing'"
+>
+  <button type="button" class="vp-play" [attr.aria-label]="playing ? 'Pause' : 'Play'" (click)="toggle()">
+    <i class="fa-solid" [ngClass]="playing ? 'fa-pause' : 'fa-play'" *ngIf="audioUrl"></i>
+  </button>
+  <div class="vp-waves" aria-hidden="true">
+    <span
+      class="vp-bar"
+      *ngFor="let i of barIndexes"
+      [style.height.%]="barScale(i) * 52 + 28"
+      [style.animation-delay.ms]="i * 14"
+    ></span>
+  </div>
+  <span class="vp-dur">{{ durationLabel }}</span>
+</div>

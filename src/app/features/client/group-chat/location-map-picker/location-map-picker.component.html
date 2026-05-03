@@ -1,0 +1,17 @@
+<div class="lmp-backdrop" (click)="onBackdropClick($event)" role="dialog" aria-modal="true" aria-label="Choose location">
+  <div class="lmp-panel" (click)="$event.stopPropagation()">
+    <div class="lmp-head">
+      <h2 class="lmp-title">Choose a location on the map</h2>
+      <button type="button" class="lmp-close" (click)="cancel()" aria-label="Close">×</button>
+    </div>
+    <p class="lmp-hint">Click on the map or drag the red marker to choose the location.</p>
+    <div #mapEl class="lmp-map"></div>
+    <div class="lmp-coords">{{ coordsLabel() }}</div>
+    <div class="lmp-actions">
+      <button type="button" class="lmp-btn lmp-btn--ghost" (click)="cancel()">Cancel</button>
+      <button type="button" class="lmp-btn lmp-btn--primary" [disabled]="confirming" (click)="confirmPick()">
+        {{ confirming ? '…' : 'Share this location' }}
+      </button>
+    </div>
+  </div>
+</div>

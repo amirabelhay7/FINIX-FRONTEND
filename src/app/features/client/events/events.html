@@ -1,0 +1,138 @@
+<div class="page-body">
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">My events</div>
+      <div class="ph-title">Available events</div>
+      <div class="ph-desc">Discover and join FIN'IX events</div>
+    </div>
+  </div>
+
+  <div class="panel s2">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot"></span>Event calendar</div>
+    </div>
+
+    <div class="panel-body" *ngIf="loading">Loading events...</div>
+    <div class="panel-body" *ngIf="error">{{ error }}</div>
+
+    <div class="events-grid-wrap" *ngIf="!loading && events.length > 0">
+      <article class="event-card" *ngFor="let ev of paginatedEvents; let i = index" (click)="openEventDetails(ev)">
+        <div class="event-cover">
+          <img [src]="getEventImage(ev, i)" [alt]="ev.title || 'event'" />
+          <span class="event-participated-tag" *ngIf="hasParticipated(ev)">Participated</span>
+        </div>
+        <div class="event-content">
+          <div class="event-meta">
+            <span class="event-tag">{{ formatStatus(ev.status) }}</span>
+            <span class="event-date">{{ formatCardDate(ev.startDate) }}</span>
+          </div>
+          <h4 class="event-title">{{ ev.title }}</h4>
+          <div class="event-sub">{{ ev.city || '-' }} · {{ ev.address || '-' }}</div>
+          <div class="event-foot">
+            <span>{{ ev.currentParticipants ?? 0 }} participants</span>
+            <button class="btn btn-outline btn-xs" (click)="openEventDetails(ev); $event.stopPropagation()">Open</button>
+          </div>
+        </div>
+      </article>
+
+      <div class="events-pagination">
+        <button class="btn btn-outline btn-sm" [disabled]="eventsPage === 1" (click)="goToPage(eventsPage - 1)">
+          Prev
+        </button>
+        <button
+          class="btn btn-sm"
+          *ngFor="let p of paginationPages"
+          [ngClass]="eventsPage === p ? 'btn-primary' : 'btn-outline'"
+          (click)="goToPage(p)"
+        >
+          {{ p }}
+        </button>
+        <button class="btn btn-outline btn-sm" [disabled]="eventsPage === totalPages" (click)="goToPage(eventsPage + 1)">
+          Next
+        </button>
+      </div>
+    </div>
+
+    <div class="panel-body" *ngIf="!loading && events.length === 0 && !error">
+      No events...
+    </div>
+  </div>
+
+  <div class="ev-overlay" *ngIf="showDetailsModal" (click)="closeEventDetails()">
+    <div class="ev-modal" (click)="$event.stopPropagation()">
+      <div class="ev-hero" *ngIf="getSelectedEventImage() as heroImage">
+        <img class="ev-hero-img" [src]="heroImage" [alt]="selectedEvent?.title || 'event'" />
+        <div class="ev-hero-overlay"></div>
+        <div class="ev-hero-content">
+          <div class="ev-title">{{ selectedEvent?.title || 'Event' }}</div>
+          <div class="ev-sub">{{ selectedEvent?.city || '-' }} · {{ selectedEvent?.address || '-' }} · #{{ selectedEvent?.idEvent }}</div>
+        </div>
+        <button class="ev-close-btn" (click)="closeEventDetails()" aria-label="Close">✕</button>
+      </div>
+
+      <div class="ev-hero ev-hero-placeholder" *ngIf="!getSelectedEventImage()" [ngStyle]="getSelectedEventPlaceholderStyle()">
+        <div class="ev-hero-overlay"></div>
+        <div class="ev-hero-icon">📅</div>
+        <div class="ev-hero-content">
+          <div class="ev-title">{{ selectedEvent?.title || 'Event' }}</div>
+          <div class="ev-sub">{{ selectedEvent?.city || '-' }} · {{ selectedEvent?.address || '-' }} · #{{ selectedEvent?.idEvent }}</div>
+        </div>
+        <button class="ev-close-btn" (click)="closeEventDetails()" aria-label="Close">✕</button>
+      </div>
+
+      <div class="ev-body">
+        <div class="ev-top-badges">
+          <span [ngClass]="getStatusBadgeClass(selectedEvent?.status)">{{ formatStatus(selectedEvent?.status) }}</span>
+          <span class="ev-chip">{{ selectedEvent?.currentParticipants ?? 0 }} / {{ selectedEvent?.maxParticipants ?? 0 }} participants</span>
+          <span class="ev-chip ev-chip-price">{{ selectedIsPaid ? 'Paid' : 'Free' }}</span>
+        </div>
+
+        <div class="ev-cards-grid">
+          <div class="ev-mini-card">
+            <div class="ev-mini-label">📅 Date</div>
+            <div><strong>Start:</strong> {{ formatModalDate(selectedEvent?.startDate) }}</div>
+            <div><strong>End:</strong> {{ formatModalDate(selectedEvent?.endDate) }}</div>
+          </div>
+          <div class="ev-mini-card">
+            <div class="ev-mini-label">📍 Location</div>
+            <div><strong>City:</strong> {{ selectedEvent?.city || '-' }}</div>
+            <div><strong>Address:</strong> {{ selectedEvent?.address || '-' }}</div>
+          </div>
+        </div>
+
+        <div class="ev-about-label">ABOUT</div>
+        <div class="ev-desc" [class.ev-desc-empty]="!selectedEvent?.description">
+          {{ selectedEvent?.description || 'No description available.' }}
+        </div>
+
+        <div class="ev-progress">
+          <div class="ev-progress-head">
+            <div class="ev-progress-label">Participation rate</div>
+            <div class="ev-progress-count">{{ selectedEvent?.currentParticipants ?? 0 }} / {{ selectedEvent?.maxParticipants ?? 0 }} registered</div>
+          </div>
+          <div class="part-bar">
+            <div class="part-fill" [style.width.%]="selectedProgressPercent"></div>
+          </div>
+          <div class="ev-progress-pct">{{ selectedProgressPercent }}%</div>
+        </div>
+
+        <div class="ev-chat-section">
+          <div class="ev-about-label">GROUP CHAT</div>
+          <div class="ev-chat-loading">Chat is now on a dedicated page.</div>
+          <button class="btn btn-primary btn-xs" (click)="openDedicatedGroupChat()">
+            Open group chat
+          </button>
+        </div>
+
+        <div class="rl-msg ok" *ngIf="participateSuccess">{{ participateSuccess }}</div>
+        <div class="rl-msg err" *ngIf="participateError">{{ participateError }}</div>
+        <div class="rl-msg err" *ngIf="chatError">{{ chatError }}</div>
+
+        <button class="btn btn-primary ev-participate-btn" [disabled]="participating || selectedIsFull" (click)="participate()">
+          {{ selectedIsFull ? 'Full' : (participating ? 'Please wait…' : 'Join') }}
+        </button>
+        <button class="ev-close-link" (click)="closeEventDetails()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
