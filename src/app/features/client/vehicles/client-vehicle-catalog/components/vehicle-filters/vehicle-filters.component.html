@@ -1,0 +1,65 @@
+﻿<section class="filters" aria-label="Catalog search and filters">
+  <div class="filters__head">
+    <h2 class="filters__title">Search and filters</h2>
+    <div class="filters__actions">
+      <button type="button" class="btn btn--secondary" (click)="reset.emit()" [disabled]="loading">
+        Reset
+      </button>
+      <button type="button" class="btn btn--primary" (click)="apply.emit()" [disabled]="loading">
+        Apply
+      </button>
+    </div>
+  </div>
+
+  <div class="filters__grid">
+    <label class="field" for="vf-search">
+      <span class="field__label">Keywords</span>
+      <input
+        id="vf-search"
+        class="field__control"
+        [ngModel]="filterQ"
+        (ngModelChange)="qInput.emit($event)"
+        placeholder="Brand, model, number..."
+      />
+    </label>
+
+    <label class="field" for="vf-status">
+      <span class="field__label">Status</span>
+      <select
+        id="vf-status"
+        class="field__control"
+        [ngModel]="filterStatus"
+        (ngModelChange)="statusChange.emit($event)"
+      >
+        <option [ngValue]="''">All</option>
+        <option *ngFor="let s of statuses" [ngValue]="s">{{ statusLabels[s] }}</option>
+      </select>
+    </label>
+
+    <label class="field" for="vf-sort">
+      <span class="field__label">Sort</span>
+      <select
+        id="vf-sort"
+        class="field__control"
+        [ngModel]="sortKey"
+        (ngModelChange)="sortChange.emit($event)"
+      >
+        <option value="price_asc">Price: low to high</option>
+        <option value="price_desc">Price: high to low</option>
+        <option value="created_desc">Most recent</option>
+        <option value="marque_asc">Brand A-Z</option>
+      </select>
+    </label>
+
+    <label class="field field--check" for="vf-image">
+      <input
+        id="vf-image"
+        type="checkbox"
+        [ngModel]="onlyWithImage"
+        (ngModelChange)="withImageChange.emit($event)"
+      />
+      <span>With photo only</span>
+    </label>
+  </div>
+</section>
+

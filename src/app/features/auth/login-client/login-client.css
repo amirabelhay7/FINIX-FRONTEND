@@ -392,6 +392,80 @@ a { text-decoration:none; color:inherit; }
   font-size:.675rem; color:var(--g400); font-weight:500;
 }
 
+.social-row--google {
+  align-items: stretch;
+}
+.google-signin-host {
+  flex: 1;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.google-signin-host:empty {
+  min-height: 0;
+}
+
+.google-role-pick {
+  margin: 1rem 0 1.25rem;
+  padding: 1rem 1.125rem;
+  background: var(--soft);
+  border: 1px solid rgba(31, 111, 234, 0.15);
+  border-radius: var(--r12);
+  text-align: center;
+}
+.google-role-pick__title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--g900);
+  margin-bottom: 0.35rem;
+}
+.google-role-pick__hint {
+  font-size: 0.78rem;
+  color: var(--g500);
+  margin-bottom: 0.85rem;
+}
+.google-role-pick__actions {
+  display: flex;
+  gap: 0.65rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.google-role-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.55rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--blue);
+  background: #fff;
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 0.82rem;
+  transition: background 0.2s, color 0.2s;
+}
+.google-role-btn:hover {
+  background: rgba(31, 111, 234, 0.08);
+}
+.google-role-btn--seller {
+  border-color: #0891b2;
+  color: #0891b2;
+}
+.google-role-btn--seller:hover {
+  background: rgba(8, 145, 178, 0.08);
+}
+.google-role-cancel {
+  margin-top: 0.65rem;
+  background: none;
+  border: none;
+  font-size: 0.78rem;
+  color: var(--g400);
+  font-weight: 600;
+  cursor: pointer;
+}
+.google-role-cancel:hover {
+  color: var(--g700);
+}
+
 @media (max-width:860px) {
   .deco-panel { display:none; }
   .auth-panel { width:100%; }

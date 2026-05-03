@@ -1,0 +1,138 @@
+.cfp-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1.1rem;
+}
+
+.cfp-card {
+  background: #ffffff;
+  border: 1px solid #dbe7fb;
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgba(17, 37, 79, 0.08);
+  padding: 1.2rem;
+}
+
+.cfp-head h1 {
+  margin: 0.55rem 0 0.25rem;
+  color: #10295c;
+  font-size: 1.6rem;
+}
+
+.cfp-head p {
+  margin: 0;
+  color: #5a73a0;
+}
+
+.cfp-back {
+  border: none;
+  background: #eef4ff;
+  color: #234991;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cfp-form {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.95rem;
+}
+
+.cfp-label {
+  display: grid;
+  gap: 0.4rem;
+  color: #27457e;
+  font-weight: 700;
+}
+
+.cfp-input {
+  border: 1px solid #cad9f7;
+  border-radius: 10px;
+  padding: 0.62rem 0.72rem;
+  font: inherit;
+  color: #10295c;
+  background: #fbfdff;
+}
+
+.cfp-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.cfp-rating {
+  display: grid;
+  gap: 0.35rem;
+  color: #27457e;
+  font-weight: 700;
+}
+
+.cfp-stars {
+  display: flex;
+  align-items: center;
+  gap: 0.18rem;
+}
+
+.cfp-star {
+  border: none;
+  background: transparent;
+  font-size: 1.45rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.cfp-star.active {
+  color: #f59e0b;
+}
+
+.cfp-msg {
+  border-radius: 10px;
+  padding: 0.65rem 0.8rem;
+  font-weight: 700;
+  margin: 0.9rem 0 0;
+}
+
+.cfp-msg--ok {
+  color: #0f6c4c;
+  background: #eafcf4;
+  border: 1px solid #b2f0d2;
+}
+
+.cfp-msg--err {
+  color: #b22929;
+  background: #fff4f4;
+  border: 1px solid #f1c3c3;
+}
+
+.cfp-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.cfp-btn {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0.55rem 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cfp-btn--ghost {
+  color: #21458f;
+  border-color: #c2d7fb;
+  background: #eef4ff;
+}
+
+.cfp-btn--primary {
+  color: #ffffff;
+  border-color: #1d4fb6;
+  background: linear-gradient(135deg, #2a6de7, #1d4fb6);
+}
+
+.cfp-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}

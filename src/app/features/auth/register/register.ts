@@ -156,7 +156,7 @@ export class Register {
       lastName: this.lastName,
       email: this.email,
       password: this.password,
-      phoneNumber: this.phone ? parseFloat(this.phone) : undefined,
+      phoneNumber: this.parsePhoneNumber(this.phone),
       cin: this.cin || undefined,
       address: this.address || undefined,
       city: this.city || undefined,
@@ -182,6 +182,13 @@ export class Register {
         this.registerError = err.message;
       },
     });
+  }
+
+  private parsePhoneNumber(raw: string): number | undefined {
+    const digits = (raw || '').replace(/\D/g, '');
+    if (!digits) return undefined;
+    const parsed = Number(digits);
+    return Number.isFinite(parsed) ? parsed : undefined;
   }
 
   submitOtp(): void {

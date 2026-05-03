@@ -1,3 +1,147 @@
+<div class="fb-marketplace-layout">
+  <aside class="fb-left-panel">
+    <div class="fb-topbar">
+      <div class="fb-topbar-icons">
+        <a [routerLink]="backRoute" class="fb-circle-btn" aria-label="Fermer">
+          <span class="material-symbols-outlined">close</span>
+        </a>
+        <div class="fb-facebook-logo">f</div>
+      </div>
+      <button type="button" class="fb-draft-btn">{{ draftLabel }}</button>
+    </div>
+
+    <div class="fb-title-block">
+      <div class="text-xs text-gray-600">Marketplace</div>
+      <h1>{{ pageTitle }}</h1>
+      <div class="fb-seller-row">
+        <div class="fb-avatar">{{ sellerName.charAt(0) }}</div>
+        <div>
+          <div class="fb-seller-name">{{ sellerName }}</div>
+          <div class="text-sm text-gray-500">Annonce sur Marketplace - Public</div>
+        </div>
+      </div>
+    </div>
+
+    <form class="fb-form-content">
+      <div class="fb-field-like">
+        <label>Type de vehicule</label>
+        <div class="fb-select-like active">
+          <span>{{ selectedVehicleType }}</span>
+          <span class="material-symbols-outlined">expand_more</span>
+        </div>
+        <div class="fb-option-list">
+          <button type="button" class="fb-option-item selected" *ngFor="let type of vehicleTypes">{{ type }}</button>
+        </div>
+      </div>
+
+      <section class="fb-section">
+        <h2>A propos de ce vehicule</h2>
+        <p>Permettez aux acheteurs d'en savoir plus sur le vehicule que vous vendez.</p>
+        <div class="fb-input-like">
+          <span>{{ location }}</span>
+          <span class="material-symbols-outlined">location_on</span>
+        </div>
+        <div class="fb-grid-2">
+          <input type="text" [placeholder]="yearPlaceholder" [(ngModel)]="form.year" name="year" />
+          <input type="text" [placeholder]="brandLabel" [(ngModel)]="form.marque" name="marque" />
+        </div>
+        <input type="text" [placeholder]="modelLabel" [(ngModel)]="form.modele" name="modele" />
+        <input
+          type="text"
+          placeholder="Numero de telephone (8 chiffres)"
+          [(ngModel)]="form.phoneNumber"
+          name="phoneNumber"
+        />
+        <input
+          type="text"
+          placeholder="Localisation (adresse)"
+          [(ngModel)]="form.localisation"
+          name="localisation"
+        />
+        <input
+          type="text"
+          placeholder="Serie (111 TUN 1111)"
+          [(ngModel)]="form.serieVehicule"
+          name="serieVehicule"
+        />
+      </section>
+
+      <section class="fb-section">
+        <h2>Prix</h2>
+        <p>Indiquez votre prix pour ce vehicule.</p>
+        <input type="text" [placeholder]="pricePlaceholder" [(ngModel)]="form.prix" name="prix" />
+      </section>
+
+      <section class="fb-section">
+        <h2>{{ descriptionLabel }}</h2>
+        <p>Indiquez aux acheteurs tout autre renseignement sur votre vehicule que vous n'avez pas encore saisis.</p>
+        <textarea rows="3" [placeholder]="descriptionPlaceholder" [(ngModel)]="form.description" name="description"></textarea>
+      </section>
+
+      <section class="fb-section">
+        <h2>Ajoutez plus d'informations</h2>
+        <p>Donnez les caracteristiques de votre vehicule pour inspirer confiance.</p>
+        <div class="fb-select-like">
+          <span>Style de carrosserie - {{ selectedBodyStyle }}</span>
+          <span class="material-symbols-outlined">expand_more</span>
+        </div>
+        <div class="fb-checkline">
+          <div>
+            <div class="font-semibold text-gray-900">Ce vehicule possede un titre clair.</div>
+            <div class="text-sm text-gray-500">Ce vehicule n'a pas de dommages importants ou de problemes persistants.</div>
+          </div>
+          <input type="checkbox" />
+        </div>
+        <div class="fb-select-like">
+          <span>Etat du vehicule - {{ selectedVehicleState }}</span>
+          <span class="material-symbols-outlined">expand_more</span>
+        </div>
+        <div class="fb-select-like">
+          <span>{{ fuelLabel }}</span>
+          <span class="material-symbols-outlined">expand_more</span>
+        </div>
+      </section>
+
+      <div class="fb-progress">
+        <div class="fb-progress-blue"></div>
+      </div>
+      <button type="button" class="fb-next-btn" [disabled]="isSubmitting" (click)="submitVehicle()">
+        {{ isSubmitting ? 'Enregistrement...' : nextLabel }}
+      </button>
+      <div class="fb-submit-error" *ngIf="submitError">{{ submitError }}</div>
+      <div class="fb-submit-success" *ngIf="submitSuccess">{{ submitSuccess }}</div>
+    </form>
+  </aside>
+
+  <section class="fb-preview-panel">
+    <div class="fb-preview-card">
+      <div class="fb-preview-header">Apercu</div>
+      <div class="fb-preview-body">
+        <div class="fb-preview-center">
+          <h3>Apercu de votre annonce</h3>
+          <p>Pendant que vous creez votre annonce, vous pouvez voir comment les autres la verront sur Marketplace.</p>
+        </div>
+        <div class="fb-mobile-preview">
+          <h4>{{ titleLabel }}</h4>
+          <div class="fb-muted">{{ priceLabel }}</div>
+          <div class="fb-muted">Publie il y a quelques secondes dans {{ location }}</div>
+          <hr />
+          <h4>Description fournie par le ou la vendeur(se)</h4>
+          <p class="fb-muted">La description sera affichee ici.</p>
+          <div class="fb-map-placeholder"></div>
+          <div class="fb-muted">La localisation est approximative</div>
+          <hr />
+          <div class="fb-seller-row">
+            <div class="fb-avatar">{{ sellerName.charAt(0) }}</div>
+            <div>
+              <div class="fb-seller-name">{{ sellerName }}</div>
+              <div class="fb-muted">Informations vendeur(se)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 <div class="space-y-8 pb-10 max-w-2xl">
     <div class="flex items-center gap-4">
         <a [routerLink]="backRoute" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600">

@@ -1,0 +1,41 @@
+:host {
+  display: block;
+}
+
+.empty {
+  border: 1px dashed #b9cdf3;
+  border-radius: 16px;
+  background: #f8fbff;
+  padding: clamp(1.5rem, 4vw, 2.2rem) 1rem;
+  text-align: center;
+}
+
+.empty__title {
+  margin: 0;
+  color: #173269;
+  font-size: 1.1rem;
+}
+
+.empty__description {
+  margin: 0.55rem auto 0;
+  max-width: 52ch;
+  color: #5b74a1;
+}
+
+.empty__action {
+  margin-top: 1rem;
+  border: 1px solid #c2d7fb;
+  background: #eef4ff;
+  color: #21458f;
+  border-radius: 10px;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.empty__action:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}

@@ -103,7 +103,6 @@ export class ClientRepayments implements OnInit {
     'July','August','September','October','November','December'
   ];
 
-
   // ── Délinquance ──────────────────────────────────────
   delinquencyCase: DelinquencyCaseDto | null = null;
   delinquencyLoading = false;
@@ -136,6 +135,13 @@ export class ClientRepayments implements OnInit {
   ngOnInit(): void {
     this.creditService.getMyContract().subscribe({
       next: (c) => {
+        this.isLoading = false;
+        if (!c) { this.cdr.detectChanges(); return; }
+        this.contract = c;
+        this.amortizationRows = this.computeAmortization(c);
+        this.findCurrentInstallment();
+        this.loadPaymentHistory();
+        this.cdr.detectChanges();
         if (!c) { this.isLoading = false; this.cdr.detectChanges(); return; }
         this.contract = c;
         this.creditService.getInstallments(c.id).subscribe({
@@ -464,13 +470,13 @@ export class ClientRepayments implements OnInit {
       : `Mensualité #${this.currentInstallment.num} — ${this.contract.numeroContrat ?? ''}`;
 
     const req: StripePaymentIntentRequestDto = {
-      amount:            Math.round(totalAmount * 100),
-      currency:          'eur',
+      amount: Math.round(totalAmount * 100),
+      currency: 'eur',
       installmentNumber: this.currentInstallment.num,
       userId,
-      loanContractId:    this.contract.id,
+      loanContractId: this.contract.id,
       dueDate,
-      description:       desc,
+      description: desc,
     };
 
     this.creditService.createStripePaymentIntent(req).subscribe({
@@ -482,14 +488,15 @@ export class ClientRepayments implements OnInit {
           this.stripeInstance = Stripe(res.publishableKey);
         }
         this.cdr.detectChanges();
-        // Wait for Angular to render the 'card' step DOM, then mount
-        setTimeout(() => this.mountCardElement(), 300);
+        setTimeout(() => this.mountCardElement(), 120);
       },
       error: (err) => {
         console.error('[Stripe] PaymentIntent error:', err);
         this.stripeLoadingIntent = false;
-        this.stripeError = 'Unable to initialize payment. Please try again.';
-        this.stripeStep  = 'confirm';
+        this.stripeError =
+          (err as { error?: { message?: string } })?.error?.message ||
+          "Impossible d'initialiser le paiement. Réessayez.";
+        this.stripeStep = 'confirm';
         this.cdr.detectChanges();
       },
     });
@@ -669,6 +676,7 @@ export class ClientRepayments implements OnInit {
       this.stripeCardElement = null;
     }
     const justPaid            = this.stripePaymentSuccess;
+    this.stripeInstance       = null;
     this.stripeModalOpen      = false;
     this.stripePaymentSuccess = false;
     this.stripeError          = null;
@@ -682,6 +690,49 @@ export class ClientRepayments implements OnInit {
       this.checkCurrentInstallmentPaid();
     }
     this.cdr.detectChanges();
+  }
+
+  // ── Calcul du tableau d'amortissement ─────────────────
+  private computeAmortization(c: LoanContractDto): AmortizationRow[] {
+    const C   = c.montantTotalRembourse;
+    const i   = c.tauxInteret / 100 / 12;
+    const n   = c.dureeMois;
+    const pow = Math.pow(1 + i, n);
+    const M   = C * (i * pow) / (pow - 1);
+    this.mensualite = Math.round(M * 100) / 100;
+
+    const rows: AmortizationRow[] = [];
+    let capitalRestant = C;
+    const startDate = new Date(c.firstPaymentDate || c.datePremiereEcheance);
+
+    for (let k = 1; k <= n; k++) {
+      const interet  = capitalRestant * i;
+      const capital  = M - interet;
+      capitalRestant = Math.max(0, capitalRestant - capital);
+
+      const echeanceDate = new Date(startDate);
+      echeanceDate.setMonth(echeanceDate.getMonth() + (k - 1));
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const rowDay = new Date(echeanceDate);
+      rowDay.setHours(0, 0, 0, 0);
+      const rowStatus = rowDay.getTime() < today.getTime() ? 'OVERDUE' : 'PENDING';
+
+      rows.push({
+        num:             k,
+        date:            echeanceDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }),
+        dateObj:         new Date(echeanceDate),
+        mensualite:      Math.round(M * 100) / 100,
+        interet:         Math.round(interet * 100) / 100,
+        capital:         Math.round(capital * 100) / 100,
+        restant:         Math.round(capitalRestant * 100) / 100,
+        penalite:        null,
+        penaliteMontant: 0,
+        status:          rowStatus,
+      });
+    }
+    return rows;
   }
 
   // ── Calendrier tracker ────────────────────────────────
@@ -742,14 +793,10 @@ export class ClientRepayments implements OnInit {
       return 'ontime';
     }
 
-    // 2. Check due date cell
     const dueRow = this.amortizationRows.find(
       r => r.dateObj.getDate() === d && r.dateObj.getMonth() === m && r.dateObj.getFullYear() === y
     );
-    if (!dueRow) return '';
-
-    // Due date of a PAID installment → subtle marker
-    if (this.isRowPaid(dueRow.num)) return 'paid-due';
+    if (!dueRow || this.isRowPaid(dueRow.num)) return '';
 
     // Due date of UNPAID installment
     const now   = new Date();

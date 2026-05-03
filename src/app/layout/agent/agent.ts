@@ -1,7 +1,15 @@
-import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetectorRef, NgZone } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetectorRef, NgZone, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../../services/auth/auth.service';
+import { apiUrl } from '../../core/config/api-url';
+import { AppNotificationDto, NotificationCategoryApi, NotificationModuleApi, ReservationStatus, VehicleDto, VehicleReservationDto, VehicleSearchQuery, VehicleStatus } from '../../models';
+import { VehicleService } from '../../services/vehicle/vehicle.service';
+import { ReservationService } from '../../services/vehicle/reservation.service';
+import { NotificationService } from '../../services/notification/notification.service';
 import {
   DelinquencyService,
   DelinquencyCaseDto,
@@ -22,15 +30,24 @@ export class AgentLayout implements OnInit, OnDestroy {
   selectedPage = 'dashboard';
   showUserMenu = false;
 
+  private readonly API = apiUrl('/api');
   agentFirstName = '';
   agentLastName  = '';
   agentInitials  = 'AG';
   agentRole      = 'Agent IMF';
 
-  private readonly API = 'http://localhost:8081/api';
-
   currentTime = '';
   private clockInterval: any;
+  private notifRefreshSub?: Subscription;
+  private notifDropdownPollingId: ReturnType<typeof setInterval> | null = null;
+
+  /* ── Notifications ── */
+  notifDropdownOpen = false;
+  notifications: AppNotificationDto[] = [];
+  notificationsLoading = false;
+  unreadCount = 0;
+  private pendingNotificationVehicleId: number | null = null;
+  private pendingNotificationReservationId: number | null = null;
 
   /* ── Payment form ── */
   showPaymentModal = false;
@@ -163,6 +180,28 @@ tr:nth-child(even) td{background:#fafafa}
     setTimeout(() => w.print(), 300);
   }
 
+  /* ── Agent IMF Vehicles ── */
+  agentVehicleLoading = false;
+  agentVehicleActionLoading = false;
+  agentVehicleError = '';
+  agentVehicles: VehicleDto[] = [];
+  agentReservations: VehicleReservationDto[] = [];
+  selectedVehicle: VehicleDto | null = null;
+  selectedVehicleReservations: VehicleReservationDto[] = [];
+  readonly reservationTimelineSteps: Array<{ label: string; status: ReservationStatus }> = [
+    { label: 'Pending', status: 'PENDING_ADMIN_APPROVAL' },
+    { label: 'Under Review', status: 'UNDER_REVIEW' },
+    { label: 'Waiting Client', status: 'WAITING_CUSTOMER_ACTION' },
+    { label: 'Approved', status: 'APPROVED' },
+  ];
+  vehicleQuery: VehicleSearchQuery = {
+    q: '',
+    marque: '',
+    modele: '',
+    status: undefined,
+    reservationStatus: undefined,
+    sort: 'created_desc',
+  };
   /* ── Grace Period Requests ── */
   graceRequests: any[] = [];
   graceRequestsLoading = false;
@@ -218,6 +257,10 @@ tr:nth-child(even) td{background:#fafafa}
     private router: Router,
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
+    private auth: AuthService,
+    private vehicleService: VehicleService,
+    private reservationService: ReservationService,
+    private notificationService: NotificationService,
     private delinquencyService: DelinquencyService,
     private ngZone: NgZone,
     private riskScoreService: RiskScoreService,
@@ -229,6 +272,12 @@ tr:nth-child(even) td{background:#fafafa}
     this.applyTheme();
     this.loadAgentProfile();
     if (this.selectedPage === 'dossiers') this.loadDossiers();
+    this.loadUnreadCount();
+    this.loadNotifications(true);
+    this.notifRefreshSub = this.notificationService.refreshTrigger.subscribe(() => {
+      this.loadUnreadCount();
+      if (this.notifDropdownOpen) this.loadNotifications();
+    });
 
     this.currentTime = this.formatTime();
     this.ngZone.runOutsideAngular(() => {
@@ -255,6 +304,8 @@ tr:nth-child(even) td{background:#fafafa}
   ngOnDestroy(): void {
     this.renderer.removeAttribute(document.documentElement, 'data-theme');
     clearInterval(this.clockInterval);
+    this.notifRefreshSub?.unsubscribe?.();
+    this.stopNotifDropdownPolling();
   }
 
   toggleTheme(): void {
@@ -265,9 +316,148 @@ tr:nth-child(even) td{background:#fafafa}
 
   switchPage(page: string): void {
     this.selectedPage = page;
+    this.loadUnreadCount();
+    if (this.notifDropdownOpen) this.loadNotifications();
     if (page === 'remboursements') this.loadAgentHistory();
+    if (page === 'vehicules') this.loadAgentVehiclesPage();
     if (page === 'grace-requests') this.loadGraceRequests();
     if (page === 'delinquency') this.loadDossiers();
+  }
+
+  private currentModuleFilter(): NotificationModuleApi | undefined {
+    return this.selectedPage === 'vehicules' ? 'VEHICLE' : undefined;
+  }
+
+  toggleNotifDropdown(): void {
+    this.notifDropdownOpen = !this.notifDropdownOpen;
+    if (this.notifDropdownOpen) {
+      this.loadNotifications();
+      this.loadUnreadCount();
+      this.startNotifDropdownPolling();
+      return;
+    }
+    this.stopNotifDropdownPolling();
+  }
+
+  closeNotifDropdown(): void {
+    this.notifDropdownOpen = false;
+    this.stopNotifDropdownPolling();
+  }
+
+  private startNotifDropdownPolling(): void {
+    this.stopNotifDropdownPolling();
+    this.notifDropdownPollingId = setInterval(() => {
+      if (!this.notifDropdownOpen) return;
+      this.loadNotifications();
+      this.loadUnreadCount();
+    }, 10000);
+  }
+
+  private stopNotifDropdownPolling(): void {
+    if (this.notifDropdownPollingId) {
+      clearInterval(this.notifDropdownPollingId);
+      this.notifDropdownPollingId = null;
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.notifDropdownOpen) return;
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest('.cfm-notif-wrap')) this.closeNotifDropdown();
+  }
+
+  loadUnreadCount(): void {
+    this.notificationService.getUnreadCount(this.currentModuleFilter()).subscribe({
+      next: (count) => (this.unreadCount = count),
+      error: () => (this.unreadCount = 0),
+    });
+  }
+
+  loadNotifications(silent = false): void {
+    if (!silent) this.notificationsLoading = true;
+    this.notificationService.getNotifications(this.currentModuleFilter()).subscribe({
+      next: (rows) => {
+        this.notifications = rows.slice(0, 25);
+        this.notificationsLoading = false;
+      },
+      error: () => {
+        this.notifications = [];
+        this.notificationsLoading = false;
+      },
+    });
+  }
+
+  markAllNotificationsRead(): void {
+    this.notificationService.markAllAsRead(this.currentModuleFilter()).subscribe({
+      next: () => {
+        this.loadUnreadCount();
+        this.loadNotifications();
+      },
+    });
+  }
+
+  onSelectNotification(n: AppNotificationDto): void {
+    if (!n.read) {
+      this.notificationService.markAsRead(n.id).subscribe({
+        next: () => {
+          n.read = true;
+          this.loadUnreadCount();
+        },
+      });
+    }
+    this.routeForNotification(n);
+    this.closeNotifDropdown();
+  }
+
+  private routeForNotification(n: AppNotificationDto): void {
+    if (n.module === 'VEHICLE') {
+      if (n.relatedEntityType === 'VEHICLE_RESERVATION' && n.relatedEntityId != null) {
+        this.pendingNotificationReservationId = n.relatedEntityId;
+        this.pendingNotificationVehicleId = null;
+      } else if (n.relatedEntityId != null) {
+        this.pendingNotificationVehicleId = n.relatedEntityId;
+        this.pendingNotificationReservationId = null;
+      }
+      this.switchPage('vehicules');
+      return;
+    }
+    this.switchPage('dashboard');
+  }
+
+  notificationCategoryLabel(category: NotificationCategoryApi): string {
+    const labels: Record<string, string> = {
+      VEHICLE_SUBMITTED: 'New request',
+      VEHICLE_APPROVED: 'Approved',
+      VEHICLE_REJECTED: 'Rejected',
+      UPCOMING_DUE_DATE: 'Due date',
+      OVERDUE_PAYMENT: 'Overdue',
+      PAYMENT_RECEIVED: 'Payment',
+      RISK_ALERT: 'Risk',
+      RESERVATION_PENDING_ADMIN: 'Reservation (admin)',
+      RESERVATION_CONFIRMED_CLIENT: 'Client request',
+      RESERVATION_NEW_FOR_SELLER: 'New reservation',
+      RESERVATION_APPROVED: 'Reservation approved',
+      RESERVATION_REJECTED: 'Reservation rejected',
+      RESERVATION_AUTO_REJECTED: 'Not retained',
+      RESERVATION_ACTION_REQUIRED: 'Action required',
+      RESERVATION_UNDER_REVIEW: 'Under review',
+      RESERVATION_CANCELLED_BY_CLIENT: 'Cancelled (client)',
+      RESERVATION_CANCELLED_BY_ADMIN: 'Cancelled (platform)',
+    };
+    return labels[category] ?? category;
+  }
+
+  notificationRelativeTime(iso: string): string {
+    const d = new Date(iso);
+    const diff = Date.now() - d.getTime();
+    const sec = Math.floor(diff / 1000);
+    if (sec < 60) return 'Just now';
+    const min = Math.floor(sec / 60);
+    if (min < 60) return `${min} m`;
+    const h = Math.floor(min / 60);
+    if (h < 24) return `${h} h`;
+    return `${Math.floor(h / 24)} d`;
   }
 
   // ── Dossiers de délinquance ──────────────────────────────────────────
@@ -428,18 +618,210 @@ tr:nth-child(even) td{background:#fafafa}
       })
     ).subscribe({
       next: (res) => {
+        console.log('[History] response:', res);
         this.agentHistory = Array.isArray(res) ? res : [];
       },
       error: (err) => {
-        this.historyError = 'Erreur ' + (err?.status || '') + ' — ' + (err?.error?.message || err?.message || 'impossible de charger l\'historique');
+        console.error('[History] error:', err?.status, err?.error);
+        this.agentHistory = [];
+        this.historyError =
+          'Erreur ' +
+          (err?.status || '') +
+          ' — ' +
+          (err?.error?.message || err?.message || "impossible de charger l'historique");
       },
     });
   }
 
+  loadAgentVehiclesPage(): void {
+    this.agentVehicleLoading = true;
+    this.agentVehicleError = '';
+
+    forkJoin({
+      vehicles: this.vehicleService.getAgentVehicles(this.vehicleQuery),
+      reservations: this.reservationService.getAgentReservations(
+        this.vehicleQuery.reservationStatus ? { status: this.vehicleQuery.reservationStatus } : undefined
+      ),
+    })
+      .pipe(
+        finalize(() => {
+          this.agentVehicleLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: ({ vehicles, reservations }) => {
+          this.agentVehicles = Array.isArray(vehicles) ? vehicles : [];
+          this.agentReservations = Array.isArray(reservations) ? reservations : [];
+          if (this.pendingNotificationReservationId) {
+            const res = this.agentReservations.find((row) => row.id === this.pendingNotificationReservationId);
+            if (res) {
+              const veh = this.agentVehicles.find((v) => v.id === res.vehicleId) || null;
+              this.selectVehicle(veh);
+            }
+            this.pendingNotificationReservationId = null;
+          } else if (this.pendingNotificationVehicleId) {
+            const focused = this.agentVehicles.find((v) => v.id === this.pendingNotificationVehicleId) || null;
+            this.selectVehicle(focused);
+            this.pendingNotificationVehicleId = null;
+          }
+          if (this.selectedVehicle) {
+            const refreshed = this.agentVehicles.find((v) => v.id === this.selectedVehicle!.id) || null;
+            this.selectVehicle(refreshed);
+          }
+        },
+        error: (err) => {
+          this.agentVehicles = [];
+          this.agentReservations = [];
+          this.selectedVehicle = null;
+          this.selectedVehicleReservations = [];
+          this.agentVehicleError =
+            err?.error?.message || 'Erreur lors du chargement des véhicules opérationnels.';
+        },
+      });
+  }
+
+  onVehicleFilterChange(): void {
+    this.loadAgentVehiclesPage();
+  }
+
+  clearVehicleFilters(): void {
+    this.vehicleQuery = {
+      q: '',
+      marque: '',
+      modele: '',
+      status: undefined,
+      reservationStatus: undefined,
+      sort: 'created_desc',
+    };
+    this.loadAgentVehiclesPage();
+  }
+
+  vehicleReservations(vehicleId: number): VehicleReservationDto[] {
+    return this.agentReservations
+      .filter((r) => r.vehicleId === vehicleId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  latestReservation(vehicleId: number): VehicleReservationDto | null {
+    const rows = this.vehicleReservations(vehicleId);
+    return rows.length > 0 ? rows[0] : null;
+  }
+
+  selectVehicle(vehicle: VehicleDto | null): void {
+    this.selectedVehicle = vehicle;
+    if (!vehicle) {
+      this.selectedVehicleReservations = [];
+      return;
+    }
+    this.selectedVehicleReservations = this.vehicleReservations(vehicle.id);
+  }
+
+  markReservationUnderReview(id: number): void {
+    this.agentVehicleActionLoading = true;
+    this.agentVehicleError = '';
+    this.reservationService
+      .setUnderReview(id)
+      .pipe(finalize(() => (this.agentVehicleActionLoading = false)))
+      .subscribe({
+        next: () => this.loadAgentVehiclesPage(),
+        error: (err) => {
+          this.agentVehicleError = err?.error?.message || 'Impossible de passer la réservation en examen.';
+        },
+      });
+  }
+
+  markReservationWaitingCustomerAction(id: number): void {
+    this.agentVehicleActionLoading = true;
+    this.agentVehicleError = '';
+    this.reservationService
+      .setWaitingCustomer(id)
+      .pipe(finalize(() => (this.agentVehicleActionLoading = false)))
+      .subscribe({
+        next: () => this.loadAgentVehiclesPage(),
+        error: (err) => {
+          this.agentVehicleError =
+            err?.error?.message || 'Impossible de passer la réservation en attente action client.';
+        },
+      });
+  }
+
+  vehicleStatusLabel(status: VehicleStatus): string {
+    if (status === 'DISPONIBLE') return 'Disponible';
+    if (status === 'RESERVE') return 'Réservé';
+    if (status === 'VENDU') return 'Vendu';
+    if (status === 'INACTIF') return 'Inactif';
+    return status;
+  }
+
+  reservationStatusLabel(status: ReservationStatus): string {
+    if (status === 'PENDING_ADMIN_APPROVAL') return 'En attente admin';
+    if (status === 'UNDER_REVIEW') return 'En examen';
+    if (status === 'WAITING_CUSTOMER_ACTION') return 'Action client';
+    if (status === 'APPROVED') return 'Approuvée';
+    if (status === 'REJECTED') return 'Refusée';
+    if (status === 'CANCELLED_BY_CLIENT') return 'Annulée client';
+    if (status === 'CANCELLED_BY_ADMIN') return 'Annulée admin';
+    if (status === 'EXPIRED') return 'Expirée';
+    return status;
+  }
+
+  reservationStatusClass(status: ReservationStatus): string {
+    if (status === 'PENDING_ADMIN_APPROVAL') return 'status-pending';
+    if (status === 'UNDER_REVIEW') return 'status-review';
+    if (status === 'WAITING_CUSTOMER_ACTION') return 'status-waiting';
+    if (status === 'APPROVED') return 'status-approved';
+    if (status === 'REJECTED') return 'status-rejected';
+    if (status === 'CANCELLED_BY_CLIENT' || status === 'CANCELLED_BY_ADMIN') return 'status-cancelled';
+    if (status === 'EXPIRED') return 'status-expired';
+    return 'status-default';
+  }
+
+  isFlowStatus(status: ReservationStatus): boolean {
+    return this.reservationTimelineSteps.some((step) => step.status === status);
+  }
+
+  isTimelineStepReached(currentStatus: ReservationStatus, stepStatus: ReservationStatus): boolean {
+    const currentIndex = this.reservationTimelineSteps.findIndex((s) => s.status === currentStatus);
+    const stepIndex = this.reservationTimelineSteps.findIndex((s) => s.status === stepStatus);
+    if (currentIndex < 0 || stepIndex < 0) return false;
+    return currentIndex >= stepIndex;
+  }
+
+  isTimelineStepActive(currentStatus: ReservationStatus, stepStatus: ReservationStatus): boolean {
+    return currentStatus === stepStatus;
+  }
+
+  canMarkUnderReview(status: ReservationStatus): boolean {
+    return status === 'PENDING_ADMIN_APPROVAL' || status === 'WAITING_CUSTOMER_ACTION';
+  }
+
+  canMarkWaitingCustomerAction(status: ReservationStatus): boolean {
+    return status === 'UNDER_REVIEW';
+  }
+
+  canAgentEdit(status: ReservationStatus): boolean {
+    return (
+      status === 'PENDING_ADMIN_APPROVAL' ||
+      status === 'UNDER_REVIEW' ||
+      status === 'WAITING_CUSTOMER_ACTION'
+    );
+  }
+
+  get vehiclePendingCount(): number {
+    return this.agentReservations.filter((r) => r.status === 'PENDING_ADMIN_APPROVAL').length;
+  }
+
+  get vehicleUnderReviewCount(): number {
+    return this.agentReservations.filter((r) => r.status === 'UNDER_REVIEW').length;
+  }
+
+  get vehicleWaitingCustomerCount(): number {
+    return this.agentReservations.filter((r) => r.status === 'WAITING_CUSTOMER_ACTION').length;
+  }
+
   logout(): void {
-    localStorage.removeItem('finix_access_token');
-    localStorage.removeItem('currentUser');
-    this.router.navigate(['/login']);
+    this.auth.logout();
   }
 
   private applyTheme(): void {
@@ -681,6 +1063,18 @@ tr:nth-child(even) td{background:#fafafa}
 
   chartBars = [35, 42, 55, 48, 38, 52, 60, 45, 58, 72, 65, 85];
   chartMonths = [
+    'Mar',
+    'Avr',
+    'Mai',
+    'Jun',
+    'Jul',
+    'Aoû',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Déc',
+    'Jan',
+    'Fév',
     'Mar', 
     'Apr', 
     'May', 
@@ -863,3 +1257,5 @@ tr:nth-child(even) td{background:#fafafa}
     return this.graceRequests.filter(r => r.status === 'REJECTED').length;
   }
 }
+
+

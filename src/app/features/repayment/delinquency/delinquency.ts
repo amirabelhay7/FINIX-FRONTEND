@@ -12,7 +12,15 @@ import {
   styleUrl: './delinquency.css',
 })
 export class Delinquency implements OnInit {
+  readonly pageTitle = 'Délinquance';
+  readonly pageSubtitle = 'Suivi de votre situation de remboursement.';
   readonly scheduleRoute = '/repayment/schedule';
+  readonly scheduleLabel = "Voir l'échéancier";
+  readonly noOverdueTitle = 'Aucun impayé';
+  readonly noOverdueText = 'Tous vos remboursements sont à jour.';
+  readonly faqTitle = 'Que se passe-t-il si je manque un paiement ?';
+  readonly faqText =
+    "Nous envoyons des rappels avant et après l'échéance. Les retards peuvent impacter votre score et entraîner des pénalités. Contactez-nous en cas de difficulté.";
 
   loading = true;
   error = '';
@@ -34,7 +42,10 @@ export class Delinquency implements OnInit {
 
   private loadCase(): void {
     const userId = this.authService.getPayload()?.userId;
-    if (!userId) { this.loading = false; return; }
+    if (!userId) {
+      this.loading = false;
+      return;
+    }
 
     this.delinquencyService.getCasesByClient(userId).subscribe({
       next: (cases) => {
@@ -45,7 +56,7 @@ export class Delinquency implements OnInit {
       error: () => {
         this.error = 'Impossible de charger les informations de votre dossier.';
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -82,23 +93,29 @@ export class Delinquency implements OnInit {
 
   get riskLabel(): string {
     const map: Record<string, string> = {
-      LOW: 'Faible', MODERATE: 'Modéré', HIGH: 'Élevé', CRITICAL: 'Critique',
+      LOW: 'Faible',
+      MODERATE: 'Modéré',
+      HIGH: 'Élevé',
+      CRITICAL: 'Critique',
     };
     return map[this.activeCase?.riskLevel ?? ''] ?? '';
   }
 
   get riskColor(): string {
     const map: Record<string, string> = {
-      LOW: '#22c55e', MODERATE: '#f59e0b', HIGH: '#f97316', CRITICAL: '#ef4444',
+      LOW: '#22c55e',
+      MODERATE: '#f59e0b',
+      HIGH: '#f97316',
+      CRITICAL: '#ef4444',
     };
     return map[this.activeCase?.riskLevel ?? ''] ?? '#6b7280';
   }
 
   get statusLabel(): string {
     const map: Record<string, string> = {
-      NEW: 'Nouveau', CONTACTED: 'Contacté', IN_PROGRESS: 'En cours',
-      PLAN_ACTIVE: 'Plan de paiement actif', LEGAL: 'Procédure juridique',
-      RECOVERED: 'Situation réglée', CLOSED: 'Clôturé',
+      NEW: 'New', CONTACTED: 'Contacted', IN_PROGRESS: 'Pending',
+      PLAN_ACTIVE: 'Active payment plan', LEGAL: 'Legal procedure',
+      RECOVERED: 'Issue resolved', CLOSED: 'Closed',
     };
     return map[this.activeCase?.status ?? ''] ?? '';
   }

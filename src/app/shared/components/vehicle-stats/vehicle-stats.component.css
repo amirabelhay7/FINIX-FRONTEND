@@ -1,0 +1,230 @@
+:host {
+  display: block;
+}
+
+.vs-root {
+  overflow: hidden;
+}
+
+.vs-head {
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .vs-head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.vs-sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted, #64748b);
+}
+
+.vs-refresh {
+  flex-shrink: 0;
+}
+
+.vs-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  color: var(--muted, #64748b);
+  font-size: 0.875rem;
+}
+
+.vs-loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6366f1;
+  animation: vs-pulse 1s ease-in-out infinite;
+}
+
+@keyframes vs-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.vs-err {
+  padding: 1rem 1.25rem;
+  color: var(--danger, #dc2626);
+  font-size: 0.875rem;
+}
+
+.vs-kpi {
+  padding: 0 1rem 1rem;
+}
+
+.vs-kpi-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.vs-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* Prix highlight */
+.vs-price-highlight {
+  margin: 0 1rem 1.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(14, 165, 233, 0.06) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.vs-price-inner {
+  max-width: 420px;
+}
+
+.vs-price-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.vs-price-value {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+  line-height: 1.2;
+  margin-top: 0.25rem;
+}
+
+.vs-price-unit {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: 0.35rem;
+}
+
+.vs-price-hint {
+  margin: 0.35rem 0 0.75rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.vs-gauge {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.35);
+  overflow: hidden;
+}
+
+.vs-gauge-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4);
+  transition: width 0.45s ease;
+}
+
+/* Grille graphiques */
+.vs-charts {
+  display: grid;
+  gap: 1rem;
+  padding: 0 1rem 1.25rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .vs-charts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vs-chart-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.vs-chart-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 0.75rem 0.75rem 0.5rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.vs-chart-canvas {
+  position: relative;
+  height: 260px;
+}
+
+.vs-chart-bar {
+  height: min(420px, 55vh);
+}
+
+.vs-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.vs-empty-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Réutilise les classes KPI du workspace */
+.vw-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.vw-stat-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vw-stat-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vw-stat-val {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.vw-marque-row {
+  padding: 0 1rem 1rem;
+  font-size: 0.8rem;
+  color: #475569;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.vw-marque-chip {
+  background: #eef2ff;
+  color: #3730a3;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}

@@ -37,7 +37,7 @@ export class PenaltyTiers implements OnInit {
     const fallback = setTimeout(() => {
       if (this.loading) {
         this.loading = false;
-        this.errorMsg = 'Délai dépassé (10s). Vérifiez que Spring Boot et MySQL sont bien démarrés sur le port 8081.';
+        this.errorMsg = 'Délai dépassé (10s). Vérifiez que Spring Boot et MySQL sont bien démarrés sur le port 8082.';
       }
     }, 10000);
 
@@ -50,7 +50,7 @@ export class PenaltyTiers implements OnInit {
       error: (err: HttpErrorResponse) => {
         clearTimeout(fallback);
         this.errorMsg = err.status === 0
-          ? 'Serveur Spring inaccessible (port 8081). Démarrez le backend.'
+          ? 'Serveur Spring inaccessible (port 8082). Démarrez le backend.'
           : `Erreur ${err.status} : impossible de charger les paliers.`;
         this.loading = false;
       }
@@ -111,7 +111,7 @@ export class PenaltyTiers implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.errorMsg = err.status === 0
-          ? 'Serveur Spring inaccessible (port 8081).'
+          ? 'Serveur Spring inaccessible (port 8082).'
           : `Erreur ${err.status} : ${err.error?.message || 'sauvegarde impossible.'}`;
       }
     });

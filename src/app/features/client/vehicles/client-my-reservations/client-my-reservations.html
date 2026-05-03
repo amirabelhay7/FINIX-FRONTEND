@@ -1,0 +1,95 @@
+﻿<main class="cmr-page">
+  <header class="cmr-head">
+    <a routerLink="/client/vehicles" class="cmr-back">← Catalog</a>
+    <h1 class="cmr-title">My reservations and applications</h1>
+    <p class="cmr-sub">Track your vehicle reservations and IMF financing requests.</p>
+    <p *ngIf="hasPendingAdminReservations" class="cmr-sub cmr-sub--pending">
+      {{ pendingAdminCount }} reservation(s) pending admin approval.
+    </p>
+    <div class="cmr-kpis">
+      <article class="cmr-kpi">
+        <span class="cmr-kpi__label">Reservations</span>
+        <span class="cmr-kpi__value">{{ reservations.length }}</span>
+      </article>
+      <article class="cmr-kpi">
+        <span class="cmr-kpi__label">Financing requests</span>
+        <span class="cmr-kpi__value">{{ financing.length }}</span>
+      </article>
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="cmr-feedback cmr-feedback--loading" role="status" aria-live="polite">
+    Refreshing data...
+  </div>
+  <div *ngIf="error" class="cmr-feedback cmr-feedback--error" role="alert">{{ error }}</div>
+
+  <section class="cmr-section">
+    <div class="cmr-section__head">
+      <h2>Reservations</h2>
+    </div>
+
+    <div class="cmr-list" *ngIf="reservations.length">
+      <article
+        class="cmr-card"
+        [class.cmr-card--focused]="focusedReservationId === r.id"
+        [attr.id]="'cmr-res-' + r.id"
+        *ngFor="let r of reservations; trackBy: trackByReservationId"
+      >
+        <div class="cmr-card__top">
+          <h3>{{ r.vehicleTitle || ('Vehicle #' + r.vehicleId) }}</h3>
+          <span class="cmr-tag">{{ statusLabel(r.status) }}</span>
+        </div>
+        <p class="cmr-card__pending" *ngIf="isPendingAdmin(r.status)">
+          This reservation is pending admin approval.
+        </p>
+        <p class="cmr-card__meta">Vehicle #{{ r.vehicleId }} · Created on {{ r.createdAt | date : 'mediumDate' }}</p>
+        <p class="cmr-card__meta" *ngIf="r.adminComment">Admin comment: {{ r.adminComment }}</p>
+        <div class="cmr-card__feedback" *ngIf="reservationFeedback(r) as fb">
+          <p class="cmr-card__feedback-title">Your feedback for this vehicle</p>
+          <p class="cmr-card__feedback-stars">{{ feedbackStars(fb.noteGlobal) }} <span>{{ fb.noteGlobal }}/5</span></p>
+          <p class="cmr-card__feedback-comment" *ngIf="fb.comment">{{ fb.comment }}</p>
+        </div>
+        <div class="cmr-card__actions">
+          <a class="cmr-btn cmr-btn--secondary" [routerLink]="['/client/vehicles', r.vehicleId]">View details</a>
+          <button
+            type="button"
+            class="cmr-btn cmr-btn--service"
+            *ngIf="canGiveServiceFeedback(r)"
+            (click)="openFeedbackEntry(r, 'CLIENT_SERVICE')"
+          >
+            Leave service feedback
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <div *ngIf="!reservations.length" class="cmr-empty">
+      <h3>No active reservation</h3>
+      <p>Browse the catalog to reserve a vehicle and track progress here.</p>
+      <a routerLink="/client/vehicles" class="cmr-btn cmr-btn--primary">View catalog</a>
+    </div>
+  </section>
+
+  <section class="cmr-section">
+    <div class="cmr-section__head">
+      <h2>Financing requests</h2>
+    </div>
+
+    <div class="cmr-list" *ngIf="financing.length">
+      <article class="cmr-card" *ngFor="let f of financing; trackBy: trackByFinancingId">
+        <div class="cmr-card__top">
+          <h3>{{ f.marque }} {{ f.modele }}</h3>
+          <span class="cmr-tag">{{ financingStatusLabel(f.status) }}</span>
+        </div>
+        <p class="cmr-card__amount">{{ f.requestedAmount | number : '1.0-0' }} <span>TND</span></p>
+        <p class="cmr-card__meta">Submitted on {{ f.createdAt | date : 'mediumDate' }}</p>
+      </article>
+    </div>
+
+    <div *ngIf="!financing.length" class="cmr-empty">
+      <h3>No request recorded</h3>
+      <p>Your IMF requests will appear here as soon as they are submitted.</p>
+    </div>
+  </section>
+</main>
+

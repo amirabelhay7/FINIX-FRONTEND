@@ -1,0 +1,50 @@
+﻿<main class="cfp-page">
+  <section class="cfp-card">
+    <div class="cfp-head">
+      <button type="button" class="cfp-back" (click)="goBack()">{{ returnLabel }}</button>
+      <h1>Leave feedback</h1>
+      <p>Share your experience in just a few seconds.</p>
+    </div>
+
+    <div class="cfp-form">
+      <div class="cfp-rating">
+        <span>Your rating</span>
+        <div class="cfp-stars" (mouseleave)="clearHover()">
+          <button
+            type="button"
+            class="cfp-star"
+            *ngFor="let star of stars()"
+            [class.active]="isStarActive(star)"
+            (mouseenter)="setHover(star)"
+            (click)="setRating(star)"
+            [attr.aria-label]="'Give ' + star + ' stars'"
+          >
+            ★
+          </button>
+          <strong>{{ rating || 0 }}/5</strong>
+        </div>
+      </div>
+
+      <label class="cfp-label">
+        Comment
+        <textarea
+          class="cfp-input cfp-textarea"
+          rows="5"
+          [(ngModel)]="comment"
+          placeholder="Your comment (optional)"
+        ></textarea>
+      </label>
+    </div>
+
+    <p *ngIf="success" class="cfp-msg cfp-msg--ok">{{ success }}</p>
+    <p *ngIf="error" class="cfp-msg cfp-msg--err">{{ error }}</p>
+
+    <div class="cfp-actions">
+      <button type="button" class="cfp-btn cfp-btn--ghost" (click)="goBack()">Cancel</button>
+      <button type="button" class="cfp-btn cfp-btn--primary" [disabled]="saving" (click)="submitFeedback()">
+        {{ saving ? 'Sending...' : 'Send my feedback' }}
+      </button>
+    </div>
+  </section>
+</main>
+

@@ -1,30 +1,281 @@
-<div class="space-y-8 pb-10">
-    <div>
-        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-        <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
+<div class="sl-dash">
+  <nav class="sl-nav">
+    <button type="button" class="sl-nav-tab" [class.active]="activeTab === 'all'" (click)="activeTab = 'all'">
+      🏠 Toutes <span class="sl-nav-badge">{{ activeCounts.all }}</span>
+    </button>
+    <button type="button" class="sl-nav-tab" [class.active]="activeTab === 'active'" (click)="activeTab = 'active'">
+      ✅ Disponibles <span class="sl-nav-badge">{{ activeCounts.active }}</span>
+    </button>
+    <button type="button" class="sl-nav-tab" [class.active]="activeTab === 'pending'" (click)="activeTab = 'pending'">
+      ⏳ Réservés <span class="sl-nav-badge sl-warn">{{ activeCounts.pending }}</span>
+    </button>
+    <button type="button" class="sl-nav-tab" [class.active]="activeTab === 'sold'" (click)="activeTab = 'sold'">
+      🏷️ Vendus <span class="sl-nav-badge">{{ activeCounts.sold }}</span>
+    </button>
+    <button type="button" class="sl-nav-tab" [class.active]="activeTab === 'inactive'" (click)="activeTab = 'inactive'">
+      ⏸️ Inactifs <span class="sl-nav-badge">{{ activeCounts.inactive }}</span>
+    </button>
+    <div class="sl-nav-actions">
+      <div class="sl-search-wrap">
+        <span>🔍</span>
+        <input type="search" placeholder="Rechercher marque, modèle…" [(ngModel)]="searchQuery" />
+      </div>
+      <button type="button" class="sl-btn-new" (click)="openAddModal()">+ Ajouter un véhicule</button>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6" *ngFor="let kpi of kpis">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ kpi.label }}</p>
-            <p class="text-2xl font-black mt-1" [ngClass]="kpi.valueClass || 'text-gray-900'">{{ kpi.value }}</p>
+  </nav>
+
+  <div class="sl-dash-body">
+    <div *ngIf="apiMessage" class="sl-api-msg">{{ apiMessage }}</div>
+
+    <div class="sl-stats-row">
+      <div class="sl-stat-card" *ngFor="let s of stats">
+        <div class="sl-stat-icon">{{ s.icon }}</div>
+        <div class="sl-stat-info">
+          <div class="sl-stat-label">{{ s.label }}</div>
+          <div class="sl-stat-value">
+            {{ s.value }}<span *ngIf="s.label === 'Valeur catalogue'" class="sl-stat-suffix"> TND</span>
+          </div>
+          <div class="sl-stat-trend" [class.up]="s.trendClass === 'up'">{{ s.trend }}</div>
         </div>
+      </div>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-gray-50 flex items-center justify-between">
-            <h4 class="font-bold text-gray-800">{{ recentOrdersTitle }}</h4>
-            <a [routerLink]="viewAllRoute" class="text-xs font-bold text-[#135bec] hover:underline">{{ viewAllLabel }}</a>
+
+    <div class="sl-section-head">
+      <div>
+        <div class="sl-section-title">Mes offres véhicules</div>
+        <div class="sl-section-sub">
+          <span *ngIf="isLoading">Chargement…</span>
+          <span *ngIf="!isLoading">{{ filteredVehicles.length }} véhicule(s) affiché(s)</span>
+          <span *ngIf="loadError" class="sl-err"> — {{ loadError }}</span>
         </div>
-        <div class="divide-y divide-gray-50">
-            <div class="flex items-center px-6 py-4 hover:bg-gray-50" *ngFor="let order of recentOrders">
-                <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mr-4 shrink-0">
-                    <span class="material-symbols-outlined text-[#135bec] text-[22px]">directions_car</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-bold text-gray-800">{{ order.title }}</p>
-                    <p class="text-xs text-gray-500">{{ order.meta }}</p>
-                </div>
-                <span class="text-xs font-bold px-2 py-1 rounded" [ngClass]="order.statusClass">{{ order.status }}</span>
+      </div>
+      <button type="button" class="sl-btn-new" (click)="openAddModal()">+ Ajouter un véhicule</button>
+    </div>
+
+    <div class="sl-vehicles-grid" *ngIf="!isLoading && !loadError">
+      <div class="sl-vehicle-card" *ngFor="let v of filteredVehicles">
+        <div class="sl-v-image">
+          <img *ngIf="vehiclePrimaryImage(v)" class="sl-v-photo" [src]="vehiclePrimaryImage(v)" alt="" />
+          <span *ngIf="!vehiclePrimaryImage(v)" class="sl-v-emoji">🚗</span>
+          <span
+            class="sl-v-status"
+            [class.sl-status-active]="cardUiStatus(v) === 'active'"
+            [class.sl-status-pending]="cardUiStatus(v) === 'pending'"
+            [class.sl-status-sold]="cardUiStatus(v) === 'sold'"
+            [class.sl-status-inactive]="cardUiStatus(v) === 'inactive'"
+          >
+            {{ cardStatusLabel(v) }}
+          </span>
+        </div>
+        <div class="sl-v-body">
+          <div class="sl-v-brand">{{ v.marque }}</div>
+          <div class="sl-v-model">{{ v.modele }}</div>
+          <div class="sl-v-price">{{ formatPrice(+v.prixTnd) }}</div>
+          <div class="sl-v-details">
+            <span>📋 {{ statusLabels[v.status] }}</span>
+            <span>🧠 {{ conditionLabel(v) }}</span>
+            <span>📍 {{ v.localisation || '—' }}</span>
+            <span>🔢 {{ v.serieVehicule || '—' }}</span>
+            <span>{{ v.active ? '✓ Actif' : '✕ Inactif' }}</span>
+          </div>
+          <div class="sl-v-meta">
+            <span>🆔 #{{ v.id }}</span>
+            <span>📅 {{ formatDate(v.createdAt) }}</span>
+          </div>
+          <div class="sl-v-footer">
+            <span class="sl-v-date">MAJ {{ formatDate(v.updatedAt) }}</span>
+            <div class="sl-v-actions">
+              <button type="button" class="sl-v-btn sl-v-btn-info" (click)="openDetailsModal(v)" title="Détails">ℹ️</button>
+              <button type="button" class="sl-v-btn" (click)="openEditModal(v)" title="Modifier">✏️</button>
+              <button type="button" class="sl-v-btn sl-v-btn-danger" (click)="deleteVehicle(v)" title="Supprimer">🗑️</button>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+
+    <div class="sl-empty" *ngIf="!isLoading && !loadError && filteredVehicles.length === 0">
+      <div class="sl-empty-icon">🚗</div>
+      <div class="sl-empty-title">Aucun véhicule dans cette vue</div>
+      <div class="sl-empty-sub">Ajoutez une annonce ou changez le filtre.</div>
+      <button type="button" class="sl-btn-new" (click)="openAddModal()">+ Ajouter un véhicule</button>
+    </div>
+
+    <footer class="sl-footer">
+      <div>
+        <div class="sl-ft-brand">FIN<span>'IX</span></div>
+        <div class="sl-ft-copy">© 2026 FIN'IX — Espace Vendeur · Gestion des offres véhicules</div>
+      </div>
+      <div class="sl-ft-links">
+        <a href="#" class="sl-ft-link">Confidentialité</a>
+        <a href="#" class="sl-ft-link">CGU</a>
+        <a href="#" class="sl-ft-link">Aide</a>
+        <a href="#" class="sl-ft-link">Contact</a>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<div class="sl-modal-overlay" *ngIf="showDetailsModal && detailsVehicle" (click)="closeDetailsModal()">
+  <div class="sl-modal sl-modal-details" (click)="$event.stopPropagation()">
+    <div class="sl-modal-head">
+      <div>
+        <div class="sl-modal-title">Détails du véhicule #{{ detailsVehicle.id }}</div>
+        <div class="sl-modal-sub">{{ detailsVehicle.marque }} {{ detailsVehicle.modele }}</div>
+      </div>
+      <button type="button" class="sl-modal-close" (click)="closeDetailsModal()">✕</button>
+    </div>
+    <div class="sl-modal-body">
+      <div class="sl-detail-img-wrap">
+        <img *ngIf="vehiclePrimaryImage(detailsVehicle)" [src]="vehiclePrimaryImage(detailsVehicle)" alt="" />
+        <div *ngIf="!vehiclePrimaryImage(detailsVehicle)" class="sl-detail-img-ph">🚗</div>
+      </div>
+      <div class="sl-detail-gallery" *ngIf="vehicleImageUrls(detailsVehicle).length > 1">
+        <img *ngFor="let url of vehicleImageUrls(detailsVehicle)" [src]="url" alt="" />
+      </div>
+      <div class="sl-detail-grid">
+        <div class="sl-detail-item"><span>ID:</span><strong>#{{ detailsVehicle.id }}</strong></div>
+        <div class="sl-detail-item"><span>Marque:</span><strong>{{ detailsVehicle.marque }}</strong></div>
+        <div class="sl-detail-item"><span>Modèle:</span><strong>{{ detailsVehicle.modele }}</strong></div>
+        <div class="sl-detail-item"><span>Prix:</span><strong>{{ formatPrice(+detailsVehicle.prixTnd) }}</strong></div>
+        <div class="sl-detail-item"><span>Statut:</span><strong>{{ statusLabels[detailsVehicle.status] }}</strong></div>
+        <div class="sl-detail-item"><span>Etat:</span><strong>{{ conditionLabel(detailsVehicle) }}</strong></div>
+        <div class="sl-detail-item"><span>Telephone:</span><strong>{{ detailsVehicle.phoneNumber || '—' }}</strong></div>
+        <div class="sl-detail-item"><span>Localisation:</span><strong>{{ detailsVehicle.localisation || '—' }}</strong></div>
+        <div class="sl-detail-item"><span>Serie:</span><strong>{{ detailsVehicle.serieVehicule || '—' }}</strong></div>
+        <div class="sl-detail-item"><span>Actif:</span><strong>{{ detailsVehicle.active ? 'Oui' : 'Non' }}</strong></div>
+        <div class="sl-detail-item"><span>Créé le:</span><strong>{{ formatDate(detailsVehicle.createdAt) }}</strong></div>
+        <div class="sl-detail-item"><span>Mis à jour:</span><strong>{{ formatDate(detailsVehicle.updatedAt) }}</strong></div>
+      </div>
+    </div>
+    <div class="sl-modal-foot">
+      <button type="button" class="sl-btn-outline" (click)="closeDetailsModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div class="sl-modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()">
+  <div class="sl-modal" (click)="$event.stopPropagation()">
+    <div class="sl-modal-head">
+      <div>
+        <div class="sl-modal-title">{{ editId == null ? 'Ajouter un véhicule' : 'Modifier le véhicule' }}</div>
+        <div class="sl-modal-sub">Champs alignés sur l’API (marque, modèle, prix)</div>
+      </div>
+      <button type="button" class="sl-modal-close" (click)="closeAddModal()">✕</button>
+    </div>
+    <div class="sl-modal-body">
+      <div class="sl-form-row">
+        <div class="sl-form-group">
+          <label class="sl-label">Marque</label>
+          <input class="sl-input" type="text" [(ngModel)]="form.marque" />
+          <div class="sl-field-err" *ngIf="formErrors['marque']">{{ formErrors['marque'] }}</div>
+        </div>
+        <div class="sl-form-group">
+          <label class="sl-label">Modèle</label>
+          <input class="sl-input" type="text" [(ngModel)]="form.modele" />
+          <div class="sl-field-err" *ngIf="formErrors['modele']">{{ formErrors['modele'] }}</div>
+        </div>
+      </div>
+      <div class="sl-form-row">
+        <div class="sl-form-group">
+          <label class="sl-label">Prix (TND)</label>
+          <input class="sl-input" type="number" min="0.01" step="0.001" [(ngModel)]="form.prixTnd" />
+          <div class="sl-field-err" *ngIf="formErrors['prixTnd']">{{ formErrors['prixTnd'] }}</div>
+        </div>
+      </div>
+      <div class="sl-form-row">
+        <div class="sl-form-group">
+          <label class="sl-label">Numero de telephone (8 chiffres)</label>
+          <input
+            class="sl-input"
+            type="text"
+            inputmode="numeric"
+            maxlength="8"
+            placeholder="20123456"
+            [(ngModel)]="form.phoneNumber"
+          />
+          <div class="sl-field-err" *ngIf="formErrors['phoneNumber']">{{ formErrors['phoneNumber'] }}</div>
+        </div>
+        <div class="sl-form-group">
+          <label class="sl-label">Serie du vehicule</label>
+          <div class="sl-serie-row">
+            <input
+              class="sl-input sl-serie-input"
+              type="text"
+              inputmode="numeric"
+              maxlength="3"
+              placeholder="111"
+              [(ngModel)]="form.seriePrefix"
+            />
+            <span class="sl-serie-mid">TUN</span>
+            <input
+              class="sl-input sl-serie-input"
+              type="text"
+              inputmode="numeric"
+              maxlength="4"
+              placeholder="1111"
+              [(ngModel)]="form.serieSuffix"
+            />
+          </div>
+          <div class="sl-serie-preview">Serie: {{ serieDisplay }}</div>
+          <div class="sl-field-err" *ngIf="formErrors['seriePrefix'] || formErrors['serieSuffix']">
+            {{ formErrors['seriePrefix'] || formErrors['serieSuffix'] }}
+          </div>
+        </div>
+      </div>
+      <div class="sl-form-group">
+        <label class="sl-label">Localisation / adresse</label>
+        <input class="sl-input" type="text" [(ngModel)]="form.localisation" placeholder="Adresse selectionnee" />
+        <div class="sl-field-err" *ngIf="formErrors['localisation']">{{ formErrors['localisation'] }}</div>
+        <div class="sl-loc-search">
+          <input
+            class="sl-input"
+            type="text"
+            [(ngModel)]="locationQuery"
+            placeholder="Rechercher une adresse"
+          />
+          <button type="button" class="sl-btn-outline sl-btn-xs" (click)="searchLocation()">Rechercher</button>
+          <button type="button" class="sl-btn-outline sl-btn-xs" [disabled]="isLocating" (click)="useMyLocation()">
+            Ma position
+          </button>
+        </div>
+        <div class="sl-field-err" *ngIf="locationError">{{ locationError }}</div>
+        <div class="sl-loc-results" *ngIf="locationResults.length">
+          <button
+            type="button"
+            class="sl-loc-item"
+            *ngFor="let r of locationResults"
+            (click)="selectLocation(r)"
+          >
+            {{ r.displayName }}
+          </button>
+        </div>
+        <div class="sl-map" #mapContainer></div>
+      </div>
+      <div class="sl-form-group">
+        <label class="sl-label">Photos du véhicule</label>
+        <input #dashFile class="sl-input" type="file" accept="image/*" multiple (change)="onImageFileChange($event)" />
+        <div class="sl-img-preview-grid" *ngIf="imagePreviewUrls.length">
+          <div class="sl-img-preview" *ngFor="let url of imagePreviewUrls">
+            <img [src]="url" alt="" />
+          </div>
+        </div>
+        <div class="sl-img-preview sl-img-ph" *ngIf="!imagePreviewUrls.length">Aucune image sélectionnée</div>
+        <button type="button" class="sl-btn-outline sl-btn-xs" *ngIf="pendingImageFiles.length || committedImageUrls.length" (click)="stripVehicleImage(); dashFile.value = ''">Retirer les images</button>
+      </div>
+      <div class="sl-form-group">
+        <label class="sl-check">
+          <input type="checkbox" [(ngModel)]="form.active" />
+          Annonce active (visible)
+        </label>
+      </div>
+      <div class="sl-field-err" *ngIf="apiMessage && showAddModal">{{ apiMessage }}</div>
+    </div>
+    <div class="sl-modal-foot">
+      <button type="button" class="sl-btn-outline" (click)="closeAddModal()">Annuler</button>
+      <button type="button" class="sl-btn-primary" [disabled]="isSaving" (click)="submitModal()">
+        {{ isSaving ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
 </div>

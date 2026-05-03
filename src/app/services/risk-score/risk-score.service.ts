@@ -32,7 +32,7 @@ export interface RiskScoreResponse extends MlPredictionResponse {
 @Injectable({ providedIn: 'root' })
 export class RiskScoreService {
 
-  private readonly API = 'http://localhost:8081/api/risk';
+  private readonly API = 'http://localhost:8082/api/risk';
 
   constructor(private http: HttpClient) {}
 

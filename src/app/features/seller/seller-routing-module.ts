@@ -6,10 +6,14 @@ import { Orders } from './orders/orders';
 import { ListingDetail } from './listing-detail/listing-detail';
 import { ListingForm } from './listing-form/listing-form';
 import { OrderDetail } from './order-detail/order-detail';
+import { SellerVehiclesPage } from './vehicles-page/vehicles-page';
+import { SellerProfileComponent } from './profile/profile';
 
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: Dashboard },
+  { path: 'profile', component: SellerProfileComponent },
+  { path: 'vehicles', component: SellerVehiclesPage },
   { path: 'listings', component: Listings },
   { path: 'listings/new', component: ListingForm },
   { path: 'listings/edit/:id', component: ListingForm },

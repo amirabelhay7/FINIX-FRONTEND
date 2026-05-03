@@ -1,6 +1,9 @@
-import { Component, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+/// <reference types="google.accounts" />
+
+import { Component, ViewEncapsulation, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../services/auth/auth.service';
+import { AuthResponse, AuthService, NeedsRoleSelectionResponse } from '../../../services/auth/auth.service';
+import { environment } from '../../../../environments/environment';
 
 interface RoleConfig {
   label: string;
@@ -32,6 +35,8 @@ interface RoleConfig {
   encapsulation: ViewEncapsulation.None,
 })
 export class LoginComponent {
+  @ViewChild('googleSignInHost', { static: false }) googleSignInHost?: ElementRef<HTMLDivElement>;
+
   currentView: 'role-select' | 'login' | 'otp' | 'success' = 'role-select';
   currentRole: string | null = null;
   email = '';
@@ -244,6 +249,11 @@ export class LoginComponent {
   }
 
   pwVisible = false;
+
+  /** Google Sign-In (comptes pro existants uniquement) */
+  private googleButtonRendered = false;
+  private gsiInitialized = false;
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -262,10 +272,19 @@ export class LoginComponent {
   goToLogin(): void {
     if (!this.currentRole) return;
     this.currentView = 'login';
+    this.googleButtonRendered = false;
+    if (this.googleSignInHost?.nativeElement) {
+      this.googleSignInHost.nativeElement.innerHTML = '';
+    }
+    setTimeout(() => void this.tryRenderGoogleButton(), 0);
   }
   goBack(): void {
     this.currentView = 'role-select';
     this.clearErrors();
+    this.googleButtonRendered = false;
+    if (this.googleSignInHost?.nativeElement) {
+      this.googleSignInHost.nativeElement.innerHTML = '';
+    }
   }
   togglePw(): void {
     this.pwVisible = !this.pwVisible;
@@ -397,5 +416,120 @@ export class LoginComponent {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  private async tryRenderGoogleButton(): Promise<void> {
+    if (!environment.googleClientId?.trim()) return;
+    if (this.currentView !== 'login') return;
+    const host = this.googleSignInHost?.nativeElement;
+    if (!host || this.googleButtonRendered) return;
+
+    try {
+      await this.loadGsiScript();
+      const google = window.google;
+      if (!google?.accounts?.id) return;
+
+      if (!this.gsiInitialized) {
+        google.accounts.id.initialize({
+          client_id: environment.googleClientId,
+          callback: (resp: { credential: string }) => this.onGoogleCredential(resp.credential),
+          auto_select: false,
+        });
+        this.gsiInitialized = true;
+      }
+
+      host.innerHTML = '';
+      google.accounts.id.renderButton(host, {
+        type: 'standard',
+        theme: 'outline',
+        size: 'large',
+        width: 320,
+        text: 'continue_with',
+        locale: 'en',
+      });
+      this.googleButtonRendered = true;
+    } catch {
+      this.alertType = 'err';
+      this.alertText = 'Google Sign-In could not be loaded. Check your network or configuration.';
+      this.alertVisible = true;
+      this.cdr.detectChanges();
+    }
+  }
+
+  private loadGsiScript(): Promise<void> {
+    if (typeof window !== 'undefined' && window.google?.accounts?.id) {
+      return Promise.resolve();
+    }
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector('script[data-finix-gsi="1"]');
+      if (existing) {
+        existing.addEventListener('load', () => resolve());
+        existing.addEventListener('error', () => reject());
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = 'https://accounts.google.com/gsi/client';
+      s.async = true;
+      s.defer = true;
+      s.dataset['finixGsi'] = '1';
+      s.onload = () => resolve();
+      s.onerror = () => reject();
+      document.head.appendChild(s);
+    });
+  }
+
+  private onGoogleCredential(credential: string): void {
+    this.clearErrors();
+    this.loginLoading = true;
+    this.authService.loginWithGoogle(credential, undefined, { allowSelfRegistration: false }).subscribe({
+      next: (res: AuthResponse | NeedsRoleSelectionResponse) => {
+        this.loginLoading = false;
+        if ('needsRoleSelection' in res && res.needsRoleSelection) {
+          this.alertType = 'err';
+          this.alertText =
+            'Ce flux ne permet pas la création de compte. Utilisez un compte déjà créé par votre administrateur.';
+          this.alertVisible = true;
+          this.cdr.detectChanges();
+          return;
+        }
+        this.finishProGoogleLogin(res as AuthResponse);
+      },
+      error: (err: Error) => {
+        this.loginLoading = false;
+        this.alertType = 'err';
+        this.alertText = err.message;
+        this.alertVisible = true;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private finishProGoogleLogin(res: AuthResponse): void {
+    const actualRole = res.role?.toLowerCase();
+    const selectedRole = this.currentRole?.toLowerCase();
+    if (actualRole !== selectedRole) {
+      localStorage.removeItem('finix_access_token');
+      localStorage.removeItem('finix_role');
+      localStorage.removeItem('currentUser');
+      const roleLabels: Record<string, string> = {
+        admin: 'Administrateur',
+        agent: 'Agent IMF',
+        insurer: 'Assureur',
+        client: 'Client',
+        seller: 'Vendeur',
+      };
+      const actualLabel = roleLabels[actualRole || ''] || actualRole;
+      const selectedLabel = roleLabels[selectedRole || ''] || selectedRole;
+      this.alertType = 'err';
+      this.alertText = `Connexion non autorisée. Vous avez un compte "${actualLabel}" mais vous essayez de vous connecter en tant que "${selectedLabel}". Veuillez choisir le profil correspondant à votre compte.`;
+      this.alertVisible = true;
+      this.cdr.detectChanges();
+      return;
+    }
+    if (this.currentRole === 'admin') {
+      void this.router.navigate(['/backoffice']);
+    } else {
+      void this.router.navigate(['/' + this.currentRole]);
+    }
   }
 }

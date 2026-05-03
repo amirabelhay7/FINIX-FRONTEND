@@ -339,6 +339,14 @@
           <span>{{ alertText }}</span>
         </div>
 
+        <div class="fl-google-row" *ngIf="currentView === 'login'">
+          <div class="fl-google-divider">
+            <span>or</span>
+          </div>
+          <div #googleSignInHost class="fl-google-host" aria-label="Google Sign-In"></div>
+          <p class="fl-google-hint">Professional accounts only. No self-registration — contact your IMF admin.</p>
+        </div>
+
         <form (ngSubmit)="handleLogin()">
           <div class="fl-field">
             <label class="fl-field-label"

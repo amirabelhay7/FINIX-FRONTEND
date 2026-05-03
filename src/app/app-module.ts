@@ -11,10 +11,12 @@ import { InsurerLayout } from './layout/insurer/insurer';
 import { SidebarComponent } from './layout/backoffice/components/sidebar/sidebar';
 import { TopbarComponent } from './layout/backoffice/components/topbar/topbar.component';
 import { BackofficeComponent } from './layout/backoffice/backoffice.component';
+import { ReservationsAdminComponent } from './layout/backoffice/components/reservations-admin/reservations-admin.component';
 import { authInterceptor } from './services/auth/auth.interceptor';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
-import { PenaltyTiers } from './features/admin/repayments-admin/penalty-tiers/penalty-tiers';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { RepaymentBackofficeComponent } from './layout/backoffice/repayment-backoffice/repayment-backoffice.component';
+import { RepaymentsAdminModule } from './features/admin/repayments-admin/repayments-admin-module';
 
 @NgModule({
   declarations: [
@@ -25,8 +27,8 @@ import { RepaymentBackofficeComponent } from './layout/backoffice/repayment-back
     SidebarComponent,
     BackofficeComponent,
     TopbarComponent,
+    ReservationsAdminComponent,
     UnauthorizedComponent,
-    PenaltyTiers,
     RepaymentBackofficeComponent,
   ],
   imports: [
@@ -34,10 +36,12 @@ import { RepaymentBackofficeComponent } from './layout/backoffice/repayment-back
     AppRoutingModule,
     FormsModule,
     SharedModule,
+    RepaymentsAdminModule,
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(withInterceptors([authInterceptor])),
+    provideCharts(withDefaultRegisterables()),
   ],
   bootstrap: [App]
 })

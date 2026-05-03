@@ -1,0 +1,259 @@
+<div class="profile-page">
+  <header class="page-header">
+    <h1>My Profile</h1>
+    <p>Manage your personal information and documents</p>
+  </header>
+
+  <div class="toast-stack">
+    <div *ngIf="successToast" class="toast toast-success">{{ successToast }}</div>
+    <div *ngIf="errorToast" class="toast toast-error">{{ errorToast }}</div>
+  </div>
+
+  <section class="hero-card">
+      <div *ngIf="isLoading" class="card-loader">Loading profile...</div>
+      <img
+        class="hero-avatar"
+        [src]="getImageUrl(profile.profileImageUrl) || 'https://ui-avatars.com/api/?name=' + profile.firstName + '+' + profile.lastName + '&background=135bec&color=fff&size=160'"
+        alt="Profile image"
+      />
+      <div class="hero-info">
+        <h2>{{ (profile.firstName || 'User') + ' ' + (profile.lastName || '') }}</h2>
+        <p>{{ profile.email || 'No email' }}</p>
+        <div class="hero-meta">
+          <span class="role-badge">{{ profile.role || 'CLIENT' }}</span>
+          <span class="completion">Profile completion {{ completionPercent }}%</span>
+        </div>
+      </div>
+      <label class="upload-button">
+        <input type="file" accept=".jpg,.jpeg,.png" (change)="uploadProfileImage($event)" />
+        {{ isUploadingImage ? 'Uploading...' : 'Upload photo' }}
+      </label>
+  </section>
+
+  <div class="main-grid">
+      <div class="left-column">
+        <section class="card">
+          <div *ngIf="isLoading" class="card-loader">Loading...</div>
+          <h3>Profile photo</h3>
+          <p class="sub-text">Update your avatar image (JPG/PNG, max 5MB).</p>
+          <img
+            class="avatar"
+            [src]="getImageUrl(profile.profileImageUrl) || 'https://ui-avatars.com/api/?name=' + profile.firstName + '+' + profile.lastName + '&background=135bec&color=fff&size=128'"
+            alt="Profile image"
+          />
+          <label class="upload-button">
+            <input type="file" accept=".jpg,.jpeg,.png" (change)="uploadProfileImage($event)" />
+            {{ isUploadingImage ? 'Uploading...' : 'Choose image' }}
+          </label>
+        </section>
+
+        <section class="card">
+          <div *ngIf="isLoading" class="card-loader">Loading...</div>
+          <h3>Security</h3>
+          <p class="sub-text">Change your password regularly to keep your account safe.</p>
+          <div class="field-grid one-column">
+            <div class="field">
+              <label>Current password</label>
+              <input [(ngModel)]="password.currentPassword" type="password" placeholder="Enter current password" />
+            </div>
+            <div class="field">
+              <label>New password</label>
+              <input [(ngModel)]="password.newPassword" type="password" placeholder="Enter new password" />
+            </div>
+            <div class="field">
+              <label>Confirm password</label>
+              <input [(ngModel)]="password.confirmPassword" type="password" placeholder="Confirm new password" />
+            </div>
+          </div>
+          <button class="btn-secondary" (click)="changePassword()" [disabled]="isChangingPassword">
+            {{ isChangingPassword ? 'Updating...' : 'Update password' }}
+          </button>
+        </section>
+      </div>
+
+      <div class="right-column">
+        <section class="card">
+          <div *ngIf="isLoading" class="card-loader">Loading...</div>
+          <h3>Personal information</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label>First name</label>
+              <input [(ngModel)]="profile.firstName" placeholder="Enter first name" />
+            </div>
+            <div class="field">
+              <label>Last name</label>
+              <input [(ngModel)]="profile.lastName" placeholder="Enter last name" />
+            </div>
+            <div class="field">
+              <label>Phone</label>
+              <input [(ngModel)]="profile.phone" placeholder="Enter phone number" />
+            </div>
+            <div class="field">
+              <label>Date of birth</label>
+              <input [(ngModel)]="profile.birthDate" type="date" />
+            </div>
+            <div class="field">
+              <label>Address</label>
+              <input [(ngModel)]="profile.address" placeholder="Street address" />
+            </div>
+            <div class="field">
+              <label>City</label>
+              <input [(ngModel)]="profile.city" placeholder="City" />
+            </div>
+            <div class="field">
+              <label>Country</label>
+              <input [(ngModel)]="profile.country" placeholder="Country" />
+            </div>
+            <div class="field">
+              <label>Occupation</label>
+              <input [(ngModel)]="profile.occupation" placeholder="Current occupation" />
+            </div>
+            <div class="field">
+              <label>Monthly income</label>
+              <input [(ngModel)]="profile.monthlyIncome" type="number" placeholder="Monthly income" />
+            </div>
+            <div class="field">
+              <label>Company name</label>
+              <input [(ngModel)]="profile.companyName" placeholder="Company name" />
+            </div>
+            <div class="field">
+              <label>Tax number</label>
+              <input [(ngModel)]="profile.taxNumber" placeholder="Tax number" />
+            </div>
+            <div class="field">
+              <label>License number</label>
+              <input [(ngModel)]="profile.licenseNumber" placeholder="License number" />
+            </div>
+          </div>
+          <button class="btn-primary" (click)="updateProfile()" [disabled]="saving">
+            {{ saving ? 'Saving...' : 'Save changes' }}
+          </button>
+        </section>
+
+        <section class="card">
+          <div *ngIf="isLoading" class="card-loader">Loading...</div>
+          <h3>Preferences</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label>Preferred language</label>
+              <select [(ngModel)]="profile.preferredLanguage">
+                <option value="fr">French</option>
+                <option value="en">English</option>
+                <option value="ar">Arabic</option>
+              </select>
+            </div>
+            <div class="field field-checkbox">
+              <label>Notifications</label>
+              <label class="checkbox">
+                <input type="checkbox" [(ngModel)]="profile.notificationsEnabled" />
+                Notifications enabled
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" *ngIf="profile.role === 'CLIENT'">
+          <div *ngIf="isLoading" class="card-loader">Loading...</div>
+          <h3>Vehicle preferences <span class="pref-badge">AI Recommendations</span></h3>
+          <p class="sub-text">These preferences are used to generate personalised vehicle recommendations.</p>
+
+          <div class="field-grid">
+            <div class="field">
+              <label>Max budget (TND)</label>
+              <input
+                type="number"
+                [(ngModel)]="vehiclePrefs.budgetMax"
+                min="0"
+                placeholder="e.g. 30000"
+              />
+            </div>
+            <div class="field">
+              <label>Your city</label>
+              <input
+                type="text"
+                [(ngModel)]="vehiclePrefs.city"
+                placeholder="e.g. Tunis"
+              />
+            </div>
+            <div class="field">
+              <label>Preferred vehicle type</label>
+              <select [(ngModel)]="vehiclePrefs.preferredVehicleType">
+                <option [ngValue]="null">-- Any type --</option>
+                <option *ngFor="let t of vehicleTypes" [value]="t">{{ t }}</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Vehicle usage</label>
+              <select [(ngModel)]="vehiclePrefs.vehicleUsage">
+                <option [ngValue]="null">-- Any usage --</option>
+                <option *ngFor="let u of usageOptions" [value]="u">{{ u }}</option>
+              </select>
+            </div>
+            <div class="field field--full">
+              <label>Preferred brands <small>(comma-separated)</small></label>
+              <input
+                type="text"
+                [(ngModel)]="vehiclePrefs.preferredBrands"
+                placeholder="e.g. Toyota, Hyundai, Volkswagen"
+              />
+            </div>
+          </div>
+
+          <div *ngIf="prefError" class="alert alert-error">{{ prefError }}</div>
+          <div *ngIf="prefSuccess" class="alert alert-success">{{ prefSuccess }}</div>
+
+          <button class="btn-primary" (click)="saveVehiclePreferences()" [disabled]="savingPrefs">
+            {{ savingPrefs ? 'Saving...' : 'Save vehicle preferences' }}
+          </button>
+        </section>
+
+        <section class="card card-documents">
+          <div *ngIf="isLoading" class="card-loader">Loading...</div>
+          <h3>Documents</h3>
+          <div class="doc-upload">
+            <select [(ngModel)]="selectedDocumentType">
+              <option *ngFor="let type of documentTypes" [value]="type">{{ type }}</option>
+            </select>
+            <input type="file" accept=".jpg,.jpeg,.png,.pdf" (change)="uploadDocument($event)" />
+          </div>
+          <div *ngIf="isUploadingDocument" class="spinner">Uploading document...</div>
+
+          <div class="docs-table-wrap">
+            <table class="docs-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let doc of documents">
+                  <td class="name-cell">{{ doc.documentName }}</td>
+                  <td>{{ doc.documentType }}</td>
+                  <td><span [class]="statusClass(doc.status)">{{ doc.status }}</span></td>
+                  <td>
+                    <div class="actions">
+                      <a class="btn-link" [href]="doc.documentUrl" target="_blank" rel="noopener">Open</a>
+                      <button class="danger" (click)="askDeleteDocument(doc.id)">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+  </div>
+
+  <div *ngIf="showDeleteConfirm" class="modal-overlay">
+    <div class="modal-box">
+      <p>Delete this document?</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="cancelDelete()">Cancel</button>
+        <button class="danger" (click)="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
