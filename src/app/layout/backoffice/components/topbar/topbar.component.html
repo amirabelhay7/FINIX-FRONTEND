@@ -31,13 +31,13 @@
 
       <input
         type="text"
-        placeholder="Search client, case, reference..."
+        placeholder="Rechercher client, dossier, ref…"
         [(ngModel)]="searchValue"
       >
     </div>
 
     <!-- Theme Toggle -->
-    <button class="theme-toggle" (click)="onToggleTheme()" [title]="currentTheme === 'light' ? 'Dark mode' : 'Light mode'">
+    <button class="theme-toggle" (click)="onToggleTheme()" [title]="currentTheme === 'light' ? 'Mode sombre' : 'Mode clair'">
       <!-- Sun icon (shown in dark mode) -->
       <svg *ngIf="currentTheme === 'dark'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
@@ -53,9 +53,9 @@
 
    
 
-    <!-- Notifications dropdown -->
-    <div class="tb-notif-wrap">
-      <button type="button" class="tb-btn" (click)="toggleDropdown()" [attr.aria-expanded]="dropdownOpen" title="Notifications">
+    <!-- Notification Button -->
+    <div class="notif-wrapper">
+      <button class="tb-btn" (click)="toggleNotificationsDropdown($event)">
         <svg width="16" height="16" viewBox="0 0 24 24"
              fill="none" stroke="currentColor"
              stroke-width="2"
@@ -64,35 +64,23 @@
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
-        <span *ngIf="unreadCount > 0" class="notif-badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+
+        <!-- Notification indicator -->
+        <div *ngIf="hasNotifications" class="notif-dot"></div>
+        <span *ngIf="hasNotifications" class="notif-count">{{ notificationCount > 99 ? '99+' : notificationCount }}</span>
       </button>
 
-      <div class="tb-notif-dropdown" *ngIf="dropdownOpen">
-        <div class="tb-notif-head">
-          <div class="tb-notif-head-left">
-            <span class="tb-notif-title">Notifications</span>
-            <span class="tb-notif-subtitle" *ngIf="unreadCount > 0">{{ unreadCount }} unread</span>
+      <div class="notif-dropdown" *ngIf="showNotificationsDropdown" (click)="$event.stopPropagation()">
+        <div class="notif-dropdown-head">Notifications</div>
+        <div class="notif-dropdown-list" *ngIf="notificationItems.length > 0; else emptyNotifs">
+          <div class="notif-dropdown-item" *ngFor="let item of notificationItems | slice:0:6" (click)="onNotificationItemClick(item)">
+            <div class="ndi-title">{{ item.title }}</div>
+            <div class="ndi-meta">{{ item.meta }}</div>
           </div>
-          <button type="button" class="tb-notif-markall" *ngIf="notifications.length" (click)="markAllRead()">Mark all read</button>
         </div>
-        <div class="tb-notif-loading" *ngIf="notificationsLoading">Loading...</div>
-        <div class="tb-notif-empty" *ngIf="!notificationsLoading && notifications.length === 0">No notifications.</div>
-        <ul class="tb-notif-list" *ngIf="!notificationsLoading && notifications.length">
-          <li *ngFor="let n of notifications"
-              class="tb-notif-item"
-              [class.unread]="!n.read"
-              (click)="onSelectNotification(n)">
-            <div class="tb-notif-item-title-row">
-              <div class="tb-notif-item-title">{{ n.title }}</div>
-              <span class="tb-notif-unread-dot" *ngIf="!n.read"></span>
-            </div>
-            <div class="tb-notif-item-msg">{{ n.message }}</div>
-            <div class="tb-notif-item-meta">
-              <span class="tb-notif-cat">{{ categoryLabel(n.category) }}</span>
-              <span>{{ relativeTime(n.createdAt) }}</span>
-            </div>
-          </li>
-        </ul>
+        <ng-template #emptyNotifs>
+          <div class="notif-empty">Aucune notification</div>
+        </ng-template>
       </div>
     </div>
 

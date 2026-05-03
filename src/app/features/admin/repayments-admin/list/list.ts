@@ -21,6 +21,5 @@ export class List {
     { title: 'Grace periods', subtitle: 'Grace period management', route: '/admin/repayments/grace', icon: 'schedule', iconColorClass: 'text-amber-500' },
     { title: 'Recovery actions', subtitle: 'Collection actions', route: '/admin/repayments/recovery', icon: 'restore', iconColorClass: 'text-purple-600' },
     { title: 'Penalties', subtitle: 'Late fees & penalties', route: '/admin/repayments/penalties', icon: 'gavel', iconColorClass: 'text-gray-700' },
-    { title: 'AI Risk Score', subtitle: 'ML predictions & recommendations', route: '/admin/repayments/risk-score', icon: 'psychology', iconColorClass: 'text-pink-600' },
   ];
 }

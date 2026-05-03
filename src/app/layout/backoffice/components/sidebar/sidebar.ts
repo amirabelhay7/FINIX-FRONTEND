@@ -15,8 +15,6 @@ export class SidebarComponent implements OnInit {
   adminName = 'Admin';
   adminInitials = 'A';
 
-  constructor() {}
-
   ngOnInit(): void {
     try {
       const raw = localStorage.getItem('currentUser');
@@ -34,9 +32,7 @@ export class SidebarComponent implements OnInit {
   }
 
   switchPage(page: string) {
-    // Users is nested under Settings → mark settings as active in sidebar
-    this.currentPage = page === 'users' ? 'settings' : page;
+    this.currentPage = page;
     this.pageChanged.emit(page);
   }
-
 }

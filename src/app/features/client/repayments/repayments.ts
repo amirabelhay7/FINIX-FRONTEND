@@ -142,8 +142,6 @@ export class ClientRepayments implements OnInit {
         this.findCurrentInstallment();
         this.loadPaymentHistory();
         this.cdr.detectChanges();
-        if (!c) { this.isLoading = false; this.cdr.detectChanges(); return; }
-        this.contract = c;
         this.creditService.getInstallments(c.id).subscribe({
           next: (installments) => {
             this.amortizationRows = this.buildRowsFromDB(installments);
@@ -156,7 +154,13 @@ export class ClientRepayments implements OnInit {
             this.cdr.detectChanges();
           },
           error: () => {
+            // If repayment schedule is not generated yet (404), keep computed fallback rows.
             this.isLoading = false;
+            this.findCurrentInstallment();
+            this.loadPaymentHistory();
+            this.loadPenalties();
+            this.loadMyGraceRequests();
+            this.loadDelinquencyStatus();
             this.cdr.detectChanges();
           },
         });

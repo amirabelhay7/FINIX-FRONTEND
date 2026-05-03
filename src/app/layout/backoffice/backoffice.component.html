@@ -1,50 +1,39 @@
-<link
-  href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap"
-  rel="stylesheet"
-/>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
 <app-sidebar (pageChanged)="onPageChange($event)"></app-sidebar>
 
 <div class="layout-wrapper">
+
   <app-topbar
     [currentPage]="selectedPage"
     [currentTheme]="currentTheme"
-    [notificationModuleFilter]="selectedPage === 'vehicles' ? 'VEHICLE' : null"
-    (themeToggled)="toggleTheme()"
-    (loggedOut)="logout()"
-    (navigatePage)="navigateTo($event)"
+    [notificationCount]="topbarUnreadCount"
+    [notificationItems]="topbarNotifications"
+    (notificationSelected)="openTopbarNotification($event)"
+    (notificationsPanelOpened)="onNotificationsPanelOpened()"
+    (themeToggled)="onToggleTheme()"
+    (loggedOut)="onLogout()"
   ></app-topbar>
 
-  <div class="main" role="main">
+  <main class="main">
+
     <!-- ═══════════════════════════════════════════════════════
          OVERVIEW PAGE — visible seulement si selectedPage === 'dashboard'
          ═══════════════════════════════════════════════════════ -->
     <ng-container *ngIf="selectedPage === 'dashboard'">
+
       <!-- ── HEADER ── -->
       <div class="ph s1">
         <div>
           <div class="ph-eyebrow">28 Février 2026 · Samedi</div>
           <div class="ph-title">Vue d'ensemble</div>
           <div class="ph-desc">
-            1 248 clients actifs · 3 décisions en attente · Système opérationnel
-            {{ dash.activeClients }} clients actifs · {{ dash.openDelinquencyCases }} dossiers délinquance · {{ dash.pendingGraceRequests }} demande(s) de grâce en attente
+            1 248 clients actifs · 3 décisions en attente · Système opérationnel ✓
           </div>
         </div>
         <div class="ph-actions">
           <button class="btn btn-outline btn-sm">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <rect x="3" y="3" width="7" height="7" />
-              <rect x="14" y="3" width="7" height="7" />
-              <rect x="14" y="14" width="7" height="7" />
-              <rect x="3" y="14" width="7" height="7" />
-            </svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             Export rapport
           </button>
           <button class="btn btn-primary btn-sm">+ Nouveau dossier</button>
@@ -54,38 +43,30 @@
       <!-- ── ALERTE ACTION ── -->
       <div class="action-needed s1">
         <div>
-          <div class="an-title">3 dossiers nécessitent une décision immédiate</div>
+          <div class="an-title">
+            🚨 3 files need an immediate decision
+          </div>
           <div class="an-sub">
-            Dossiers #CR-2025-043, #CR-2025-051, #CR-2025-059 — En attente depuis plus de 48h
+            Files #CR-2025-043, #CR-2025-051, #CR-2025-059 — pending over 48h
           </div>
         </div>
         <div class="an-actions">
           <button class="btn btn-outline btn-sm" (click)="onPageChange('credits')">
-            Voir les dossiers
+            View files
           </button>
-          <button class="btn btn-primary btn-sm">Traiter maintenant</button>
+          <button class="btn btn-primary btn-sm">Process now</button>
         </div>
       </div>
 
       <!-- ── KPI CARDS ── -->
       <div class="kpi-row s2">
-        <div class="kpi" style="--kc: var(--blue)">
+
+        <div class="kpi" style="--kc:var(--blue);">
           <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(59, 130, 246, 0.12)">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#3B82F6"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            <div class="kpi-ico" style="background:rgba(59,130,246,.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
             </div>
             <div class="kpi-trend success">↑ +23 ce mois</div>
@@ -95,75 +76,41 @@
           <div class="kpi-foot">Taux de rétention : <b>96.4%</b></div>
         </div>
 
-        <div class="kpi" style="--kc: var(--success)">
+        <div class="kpi" style="--kc:var(--success);">
           <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(16, 185, 129, 0.12)">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#10B981"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <line x1="12" y1="1" x2="12" y2="23" />
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            <div class="kpi-ico" style="background:rgba(16,185,129,.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
               </svg>
             </div>
             <div class="kpi-trend success">↑ +8.2%</div>
           </div>
-          <div class="kpi-val" style="font-size: 1.5rem">
-            TND <span style="font-size: 2rem">14.2M</span>
-          </div>
+          <div class="kpi-val" style="font-size:1.5rem;">TND <span style="font-size:2rem;">14.2M</span></div>
           <div class="kpi-lbl">Encours total</div>
           <div class="kpi-foot">Collecté ce mois : <b>487 200 TND</b></div>
         </div>
 
-        <div class="kpi" style="--kc: var(--warning)">
+        <div class="kpi" style="--kc:var(--warning);">
           <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(245, 158, 11, 0.12)">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#F59E0B"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
+            <div class="kpi-ico" style="background:rgba(245,158,11,.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
               </svg>
             </div>
             <div class="kpi-trend warning">⚠ Urgents : 3</div>
           </div>
           <div class="kpi-val">47</div>
-          <div class="kpi-lbl">Dossiers en cours</div>
-          <div class="kpi-foot">Taux d'approbation : <b>78.3%</b></div>
+          <div class="kpi-lbl">Files in progress</div>
+          <div class="kpi-foot">Approval rate: <b>78.3%</b></div>
         </div>
 
-        <div class="kpi" style="--kc: var(--danger)">
+        <div class="kpi" style="--kc:var(--danger);">
           <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(239, 68, 68, 0.12)">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#EF4444"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-                />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
+            <div class="kpi-ico" style="background:rgba(239,68,68,.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
             </div>
             <div class="kpi-trend danger">↑ +2 vs hier</div>
@@ -172,197 +119,53 @@
           <div class="kpi-lbl">Impayés actifs</div>
           <div class="kpi-foot">Taux de défaut : <b>1.8%</b></div>
         </div>
-      </div>
 
-      <!-- ── KPI CARDS (dynamiques) ── -->
-      <div class="kpi-row s2" [class.loading-shimmer]="dashLoading">
+      </div><!-- /kpi-row -->
 
-        <!-- Clients actifs -->
-        <div class="kpi" style="--kc: var(--blue)">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(59, 130, 246, 0.12)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-            </div>
-            <div class="kpi-trend success">{{ dash.activeContracts }} contrats</div>
-          </div>
-          <div class="kpi-val">{{ dash.activeClients | number:'1.0-0' }}</div>
-          <div class="kpi-lbl">Clients actifs</div>
-          <div class="kpi-foot">Taux de défaut : <b>{{ dash.defaultRate }}%</b></div>
-        </div>
-
-        <!-- Encours total -->
-        <div class="kpi" style="--kc: var(--success)">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(16, 185, 129, 0.12)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"/>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-              </svg>
-            </div>
-            <div class="kpi-trend success">Taux recouvrement : {{ dash.recoveryRate }}%</div>
-          </div>
-          <div class="kpi-val" style="font-size:1.4rem">
-            TND <span style="font-size:1.9rem">{{ dash.totalOutstanding | number:'1.0-0' }}</span>
-          </div>
-          <div class="kpi-lbl">Encours total</div>
-          <div class="kpi-foot">Collecté ce mois : <b>{{ dash.collectedThisMonth | number:'1.0-0' }} TND</b></div>
-        </div>
-
-        <!-- Dossiers délinquance -->
-        <div class="kpi" style="--kc: var(--warning)">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(245, 158, 11, 0.12)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-              </svg>
-            </div>
-            <div class="kpi-trend warning" *ngIf="dash.pendingGraceRequests > 0">⚠ {{ dash.pendingGraceRequests }} Pending grace period request(s)</div>
-            <div class="kpi-trend success" *ngIf="dash.pendingGraceRequests === 0">No requests</div>
-          </div>
-          <div class="kpi-val">{{ dash.openDelinquencyCases }}</div>
-          <div class="kpi-lbl">Delinquency Cases</div>
-          <div class="kpi-foot">Overdue Balance : <b>{{ dash.totalOverdueAmount | number:'1.0-0' }} TND</b></div>
-        </div>
-
-        <!-- Impayés actifs -->
-        <div class="kpi" style="--kc: var(--danger)">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(239, 68, 68, 0.12)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                <line x1="12" y1="9" x2="12" y2="13"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-            </div>
-            <div class="kpi-trend danger" *ngIf="dash.clientsWithPenalties > 0">{{ dash.clientsWithPenalties }} clients pénalisés</div>
-            <div class="kpi-trend success" *ngIf="dash.clientsWithPenalties === 0">No penalties</div>
-          </div>
-          <div class="kpi-val">{{ dash.pendingInstallmentsCount }}</div>
-          <div class="kpi-lbl">Pending Installments</div>
-          <div class="kpi-foot">Due this month : <b>{{ dash.dueThisMonth | number:'1.0-0' }} TND</b></div>
-        </div>
-      </div>
-      <!-- /kpi-row -->
-
-      <!-- ── REPAYMENT STATS ROW ── -->
-      <div class="kpi-row s2" style="margin-top: 0.25rem">
-
-        <!-- Taux de recouvrement -->
-        <div class="kpi" style="--kc: #10B981; border-top: 3px solid #10B981">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(16,185,129,0.1)">
-              <span class="material-symbols-outlined" style="font-size:20px;color:#10B981">trending_up</span>
-            </div>
-            <div class="kpi-trend success">Repayment</div>
-          </div>
-          <div class="kpi-val" style="font-size:2rem">{{ dash.recoveryRate }}<span style="font-size:1rem">%</span></div>
-          <div class="kpi-lbl">Recovery Rate</div>
-          <div class="kpi-foot">Collected / Outstanding</div>
-        </div>
-
-        <!-- Grace period -->
-        <div class="kpi" style="--kc: #8B5CF6; border-top: 3px solid #8B5CF6">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(139,92,246,0.1)">
-              <span class="material-symbols-outlined" style="font-size:20px;color:#8B5CF6">schedule</span>
-            </div>
-            <div class="kpi-trend" [style.color]="dash.pendingGraceRequests > 0 ? '#F59E0B' : '#10B981'">
-              {{ dash.pendingGraceRequests > 0 ? (dash.pendingGraceRequests + ' Pending') : 'Up to date' }}
-            </div>
-          </div>
-          <div class="kpi-val">{{ dash.pendingGraceRequests }}</div>
-          <div class="kpi-lbl">Grace Period Requests</div>
-          <div class="kpi-foot">Requests pending approval</div>
-        </div>
-
-        <!-- Pénalités actives -->
-        <div class="kpi" style="--kc: #EF4444; border-top: 3px solid #EF4444">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(239,68,68,0.1)">
-              <span class="material-symbols-outlined" style="font-size:20px;color:#EF4444">gavel</span>
-            </div>
-            <div class="kpi-trend danger" *ngIf="dash.clientsWithPenalties > 0">{{ dash.clientsWithPenalties }} clients</div>
-            <div class="kpi-trend success" *ngIf="dash.clientsWithPenalties === 0">No penalties</div>
-          </div>
-          <div class="kpi-val" style="font-size:1.5rem">{{ dash.totalPenaltyAmount | number:'1.0-0' }}<span style="font-size:0.85rem"> TND</span></div>
-          <div class="kpi-lbl">Active Penalties</div>
-          <div class="kpi-foot">{{ dash.clientsWithPenalties }} client(s) penalized</div>
-        </div>
-
-        <!-- Mensualités PENDING ce mois -->
-        <div class="kpi" style="--kc: #F59E0B; border-top: 3px solid #F59E0B">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(245,158,11,0.1)">
-              <span class="material-symbols-outlined" style="font-size:20px;color:#F59E0B">calendar_month</span>
-            </div>
-            <div class="kpi-trend warning">{{ dash.pendingInstallmentsCount }} due dates</div>
-          </div>
-          <div class="kpi-val" style="font-size:1.5rem">{{ dash.dueThisMonth | number:'1.0-0' }}<span style="font-size:0.85rem"> TND</span></div>
-          <div class="kpi-lbl">Due this month</div>
-          <div class="kpi-foot">Pending installments</div>
-        </div>
-      </div>
-      <!-- /repayment-stats-row -->
-
-      <!-- ── TABLE DOSSIERS RÉCENTS ── -->
+      <!-- ── RECENT FILES TABLE ── -->
       <div class="panel s3">
         <div class="panel-head">
           <div class="panel-title">
             <span class="ptdot"></span>
-            Dossiers récents — Action requise
+            Recent files — action required
           </div>
-          <button class="btn btn-ghost btn-sm">Voir tout →</button>
+          <button class="btn btn-ghost btn-sm">View all →</button>
         </div>
         <div class="tbl-wrap">
           <table>
             <thead>
-              <tr>
-                <th>Référence</th>
-                <th>Client</th>
-                <th>Type</th>
-                <th>Montant</th>
-                <th>Score</th>
-                <th>Statut</th>
-                <th>Action</th>
-              </tr>
+            <tr>
+              <th>Reference</th>
+              <th>Client</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Score</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let dossier of dossiers">
-                <td>
-                  <span class="td-ref">{{ dossier.ref }}</span>
-                </td>
-                <td>
-                  <div style="display: flex; align-items: center; gap: 0.5rem">
-                    <div class="client-flag">{{ dossier.initials }}</div>
-                    <div>
-                      <div class="td-primary">{{ dossier.client }}</div>
-                      <div class="td-sub">{{ dossier.clientSince }}</div>
-                    </div>
+            <tr *ngFor="let dossier of dossiers">
+              <td><span class="td-ref">{{ dossier.ref }}</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:.5rem;">
+                  <div class="client-flag">{{ dossier.initials }}</div>
+                  <div>
+                    <div class="td-primary">{{ dossier.client }}</div>
+                    <div class="td-sub">{{ dossier.clientSince }}</div>
                   </div>
-                </td>
-                <td>
-                  <span class="badge b-blue">{{ dossier.type }}</span>
-                </td>
-                <td class="td-amount">{{ dossier.amount }}</td>
-                <td [style.color]="dossier.scoreColor" style="font-weight: 700">
-                  {{ dossier.score }}
-                </td>
-                <td>
-                  <span class="badge" [ngClass]="dossier.statusClass">{{ dossier.status }}</span>
-                </td>
-                <td>
-                  <button class="btn btn-primary btn-xs" (click)="openModal(dossier)">
-                    {{ dossier.statusClass === 'b-pending' ? 'Analyser' : 'Décider' }}
-                  </button>
-                </td>
-              </tr>
+                </div>
+              </td>
+              <td><span class="badge b-blue">{{ dossier.type }}</span></td>
+              <td class="td-amount">{{ dossier.amount }}</td>
+              <td [style.color]="dossier.scoreColor" style="font-weight:700;">{{ dossier.score }}</td>
+              <td><span class="badge" [ngClass]="dossier.statusClass">{{ dossier.status }}</span></td>
+              <td>
+                <button class="btn btn-primary btn-xs" (click)="openModal(dossier)">
+                  {{ dossier.statusClass === 'b-review' ? 'Analyze' : 'Decide' }}
+                </button>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
@@ -396,6 +199,7 @@
 
       <!-- ── LIGNE 3 PANELS ── -->
       <div class="g33 s4">
+
         <!-- Chart Dossiers / mois -->
         <div class="panel">
           <div class="panel-head">
@@ -406,98 +210,52 @@
             <span class="badge b-blue">2026</span>
           </div>
           <div class="panel-body">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem">
-              <span style="font-size: 0.8rem; color: var(--g400)">Dossiers soumis</span>
-              <span class="font-sora fw7" style="font-size: 1rem"
-                >47 <small style="font-size: 0.75rem; color: var(--g400)">ce mois</small></span
-              >
+            <div style="display:flex;justify-content:space-between;margin-bottom:.5rem;">
+              <span style="font-size:.8rem;color:var(--g400);">Dossiers soumis</span>
+              <span class="font-sora fw7" style="font-size:1rem;">47 <small style="font-size:.75rem;color:var(--g400);">ce mois</small></span>
             </div>
             <div class="chart-bars">
-              <div
-                class="chart-bar"
-                *ngFor="let h of chartBars; let i = index"
-                [class.alt]="i % 2 == 1"
-                [style.--h]="h + '%'"
-              ></div>
+              <div class="chart-bar" *ngFor="let h of chartBars; let i=index"
+                   [class.alt]="i%2==1" [style.--h]="h+'%'">
+              </div>
             </div>
             <div class="chart-labels">
-              <span>J</span><span>F</span><span>M</span><span>A</span> <span>M</span><span>J</span
-              ><span>J</span><span>A</span> <span>S</span><span>O</span><span>N</span><span>D</span>
+              <span>J</span><span>F</span><span>M</span><span>A</span>
+              <span>M</span><span>J</span><span>J</span><span>A</span>
+              <span>S</span><span>O</span><span>N</span><span>D</span>
             </div>
           </div>
         </div>
 
-        <!-- Répartition crédits -->
+        <!-- Credit distribution -->
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title">
               <span class="ptdot"></span>
-              Répartition des crédits
+              Credit distribution
             </div>
-            <button class="btn btn-ghost btn-sm">Détails →</button>
+            <button class="btn btn-ghost btn-sm">Details →</button>
           </div>
           <div class="panel-body">
-            <div style="display: flex; align-items: center; gap: 1.5rem">
+            <div style="display:flex;align-items:center;gap:1.5rem;">
               <div class="donut-wrap">
                 <svg width="100" height="100" viewBox="0 0 100 100">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    stroke="var(--g200)"
-                    stroke-width="14"
-                  />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    stroke="#3B82F6"
-                    stroke-width="14"
-                    stroke-dasharray="125.6 125.6"
-                    stroke-linecap="round"
-                  />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    stroke="#06B6D4"
-                    stroke-width="14"
-                    stroke-dasharray="75.4 175.8"
-                    stroke-dashoffset="-125.6"
-                    stroke-linecap="round"
-                  />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    stroke="#8B5CF6"
-                    stroke-width="14"
-                    stroke-dasharray="37.7 213.5"
-                    stroke-dashoffset="-201"
-                    stroke-linecap="round"
-                  />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    stroke="#CBD5E1"
-                    stroke-width="14"
-                    stroke-dasharray="13.1 238.1"
-                    stroke-dashoffset="-238.7"
-                    stroke-linecap="round"
-                  />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="var(--g200)" stroke-width="14"/>
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#3B82F6" stroke-width="14"
+                          stroke-dasharray="125.6 125.6" stroke-linecap="round"/>
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#06B6D4" stroke-width="14"
+                          stroke-dasharray="75.4 175.8" stroke-dashoffset="-125.6" stroke-linecap="round"/>
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#8B5CF6" stroke-width="14"
+                          stroke-dasharray="37.7 213.5" stroke-dashoffset="-201" stroke-linecap="round"/>
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#CBD5E1" stroke-width="14"
+                          stroke-dasharray="13.1 238.1" stroke-dashoffset="-238.7" stroke-linecap="round"/>
                 </svg>
                 <div class="donut-center">
                   <div class="donut-val">47</div>
                   <div class="donut-lbl">total</div>
                 </div>
               </div>
-              <div class="legend" style="flex: 1">
+              <div class="legend" style="flex:1">
                 <div class="leg-item" *ngFor="let c of creditDistribution">
                   <div class="leg-dot" [style.background]="c.color"></div>
                   <div class="leg-name">{{ c.name }}</div>
@@ -518,39 +276,29 @@
             </div>
             <span class="badge b-review">Fév 2026</span>
           </div>
-          <div style="padding: 0.25rem 0">
-            <div *ngFor="let agent of topAgents; let i = index" class="top-agent-item">
-              <div class="ta-rank" [ngClass]="'r' + (i + 1)">{{ i + 1 }}</div>
-              <div class="client-flag" style="width: 28px; height: 28px; font-size: 0.7rem">
-                {{ agent.initials }}
-              </div>
-              <div style="flex: 1">
+          <div style="padding:.25rem 0">
+            <div *ngFor="let agent of topAgents; let i=index" class="top-agent-item">
+              <div class="ta-rank" [ngClass]="'r'+(i+1)">{{ i+1 }}</div>
+              <div class="client-flag" style="width:28px;height:28px;font-size:.7rem">{{ agent.initials }}</div>
+              <div style="flex:1">
                 <div class="td-primary">{{ agent.name }}</div>
                 <div class="td-sub">{{ agent.desc }}</div>
               </div>
-              <div
-                [ngClass]="agent.scoreClass"
-                style="font-family: 'Sora', sans-serif; font-weight: 800"
-              >
-                {{ agent.score }}
-              </div>
+              <div [ngClass]="agent.scoreClass" style="font-family:'Sora',sans-serif;font-weight:800">{{ agent.score }}</div>
             </div>
           </div>
         </div>
-      </div>
-      <!-- /g33 -->
+
+      </div><!-- /g33 -->
 
       <!-- ── IMPAYÉS & RETARDS ── -->
       <div class="panel s5">
         <div class="panel-head">
           <div class="panel-title">
-            <span
-              class="ptdot"
-              style="background: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12)"
-            ></span>
+            <span class="ptdot" style="background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.12);"></span>
             Impayés & retards
           </div>
-          <div style="display: flex; gap: 0.5rem; margin-left: auto">
+          <div style="display:flex;gap:.5rem;margin-left:auto;">
             <span class="badge b-danger">12 cas actifs</span>
             <button class="btn btn-ghost btn-sm">Voir tout →</button>
           </div>
@@ -558,300 +306,828 @@
         <div class="tbl-wrap">
           <table>
             <thead>
-              <tr>
-                <th>Client</th>
-                <th>Dossier</th>
-                <th>Montant dû</th>
-                <th>Retard</th>
-                <th>Tentatives</th>
-                <th>Risque</th>
-                <th>Action</th>
-              </tr>
+            <tr>
+              <th>Client</th>
+              <th>Dossier</th>
+              <th>Montant dû</th>
+              <th>Retard</th>
+              <th>Tentatives</th>
+              <th>Risque</th>
+              <th>Action</th>
+            </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let d of delinquencies">
-                <td>
-                  <div style="display: flex; align-items: center; gap: 0.625rem">
-                    <div
-                      class="client-flag"
-                      style="
-                        background: linear-gradient(135deg, var(--danger), #c0392b);
-                        width: 38px;
-                        height: 38px;
-                        font-size: 0.8rem;
-                      "
-                    >
-                      {{ d.initials }}
-                    </div>
-                    <div>
-                      <div class="td-primary">{{ d.name }}</div>
-                      <div class="td-sub">
-                        {{ d.city }} · <span style="font-size: 0.75rem">📞 {{ d.phone }}</span>
-                      </div>
-                    </div>
+            <tr *ngFor="let d of delinquencies">
+              <td>
+                <div style="display:flex;align-items:center;gap:.625rem">
+                  <div class="client-flag" style="background:linear-gradient(135deg,var(--danger),#c0392b);width:38px;height:38px;font-size:.8rem;">{{ d.initials }}</div>
+                  <div>
+                    <div class="td-primary">{{ d.name }}</div>
+                    <div class="td-sub">{{ d.city }} · <span style="font-size:.75rem;">📞 {{ d.phone }}</span></div>
                   </div>
-                </td>
-                <td>
-                  <span class="td-ref">{{ d.dossier }}</span>
-                  <div class="td-sub">{{ d.product }}</div>
-                </td>
-                <td class="td-amount text-danger">{{ d.amount }}</td>
-                <td>
-                  <span class="badge b-danger">{{ d.delay }}</span>
-                </td>
-                <td>
-                  <span style="font-size: 0.75rem; color: var(--g500)">{{ d.sms }}</span>
-                </td>
-                <td>
-                  <span
-                    class="badge"
-                    [ngClass]="
-                      d.risk === 'Élevé' ? 'b-danger' : d.risk === 'Modéré' ? 'b-review' : 'b-actif'
-                    "
-                  >
+                </div>
+              </td>
+              <td>
+                <span class="td-ref">{{ d.dossier }}</span>
+                <div class="td-sub">{{ d.product }}</div>
+              </td>
+              <td class="td-amount text-danger">{{ d.amount }}</td>
+              <td><span class="badge b-danger">{{ d.delay }}</span></td>
+              <td><span style="font-size:.75rem;color:var(--g500)">{{ d.sms }}</span></td>
+              <td>
+                  <span class="badge" [ngClass]="d.risk === 'Élevé' ? 'b-danger' : d.risk === 'Modéré' ? 'b-review' : 'b-actif'">
                     {{ d.risk }}
                   </span>
-                </td>
-                <td>
-                  <div style="display: flex; gap: 0.375rem">
-                    <button
-                      class="btn btn-xs"
-                      [ngClass]="d.risk === 'Élevé' ? 'btn-danger' : 'btn-success'"
-                      style="display: flex; align-items: center; gap: 0.25rem"
-                    >
-                      <span>{{ d.risk === 'Élevé' ? '⚖️' : '📞' }}</span>
-                      {{ d.risk === 'Élevé' ? 'Contentieux' : 'Relancer' }}
-                    </button>
-                    <button class="btn btn-outline btn-xs">Dossier</button>
-                  </div>
-                </td>
-              </tr>
+              </td>
+              <td>
+                <div style="display:flex;gap:.375rem">
+                  <button class="btn btn-xs" [ngClass]="d.risk === 'Élevé' ? 'btn-danger' : 'btn-success'" style="display:flex;align-items:center;gap:.25rem;">
+                    <span>{{ d.risk === 'Élevé' ? '⚖️' : '📞' }}</span>
+                    {{ d.risk === 'Élevé' ? 'Contentieux' : 'Relancer' }}
+                  </button>
+                  <button class="btn btn-outline btn-xs">Dossier</button>
+                </div>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
       </div>
-    </ng-container>
-    <!-- /overview -->
+
+    </ng-container><!-- /overview -->
+
 
     <!-- ═══════════════════════════════════════════════════════
          PAGE : CLIENTS
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'clients'" id="page-clients">
+
       <div class="ph s1">
         <div>
           <div class="ph-eyebrow">Gestion des clients</div>
           <div class="ph-title">Base clients</div>
-          <div class="ph-desc">{{ clients.length }} client(s) enregistré(s)</div>
+          <div class="ph-desc">1 248 clients · 23 nouveaux ce mois · 3 suspendus</div>
+        </div>
+        <div class="ph-actions">
+          <button class="btn btn-outline">Import</button>
+          <button class="btn btn-outline">Export</button>
+          <button class="btn btn-primary">+ Nouveau client</button>
         </div>
       </div>
 
       <div class="kpi-row s2">
-        <div class="kpi" style="--kc: var(--blue)">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(59, 130, 246, 0.12)">👥</div>
-          </div>
-          <div class="kpi-val">{{ clients.length }}</div>
+        <div class="kpi" style="--kc:var(--blue);">
+          <div class="kpi-top"><div class="kpi-ico" style="background:rgba(59,130,246,.12);">👥</div><div class="kpi-trend success">↑ +23</div></div>
+          <div class="kpi-val">1 248</div>
           <div class="kpi-lbl">Total clients</div>
+          <div class="kpi-foot">Score moyen : <b>698</b></div>
+        </div>
+        <div class="kpi" style="--kc:var(--success);">
+          <div class="kpi-top"><div class="kpi-ico" style="background:rgba(16,185,129,.12);">✓</div><div class="kpi-trend success">Active</div></div>
+          <div class="kpi-val">1 201</div>
+          <div class="kpi-lbl">Clients actifs</div>
+          <div class="kpi-foot">KYC complété : <b>1 180</b></div>
+        </div>
+        <div class="kpi" style="--kc:var(--warning);">
+          <div class="kpi-top"><div class="kpi-ico" style="background:rgba(245,158,11,.12);">📋</div><div class="kpi-trend warning">⚠ 44</div></div>
+          <div class="kpi-val">44</div>
+          <div class="kpi-lbl">Dossiers incomplets</div>
+          <div class="kpi-foot">Documents manquants : <b>67</b></div>
+        </div>
+        <div class="kpi" style="--kc:var(--danger);">
+          <div class="kpi-top"><div class="kpi-ico" style="background:rgba(239,68,68,.12);">🚫</div><div class="kpi-trend danger">Suspendus</div></div>
+          <div class="kpi-val">3</div>
+          <div class="kpi-lbl">Clients suspendus</div>
+          <div class="kpi-foot">Raison : <b>Défauts répétés</b></div>
         </div>
       </div>
 
       <div class="panel s4">
         <div class="panel-head">
           <div class="panel-title"><span class="ptdot"></span>Liste des clients</div>
-          <span style="font-size: 0.75rem; color: var(--g400)">{{ clients.length }} résultats</span>
+          <span style="font-size:.75rem;color:var(--g400)">{{ clients.length }} résultats</span>
         </div>
         <div class="tbl-wrap">
-          <div *ngIf="clientsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
-          <div *ngIf="!clientsLoading && clients.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucun client trouvé.</div>
-          <table *ngIf="!clientsLoading && clients.length > 0">
+          <table>
             <thead>
-              <tr>
-                <th>Client</th>
-                <th>Email</th>
-                <th>CIN</th>
-                <th>Téléphone</th>
-                <th>Ville</th>
-                <th>Statut</th>
-              </tr>
+            <tr>
+              <th></th>
+              <th>Client</th>
+              <th>CIN</th>
+              <th>Ville</th>
+              <th>Score</th>
+              <th>Crédits</th>
+              <th>Encours</th>
+              <th>KYC</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let c of clients">
-                <td>
-                  <div style="display: flex; align-items: center; gap: 0.625rem">
-                    <div class="sb-avatar" style="width:30px;height:30px;font-size:.65rem">{{ c.initials }}</div>
+            <tr *ngFor="let c of clients">
+              <td><input type="checkbox"></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:.625rem;">
+                  <div class="client-flag">{{ c.initials }}</div>
+                  <div>
                     <div class="td-primary">{{ c.name }}</div>
+                    <div class="td-sub">{{ c.email }} · {{ c.phone }}</div>
                   </div>
-                </td>
-                <td style="font-size:.775rem">{{ c.email }}</td>
-                <td style="font-size:.775rem">{{ c.cin }}</td>
-                <td style="font-size:.775rem">{{ c.phone }}</td>
-                <td style="font-size:.775rem">{{ c.city }}</td>
-                <td>
-                  <span class="badge" [ngClass]="c.statusClass">{{ c.status }}</span>
-                </td>
-              </tr>
+                </div>
+              </td>
+              <td class="font-sora fs-xs">{{ c.cin }}</td>
+              <td>{{ c.city }}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:.375rem;">
+                  <div class="bar-mini">
+                    <div class="bar-mini-fill" [style.--w]="(c.score/10)+'%'" [style.background]="c.scoreColor"></div>
+                  </div>
+                  <span style="font-weight:700;font-size:.75rem" [style.color]="c.scoreColor">{{ c.score }}</span>
+                </div>
+              </td>
+              <td><span class="badge b-blue">{{ c.credits }}</span></td>
+              <td class="td-amount">{{ c.encours }}</td>
+              <td><span class="badge b-actif">{{ c.kyc }}</span></td>
+              <td><span class="badge" [ngClass]="c.statusClass">{{ c.status }}</span></td>
+              <td>
+                <div style="display:flex;gap:.375rem">
+                  <button class="btn btn-ghost btn-xs">Voir</button>
+                  <button class="btn btn-outline btn-xs">Modifier</button>
+                </div>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
       </div>
-    </div>
-    <!-- /page-clients -->
+
+    </div><!-- /page-clients -->
+
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : CRÉDITS & DOSSIERS
+         PAGE : CREDITS & FILES
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'credits'" id="page-credits">
+      <!-- Header -->
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Gestion des crédits</div>
-          <div class="ph-title">Dossiers & Pipeline</div>
-          <div class="ph-desc">
-            47 dossiers actifs · 3 décisions urgentes · Taux d'approbation 78.3%
-          </div>
+          <div class="ph-eyebrow">Credit management</div>
+          <div class="ph-title">Pipeline & files</div>
+          <div class="ph-desc">{{ creditsSummaryText }}</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-outline">Statistiques</button>
-          <button class="btn btn-primary">+ Nouveau dossier</button>
+          <button class="btn btn-outline" (click)="toggleHistoryWindow()">
+            {{ showHistoryTable ? 'Hide history' : 'History' }}
+          </button>
+          <button class="btn btn-outline" (click)="toggleStatsWindow()">
+            {{ showStatsWindow ? 'Hide statistics' : 'Statistics' }}
+          </button>
         </div>
       </div>
 
       <!-- Pipeline Kanban -->
       <div class="credit-pipeline s2">
-        <div class="pipeline-col" *ngFor="let col of pipelineColumns">
+        <div class="pipeline-col" *ngFor="let col of paginatedPipelineColumns">
           <div class="pipeline-header" [ngClass]="col.class">
-            <span>{{ col.title }}</span>
+            <span>{{ col.shortTitle || col.title }}</span>
             <span>{{ col.count }}</span>
           </div>
           <div class="pipeline-cards">
-            <div
-              class="pip-card"
-              *ngFor="let card of col.cards"
-              (click)="card.warn ? openModal(card) : null"
-              [style.borderColor]="card.warn ? 'var(--warning)' : ''"
-            >
+            <div class="pip-card"
+                 *ngFor="let card of col.cards"
+                 (click)="openModal(card)"
+                 [style.borderColor]="card.warn ? 'var(--warning)' : ''">
               <div class="pip-name">{{ card.name }}</div>
               <div class="pip-ref">{{ card.ref }}</div>
               <div class="pip-amount">{{ card.amount }}</div>
               <div class="pip-type">{{ card.type }}</div>
-              <div *ngIf="card.warn" style="margin-top: 0.5rem">
-                <span class="badge b-review" style="font-size: 0.65rem">⏰ 48h+</span>
+              <div *ngIf="card.warn" style="margin-top:.5rem;">
+                <span class="badge b-review" style="font-size:.65rem;">⏰ 48h+</span>
               </div>
             </div>
           </div>
         </div>
+      </div>
+      <div class="section-pagination" *ngIf="totalPipelinePages > 1">
+        <button class="btn btn-outline btn-sm" [disabled]="pipelinePage === 1" (click)="goToPipelinePage(pipelinePage - 1)">Previous</button>
+        <button
+          class="btn btn-sm"
+          *ngFor="let p of pipelinePaginationPages"
+          [ngClass]="pipelinePage === p ? 'btn-primary' : 'btn-outline'"
+          (click)="goToPipelinePage(p)"
+        >
+          {{ p }}
+        </button>
+        <button class="btn btn-outline btn-sm" [disabled]="pipelinePage === totalPipelinePages" (click)="goToPipelinePage(pipelinePage + 1)">Next</button>
       </div>
 
       <!-- Table analyse -->
       <div class="panel s3">
         <div class="panel-head">
           <div class="panel-title">
-            <span
-              class="ptdot"
-              style="background: var(--warning); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12)"
-            ></span>
-            Dossiers en analyse — Décision requise
+            <span class="ptdot" style="background:var(--warning);box-shadow:0 0 0 3px rgba(245,158,11,.12);"></span>
+            Files under review — decision required
           </div>
-          <span class="badge b-review">12 dossiers</span>
+          <span class="badge b-review">12 files</span>
         </div>
         <div class="tbl-wrap">
           <table>
             <thead>
-              <tr>
-                <th>Référence</th>
-                <th>Client</th>
-                <th>Type</th>
-                <th>Montant</th>
-                <th>Durée</th>
-                <th>Score</th>
-                <th>Taux endett.</th>
-                <th>Ancienneté</th>
-                <th>Recommandation</th>
-                <th>Décision</th>
-              </tr>
+            <tr>
+              <th>Reference</th>
+              <th>Client</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Term</th>
+              <th>Score</th>
+              <th>Debt ratio</th>
+              <th>Tenure</th>
+              <th>Recommendation</th>
+              <th>Decision</th>
+            </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let file of analysisFiles">
-                <td>
-                  <span class="td-ref">{{ file.ref }}</span>
-                </td>
-                <td>
-                  <div style="display: flex; align-items: center; gap: 0.5rem">
-                    <div class="client-flag">{{ file.initials }}</div>
-                    <div>
-                      <div class="td-primary">{{ file.name }}</div>
-                      <div class="td-sub">{{ file.clientInfo }}</div>
+            <tr *ngFor="let file of paginatedAnalysisFiles">
+              <td><span class="td-ref">{{ file.ref }}</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:.5rem;">
+                  <div class="client-flag">{{ file.initials }}</div>
+                  <div>
+                    <div class="td-primary">{{ file.name }}</div>
+                    <div class="td-sub">{{ file.clientInfo }}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge b-blue">{{ file.type }}</span></td>
+              <td class="td-amount">{{ file.amount }}</td>
+              <td>{{ file.duration }}</td>
+              <td [style.color]="file.score >= 700 ? 'var(--success)' : 'var(--warning)'" style="font-weight:700">{{ file.score }}</td>
+              <td>{{ file.debtRatio }}%</td>
+              <td>{{ file.seniority }}</td>
+              <td><span class="badge b-actif">{{ file.recommendation }}</span></td>
+              <td>
+                <div style="display:flex;gap:.375rem">
+                  <button class="btn btn-success btn-xs" (click)="openModal(file)">✓ Approve</button>
+                  <button class="btn btn-danger btn-xs" (click)="openModal(file)">✗ Reject</button>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="section-pagination section-pagination-table" *ngIf="totalAnalysisPages > 1">
+          <button class="btn btn-outline btn-sm" [disabled]="analysisPage === 1" (click)="goToAnalysisPage(analysisPage - 1)">Previous</button>
+          <button
+            class="btn btn-sm"
+            *ngFor="let p of analysisPaginationPages"
+            [ngClass]="analysisPage === p ? 'btn-primary' : 'btn-outline'"
+            (click)="goToAnalysisPage(p)"
+          >
+            {{ p }}
+          </button>
+          <button class="btn btn-outline btn-sm" [disabled]="analysisPage === totalAnalysisPages" (click)="goToAnalysisPage(analysisPage + 1)">Next</button>
+        </div>
+      </div>
+
+      <div class="history-overlay" *ngIf="showHistoryTable" (click)="closeHistoryWindow()">
+        <div class="history-window panel" (click)="$event.stopPropagation()">
+          <div class="panel-head">
+            <div class="panel-title">
+              <span class="ptdot"></span>
+              Loan request history
+            </div>
+            <button class="btn btn-outline btn-sm" (click)="closeHistoryWindow()">Hide history</button>
+          </div>
+
+          <div class="panel-body" *ngIf="loansLoading">
+            Loading requests...
+          </div>
+
+          <div class="panel-body" *ngIf="loansError">
+            {{ loansError }}
+          </div>
+
+          <div class="history-cards-wrap" *ngIf="!loansLoading && requestLoans.length > 0"
+               [style.grid-template-columns]="'repeat(' + historyGridColumns + ', minmax(0, 1fr))'">
+            <div class="history-card" *ngFor="let loan of paginatedHistoryLoans" (click)="openModal(loan)">
+              <div class="history-card-head">
+                <div class="history-ref">#CR-{{ loan.idDemande }}</div>
+                <span class="badge"
+                      [ngClass]="{
+                        'b-actif': loan.statutDemande === 'APPROVED',
+                        'b-danger': loan.statutDemande === 'REJECTED',
+                        'b-review': loan.statutDemande === 'PENDING',
+                        'b-blue': loan.statutDemande === 'CONDITIONAL'
+                      }">
+                  {{ loan.statutDemande }}
+                </span>
+              </div>
+
+              <div class="history-client">
+                {{ loan.user?.firstName }} {{ loan.user?.lastName }}
+              </div>
+              <div class="history-meta">{{ loan.dateCreation | date:'short' }}</div>
+
+              <div class="history-grid">
+                <div class="history-item">
+                  <div class="history-lbl">Amount</div>
+                  <div class="history-val">{{ formatMoney(loan.montantDemande) }}</div>
+                </div>
+                <div class="history-item">
+                  <div class="history-lbl">Monthly payment</div>
+                  <div class="history-val">{{ formatMoney(loan.mensualiteEstimee) }}</div>
+                </div>
+                <div class="history-item">
+                  <div class="history-lbl">Term</div>
+                  <div class="history-val">{{ formatMonths(loan.dureeMois) }}</div>
+                </div>
+                <div class="history-item">
+                  <div class="history-lbl">Score</div>
+                  <div class="history-val">{{ loan.riskScore != null ? (loan.riskScore | number:'1.0-0') + '/100' : 'N/A' }}</div>
+                </div>
+                <div class="history-item">
+                  <div class="history-lbl">Auto decision</div>
+                  <div class="history-val">{{ getRiskDecisionDisplay(loan.riskDecision) }}</div>
+                </div>
+                <div class="history-item">
+                  <div class="history-lbl">Purpose</div>
+                  <div class="history-val">{{ loan.objectifCredit || '-' }}</div>
+                </div>
+              </div>
+
+              <div class="history-vehicle">
+                {{ loan.vehicle?.marque || loan.vehicule?.marque || '-' }}
+                {{ loan.vehicle?.modele || loan.vehicule?.modele || '' }}
+                · {{ loan.vehicle?.prixTnd || loan.vehicule?.prix_tnd || loan.vehiculePrixTnd || '-' }} TND
+              </div>
+            </div>
+          </div>
+
+          <div class="history-pagination" *ngIf="!loansLoading && requestLoans.length > historyPageSize">
+            <button class="btn btn-outline btn-sm" [disabled]="historyPage === 1" (click)="goToHistoryPage(historyPage - 1)">
+              Previous
+            </button>
+            <button
+              class="btn btn-sm"
+              *ngFor="let p of historyPaginationPages"
+              [ngClass]="historyPage === p ? 'btn-primary' : 'btn-outline'"
+              (click)="goToHistoryPage(p)"
+            >
+              {{ p }}
+            </button>
+            <button class="btn btn-outline btn-sm" [disabled]="historyPage === totalHistoryPages" (click)="goToHistoryPage(historyPage + 1)">
+              Next
+            </button>
+          </div>
+
+          <div class="panel-body" *ngIf="!loansLoading && requestLoans.length === 0 && !loansError">
+            No credits...
+          </div>
+        </div>
+      </div>
+
+      <div class="history-overlay" *ngIf="showStatsWindow" (click)="closeStatsWindow()">
+        <div class="history-window panel stats-window" (click)="$event.stopPropagation()">
+          <div class="panel-head">
+            <div class="panel-title">
+              <span class="ptdot"></span>
+              Decision statistics
+            </div>
+            <button class="btn btn-outline btn-sm" (click)="closeStatsWindow()">Hide statistics</button>
+          </div>
+
+          <div class="panel-body" *ngIf="loansLoading">
+            Loading statistics...
+          </div>
+
+          <div class="panel-body" *ngIf="loansError">
+            {{ loansError }}
+          </div>
+
+          <div class="panel-body" *ngIf="!loansLoading && !loansError">
+            <div class="stats-summary-grid">
+              <div class="stats-kpi-card">
+                <div class="stats-kpi-label">Total files</div>
+                <div class="stats-kpi-value">{{ statsTotalDossiers }}</div>
+              </div>
+              <div class="stats-kpi-card approved">
+                <div class="stats-kpi-label">Approved</div>
+                <div class="stats-kpi-value">{{ statsApprovedCount }}</div>
+              </div>
+              <div class="stats-kpi-card rejected">
+                <div class="stats-kpi-label">Rejected</div>
+                <div class="stats-kpi-value">{{ statsRejectedCount }}</div>
+              </div>
+              <div class="stats-kpi-card pending">
+                <div class="stats-kpi-label">Pending</div>
+                <div class="stats-kpi-value">{{ statsPendingCount }}</div>
+              </div>
+            </div>
+
+            <div class="stats-bars">
+              <div class="stats-bar-row">
+                <div class="stats-bar-head"><span>Approved</span><strong>{{ statsApprovedPct }}%</strong></div>
+                <div class="stats-track"><div class="stats-fill approved" [style.width.%]="statsApprovedPct"></div></div>
+              </div>
+              <div class="stats-bar-row">
+                <div class="stats-bar-head"><span>Rejected</span><strong>{{ statsRejectedPct }}%</strong></div>
+                <div class="stats-track"><div class="stats-fill rejected" [style.width.%]="statsRejectedPct"></div></div>
+              </div>
+              <div class="stats-bar-row">
+                <div class="stats-bar-head"><span>Pending</span><strong>{{ statsPendingPct }}%</strong></div>
+                <div class="stats-track"><div class="stats-fill pending" [style.width.%]="statsPendingPct"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-credits -->
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE : EVENTS
+         ═══════════════════════════════════════════════════════ -->
+    <div class="page" [class.active]="selectedPage === 'events'" id="page-events">
+
+      <div class="ph s1">
+        <div>
+          <div class="ph-eyebrow">Communication & marketing</div>
+          <div class="ph-title">Events</div>
+          <div class="ph-desc">Approve or decline insurer-submitted events</div>
+        </div>
+      </div>
+
+      <div class="panel s2">
+        <div class="panel-head">
+          <div class="panel-title">
+            <span class="ptdot"></span>
+            Event management
+          </div>
+          <div class="events-filter-bar">
+            <input
+              class="form-input events-search-input"
+              type="text"
+              placeholder="Search by title, city..."
+              [(ngModel)]="eventsSearchTerm"
+              (ngModelChange)="onEventsFilterChange()"
+            />
+            <select class="form-input events-status-select" [(ngModel)]="eventsStatusFilter" (ngModelChange)="onEventsFilterChange()">
+              <option value="ALL">All statuses</option>
+              <option value="PUBLISHED">Published</option>
+              <option value="DRAFT">Draft</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+            <select class="form-input events-size-select" [(ngModel)]="eventsPageSize" (ngModelChange)="onEventsFilterChange()">
+              <option [ngValue]="6">6 per page</option>
+              <option [ngValue]="10">10 per page</option>
+              <option [ngValue]="15">15 per page</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="panel-body" *ngIf="eventsError">
+          {{ eventsError }}
+        </div>
+
+        <div class="events-content" *ngIf="filteredEvents.length > 0">
+          <div class="events-cards">
+          <article class="event-card" *ngFor="let ev of paginatedEvents; trackBy: trackByEventId">
+            <div class="event-card-main">
+              <img class="event-thumb" [src]="ev.imageUrl || 'https://picsum.photos/240/180?grayscale'" [alt]="ev.title || 'event'" />
+
+              <div class="event-main-content">
+                <div class="event-title-row">
+                  <div>
+                    <h3 class="event-title">{{ ev.title || 'Untitled event' }}</h3>
+                    <a class="event-category-link" href="javascript:void(0)">{{ getCategoryLabel(ev) }}</a>
+                    <div class="event-meta-line">{{ getEventDateTimeLabel(ev) }}</div>
+                  </div>
+                  <div class="event-stat-top-right">{{ getEventFillStat(ev) }}</div>
+                </div>
+
+                <div class="event-days-row">
+                  <span
+                    class="event-day-pill"
+                    *ngFor="let day of weekDays; let i = index"
+                    [class.active]="isEventDayActive(ev, i)"
+                  >
+                    {{ day }}
+                  </span>
+                </div>
+
+                <div class="event-status-line">
+                  <span class="event-status-dot" [ngClass]="getEventStatusClass(ev.status)"></span>
+                  <span class="event-status-label">{{ ev.status || 'UNKNOWN' }}</span>
+                </div>
+              </div>
+
+              <div class="event-side-info">
+                <div class="event-locations">
+                  <div class="event-location-item" *ngFor="let loc of getEventLocations(ev)">
+                    <span class="loc-pin">⌖</span>
+                    <span>{{ loc }}</span>
+                  </div>
+                </div>
+
+                <div class="event-donut-row">
+                  <div class="event-metric">
+                    <div class="event-donut" [style.--pct]="getEventMetricPct(ev, 'inscrits') + '%'">
+                      <span>{{ getEventMetricValue(ev, 'inscrits') }}</span>
                     </div>
+                    <div class="event-metric-label">Registered</div>
                   </div>
-                </td>
-                <td>
-                  <span class="badge b-blue">{{ file.type }}</span>
-                </td>
-                <td class="td-amount">{{ file.amount }}</td>
-                <td>{{ file.duration }}</td>
-                <td
-                  [style.color]="file.score >= 700 ? 'var(--success)' : 'var(--warning)'"
-                  style="font-weight: 700"
-                >
-                  {{ file.score }}
-                </td>
-                <td>{{ file.debtRatio }}%</td>
-                <td>{{ file.seniority }}</td>
-                <td>
-                  <span class="badge b-actif">{{ file.recommendation }}</span>
-                </td>
-                <td>
-                  <div style="display: flex; gap: 0.375rem">
-                    <button class="btn btn-success btn-xs" (click)="openModal(file)">
-                      ✓ Approuver
-                    </button>
-                    <button class="btn btn-danger btn-xs">✗ Rejeter</button>
+                  <div class="event-metric">
+                    <div class="event-donut blue" [style.--pct]="getEventMetricPct(ev, 'capacite') + '%'">
+                      <span>{{ getEventMetricValue(ev, 'capacite') }}</span>
+                    </div>
+                    <div class="event-metric-label">Capacity</div>
                   </div>
-                </td>
-              </tr>
+                  <div class="event-metric">
+                    <div class="event-donut gray" [style.--pct]="getEventMetricPct(ev, 'restants') + '%'">
+                      <span>{{ getEventMetricValue(ev, 'restants') }}</span>
+                    </div>
+                    <div class="event-metric-label">Remaining</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="event-card-actions">
+              <button class="btn btn-primary btn-sm" [disabled]="(ev.status || '').toUpperCase() === 'PUBLISHED'" (click)="approveEvent(ev)">
+                Approve
+              </button>
+              <button class="btn btn-outline btn-sm" [disabled]="(ev.status || '').toUpperCase() === 'CANCELLED'" (click)="declineEvent(ev)">
+                Decline
+              </button>
+            </div>
+          </article>
+          </div>
+
+          <div class="events-pagination">
+            <button class="btn btn-outline btn-sm" [disabled]="eventsPage === 1" (click)="goToEventsPage(eventsPage - 1)">
+              Prev
+            </button>
+            <button
+              class="btn btn-sm"
+              *ngFor="let p of eventPaginationPages"
+              [ngClass]="eventsPage === p ? 'btn-primary' : 'btn-outline'"
+              (click)="goToEventsPage(p)"
+            >
+              {{ p }}
+            </button>
+            <button
+              class="btn btn-outline btn-sm"
+              [disabled]="eventsPage === totalEventPages"
+              (click)="goToEventsPage(eventsPage + 1)"
+            >
+              Next
+            </button>
+            <span class="events-pagination-info">{{ eventsPage }} / {{ totalEventPages }}</span>
+          </div>
+        </div>
+
+        <div class="panel-body" *ngIf="!eventsLoading && filteredEvents.length === 0 && !eventsError">
+          No events found...
+        </div>
+      </div>
+
+    </div><!-- /page-events -->
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE : REMBOURSEMENTS
+         ═══════════════════════════════════════════════════════ -->
+    <div class="page" [class.active]="selectedPage === 'repayments'" id="page-remboursements">
+
+      <div class="ph s1">
+        <div>
+          <div class="ph-eyebrow">Suivi financier</div>
+          <div class="ph-title">Remboursements</div>
+          <div class="ph-desc">Collecte mensuelle : 487 200 TND · Taux de recouvrement : 98.2%</div>
+        </div>
+        <div class="ph-actions">
+          <button class="btn btn-outline btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export
+          </button>
+          <button class="btn btn-primary btn-sm">+ Saisir paiement</button>
+        </div>
+      </div>
+
+      <div class="kpi-row s2">
+
+        <div class="kpi" style="--kc:var(--success);">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background:rgba(16,185,129,.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div class="kpi-trend success">+12%</div>
+          </div>
+          <div class="kpi-val" style="font-size:1.3rem;">TND <span style="font-size:1.9rem;">487 200</span></div>
+          <div class="kpi-lbl">Collecté ce mois</div>
+          <div class="kpi-foot">Objectif : <b>500 000 TND (97.4%)</b></div>
+        </div>
+
+        <div class="kpi" style="--kc:var(--danger);">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background:rgba(239,68,68,.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <div class="kpi-trend danger">12 cas</div>
+          </div>
+          <div class="kpi-val" style="font-size:1.3rem;">TND <span style="font-size:1.9rem;">8 940</span></div>
+          <div class="kpi-lbl">Impayés totaux</div>
+          <div class="kpi-foot">Taux de défaut : <b>1.8%</b></div>
+        </div>
+
+        <div class="kpi" style="--kc:var(--blue);">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background:rgba(59,130,246,.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div class="kpi-trend warning">A venir</div>
+          </div>
+          <div class="kpi-val" style="font-size:1.3rem;">TND <span style="font-size:1.9rem;">52 800</span></div>
+          <div class="kpi-lbl">Echeances Mars</div>
+          <div class="kpi-foot">Prochaine : <b>05 Mars 2026</b></div>
+        </div>
+
+        <div class="kpi" style="--kc:var(--purple);">
+          <div class="kpi-top">
+            <div class="kpi-ico" style="background:rgba(139,92,246,.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </div>
+            <div class="kpi-trend success">98.2%</div>
+          </div>
+          <div class="kpi-val">1 248</div>
+          <div class="kpi-lbl">Contrats suivis</div>
+          <div class="kpi-foot">Automatises : <b>892 (71%)</b></div>
+        </div>
+
+      </div>
+
+      <div class="panel s3">
+        <div class="panel-head">
+          <div class="panel-title">
+            <span class="ptdot"></span>
+            Historique des remboursements &mdash; Fev 2026
+          </div>
+          <div style="display:flex;align-items:center;gap:.625rem;margin-left:auto;">
+            <select class="form-input" style="width:150px;padding:.3rem .7rem;font-size:.775rem;">
+              <option>Fevrier 2026</option>
+              <option>Janvier 2026</option>
+              <option>Decembre 2025</option>
+            </select>
+            <button class="btn btn-outline btn-sm">Filtres</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Client</th>
+              <th>Dossier</th>
+              <th>Montant</th>
+              <th>Date</th>
+              <th>Mode</th>
+              <th>Statut</th>
+              <th>Agent</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let p of payments">
+              <td><span class="td-ref">{{ p.ref }}</span></td>
+              <td class="td-primary">{{ p.client }}</td>
+              <td>
+                <span class="td-ref">{{ p.file }}</span>
+                <div class="td-sub">{{ p.fileType }}</div>
+              </td>
+              <td class="td-amount">{{ p.amount }}</td>
+              <td style="font-size:.8rem;color:var(--g500);">{{ p.date }}</td>
+              <td>
+                  <span class="badge"
+                        [ngClass]="{
+                      'b-blue':   p.mode==='Transfer'    || p.mode==='Virement',
+                      'b-purple': p.mode==='Direct Debit'|| p.mode==='Prelevement',
+                      'b-teal':   p.mode==='Cash'        || p.mode==='Especes'
+                    }">
+                    {{ p.mode === 'Transfer' ? 'Virement' :
+                    p.mode === 'Direct Debit' ? 'Prelevement' :
+                      p.mode === 'Cash' ? 'Especes' : (p.mode || '—') }}
+                  </span>
+              </td>
+              <td>
+                  <span *ngIf="p.status==='Paid' || p.status==='Paye'" class="badge b-actif">
+                    v Paye
+                  </span>
+                <span *ngIf="p.status==='Pending' || p.status==='En attente'" class="badge b-review">
+                    En attente
+                  </span>
+                <span *ngIf="p.status!=='Paid' && p.status!=='Paye' && p.status!=='Pending' && p.status!=='En attente'" class="badge b-danger">
+                    X Impaye
+                  </span>
+              </td>
+              <td style="font-size:.75rem;color:var(--g500);">{{ p.agent }}</td>
+              <td>
+                <div style="display:flex;gap:.375rem;" *ngIf="p.status==='Pending' || p.status==='En attente'">
+                  <button class="btn btn-primary btn-xs">Saisir</button>
+                  <button class="btn btn-outline btn-xs">Relancer</button>
+                </div>
+                <button *ngIf="p.status==='Paid' || p.status==='Paye'" class="btn btn-ghost btn-xs">Recu</button>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
       </div>
-    </div>
-    <!-- /page-credits -->
+
+    </div><!-- /page-remboursements -->
+
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : REMBOURSEMENTS (single source of truth)
-         ═══════════════════════════════════════════════════════ -->
-    <app-repayment-backoffice [selectedPage]="selectedPage" (onNavigate)="navigateTo($event)"></app-repayment-backoffice>
-
-    <!-- ═══════════════════════════════════════════════════════
-         PAGE : VÉHICULES (liste / filtres — panneau entités liées masqué)
+         PAGE : VÉHICULES
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'vehicles'" id="page-vehicles">
-      <div class="s1" style="display:flex;justify-content:flex-end;gap:.5rem">
-        <button type="button" class="btn btn-outline btn-sm" (click)="onPageChange('reservations')">
-          Vehicle reservations
-        </button>
-      </div>
-      <app-vehicle-workspace
-        workspaceMode="admin"
-        [showCatalog]="false"
-        [showSubEntities]="false"
-        [showCreateVehicleButton]="false"
-        headingEyebrow="Fleet management"
-        headingTitle="Vehicles"
-      ></app-vehicle-workspace>
-    </div>
-    <!-- /page-vehicles -->
 
-    <!-- ═══════════════════════════════════════════════════════
-         PAGE : RÉSERVATIONS VÉHICULES
-         ═══════════════════════════════════════════════════════ -->
-    <div class="page" [class.active]="selectedPage === 'reservations'" id="page-reservations">
-      <app-reservations-admin (backToVehicles)="onPageChange('vehicles')"></app-reservations-admin>
-    </div>
-    <!-- /page-reservations -->
+      <div class="ph s1">
+        <div>
+          <div class="ph-eyebrow">Gestion du parc</div>
+          <div class="ph-title">Véhicules</div>
+          <div class="ph-desc">2 148 véhicules enregistrés · 1 890 assurés · 48 à renouveler</div>
+        </div>
+        <div class="ph-actions">
+          <button class="btn btn-outline">Import</button>
+          <button class="btn btn-primary">+ Ajouter véhicule</button>
+        </div>
+      </div>
+
+      <div class="panel s2">
+        <div class="panel-head">
+          <div class="panel-title"><span class="ptdot"></span>Registre des véhicules</div>
+          <div class="tb-search" style="width:200px;">
+            <span>🔍</span>
+            <input type="text" placeholder="Plaque, client, modèle…">
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+            <tr>
+              <th>Plaque</th>
+              <th>Véhicule</th>
+              <th>Propriétaire</th>
+              <th>Crédit</th>
+              <th>Valeur</th>
+              <th>Kilométrage</th>
+              <th>Assurance</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let vehicle of vehicles">
+              <td><span class="td-ref">{{ vehicle.plate }}</span></td>
+              <td>
+                <div class="td-primary">{{ vehicle.name }}</div>
+                <div class="td-sub">{{ vehicle.desc }}</div>
+              </td>
+              <td><div class="td-primary">{{ vehicle.owner }}</div></td>
+              <td><span class="td-ref">{{ vehicle.credit }}</span></td>
+              <td><span class="td-amount">{{ vehicle.value }}</span></td>
+              <td>{{ vehicle.km }}</td>
+              <td><span class="badge b-review">{{ vehicle.insurance }}</span></td>
+              <td><span class="badge" [ngClass]="vehicle.statusClass">{{ vehicle.status }}</span></td>
+              <td><button class="btn btn-ghost btn-xs">Voir</button></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /page-vehicles -->
+
 
     <!-- ═══════════════════════════════════════════════════════
          PAGE : ASSURANCE
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'insurance'" id="page-assurance">
+
       <div class="ph s1">
         <div>
           <div class="ph-eyebrow">Gestion des assurances</div>
@@ -865,22 +1141,10 @@
       </div>
 
       <div class="kpi-row s2">
-        <div class="kpi" style="--kc: var(--success)">
+        <div class="kpi" style="--kc:var(--success);">
           <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(16, 185, 129, 0.12)">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#10B981"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
+            <div class="kpi-ico" style="background:rgba(16,185,129,.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
             <div class="kpi-trend success">Actifs</div>
           </div>
@@ -888,22 +1152,10 @@
           <div class="kpi-lbl">Contrats actifs</div>
           <div class="kpi-foot">Taux couverture : <b>88%</b></div>
         </div>
-        <div class="kpi" style="--kc: var(--warning)">
+        <div class="kpi" style="--kc:var(--warning);">
           <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(245, 158, 11, 0.12)">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#F59E0B"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
+            <div class="kpi-ico" style="background:rgba(245,158,11,.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
             <div class="kpi-trend warning">Urgent</div>
           </div>
@@ -911,25 +1163,10 @@
           <div class="kpi-lbl">À renouveler (30j)</div>
           <div class="kpi-foot">Dont expirés : <b>3</b></div>
         </div>
-        <div class="kpi" style="--kc: var(--danger)">
+        <div class="kpi" style="--kc:var(--danger);">
           <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(239, 68, 68, 0.12)">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#EF4444"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-                />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
+            <div class="kpi-ico" style="background:rgba(239,68,68,.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </div>
             <div class="kpi-trend danger">En cours</div>
           </div>
@@ -937,28 +1174,14 @@
           <div class="kpi-lbl">Sinistres en cours</div>
           <div class="kpi-foot">Montant estimé : <b>12 400 TND</b></div>
         </div>
-        <div class="kpi" style="--kc: var(--blue)">
+        <div class="kpi" style="--kc:var(--blue);">
           <div class="kpi-top">
-            <div class="kpi-ico" style="background: rgba(59, 130, 246, 0.12)">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#3B82F6"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <line x1="12" y1="1" x2="12" y2="23" />
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              </svg>
+            <div class="kpi-ico" style="background:rgba(59,130,246,.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
             <div class="kpi-trend success">+8%</div>
           </div>
-          <div class="kpi-val" style="font-size: 1.5rem">
-            TND <span style="font-size: 2rem">2.1M</span>
-          </div>
+          <div class="kpi-val" style="font-size:1.5rem;">TND <span style="font-size:2rem;">2.1M</span></div>
           <div class="kpi-lbl">Primes totales</div>
           <div class="kpi-foot">Ce mois : <b>198 400 TND</b></div>
         </div>
@@ -967,10 +1190,7 @@
       <div class="panel s3">
         <div class="panel-head">
           <div class="panel-title">
-            <span
-              class="ptdot"
-              style="background: var(--warning); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12)"
-            ></span>
+            <span class="ptdot" style="background:var(--warning);box-shadow:0 0 0 3px rgba(245,158,11,.12);"></span>
             Renouvellements urgents — 30 prochains jours
           </div>
           <span class="badge b-review">48 contrats</span>
@@ -978,56 +1198,48 @@
         <div class="tbl-wrap">
           <table>
             <thead>
-              <tr>
-                <th>N° Contrat</th>
-                <th>Client</th>
-                <th>Véhicule</th>
-                <th>Assureur</th>
-                <th>Type</th>
-                <th>Prime</th>
-                <th>Expiration</th>
-                <th>Délai</th>
-                <th>Action</th>
-              </tr>
+            <tr>
+              <th>N° Contrat</th>
+              <th>Client</th>
+              <th>Véhicule</th>
+              <th>Assureur</th>
+              <th>Type</th>
+              <th>Prime</th>
+              <th>Expiration</th>
+              <th>Délai</th>
+              <th>Action</th>
+            </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let contract of insuranceContracts">
-                <td>
-                  <span class="td-ref">{{ contract.number }}</span>
-                </td>
-                <td>
-                  <div class="td-primary">{{ contract.client }}</div>
-                </td>
-                <td>
-                  <div class="td-primary">{{ contract.vehicle }}</div>
-                </td>
-                <td>{{ contract.insurer }}</td>
-                <td>
-                  <span class="badge b-blue">{{ contract.type }}</span>
-                </td>
-                <td class="td-amount">{{ contract.premium }}</td>
-                <td>{{ contract.expiry }}</td>
-                <td>
-                  <span class="badge" [ngClass]="contract.delayClass">{{ contract.delay }}</span>
-                </td>
-                <td>
-                  <div style="display: flex; gap: 0.375rem">
-                    <button class="btn btn-primary btn-xs">{{ contract.actions[0] }}</button>
-                    <button class="btn btn-ghost btn-xs">{{ contract.actions[1] }}</button>
-                  </div>
-                </td>
-              </tr>
+            <tr *ngFor="let contract of insuranceContracts">
+              <td><span class="td-ref">{{ contract.number }}</span></td>
+              <td><div class="td-primary">{{ contract.client }}</div></td>
+              <td><div class="td-primary">{{ contract.vehicle }}</div></td>
+              <td>{{ contract.insurer }}</td>
+              <td><span class="badge b-blue">{{ contract.type }}</span></td>
+              <td class="td-amount">{{ contract.premium }}</td>
+              <td>{{ contract.expiry }}</td>
+              <td><span class="badge" [ngClass]="contract.delayClass">{{ contract.delay }}</span></td>
+              <td>
+                <div style="display:flex;gap:.375rem;">
+                  <button class="btn btn-primary btn-xs">{{ contract.actions[0] }}</button>
+                  <button class="btn btn-ghost btn-xs">{{ contract.actions[1] }}</button>
+                </div>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
       </div>
-    </div>
-    <!-- /page-assurance -->
+
+    </div><!-- /page-assurance -->
+
 
     <!-- ═══════════════════════════════════════════════════════
          PAGE : RISQUE & SCORE
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'risk'" id="page-risk">
+
       <div class="ph s1">
         <div>
           <div class="ph-eyebrow">Analyse des risques</div>
@@ -1039,10 +1251,7 @@
       <div class="panel s2">
         <div class="panel-head">
           <div class="panel-title">
-            <span
-              class="ptdot"
-              style="background: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12)"
-            ></span>
+            <span class="ptdot" style="background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.12);"></span>
             Alertes risque élevé
           </div>
           <span class="badge b-danger">3 critiques</span>
@@ -1050,41 +1259,27 @@
         <div class="tbl-wrap">
           <table>
             <thead>
-              <tr>
-                <th>Client</th>
-                <th>Score</th>
-                <th>Motif</th>
-                <th>Encours</th>
-                <th>Action</th>
-              </tr>
+            <tr>
+              <th>Client</th>
+              <th>Score</th>
+              <th>Motif</th>
+              <th>Encours</th>
+              <th>Action</th>
+            </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let a of riskAlerts">
-                <td>
-                  <div style="display: flex; align-items: center; gap: 0.5rem">
-                    <div
-                      class="client-flag"
-                      style="background: linear-gradient(135deg, var(--danger), #c0392b)"
-                    >
-                      {{ a.initials }}
-                    </div>
-                    <div class="td-primary">{{ a.name }}</div>
-                  </div>
-                </td>
-                <td>
-                  <span
-                    style="color: var(--danger); font-weight: 800; font-family: 'Sora', sans-serif"
-                    >{{ a.score }}</span
-                  >
-                </td>
-                <td>
-                  <span class="badge" [ngClass]="a.badgeClass">{{ a.motif }}</span>
-                </td>
-                <td class="td-amount">{{ a.encours }}</td>
-                <td>
-                  <button class="btn btn-danger btn-xs">{{ a.actionLabel }}</button>
-                </td>
-              </tr>
+            <tr *ngFor="let a of riskAlerts">
+              <td>
+                <div style="display:flex;align-items:center;gap:.5rem;">
+                  <div class="client-flag" style="background:linear-gradient(135deg,var(--danger),#c0392b)">{{ a.initials }}</div>
+                  <div class="td-primary">{{ a.name }}</div>
+                </div>
+              </td>
+              <td><span style="color:var(--danger);font-weight:800;font-family:'Sora',sans-serif;">{{ a.score }}</span></td>
+              <td><span class="badge" [ngClass]="a.badgeClass">{{ a.motif }}</span></td>
+              <td class="td-amount">{{ a.encours }}</td>
+              <td><button class="btn btn-danger btn-xs">{{ a.actionLabel }}</button></td>
+            </tr>
             </tbody>
           </table>
         </div>
@@ -1099,19 +1294,21 @@
           <div *ngFor="let s of scoreDistribution" class="score-bar-item">
             <span class="sbi-label">{{ s.label }}</span>
             <div class="sbi-track">
-              <div class="sbi-fill" [style.width]="s.pct + '%'" [style.background]="s.color"></div>
+              <div class="sbi-fill" [style.width]="s.pct+'%'" [style.background]="s.color"></div>
             </div>
             <span class="sbi-pct">{{ s.pct }}%</span>
           </div>
         </div>
       </div>
-    </div>
-    <!-- /page-risk -->
+
+    </div><!-- /page-risk -->
+
 
     <!-- ═══════════════════════════════════════════════════════
          PAGE : ALERTES & NOTIFICATIONS
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'notifications'" id="page-alertes">
+
       <div class="ph s1">
         <div>
           <div class="ph-eyebrow">Centre de notifications</div>
@@ -1126,32 +1323,24 @@
       <div class="panel s2">
         <div class="panel-head">
           <div class="panel-title">
-            <span
-              class="ptdot"
-              style="background: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12)"
-            ></span>
+            <span class="ptdot" style="background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.12);"></span>
             Alertes critiques
           </div>
-          <span class="badge b-danger">3 non lues</span>
+          <span class="badge b-danger">{{ unreadCriticalCount }} non lues</span>
         </div>
         <div class="notif-list">
-          <div class="notif-item unread" *ngFor="let n of notificationsCritical">
-            <div
-              class="notif-ico"
-              [style.background]="
-                n.type === 'danger' ? 'rgba(239,68,68,.1)' : 'rgba(245,158,11,.1)'
-              "
-            >
-              ⚠
-            </div>
+          <div
+            class="notif-item unread"
+            [class.clickable]="!!n.requestId"
+            *ngFor="let n of notificationsCritical"
+            (click)="openNotification(n)"
+          >
+            <div class="notif-ico" [style.background]="n.type==='danger' ? 'rgba(239,68,68,.1)' : 'rgba(245,158,11,.1)'">⚠</div>
             <div class="notif-body">
               <div class="notif-title">{{ n.title }}</div>
               <div class="notif-meta">{{ n.meta }}</div>
             </div>
-            <div
-              class="notif-unread-dot"
-              [style.background]="n.type === 'danger' ? 'var(--danger)' : 'var(--warning)'"
-            ></div>
+            <div class="notif-unread-dot" [style.background]="n.type==='danger' ? 'var(--danger)' : 'var(--warning)'"></div>
           </div>
         </div>
       </div>
@@ -1162,20 +1351,7 @@
         </div>
         <div class="notif-list">
           <div class="notif-item" *ngFor="let n of notificationsRecent">
-            <div
-              class="notif-ico"
-              [style.background]="
-                n.color === 'success'
-                  ? 'rgba(16,185,129,.1)'
-                  : n.color === 'blue'
-                    ? 'rgba(31,111,234,.1)'
-                    : n.color === 'purple'
-                      ? 'rgba(139,92,246,.1)'
-                      : 'rgba(0,0,0,.05)'
-              "
-            >
-              ✓
-            </div>
+            <div class="notif-ico" [style.background]="n.color==='success' ? 'rgba(16,185,129,.1)' : n.color==='blue' ? 'rgba(31,111,234,.1)' : n.color==='purple' ? 'rgba(139,92,246,.1)' : 'rgba(0,0,0,.05)'">✓</div>
             <div class="notif-body">
               <div class="notif-title">{{ n.title }}</div>
               <div class="notif-meta">{{ n.meta }}</div>
@@ -1183,13 +1359,15 @@
           </div>
         </div>
       </div>
-    </div>
-    <!-- /page-alertes -->
+
+    </div><!-- /page-alertes -->
+
 
     <!-- ═══════════════════════════════════════════════════════
          PAGE : RAPPORTS
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'rapports'" id="page-rapports">
+
       <div class="ph s1">
         <div>
           <div class="ph-eyebrow">Analyse & rapports</div>
@@ -1205,26 +1383,14 @@
         <div class="panel-head">
           <div class="panel-title"><span class="ptdot"></span>Rapports disponibles</div>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 0">
-          <div
-            *ngFor="let r of reports"
-            class="report-row"
-            style="
-              display: flex;
-              align-items: center;
-              gap: 0.625rem;
-              padding: 0.875rem 1.25rem;
-              border-bottom: 1px solid var(--g100);
-              cursor: pointer;
-              transition: background 0.15s;
-            "
-          >
-            <span style="font-size: 1.25rem">📄</span>
-            <div style="flex: 1">
-              <div style="font-size: 0.8rem; font-weight: 600; color: var(--g900)">
-                {{ r.title }}
-              </div>
-              <div style="font-size: 0.7rem; color: var(--g400)">{{ r.date }}</div>
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div *ngFor="let r of reports"
+               class="report-row"
+               style="display:flex;align-items:center;gap:.625rem;padding:.875rem 1.25rem;border-bottom:1px solid var(--g100);cursor:pointer;transition:background .15s;">
+            <span style="font-size:1.25rem;">📄</span>
+            <div style="flex:1;">
+              <div style="font-size:.8rem;font-weight:600;color:var(--g900);">{{ r.title }}</div>
+              <div style="font-size:.7rem;color:var(--g400);">{{ r.date }}</div>
             </div>
             <button class="btn btn-xs" [ngClass]="r.outline ? 'btn-outline' : 'btn-primary'">
               {{ r.actionLabel }}
@@ -1232,389 +1398,486 @@
           </div>
         </div>
       </div>
-    </div>
-    <!-- /page-rapports -->
+
+    </div><!-- /page-rapports -->
+
 
     <!-- ═══════════════════════════════════════════════════════
          PAGE : PARAMÈTRES
          ═══════════════════════════════════════════════════════ -->
-    <!-- ═══════════════════════════════════════════════════════
-         USERS PAGE
-         ═══════════════════════════════════════════════════════ -->
-    <div class="page" [class.active]="selectedPage === 'users'" id="page-users">
-      <div class="ph s1">
-        <div>
-          <div class="ph-eyebrow">Système</div>
-          <div class="ph-title">Users — Agents IMF & Assureurs</div>
-          <div class="ph-desc">Gérer les comptes et consulter l'historique des connexions</div>
-        </div>
-        <div class="ph-actions">
-          <button class="btn btn-primary" *ngIf="usersTab === 'users'" (click)="openAddUser()">+ Ajouter un utilisateur</button>
-        </div>
-      </div>
-
-      <!-- Tabs -->
-      <div style="display:flex;gap:0;margin-bottom:1.25rem;border-bottom:2px solid var(--border, #e5e7eb)">
-        <button (click)="switchUsersTab('users')"
-          style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
-          [style.color]="usersTab === 'users' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
-          [style.border-bottom]="usersTab === 'users' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
-          Utilisateurs
-        </button>
-        <button (click)="switchUsersTab('logs')"
-          style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
-          [style.color]="usersTab === 'logs' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
-          [style.border-bottom]="usersTab === 'logs' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
-          Historique connexions
-        </button>
-      </div>
-
-      <!-- Users table -->
-      <div class="panel s2" *ngIf="usersTab === 'users'">
-        <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Liste des utilisateurs</div>
-          <div style="font-size:.75rem;color:var(--muted)">{{ usersList.length }} utilisateur(s)</div>
-        </div>
-        <div class="tbl-wrap">
-          <div *ngIf="usersLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
-          <div *ngIf="!usersLoading && usersList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucun agent ou assureur trouvé.</div>
-          <table *ngIf="!usersLoading && usersList.length > 0">
-            <thead>
-              <tr>
-                <th>Utilisateur</th>
-                <th>Email</th>
-                <th>Rôle</th>
-                <th>Téléphone</th>
-                <th>Ville</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let user of usersList">
-                <td>
-                  <div style="display:flex;align-items:center;gap:.5rem">
-                    <div class="sb-avatar" style="width:30px;height:30px;font-size:.65rem">{{ getUserInitials(user) }}</div>
-                    <div class="td-primary">{{ user.firstName }} {{ user.lastName }}</div>
-                  </div>
-                </td>
-                <td style="font-size:.775rem">{{ user.email }}</td>
-                <td>
-                  <span class="badge" [ngClass]="user.role === 'AGENT' ? 'b-blue' : 'b-purple'">{{ user.role }}</span>
-                </td>
-                <td style="font-size:.775rem">{{ user.phoneNumber || '—' }}</td>
-                <td style="font-size:.775rem">{{ user.city || '—' }}</td>
-                <td>
-                  <div style="display:flex;gap:.35rem">
-                    <button class="btn btn-ghost btn-xs" (click)="openViewUser(user)">Voir</button>
-                    <button class="btn btn-ghost btn-xs" style="color:var(--blue)" (click)="openEditUser(user)">Modifier</button>
-                    <button class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteUser(user.id)">Supprimer</button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Logs table -->
-      <div class="panel s2" *ngIf="usersTab === 'logs'">
-        <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Historique des connexions</div>
-          <div style="font-size:.75rem;color:var(--muted)">{{ logsList.length }} connexion(s)</div>
-        </div>
-        <div class="tbl-wrap">
-          <div *ngIf="logsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Chargement...</div>
-          <div *ngIf="!logsLoading && logsList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">Aucune connexion enregistrée.</div>
-          <table *ngIf="!logsLoading && logsList.length > 0">
-            <thead>
-              <tr>
-                <th>Utilisateur</th>
-                <th>Email</th>
-                <th>Rôle</th>
-                <th>Date & Heure</th>
-                <th>Adresse IP</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let log of logsList">
-                <td>
-                  <div class="td-primary">{{ log.userName || '—' }}</div>
-                </td>
-                <td style="font-size:.775rem">{{ log.userEmail || '—' }}</td>
-                <td>
-                  <span class="badge" [ngClass]="log.userRole === 'AGENT' ? 'b-blue' : log.userRole === 'INSURER' ? 'b-purple' : log.userRole === 'ADMIN' ? 'b-orange' : 'b-green'">{{ log.userRole }}</span>
-                </td>
-                <td style="font-size:.775rem">{{ log.loginDate | date:'dd/MM/yyyy HH:mm' }}</td>
-                <td style="font-size:.775rem">{{ log.ipAddress || '—' }}</td>
-                <td>
-                  <span class="badge b-green">{{ log.action }}</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
     <div class="page" [class.active]="selectedPage === 'settings'" id="page-parametres">
+
       <div class="ph s1">
         <div>
           <div class="ph-eyebrow">Configuration</div>
-          <div class="ph-title">{{ activeSettingsSection === 'users-roles' ? 'Users & Roles' : 'Settings' }}</div>
-          <div class="ph-desc">{{ activeSettingsSection === 'users-roles' ? 'Manage accounts and review connection history' : 'System configuration, users and business rules' }}</div>
+          <div class="ph-title">Paramètres</div>
+          <div class="ph-desc">Configuration système, utilisateurs et règles métier</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-primary" *ngIf="activeSettingsSection === 'users-roles' && usersTab === 'users'" (click)="openAddUser()">+ Add User</button>
+          <button class="btn btn-primary">Sauvegarder la configuration</button>
         </div>
       </div>
 
       <div class="settings-grid s2">
+
         <!-- Navigation paramètres -->
         <div>
           <div class="panel">
             <div class="panel-head">
               <div class="panel-title"><span class="ptdot"></span>Sections</div>
             </div>
-            <div class="panel-body" style="padding: 0.5rem">
+            <div class="panel-body" style="padding:.5rem;">
               <div class="settings-nav">
-                <button class="sn-item" [class.active]="activeSettingsSection === 'general'" (click)="setSettingsSection('general')">General</button>
-                <button class="sn-item" [class.active]="activeSettingsSection === 'users-roles'" (click)="setSettingsSection('users-roles')">Users & Roles</button>
-                <button class="sn-item" [class.active]="activeSettingsSection === 'business-rules'" (click)="goToBusinessRules()">Business Rules</button>
-                <button class="sn-item" [class.active]="activeSettingsSection === 'notifications'" (click)="setSettingsSection('notifications')">Notifications</button>
-                <button class="sn-item" [class.active]="activeSettingsSection === 'security'" (click)="setSettingsSection('security')">Security</button>
-                <button class="sn-item" [class.active]="activeSettingsSection === 'backup'" (click)="setSettingsSection('backup')">Backup</button>
-                <button class="sn-item" [class.active]="activeSettingsSection === 'integrations'" (click)="setSettingsSection('integrations')">Integrations</button>
+                <button class="sn-item active">Général</button>
+                <button class="sn-item">Utilisateurs & Rôles</button>
+                <button class="sn-item">Règles métier</button>
+                <button class="sn-item">Notifications</button>
+                <button class="sn-item">Sécurité</button>
+                <button class="sn-item">Sauvegarde</button>
+                <button class="sn-item">Intégrations</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Contenu dynamique selon la section active -->
-        <div style="display: flex; flex-direction: column; gap: 1.25rem">
+        <!-- Formulaires de configuration -->
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
 
-          <!-- ── GÉNÉRAL ── -->
-          <ng-container *ngIf="activeSettingsSection === 'general'">
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-title"><span class="ptdot"></span>General Settings</div>
-              </div>
-              <div class="panel-body">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Institution Name</label>
-                    <input class="form-input" type="text" value="FIN'IX — Crédit & Assurance" />
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Fiscal Identifier</label>
-                    <input class="form-input" type="text" value="TN-2019-00182741" />
-                  </div>
+          <!-- Paramètres généraux -->
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ptdot"></span>Paramètres généraux</div>
+            </div>
+            <div class="panel-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Nom de l'institution</label>
+                  <input class="form-input" type="text" value="FIN'IX — Crédit & Assurance">
                 </div>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Currency</label>
-                    <select class="form-input">
-                      <option>TND — Dinar Tunisien</option>
-                      <option>EUR</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Time Zone</label>
-                    <select class="form-input">
-                      <option>Africa/Tunis (UTC+1)</option>
-                    </select>
-                  </div>
+                <div class="form-group">
+                  <label class="form-label">Identifiant fiscal</label>
+                  <input class="form-input" type="text" value="TN-2019-00182741">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Devise</label>
+                  <select class="form-input">
+                    <option>TND — Dinar Tunisien</option>
+                    <option>EUR</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Fuseau horaire</label>
+                  <select class="form-input">
+                    <option>Africa/Tunis (UTC+1)</option>
+                  </select>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-title"><span class="ptdot"></span>Scoring Rules</div>
-              </div>
-              <div class="panel-body">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Minimum Score for Auto-Approval</label>
-                    <input class="form-input" type="number" value="700" />
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Minimum Score for Standard Application</label>
-                    <input class="form-input" type="number" value="600" />
-                  </div>
+          <!-- Règles de scoring -->
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ptdot"></span>Règles de scoring</div>
+            </div>
+            <div class="panel-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Score min. approbation auto</label>
+                  <input class="form-input" type="number" value="700">
                 </div>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Maximum Debt-to-Income Ratio (%)</label>
-                    <input class="form-input" type="number" value="40" />
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Maximum Unguaranteed Amount (TND)</label>
-                    <input class="form-input" type="number" value="15000" />
-                  </div>
+                <div class="form-group">
+                  <label class="form-label">Score min. dossier standard</label>
+                  <input class="form-input" type="number" value="600">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Taux endettement max (%)</label>
+                  <input class="form-input" type="number" value="40">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Montant max non garanti (TND)</label>
+                  <input class="form-input" type="number" value="15000">
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-title"><span class="ptdot"></span>Notifications automatiques</div>
+          <!-- Notifications automatiques -->
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ptdot"></span>Notifications automatiques</div>
+            </div>
+            <div class="panel-body" style="padding:.25rem 1.25rem;">
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-label">Alertes impayés</div>
+                  <div class="toggle-sub">Envoyer SMS au client dès le J+1 de retard</div>
+                </div>
+                <button class="toggle" [class.on]="notificationsConfig.overdueSms" (click)="toggleConfig('overdueSms')"></button>
               </div>
-              <div class="panel-body" style="padding: 0.25rem 1.25rem">
-                <div class="toggle-row">
-                  <div class="toggle-info">
-                    <div class="toggle-label">Alertes impayés</div>
-                    <div class="toggle-sub">Envoyer SMS au client dès le J+1 de retard</div>
-                  </div>
-                  <button class="toggle" [class.on]="notificationsConfig.overdueSms" (click)="toggleConfig('overdueSms')"></button>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-label">Rappels renouvellement assurance</div>
+                  <div class="toggle-sub">Notifier 30 jours avant expiration</div>
                 </div>
-                <div class="toggle-row">
-                  <div class="toggle-info">
-                    <div class="toggle-label">Rappels renouvellement assurance</div>
-                    <div class="toggle-sub">Notifier 30 jours avant expiration</div>
-                  </div>
-                  <button class="toggle" [class.on]="notificationsConfig.renewalReminder" (click)="toggleConfig('renewalReminder')"></button>
+                <button class="toggle" [class.on]="notificationsConfig.renewalReminder" (click)="toggleConfig('renewalReminder')"></button>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-label">Rapport mensuel automatique</div>
+                  <div class="toggle-sub">Générer et envoyer le rapport le 1er du mois</div>
                 </div>
-                <div class="toggle-row">
-                  <div class="toggle-info">
-                    <div class="toggle-label">Rapport mensuel automatique</div>
-                    <div class="toggle-sub">Générer et envoyer le rapport le 1er du mois</div>
-                  </div>
-                  <button class="toggle" [class.on]="notificationsConfig.monthlyReport" (click)="toggleConfig('monthlyReport')"></button>
-                </div>
+                <button class="toggle" [class.on]="notificationsConfig.monthlyReport" (click)="toggleConfig('monthlyReport')"></button>
               </div>
             </div>
-          </ng-container>
+          </div>
 
-          <!-- ── UTILISATEURS & RÔLES ── -->
-          <ng-container *ngIf="activeSettingsSection === 'users-roles'">
-            <!-- Tabs -->
-            <div style="display:flex;gap:0;border-bottom:2px solid var(--border, #e5e7eb)">
-              <button (click)="switchUsersTab('users')"
-                style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
-                [style.color]="usersTab === 'users' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
-                [style.border-bottom]="usersTab === 'users' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
-                Users
-              </button>
-              <button (click)="switchUsersTab('logs')"
-                style="padding:.65rem 1.5rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;background:none;position:relative;bottom:-2px"
-                [style.color]="usersTab === 'logs' ? 'var(--blue, #1F6FEA)' : 'var(--muted, #8fa3bc)'"
-                [style.border-bottom]="usersTab === 'logs' ? '2px solid var(--blue, #1F6FEA)' : '2px solid transparent'">
-                Connection History
-              </button>
+          <!-- Utilisateurs système -->
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="ptdot"></span>Utilisateurs système</div>
+              <button class="btn btn-primary btn-sm">+ Ajouter utilisateur</button>
             </div>
-
-            <!-- Users table -->
-            <div class="panel s2" *ngIf="usersTab === 'users'">
-              <div class="panel-head">
-                <div class="panel-title"><span class="ptdot"></span>List of Users</div>
-                <div style="display:flex;align-items:center;gap:.75rem">
-                  <div style="font-size:.75rem;color:var(--muted)">{{ usersList.length }} user(s)</div>
-                  <button class="btn btn-primary btn-xs" (click)="openAddUser()">+ Add User</button>
-                </div>
-              </div>
-              <div class="tbl-wrap">
-                <div *ngIf="usersLoading" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</div>
-                <div *ngIf="!usersLoading && usersList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">No agent or insurer found.</div>
-                <table *ngIf="!usersLoading && usersList.length > 0">
-                  <thead>
-                    <tr>
-                      <th>User</th>
-                      <th>Email</th>
-                      <th>Role</th>
-                      <th>Phone</th>
-                      <th>City</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let user of usersList">
-                      <td>
-                        <div style="display:flex;align-items:center;gap:.5rem">
-                          <div class="sb-avatar" style="width:30px;height:30px;font-size:.65rem">{{ getUserInitials(user) }}</div>
-                          <div class="td-primary">{{ user.firstName }} {{ user.lastName }}</div>
-                        </div>
-                      </td>
-                      <td style="font-size:.775rem">{{ user.email }}</td>
-                      <td>
-                        <span class="badge" [ngClass]="user.role === 'AGENT' ? 'b-blue' : 'b-purple'">{{ user.role }}</span>
-                      </td>
-                      <td style="font-size:.775rem">{{ user.phoneNumber || '—' }}</td>
-                      <td style="font-size:.775rem">{{ user.city || '—' }}</td>
-                      <td>
-                        <div style="display:flex;gap:.35rem">
-                          <button class="btn btn-ghost btn-xs" (click)="openViewUser(user)">View</button>
-                          <button class="btn btn-ghost btn-xs" style="color:var(--blue)" (click)="openEditUser(user)">Edit</button>
-                          <button class="btn btn-ghost btn-xs" style="color:var(--danger)" (click)="deleteUser(user.id)">Delete</button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                <tr>
+                  <th>Utilisateur</th>
+                  <th>Rôle</th>
+                  <th>Dernière connexion</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let user of settingsUsers">
+                  <td>
+                    <div style="display:flex;align-items:center;gap:.5rem;">
+                      <div class="sb-avatar">{{ user.initials }}</div>
+                      <div>
+                        <div class="td-primary">{{ user.name }}</div>
+                        <div class="td-sub">{{ user.email }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge" [ngClass]="user.roleClass">{{ user.role }}</span></td>
+                  <td style="font-size:.775rem;">{{ user.lastLogin }}</td>
+                  <td><span class="badge b-actif">{{ user.status }}</span></td>
+                  <td><button class="btn btn-ghost btn-xs">Modifier</button></td>
+                </tr>
+                </tbody>
+              </table>
             </div>
+          </div>
 
-            <!-- Logs table -->
-            <div class="panel s2" *ngIf="usersTab === 'logs'">
-              <div class="panel-head">
-                <div class="panel-title"><span class="ptdot"></span>Connection History</div>
-                <div style="font-size:.75rem;color:var(--muted)">{{ logsList.length }} connection(s)</div>
-              </div>
-              <div class="tbl-wrap">
-                <div *ngIf="logsLoading" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</div>
-                <div *ngIf="!logsLoading && logsList.length === 0" style="padding:2rem;text-align:center;color:var(--muted)">No connections recorded.</div>
-                <table *ngIf="!logsLoading && logsList.length > 0">
-                  <thead>
-                    <tr>
-                      <th>User</th>
-                      <th>Email</th>
-                      <th>Role</th>
-                      <th>Date & Time</th>
-                      <th>IP Address</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let log of logsList">
-                      <td><div class="td-primary">{{ log.userName || '—' }}</div></td>
-                      <td style="font-size:.775rem">{{ log.userEmail || '—' }}</td>
-                      <td>
-                        <span class="badge" [ngClass]="log.userRole === 'AGENT' ? 'b-blue' : log.userRole === 'INSURER' ? 'b-purple' : log.userRole === 'ADMIN' ? 'b-orange' : 'b-green'">{{ log.userRole }}</span>
-                      </td>
-                      <td style="font-size:.775rem">{{ log.loginDate | date:'dd/MM/yyyy HH:mm' }}</td>
-                      <td style="font-size:.775rem">{{ log.ipAddress || '—' }}</td>
-                      <td><span class="badge b-green">{{ log.action }}</span></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </ng-container>
+        </div><!-- /forms -->
+      </div><!-- /settings-grid -->
 
-        </div>
-        <!-- /forms (dynamic section) -->
-      </div>
-      <!-- /settings-grid -->
-    </div>
-    <!-- /page-parametres -->
+    </div><!-- /page-parametres -->
+
 
     <!-- ═══════════════════════════════════════════════════════
-         MODAL — DÉCISION DOSSIER
+         MODAL — CREATE / EDIT EVENT
+         ═══════════════════════════════════════════════════════ -->
+    <div class="bk-modal-overlay" *ngIf="showEventModal" (click)="closeCreateEventModal()">
+      <div class="bk-modal" (click)="$event.stopPropagation()">
+
+        <div class="bk-modal-header">
+          <div>
+            <div class="bk-modal-title">{{ isEditingEvent ? 'Edit event' : 'Create event' }}</div>
+            <div class="bk-modal-sub">Fill in the publication details</div>
+          </div>
+          <button class="bk-modal-close" (click)="closeCreateEventModal()">✕</button>
+        </div>
+
+        <div class="bk-modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Title *</label>
+              <input class="form-input" type="text" [(ngModel)]="eventForm.title" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">City *</label>
+              <input class="form-input" type="text" [(ngModel)]="eventForm.city" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Address *</label>
+              <input class="form-input" type="text" [(ngModel)]="eventForm.address" />
+              <button class="btn btn-outline btn-sm map-pick-btn" type="button" (click)="openAddressMapPicker()">
+                Pick on map
+              </button>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Max participants</label>
+              <input class="form-input" type="number" min="0" [(ngModel)]="eventForm.maxParticipants" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-input" rows="3" [(ngModel)]="eventForm.description"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Rules</label>
+            <textarea class="form-input" rows="3" [(ngModel)]="eventForm.rules"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Start date *</label>
+              <input class="form-input" type="datetime-local" [(ngModel)]="eventForm.startDate" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">End date *</label>
+              <input class="form-input" type="datetime-local" [min]="eventForm.startDate" [(ngModel)]="eventForm.endDate" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Registration deadline</label>
+              <input class="form-input" type="datetime-local" [max]="eventForm.endDate" [(ngModel)]="eventForm.registrationDeadline" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current participants</label>
+              <input class="form-input" type="number" [value]="eventForm.currentParticipants" readonly />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Image URL</label>
+              <input class="form-input" type="text" [(ngModel)]="eventForm.imageUrl" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <input class="form-input" type="text" [(ngModel)]="eventForm.status" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Public event</label>
+              <label style="display:flex; align-items:center; gap:8px; margin-top:.25rem;">
+                <input type="checkbox" [(ngModel)]="eventForm.publicEvent" />
+                <span>{{ eventForm.publicEvent ? 'true' : 'false' }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Connected user ID</label>
+            <input class="form-input" type="number" [value]="eventForm.userId" readonly />
+          </div>
+
+          <div class="panel-body" *ngIf="eventCreateError" style="color: var(--danger, #c0392b); padding-top: 0;">
+            {{ eventCreateError }}
+          </div>
+          <div class="panel-body" *ngIf="eventCreateSuccess" style="color: var(--success, #059669); padding-top: 0;">
+            {{ eventCreateSuccess }}
+          </div>
+        </div>
+
+        <div class="decision-bar">
+          <button class="btn btn-outline btn-lg" [disabled]="isCreatingEvent" (click)="closeCreateEventModal()">Cancel</button>
+          <button class="btn btn-primary btn-lg flex-1" [disabled]="isCreatingEvent" (click)="createEvent()">
+            {{ isCreatingEvent ? (isEditingEvent ? 'Updating…' : 'Creating…') : (isEditingEvent ? 'Update event' : 'Create event') }}
+          </button>
+        </div>
+      </div>
+    </div><!-- /modal create event -->
+
+    <div class="bk-modal-overlay" *ngIf="showAddressMapModal" (click)="closeAddressMapPicker()">
+      <div class="bk-modal map-modal" (click)="$event.stopPropagation()">
+        <div class="bk-modal-header">
+          <div>
+            <div class="bk-modal-title">Choose an address</div>
+            <div class="bk-modal-sub">Click the map, then confirm.</div>
+          </div>
+          <button class="bk-modal-close" (click)="closeAddressMapPicker()">✕</button>
+        </div>
+        <div class="bk-modal-body">
+          <form class="map-search-row" (submit)="searchAddressOnMap(); $event.preventDefault()">
+            <input
+              class="form-input"
+              type="text"
+              placeholder="Search for an address..."
+              [(ngModel)]="mapSearchQuery"
+              name="mapSearchQuery"
+            />
+            <button class="btn btn-outline btn-sm" type="submit">Search</button>
+          </form>
+          <div id="event-address-map" class="event-address-map"></div>
+          <div class="map-selected-address">{{ selectedMapAddress || 'No address selected.' }}</div>
+          <div class="panel-body" *ngIf="mapPickerError" style="color: var(--danger, #c0392b); padding-top: 0;">
+            {{ mapPickerError }}
+          </div>
+        </div>
+        <div class="decision-bar">
+          <button class="btn btn-outline btn-lg" (click)="closeAddressMapPicker()">Cancel</button>
+          <button class="btn btn-primary btn-lg flex-1" [disabled]="!selectedMapLocation" (click)="confirmAddressFromMap()">
+            Use this address
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         MODAL — FILE DECISION
          ═══════════════════════════════════════════════════════ -->
     <div class="bk-modal-overlay" *ngIf="showModal" (click)="closeModal($event)">
       <div class="bk-modal" (click)="$event.stopPropagation()">
+
         <div class="bk-modal-header">
           <div>
-            <div class="bk-modal-title">{{ dossier.reference }} — Décision requise</div>
-            <div class="bk-modal-sub">Soumis le {{ dossier.submittedDate }} · En analyse</div>
+            <div class="bk-modal-title">
+              <ng-container *ngIf="selectedFile?.idDemande; else dossierTitle">
+                Request #{{ selectedFile?.idDemande }} — decision required
+              </ng-container>
+              <ng-template #dossierTitle>{{ dossier.reference }} — decision required</ng-template>
+            </div>
+            <div class="bk-modal-sub">
+              <ng-container *ngIf="selectedFile?.idDemande; else dossierSub">
+                Submitted on {{
+                  selectedFile?.dateCreation ? (selectedFile?.dateCreation | date:'short') : selectedFile?.dateSoumission || '-'
+                }}
+              </ng-container>
+              <ng-template #dossierSub>Submitted {{ dossier.submittedDate }} · Under review</ng-template>
+            </div>
           </div>
-          <span class="badge b-review">{{ dossier.status }}</span>
+          <span class="badge b-review">
+            {{ selectedFile?.idDemande ? selectedFile?.statutDemande : dossier.status }}
+          </span>
           <button class="bk-modal-close" (click)="closeModal($event)">✕</button>
         </div>
 
         <div class="bk-modal-body">
-          <div class="detail-section">
-            <div class="detail-section-title">Informations client</div>
+
+          <div class="detail-section" *ngIf="selectedFile?.idDemande">
+            <div class="detail-section-title">Request details</div>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <div class="di-lbl">Amount</div>
+                <div class="di-val">{{ formatMoney(selectedFile?.montantDemande) }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Down payment</div>
+                <div class="di-val">{{ formatMoney(selectedFile?.apportPersonnel) }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Term</div>
+                <div class="di-val">{{ formatMonths(selectedFile?.dureeMois) }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Monthly payment</div>
+                <div class="di-val">{{ formatMoney(selectedFile?.mensualiteEstimee) }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Purpose</div>
+                <div class="di-val">{{ selectedFile?.objectifCredit || '-' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Client</div>
+                <div class="di-val">
+                  {{ selectedFile?.user?.firstName }} {{ selectedFile?.user?.lastName }}
+                </div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Vehicle</div>
+                <div class="di-val">
+                  {{ selectedFile?.vehicle?.marque || selectedFile?.vehicule?.marque || '-' }}
+                  {{ selectedFile?.vehicle?.modele || selectedFile?.vehicule?.modele || '' }}
+                  · {{ (selectedFile?.vehicle?.prixTnd ?? selectedFile?.vehicule?.prix_tnd) != null
+                    ? ((selectedFile?.vehicle?.prixTnd ?? selectedFile?.vehicule?.prix_tnd) + ' TND')
+                    : '-' }}
+                </div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Created</div>
+                <div class="di-val">{{ selectedFile?.dateCreation | date:'short' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Risk score</div>
+                <div class="di-val">{{ selectedFile?.riskScore != null ? (selectedFile?.riskScore | number:'1.0-0') + '/100' : 'N/A' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Automatic decision</div>
+                <div class="di-val">{{ getRiskDecisionDisplay(selectedFile?.riskDecision) }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Decision source</div>
+                <div class="di-val">{{ selectedFile?.decisionSource || '-' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section" *ngIf="selectedFile?.idDemande && (adaptiveBreakdownText(selectedFile) || selectedFile?.riskBreakdown)">
+            <div class="detail-section-title">Adaptive scoring detail</div>
+            <div class="scoring-beautified-grid">
+              <div
+                class="scoring-beautified-item"
+                [ngClass]="'tone-' + entry.tone"
+                *ngFor="let entry of getRiskScoringSummaryEntries(selectedFile)"
+              >
+                <div class="scoring-beautified-label">{{ entry.label }}</div>
+                <div class="scoring-beautified-value">{{ entry.value }}</div>
+              </div>
+            </div>
+
+            <div
+              class="scoring-beautified-grid"
+              *ngIf="getAdaptiveBreakdownOnlyEntries(adaptiveBreakdownText(selectedFile)).length > 0"
+            >
+              <div
+                class="scoring-beautified-item"
+                [ngClass]="'tone-' + entry.tone"
+                *ngFor="let entry of getAdaptiveBreakdownOnlyEntries(adaptiveBreakdownText(selectedFile))"
+              >
+                <div class="scoring-beautified-label">{{ entry.label }}</div>
+                <div class="scoring-beautified-value">{{ entry.value }}</div>
+              </div>
+            </div>
+            <div class="scoring-help-grid" *ngIf="hasInternalFactorBreakdown(adaptiveBreakdownText(selectedFile))">
+              <div class="scoring-help-item" *ngFor="let factor of scoringFactors">
+                <div class="scoring-help-head">
+                  <span class="scoring-help-label">{{ factor.label }}</span>
+                  <span class="scoring-help-value">{{ getScoringFactorValue(factor.sourceKey, adaptiveBreakdownText(selectedFile)) }}</span>
+                </div>
+                <div class="scoring-help-meaning">{{ factor.meaning }}</div>
+              </div>
+            </div>
+            <div class="ml-output-empty" *ngIf="!hasInternalFactorBreakdown(adaptiveBreakdownText(selectedFile)) && (selectedFile?.riskSource || '').toUpperCase() === 'EXTERNAL_PKL'">
+              Internal factor breakdown (x1/x2/x3) is not available for this request (backend snapshot missing—refresh list after deploying the update).
+            </div>
+          </div>
+
+          <div
+            class="detail-section"
+            *ngIf="selectedFile?.idDemande && (selectedFile?.riskSource || '').toUpperCase() === 'EXTERNAL_PKL'"
+          >
+            <div class="detail-section-title">ML scoring detail</div>
+            <div class="ml-output-empty" *ngIf="!hasMlOutput(selectedFile)">
+              No structured ML scoring payload returned for this request (check riskBreakdown on the backend).
+            </div>
+            <div class="ml-output-grid" *ngIf="hasMlOutput(selectedFile)">
+              <div class="ml-output-item" *ngFor="let entry of getMlScoringEntries(selectedFile)">
+                <div class="ml-output-label">{{ entry.label }}</div>
+                <div class="ml-output-value">{{ entry.value }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section" *ngIf="!selectedFile?.idDemande">
+            <div class="detail-section-title">Client information</div>
             <div class="detail-grid">
               <div class="detail-item">
                 <div class="di-lbl">Client</div>
@@ -1625,7 +1888,7 @@
                 <div class="di-val">{{ dossier.client.cin }}</div>
               </div>
               <div class="detail-item">
-                <div class="di-lbl">Téléphone</div>
+                <div class="di-lbl">Phone</div>
                 <div class="di-val">{{ dossier.client.phone }}</div>
               </div>
               <div class="detail-item">
@@ -1636,204 +1899,27 @@
           </div>
 
           <div class="detail-section">
-            <div class="detail-section-title">Note de décision</div>
-            <textarea
-              class="form-input"
-              rows="3"
-              [(ngModel)]="decisionNote"
-              placeholder="Saisir la note de justification…"
-            ></textarea>
+            <div class="detail-section-title">Decision note</div>
+            <textarea class="form-input" rows="3" [(ngModel)]="decisionNote"
+                      placeholder="Enter a justification note…"></textarea>
           </div>
+
+          <div class="panel-body" *ngIf="decisionError" style="color: var(--danger, #c0392b); padding-top: 0;">
+            {{ decisionError }}
+          </div>
+
         </div>
 
-        <div class="decision-bar">
-          <button class="btn btn-success btn-lg flex-1" (click)="approveCase()">
-            ✓ Approuver le dossier
+        <div class="decision-bar" *ngIf="canTakeDecision">
+          <button class="btn btn-success btn-lg flex-1" [disabled]="decisionSubmitting" (click)="approveCase()">
+            {{ decisionSubmitting ? 'Please wait…' : '✓ Approve' }}
           </button>
-          <button class="btn btn-outline btn-lg" (click)="requestMoreInfo()">
-            Informations complémentaires
-          </button>
-          <button class="btn btn-danger btn-lg" (click)="rejectCase()">✗ Rejeter</button>
+          <button class="btn btn-outline btn-lg decision-btn-mid" [disabled]="decisionSubmitting" (click)="requestMoreInfo()">Request more info</button>
+          <button class="btn btn-danger btn-lg decision-btn-danger" [disabled]="decisionSubmitting" (click)="rejectCase()">✗ Reject</button>
         </div>
-      </div>
-    </div>
-    <!-- /modal -->
 
-  </div>
-  <!-- /.main -->
+      </div>
+    </div><!-- /modal -->
 
-</div>
-
-<!-- ═══════════════════════════════════════════════════════
-     MODAL — ADD / EDIT USER (outside layout-wrapper to avoid grid/z-index issues)
-     ═══════════════════════════════════════════════════════ -->
-<div class="bk-modal-overlay" *ngIf="showUserModal" (click)="closeUserModal()">
-  <div class="bk-modal" (click)="$event.stopPropagation()" style="max-width:520px">
-    <div class="bk-modal-header">
-      <div>
-        <div class="bk-modal-title">{{ editingUserId ? 'Modifier l\'utilisateur' : 'Ajouter un utilisateur' }}</div>
-        <div class="bk-modal-sub">{{ editingUserId ? 'Mettre à jour les informations' : 'Créer un compte Agent IMF ou Assureur' }}</div>
-      </div>
-      <button class="bk-modal-close" (click)="closeUserModal()">✕</button>
-    </div>
-    <div class="bk-modal-body">
-      <div *ngIf="addUserError" style="background:rgba(231,76,60,.1);color:#E74C3C;padding:.6rem 1rem;border-radius:8px;font-size:.8rem;margin-bottom:1rem">
-        {{ addUserError }}
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">First name *</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.firstName" placeholder="First name">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Last name *</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.lastName" placeholder="Last name">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Email *</label>
-          <input class="form-input" type="email" [(ngModel)]="newUser.email" placeholder="email@finix.tn">
-        </div>
-        <div class="form-group">
-          <label class="form-label">{{ editingUserId ? 'Nouveau mot de passe' : 'Mot de passe *' }}</label>
-          <input class="form-input" type="password" [(ngModel)]="newUser.password" [placeholder]="editingUserId ? 'Laisser vide pour garder l\'ancien' : 'Mot de passe'">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Role *</label>
-          <select class="form-input" [(ngModel)]="newUser.role">
-            <option value="AGENT">Agent IMF</option>
-            <option value="INSURER">Insurer</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Phone</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.phoneNumber" placeholder="+216 XX XXX XXX">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">CIN</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.cin" placeholder="Ex: 08123456">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Address</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.address" placeholder="Address">
-        </div>
-        <div class="form-group">
-          <label class="form-label">City</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.city" placeholder="City">
-        </div>
-      </div>
-      <div *ngIf="newUser.role === 'AGENT'" class="form-row">
-        <div class="form-group">
-          <label class="form-label">Agency Code</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.agenceCode" placeholder="Code agence">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Region</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.region" placeholder="Numéro région">
-        </div>
-      </div>
-      <div *ngIf="newUser.role === 'INSURER'" class="form-row">
-        <div class="form-group">
-          <label class="form-label">Insurer Name</label>
-          <input class="form-input" type="text" [(ngModel)]="newUser.insurerName" placeholder="Company name">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Insurer Email</label>
-          <input class="form-input" type="email" [(ngModel)]="newUser.insurerEmail" placeholder="contact@assureur.tn">
-        </div>
-      </div>
-    </div>
-    <div class="decision-bar" style="justify-content:flex-end">
-      <button class="btn btn-outline" (click)="closeUserModal()">Cancel</button>
-      <button class="btn btn-primary" (click)="submitUser()" [disabled]="addUserLoading">
-        {{ addUserLoading ? (editingUserId ? 'Mise à jour...' : 'Creation..') : (editingUserId ? 'Enregistrer' : 'Create Account') }}
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════
-     MODAL — VIEW USER DETAIL
-     ═══════════════════════════════════════════════════════ -->
-<div class="bk-modal-overlay" *ngIf="showViewUserModal" (click)="closeViewUser()">
-  <div class="bk-modal" (click)="$event.stopPropagation()" style="max-width:480px">
-    <div class="bk-modal-header">
-      <div>
-        <div class="bk-modal-title">Détail utilisateur</div>
-        <div class="bk-modal-sub">ID #{{ viewUser?.id }}</div>
-      </div>
-      <span class="badge" [ngClass]="viewUser?.role === 'AGENT' ? 'b-blue' : 'b-purple'">{{ viewUser?.role }}</span>
-      <button class="bk-modal-close" (click)="closeViewUser()">✕</button>
-    </div>
-    <div class="bk-modal-body" *ngIf="viewUser">
-      <div class="detail-section">
-        <div class="detail-section-title">Identité</div>
-        <div class="detail-grid">
-          <div class="detail-item">
-            <div class="di-lbl">Prénom</div>
-            <div class="di-val">{{ viewUser.firstName }}</div>
-          </div>
-          <div class="detail-item">
-            <div class="di-lbl">Nom</div>
-            <div class="di-val">{{ viewUser.lastName }}</div>
-          </div>
-          <div class="detail-item">
-            <div class="di-lbl">Email</div>
-            <div class="di-val">{{ viewUser.email }}</div>
-          </div>
-          <div class="detail-item">
-            <div class="di-lbl">Téléphone</div>
-            <div class="di-val">{{ viewUser.phoneNumber || '—' }}</div>
-          </div>
-          <div class="detail-item">
-            <div class="di-lbl">CIN</div>
-            <div class="di-val">{{ viewUser.cin || '—' }}</div>
-          </div>
-          <div class="detail-item">
-            <div class="di-lbl">Adresse</div>
-            <div class="di-val">{{ viewUser.address || '—' }}</div>
-          </div>
-          <div class="detail-item">
-            <div class="di-lbl">Ville</div>
-            <div class="di-val">{{ viewUser.city || '—' }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="detail-section" *ngIf="viewUser.role === 'AGENT'">
-        <div class="detail-section-title">Informations Agent IMF</div>
-        <div class="detail-grid">
-          <div class="detail-item">
-            <div class="di-lbl">Code Agence</div>
-            <div class="di-val">{{ viewUser.agenceCode || '—' }}</div>
-          </div>
-          <div class="detail-item">
-            <div class="di-lbl">Région</div>
-            <div class="di-val">{{ viewUser.region || '—' }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="detail-section" *ngIf="viewUser.role === 'INSURER'">
-        <div class="detail-section-title">Informations Assureur</div>
-        <div class="detail-grid">
-          <div class="detail-item">
-            <div class="di-lbl">Nom Assureur</div>
-            <div class="di-val">{{ viewUser.insurerName || '—' }}</div>
-          </div>
-          <div class="detail-item">
-            <div class="di-lbl">Email Assureur</div>
-            <div class="di-val">{{ viewUser.insurerEmail || '—' }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="decision-bar" style="justify-content:flex-end">
-      <button class="btn btn-outline" (click)="closeViewUser()">Fermer</button>
-      <button class="btn btn-primary" (click)="closeViewUser(); openEditUser(viewUser)">Modifier</button>
-    </div>
-  </div>
+  </main>
 </div>

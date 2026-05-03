@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+  OnInit,
   AfterViewInit,
   ChangeDetectorRef,
   Component,
@@ -26,7 +27,7 @@ export type LocationPickResult = {
   templateUrl: './location-map-picker.component.html',
   styleUrl: './location-map-picker.component.scss',
 })
-export class LocationMapPickerComponent implements AfterViewInit, OnDestroy {
+export class LocationMapPickerComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() initialLat = 36.8065;
   @Input() initialLng = 10.1815;
 
@@ -48,9 +49,12 @@ export class LocationMapPickerComponent implements AfterViewInit, OnDestroy {
     private cdr: ChangeDetectorRef,
   ) {}
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     this.lat = Number(this.initialLat);
     this.lng = Number(this.initialLng);
+  }
+
+  ngAfterViewInit(): void {
     this.zone.runOutsideAngular(() => {
       queueMicrotask(() => this.initMap());
     });

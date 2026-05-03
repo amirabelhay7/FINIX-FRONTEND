@@ -1,13 +1,24 @@
-import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { finalize } from 'rxjs/operators';
-import { ReservationService } from '../../services/vehicle/reservation.service';
-import { VehicleReservationDto } from '../../models';
+import { Component, OnInit, OnDestroy, Renderer2, HostListener } from '@angular/core';
+import { Credit } from '../../services/credit/credit.service';
+import { RequestLoanDto, PageResponse } from '../../models/credit.model';
+import { finalize, Subscription } from 'rxjs';
+import { CreateEventPayload, EventDto, EventPageResponse, EventService } from '../../services/event.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { apiUrl } from '../../core/config/api-url';
+import { Router } from '@angular/router';
+import {
+  AdminEventNotificationEvent,
+  AdminRequestNotificationEvent,
+  AdminRequestNotificationService,
+} from '../../services/credit/admin-request-notification.service';
+import { TopbarNotificationItem } from './components/topbar/topbar.component';
 
 interface PipelineCard {
+  idDemande?: number;
+  statutDemande?: string;
+  dateCreation?: string | Date;
+  user?: RequestLoanDto['user'];
+  vehicle?: RequestLoanDto['vehicle'];
+  vehicule?: RequestLoanDto['vehicule'];
   name: string;
   ref: string;
   amount: string;
@@ -17,238 +28,573 @@ interface PipelineCard {
 
 interface PipelineColumn {
   title: string;
+  shortTitle?: string;
   class: string;
   count: number;
   cards: PipelineCard[];
+}
+
+interface DossierItem {
+  ref: string;
+  initials: string;
+  client: string;
+  clientSince: string;
+  type: string;
+  amount: string;
+  score: string;
+  scoreColor: string;
+  status: string;
+  statusClass: string;
+}
+
+interface AnalysisFileItem {
+  idDemande: number;
+  statutDemande: string;
+  montantDemande: number;
+  apportPersonnel: number;
+  dureeMois: number;
+  mensualiteEstimee: number;
+  objectifCredit: string;
+  dateCreation?: string | Date;
+  user?: RequestLoanDto['user'];
+  vehicle?: RequestLoanDto['vehicle'];
+  vehicule?: RequestLoanDto['vehicule'];
+  ref: string;
+  initials: string;
+  name: string;
+  clientInfo: string;
+  type: string;
+  amount: string;
+  duration: string;
+  score: number;
+  debtRatio: number;
+  seniority: string;
+  recommendation: string;
+  riskDecision?: RequestLoanDto['riskDecision'];
+  riskBreakdown?: string;
+  internalRiskBreakdown?: string;
+}
+
+interface CriticalNotificationItem {
+  title: string;
+  meta: string;
+  type: 'danger' | 'warning' | string;
+  requestId?: number;
+  targetPage?: string;
+  eventId?: number;
+}
+
+interface RecentNotificationItem {
+  title: string;
+  meta: string;
+  color: string;
+  requestId?: number;
+  targetPage?: string;
+  eventId?: number;
 }
 
 @Component({
   selector: 'app-backoffice',
   standalone: false,
   templateUrl: './backoffice.component.html',
-  styleUrl: './backoffice.component.css',
-  encapsulation: ViewEncapsulation.None,
+  styleUrls: ['./backoffice.component.css']
 })
 export class BackofficeComponent implements OnInit, OnDestroy {
+  readonly scoringFactors = [
+    {
+      sourceKey: 'X1',
+      displayKey: 'x1',
+      label: 'x1 (DTI)',
+      meaning: 'Monthly debt-to-income ratio (payment / income).',
+    },
+    {
+      sourceKey: 'X4',
+      displayKey: 'x2',
+      label: 'x2',
+      meaning: 'Down payment relative to vehicle price.',
+    },
+    {
+      sourceKey: 'X5',
+      displayKey: 'x3',
+      label: 'x3',
+      meaning: 'Collateral coverage relative to the requested amount.',
+    },
+  ] as const;
+
+  readonly weekDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
   selectedPage = 'dashboard';
+  currentTheme: 'light' | 'dark' = 'dark';
   hover = false;
   showModal = false;
   decisionNote = '';
-  currentTheme: 'light' | 'dark' = 'light';
+  private ignoreNextOverlayClose = false;
+  private readonly themeStorageKey = 'finix_theme';
+  private realtimeSubscription?: Subscription;
+  private eventRealtimeSubscription?: Subscription;
+  private fallbackPollingHandle: ReturnType<typeof setInterval> | null = null;
+  private seenRequestIds = new Set<number>();
+  private seededNotificationRequestIds = new Set<number>();
+  private seededNotificationEventIds = new Set<number>();
 
-  /* ── Users management ── */
-  private readonly API = apiUrl('/api');
-  usersList: any[] = [];
-  usersLoading = false;
-  showUserModal = false;
-  editingUserId: number | null = null;
-  addUserError = '';
-  addUserLoading = false;
-  newUser: any = { firstName: '', lastName: '', email: '', password: '', role: 'AGENT', phoneNumber: '', cin: '', address: '', city: '', agenceCode: '', region: '', insurerName: '', insurerEmail: '' };
-  showViewUserModal = false;
-  viewUser: any = null;
+  requestLoans: RequestLoanDto[] = [];
+  loansLoading = false;
+  loansError = '';
+  showHistoryTable = false;
+  showStatsWindow = false;
+  unreadNotificationsCount = 0;
+  historyPage = 1;
+  historyPageSize = 9;
+  historyGridColumns = 3;
+  pipelinePage = 1;
+  pipelinePageSize = 4;
+  analysisPage = 1;
+  analysisPageSize = 8;
 
-  /* ── Logs ── */
-  logsList: any[] = [];
-  logsLoading = false;
-  usersTab: 'users' | 'logs' = 'users';
+  decisionSubmitting = false;
+  decisionError = '';
 
-  /* ── Admin payments ── */
-  adminPayments: any[] = [];
-  adminPaymentsLoading = false;
-  statusOptions = ['PAID', 'PENDING', 'CANCELLED', 'DONE'];
-  paymentFilter = '';
-  paymentStatusFilter = '';
-  paymentMethodFilter = '';
+  showEventModal = false;
+  showAddressMapModal = false;
+  isCreatingEvent = false;
+  isEditingEvent = false;
+  editingEventId: number | null = null;
+  eventCreateError = '';
+  eventCreateSuccess = '';
+  mapPickerError = '';
+  mapSearchQuery = '';
+  selectedMapAddress = '';
+  selectedMapLat: number | null = null;
+  selectedMapLng: number | null = null;
+  selectedMapLocation: { lat: number; lon: number; display_name: string } | null = null;
+  private leafletLib: any = null;
+  private addressMap: any = null;
+  private addressMarker: any = null;
+  events: EventDto[] = [];
+  eventsLoading = false;
+  eventsError = '';
+  eventsSearchTerm = '';
+  eventsStatusFilter = 'ALL';
+  eventsPage = 1;
+  eventsPageSize = 6;
+  expandedEventId: number | null = null;
 
-  get filteredPayments(): any[] {
-    let list = this.adminPayments;
-    const q = this.paymentFilter.trim().toLowerCase();
-    if (q) {
-      list = list.filter((p: any) =>
-        (p.clientFirstName + ' ' + p.clientLastName).toLowerCase().includes(q)
-        || (p.clientCin || '').toLowerCase().includes(q)
-        || (p.numeroContrat || '').toLowerCase().includes(q)
-        || (p.agentFirstName + ' ' + p.agentLastName).toLowerCase().includes(q)
-        || ('#' + p.id).includes(q)
-      );
-    }
-    if (this.paymentStatusFilter) {
-      list = list.filter((p: any) => p.paymentStatus === this.paymentStatusFilter);
-    }
-    if (this.paymentMethodFilter) {
-      list = list.filter((p: any) => p.paymentMethod === this.paymentMethodFilter);
-    }
-    return list;
-  }
-
- 
-
-  activeSettingsSection: string = 'general';
-
-  /* ── Dashboard KPIs ── */
-  dash = {
-    activeClients: 0,
-    totalOutstanding: 0,
-    activeContracts: 0,
-    collectedThisMonth: 0,
-    openDelinquencyCases: 0,
-    totalOverdueAmount: 0,
-    pendingGraceRequests: 0,
-    clientsWithPenalties: 0,
-    totalPenaltyAmount: 0,
-    dueThisMonth: 0,
-    pendingInstallmentsCount: 0,
-    recoveryRate: 0,
-    defaultRate: 0,
+  eventForm = {
+    title: '',
+    description: '',
+    rules: '',
+    city: '',
+    address: '',
+    startDate: '',
+    endDate: '',
+    registrationDeadline: '',
+    maxParticipants: 0,
+    currentParticipants: 0,
+    imageUrl: '',
+    status: 'PUBLISHED',
+    publicEvent: true,
+    userId: 0,
   };
-  dashLoading = false;
 
-  constructor(private renderer: Renderer2, private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef,private reservationService: ReservationService,private auth: AuthService,) {}
-
-  logout(): void {
-    localStorage.removeItem('finix_access_token');
-    localStorage.removeItem('currentUser');
-    sessionStorage.removeItem('finix_page');
-    this.router.navigate(['/login']);
-  }
+  constructor(
+    private creditService: Credit,
+    private eventService: EventService,
+    private adminNotificationService: AdminRequestNotificationService,
+    private authService: AuthService,
+    private router: Router,
+    private renderer: Renderer2,
+  ) {}
 
   ngOnInit(): void {
-    const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
-    this.currentTheme = saved || 'light';
-    this.applyTheme();
-    this.loadAdminPayments();
-
-    const savedPage = sessionStorage.getItem('finix_page');
-    if (savedPage) this.selectedPage = savedPage;
-
-    this.loadDashboardKpi();
-  }
-
-  loadDashboardKpi(): void {
-    this.dashLoading = true;
-    this.http.get<any>(`${this.API}/dashboard/kpi`).subscribe({
-      next: (res) => {
-        this.dash = {
-          activeClients:          Number(res.activeClients ?? 0),
-          totalOutstanding:       Number(res.totalOutstanding ?? 0),
-          activeContracts:        Number(res.activeContracts ?? 0),
-          collectedThisMonth:     Number(res.collectedThisMonth ?? 0),
-          openDelinquencyCases:   Number(res.openDelinquencyCases ?? 0),
-          totalOverdueAmount:     Number(res.totalOverdueAmount ?? 0),
-          pendingGraceRequests:   Number(res.pendingGraceRequests ?? 0),
-          clientsWithPenalties:   Number(res.clientsWithPenalties ?? 0),
-          totalPenaltyAmount:     Number(res.totalPenaltyAmount ?? 0),
-          dueThisMonth:           Number(res.dueThisMonth ?? 0),
-          pendingInstallmentsCount: Number(res.pendingInstallmentsCount ?? 0),
-          recoveryRate:           Number(res.recoveryRate ?? 0),
-          defaultRate:            Number(res.defaultRate ?? 0),
-        };
-        this.dashLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('[Dashboard] KPI error:', err);
-        this.dashLoading = false;
-      }
-    });
-  }
-
-  toggleTheme(): void {
-    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
-    localStorage.setItem('finix_theme', this.currentTheme);
-    this.applyTheme();
+    this.currentTheme = this.readSavedTheme();
+    this.applyTheme(this.currentTheme);
+    this.loadRequestLoans();
+    this.unreadNotificationsCount = this.notificationsCritical.length;
+    this.adminNotificationService.connect();
+    this.realtimeSubscription = this.adminNotificationService.events$.subscribe((event) =>
+      this.handleRealtimeNotification(event)
+    );
+    this.eventRealtimeSubscription = this.adminNotificationService.eventEvents$.subscribe((event) =>
+      this.handleRealtimeEventNotification(event)
+    );
+    this.seedNotificationsFromExistingPendingEvents();
+    this.startFallbackNotificationPolling();
   }
 
   ngOnDestroy(): void {
     this.renderer.removeAttribute(document.documentElement, 'data-theme');
-  }
-
-  private applyTheme(): void {
-    this.renderer.setAttribute(document.documentElement, 'data-theme', this.currentTheme);
-  }
-
-  navigateTo(page: string) {
-    this.selectedPage = page;
-    sessionStorage.setItem('finix_page', page);
+    this.unlockBodyScroll();
+    this.realtimeSubscription?.unsubscribe();
+    this.eventRealtimeSubscription?.unsubscribe();
+    this.adminNotificationService.disconnect();
+    this.stopFallbackNotificationPolling();
   }
 
   onPageChange(page: string) {
-    if (page === 'users') {
-      this.usersTab = 'users';
-      this.loadUsers();
-      this.loadLogs();
-      this.setSettingsSection('users-roles');
+    this.selectedPage = page;
+
+    if (page === 'credits' && this.requestLoans.length === 0) {
+      this.loadRequestLoans();
+    }
+    if (page === 'events' && this.events.length === 0) {
+      this.loadEvents();
+    }
+  }
+
+  loadEvents(page = 0, size = 1000): void {
+    this.eventsLoading = true;
+    this.eventsError = '';
+    this.eventService
+      .getEvents(page, size)
+      .pipe(finalize(() => (this.eventsLoading = false)))
+      .subscribe({
+        next: (response: EventPageResponse) => {
+          this.events = Array.isArray(response?.content) ? response.content : [];
+          this.eventsPage = 1;
+          this.expandedEventId = null;
+        },
+        error: () => {
+          this.eventsError = 'Unable to load events.';
+        },
+      });
+  }
+
+  get filteredEvents(): EventDto[] {
+    const q = this.eventsSearchTerm.trim().toLowerCase();
+    return this.events.filter((ev) => {
+      const matchesSearch =
+        !q ||
+        (ev.title || '').toLowerCase().includes(q) ||
+        (ev.city || '').toLowerCase().includes(q) ||
+        (ev.address || '').toLowerCase().includes(q);
+      const matchesStatus =
+        this.eventsStatusFilter === 'ALL' || (ev.status || '').toUpperCase() === this.eventsStatusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }
+
+  get totalEventPages(): number {
+    return Math.max(1, Math.ceil(this.filteredEvents.length / this.eventsPageSize));
+  }
+
+  get paginatedEvents(): EventDto[] {
+    const start = (this.eventsPage - 1) * this.eventsPageSize;
+    return this.filteredEvents.slice(start, start + this.eventsPageSize);
+  }
+
+  get visiblePipelineColumns(): PipelineColumn[] {
+    const columns = this.pipelineColumns ?? [];
+    const nonEmpty = columns.filter((col) => (col.cards?.length ?? 0) > 0);
+    return nonEmpty.length > 0 ? nonEmpty : columns;
+  }
+
+  get totalPipelinePages(): number {
+    const maxCards = this.visiblePipelineColumns.reduce((max, col) => Math.max(max, col.cards.length), 0);
+    return Math.max(1, Math.ceil(maxCards / this.pipelinePageSize));
+  }
+
+  get paginatedPipelineColumns(): PipelineColumn[] {
+    const start = (this.pipelinePage - 1) * this.pipelinePageSize;
+    return this.visiblePipelineColumns.map((col) => ({
+      ...col,
+      cards: col.cards.slice(start, start + this.pipelinePageSize),
+    }));
+  }
+
+  goToPipelinePage(page: number): void {
+    this.pipelinePage = Math.min(Math.max(1, page), this.totalPipelinePages);
+  }
+
+  get pipelinePaginationPages(): number[] {
+    const total = this.totalPipelinePages;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const current = this.pipelinePage;
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, start + 4);
+    const pages: number[] = [];
+    for (let i = start; i <= end; i += 1) pages.push(i);
+    return pages;
+  }
+
+  get totalAnalysisPages(): number {
+    return Math.max(1, Math.ceil(this.analysisFiles.length / this.analysisPageSize));
+  }
+
+  get paginatedAnalysisFiles(): AnalysisFileItem[] {
+    const start = (this.analysisPage - 1) * this.analysisPageSize;
+    return this.analysisFiles.slice(start, start + this.analysisPageSize);
+  }
+
+  goToAnalysisPage(page: number): void {
+    this.analysisPage = Math.min(Math.max(1, page), this.totalAnalysisPages);
+  }
+
+  get analysisPaginationPages(): number[] {
+    const total = this.totalAnalysisPages;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const current = this.analysisPage;
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, start + 4);
+    const pages: number[] = [];
+    for (let i = start; i <= end; i += 1) pages.push(i);
+    return pages;
+  }
+
+  get creditsSummaryText(): string {
+    const loans = this.requestLoans ?? [];
+    const total = loans.length;
+    const pending = loans.filter((loan) => loan.statutDemande === 'PENDING').length;
+    const decided = Math.max(0, total - pending);
+    const approved = loans.filter((loan) => loan.statutDemande === 'APPROVED').length;
+    const approvalRate = decided > 0 ? ((approved / decided) * 100).toFixed(1) : '0.0';
+    return `${total} active files · ${pending} pending · Approval rate ${approvalRate}%`;
+  }
+
+  onEventsFilterChange(): void {
+    this.eventsPage = 1;
+    this.expandedEventId = null;
+  }
+
+  goToEventsPage(page: number): void {
+    this.eventsPage = Math.min(Math.max(1, page), this.totalEventPages);
+    this.expandedEventId = null;
+  }
+
+  toggleHistoryWindow(): void {
+    this.showHistoryTable = !this.showHistoryTable;
+    if (this.showHistoryTable) {
+      this.recalculateHistoryLayout();
+      this.historyPage = 1;
+    }
+    if (this.showHistoryTable && !this.loansLoading && this.requestLoans.length === 0 && !this.loansError) {
+      this.loadRequestLoans();
+    }
+    this.syncBodyScrollLock();
+  }
+
+  closeHistoryWindow(): void {
+    this.showHistoryTable = false;
+    this.syncBodyScrollLock();
+  }
+
+  get totalHistoryPages(): number {
+    return Math.max(1, Math.ceil(this.requestLoans.length / this.historyPageSize));
+  }
+
+  get paginatedHistoryLoans(): RequestLoanDto[] {
+    const start = (this.historyPage - 1) * this.historyPageSize;
+    return this.requestLoans.slice(start, start + this.historyPageSize);
+  }
+
+  get historyPaginationPages(): number[] {
+    const total = this.totalHistoryPages;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const current = this.historyPage;
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, start + 4);
+    const pages: number[] = [];
+    for (let i = start; i <= end; i += 1) pages.push(i);
+    return pages;
+  }
+
+  goToHistoryPage(page: number): void {
+    this.historyPage = Math.min(Math.max(1, page), this.totalHistoryPages);
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    if (!this.showHistoryTable) return;
+    this.recalculateHistoryLayout();
+  }
+
+  private recalculateHistoryLayout(): void {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    if (width >= 1500) this.historyGridColumns = 4;
+    else if (width >= 1150) this.historyGridColumns = 3;
+    else if (width >= 820) this.historyGridColumns = 2;
+    else this.historyGridColumns = 1;
+
+    const rows = height >= 920 ? 3 : 2;
+    this.historyPageSize = this.historyGridColumns * rows;
+
+    if (this.historyPage > this.totalHistoryPages) {
+      this.historyPage = this.totalHistoryPages;
+    }
+  }
+
+  toggleStatsWindow(): void {
+    this.showStatsWindow = !this.showStatsWindow;
+    if (this.showStatsWindow && !this.loansLoading && this.requestLoans.length === 0 && !this.loansError) {
+      this.loadRequestLoans();
+    }
+    this.syncBodyScrollLock();
+  }
+
+  closeStatsWindow(): void {
+    this.showStatsWindow = false;
+    this.syncBodyScrollLock();
+  }
+
+  get statsTotalDossiers(): number {
+    return this.requestLoans.length;
+  }
+
+  get statsApprovedCount(): number {
+    return this.requestLoans.filter((loan) => loan.statutDemande === 'APPROVED').length;
+  }
+
+  get statsRejectedCount(): number {
+    return this.requestLoans.filter((loan) => loan.statutDemande === 'REJECTED').length;
+  }
+
+  get statsPendingCount(): number {
+    return this.requestLoans.filter((loan) => loan.statutDemande === 'PENDING').length;
+  }
+
+  get statsApprovedPct(): number {
+    const total = this.statsTotalDossiers || 1;
+    return Math.round((this.statsApprovedCount / total) * 100);
+  }
+
+  get statsRejectedPct(): number {
+    const total = this.statsTotalDossiers || 1;
+    return Math.round((this.statsRejectedCount / total) * 100);
+  }
+
+  get statsPendingPct(): number {
+    const total = this.statsTotalDossiers || 1;
+    return Math.round((this.statsPendingCount / total) * 100);
+  }
+
+  get eventPaginationPages(): number[] {
+    const total = this.totalEventPages;
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const current = this.eventsPage;
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, start + 4);
+    const pages: number[] = [];
+    for (let i = start; i <= end; i += 1) pages.push(i);
+    return pages;
+  }
+
+  toggleEventExpand(eventId?: number): void {
+    if (!eventId) {
       return;
     }
-    this.navigateTo(page);
-    if (page === 'settings') {
-      this.activeSettingsSection = 'general';
-    }
-    if (page === 'clients') {
-      this.loadClients();
-    }
-    if (page === 'repayments') {
-      this.loadAdminPayments();
-    }
-    if (page === 'reservations') {
-      this.loadAdminReservations();
-    }
+    this.expandedEventId = this.expandedEventId === eventId ? null : eventId;
   }
 
-  setSettingsSection(section: string): void {
-    this.activeSettingsSection = section;
-    this.navigateTo('settings');
-    if (section === 'users-roles') {
-      this.usersTab = 'users';
-      this.loadUsers();
-      this.loadLogs();
-    }
+  trackByEventId(index: number, ev: EventDto): number | string {
+    return ev.idEvent ?? `event-${index}`;
   }
 
-  switchUsersTab(tab: 'users' | 'logs'): void {
-    this.usersTab = tab;
+  getCategoryLabel(ev: EventDto): string {
+    return 'Event Public';
   }
 
-
-  dossiers = [
-    {
-      ref: '#CR-2025-043',
-      initials: 'BM',
-      client: 'Bilel Mrabet',
-      clientSince: 'Client depuis 2021',
-      type: 'Immobilier',
-      amount: '85 000 TND',
-      score: '742',
-      scoreColor: '#2ECC71',
-      status: 'En analyse',
-      statusClass: 'b-review'
-    },
-    {
-      ref: '#CR-2025-051',
-      initials: 'LB',
-      client: 'Leila Bourguiba',
-      clientSince: 'Client depuis 2023',
-      type: 'Automobile',
-      amount: '32 500 TND',
-      score: '610',
-      scoreColor: '#F39C12',
-      status: 'En analyse',
-      statusClass: 'b-review'
-    },
-    {
-      ref: '#CR-2025-059',
-      initials: 'KH',
-      client: 'Karim Hadj',
-      clientSince: 'Nouveau client',
-      type: 'Consommation',
-      amount: '8 000 TND',
-      score: '520',
-      scoreColor: '#E74C3C',
-      status: 'En attente',
-      statusClass: 'b-pending'
+  getEventDateTimeLabel(ev: EventDto): string {
+    if (!ev.startDate || !ev.endDate) {
+      return 'Date not set';
     }
-  ];
+    const start = new Date(ev.startDate);
+    const end = new Date(ev.endDate);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return 'Date not set';
+    }
+    const date = start.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase();
+    const startTime = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const endTime = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    return `${date} · ${startTime} - ${endTime} CST`;
+  }
+
+  isEventDayActive(ev: EventDto, dayIndex: number): boolean {
+    if (!ev.startDate || !ev.endDate) {
+      return false;
+    }
+    const start = new Date(ev.startDate);
+    const end = new Date(ev.endDate);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return false;
+    }
+    const map = [6, 0, 1, 2, 3, 4, 5]; // MON..SUN -> JS day index
+    const targetDay = map[dayIndex];
+    for (const cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
+      if (cursor.getDay() === targetDay) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  getEventLocations(ev: EventDto): string[] {
+    const locations = new Set<string>();
+    if (ev.city) locations.add(ev.city);
+    if (ev.address) {
+      ev.address.split(',').map((part) => part.trim()).filter(Boolean).forEach((part) => locations.add(part));
+    }
+    return Array.from(locations).slice(0, 3);
+  }
+
+  getEventMetricValue(ev: EventDto, metric: 'inscrits' | 'capacite' | 'restants'): number {
+    const inscrits = Math.max(0, ev.currentParticipants ?? 0);
+    const capacity = Math.max(0, ev.maxParticipants ?? 0);
+    const restants = Math.max(0, capacity - inscrits);
+    if (metric === 'inscrits') return inscrits;
+    if (metric === 'capacite') return capacity;
+    return restants;
+  }
+
+  getEventMetricPct(ev: EventDto, metric: 'inscrits' | 'capacite' | 'restants'): number {
+    const capacity = Math.max(1, ev.maxParticipants ?? 0);
+    return Math.min(100, Math.round((this.getEventMetricValue(ev, metric) / capacity) * 100));
+  }
+
+  getEventFillStat(ev: EventDto): string {
+    const pct = this.getEventMetricPct(ev, 'inscrits');
+    return `${pct}% full`;
+  }
+
+  getEventStatusClass(status?: string): string {
+    const s = (status || '').toUpperCase();
+    if (s === 'PUBLISHED') return 'published';
+    if (s === 'DRAFT') return 'draft';
+    if (s === 'CANCELLED') return 'cancelled';
+    return 'default';
+  }
+
+  loadRequestLoans(): void {
+    this.loansLoading = true;
+    this.loansError = '';
+    this.requestLoans = [];
+    this.selectedFile = null;
+    this.showModal = false;
+
+    this.creditService
+      .getRequestLoans(0, 2000)
+      .pipe(
+        finalize(() => {
+          this.loansLoading = false;
+        }),
+      )
+      .subscribe({
+        next: (response: PageResponse<RequestLoanDto>) => {
+          this.requestLoans = Array.isArray(response?.content) ? response.content : [];
+          this.syncCreditViewsFromApi();
+          this.syncSeenRequestIds(this.requestLoans);
+          this.seedNotificationsFromExistingPending(this.requestLoans);
+        },
+        error: (error: unknown) => {
+          console.error('Error while loading request loans', error);
+          this.loansError = 'Unable to load loan requests.';
+          this.syncCreditViewsFromApi();
+        },
+      });
+  }
+
+  dossiers: DossierItem[] = [];
 
   activities = [
     {
@@ -344,62 +690,43 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     }
   ];
 
-  clients: any[] = [];
-  clientsLoading = false;
-
-
-  pipelineColumns: PipelineColumn[] = [
+  clients = [
     {
-      title: "New",
-      class: "ph-new",
-      count: 8,
-      cards: [
-        { name: "Karim Hadj", ref: "#CR-2025-059", amount: "8 000 TND", type: "Consumption" },
-        { name: "Marwa Ferchichi", ref: "#CR-2025-062", amount: "15 000 TND", type: "Car loan" },
-        { name: "Nizar Jlassi", ref: "#CR-2025-064", amount: "6 500 TND", type: "Consumption" }
-      ]
-    },
-
-    {
-      title: "Analysis",
-      class: "ph-analysis",
-      count: 12,
-      cards: [
-        { name: "Bilel Mrabet", ref: "#CR-2025-043", amount: "85 000 TND", type: "Real estate · 48h+", warn: true },
-        { name: "Leila Bourguiba", ref: "#CR-2025-051", amount: "32 500 TND", type: "Car loan · 48h+", warn: true },
-        { name: "Sonia Karray", ref: "#CR-2025-055", amount: "12 000 TND", type: "Consumption" }
-      ]
-    }
-  ];
-
-  analysisFiles = [
-    {
-      ref: "#CR-2025-043",
       initials: "BM",
       name: "Bilel Mrabet",
-      clientInfo: "Loyal client · 5 years",
-      type: "Real estate",
-      amount: "85 000 TND",
-      duration: "180 months",
+      email: "bilel.mrabet@email.com",
+      phone: "+216 20 123 456",
+      cin: "08 123 456",
+      city: "Tunis",
       score: 742,
-      debtRatio: 28,
-      seniority: "5 years",
-      recommendation: "Favorable"
+      scoreColor: "var(--success)",
+      credits: "3 active",
+      encours: "24 500 TND",
+      kyc: "Complete",
+      status: "Active",
+      statusClass: "b-actif"
     },
     {
-      ref: "#CR-2025-051",
       initials: "LB",
       name: "Leila Bourguiba",
-      clientInfo: "Client · 2 years",
-      type: "Car loan",
-      amount: "32 500 TND",
-      duration: "60 months",
+      email: "l.bourguiba@email.com",
+      phone: "+216 22 654 321",
+      cin: "12 456 789",
+      city: "Sousse",
       score: 610,
-      debtRatio: 41,
-      seniority: "2 years",
-      recommendation: "To analyze"
+      scoreColor: "var(--warning)",
+      credits: "1 active",
+      encours: "32 500 TND",
+      kyc: "Partial",
+      status: "Active",
+      statusClass: "b-actif"
     }
   ];
+
+
+  pipelineColumns: PipelineColumn[] = [];
+
+  analysisFiles: AnalysisFileItem[] = [];
 
   payments = [
     {
@@ -486,51 +813,203 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     { label: "< 500", pct: 3, color: "var(--danger)" }
   ];
 
-  notificationsCritical = [
-    {
-      title: "Critical overdue — Hanen Gharbi — J+14",
-      meta: "2 hours ago · #CR-2023-092 · 890 TND · Action required",
-      type: "danger"
-    },
-    {
-      title: "File waiting > 48h — #CR-2025-043 — Bilel Mrabet",
-      meta: "3 hours ago · Real estate · 85,000 TND · Decision required",
-      type: "warning"
-    },
-    {
-      title: "Insurance expired — Toyota Corolla — Bilel Mrabet",
-      meta: "5 hours ago · STAR-2025-048291 · Expire in 2 days",
-      type: "danger"
-    }
-  ];
+  notificationsCritical: CriticalNotificationItem[] = [];
 
-  notificationsRecent = [
-    {
-      title: "Payment received — Bilel Mrabet — 850 TND",
-      meta: "4 min ago · Bank transfer · #PAY-2026-028",
-      color: "success"
-    },
-    {
-      title: "New file submitted — Karim Hadj",
-      meta: "18 min ago · Consumption · 8,000 TND",
-      color: "blue"
-    },
-    {
-      title: "New client registered — Marwa Ferchichi",
-      meta: "3 hours ago · Web channel · Sfax · KYC pending",
-      color: "purple"
-    },
-    {
-      title: "File approved — Amira Selmi — #CR-2025-037",
-      meta: "Yesterday 16:42 · Automobile · 45,000 TND",
-      color: "success"
-    },
-    {
-      title: "Monthly report January 2026 available",
-      meta: "Yesterday 08:00 · Auto generated",
-      color: "blue"
+  get unreadCriticalCount(): number {
+    return this.notificationsCritical.length;
+  }
+
+  get topbarUnreadCount(): number {
+    return this.unreadNotificationsCount;
+  }
+
+  notificationsRecent: RecentNotificationItem[] = [];
+
+  get topbarNotifications(): TopbarNotificationItem[] {
+    return [...this.notificationsCritical, ...this.notificationsRecent];
+  }
+
+  private handleRealtimeNotification(event: AdminRequestNotificationEvent): void {
+    if (!event || event.type !== 'NEW_REQUEST') {
+      return;
     }
-  ];
+
+    const createdAt = event.createdAt ? new Date(event.createdAt) : new Date();
+    const amountLabel = typeof event.amount === 'number' ? `${event.amount} TND` : '-';
+    const objective = event.objective || 'Credit request';
+    const title = `New request — ${event.clientFullName || 'Client'} — #CR-${event.requestId}`;
+    const meta = `${createdAt.toLocaleString()} · ${objective} · ${amountLabel} · Action required`;
+
+    this.notificationsCritical = [
+      {
+        title,
+        meta,
+        type: 'warning',
+        requestId: event.requestId,
+        targetPage: 'credits',
+      },
+      ...this.notificationsCritical,
+    ].slice(0, 25);
+    this.unreadNotificationsCount += 1;
+  }
+
+  private handleRealtimeEventNotification(event: AdminEventNotificationEvent): void {
+    if (!event || event.type !== 'EVENT_SUBMITTED' || !event.eventId) {
+      return;
+    }
+
+    const createdAt = event.createdAt ? new Date(event.createdAt) : new Date();
+    const title = `New event — ${event.organizerFullName || 'Insurer'} — #EV-${event.eventId}`;
+    const meta = `${createdAt.toLocaleString()} · ${event.title || 'Event'} · Pending validation`;
+
+    this.notificationsCritical = [
+      {
+        title,
+        meta,
+        type: 'warning',
+        eventId: event.eventId,
+        targetPage: 'events',
+      },
+      ...this.notificationsCritical,
+    ].slice(0, 25);
+    this.seededNotificationEventIds.add(event.eventId);
+    this.unreadNotificationsCount += 1;
+  }
+
+  private seedNotificationsFromExistingPendingEvents(): void {
+    this.eventService.getEvents(0, 1000).subscribe({
+      next: (response: EventPageResponse) => {
+        const rows = Array.isArray(response?.content) ? response.content : [];
+        const pending = rows
+          .filter((ev) => ev?.idEvent != null && (ev.status || '').toUpperCase() === 'DRAFT')
+          .slice(0, 20);
+
+        pending.forEach((ev) => {
+          if (!ev.idEvent || this.seededNotificationEventIds.has(ev.idEvent)) return;
+          this.handleRealtimeEventNotification({
+            type: 'EVENT_SUBMITTED',
+            eventId: ev.idEvent,
+            title: ev.title || 'Event',
+            status: (ev.status || 'DRAFT').toUpperCase(),
+            organizerId: ev.userId,
+            organizerFullName: 'Insurer',
+            createdAt: new Date().toISOString(),
+            message: 'New event submitted for validation',
+          });
+        });
+      },
+      error: () => {
+        // Keep websocket as primary channel.
+      },
+    });
+  }
+
+  onNotificationsPanelOpened(): void {
+    this.unreadNotificationsCount = 0;
+  }
+
+  openNotification(item: CriticalNotificationItem): void {
+    if (!item.requestId) {
+      return;
+    }
+    this.openLoanRequestById(item.requestId);
+  }
+
+  openTopbarNotification(item: TopbarNotificationItem): void {
+    if (item.eventId) {
+      this.openEventById(item.eventId);
+      return;
+    }
+
+    const requestId = item.requestId ?? this.extractRequestIdFromText(`${item.title} ${item.meta}`);
+    if (requestId) {
+      this.openLoanRequestById(requestId);
+      return;
+    }
+
+    if (item.targetPage) {
+      this.onPageChange(item.targetPage);
+      return;
+    }
+
+    // Fallback for event-like notifications without explicit target metadata.
+    if (/event/i.test(item.title) || /event/i.test(item.meta)) {
+      this.onPageChange('events');
+      return;
+    }
+
+    this.onPageChange('notifications');
+  }
+
+  private extractRequestIdFromText(text: string): number | undefined {
+    const match = text.match(/#CR-(\d+)/i);
+    if (!match) return undefined;
+    const id = Number(match[1]);
+    return Number.isFinite(id) ? id : undefined;
+  }
+
+  private openLoanRequestById(requestId: number): void {
+    this.onPageChange('credits');
+    const existing = this.requestLoans.find((loan) => loan.idDemande === requestId);
+    if (existing) {
+      this.openModal(existing);
+      return;
+    }
+
+    this.loansLoading = true;
+    this.loansError = '';
+    this.creditService
+      .getRequestLoans(0, 2000)
+      .pipe(finalize(() => (this.loansLoading = false)))
+      .subscribe({
+        next: (response: PageResponse<RequestLoanDto>) => {
+          this.requestLoans = Array.isArray(response?.content) ? response.content : [];
+          this.syncCreditViewsFromApi();
+          const target = this.requestLoans.find((loan) => loan.idDemande === requestId);
+          if (target) {
+            this.openModal(target);
+          }
+        },
+        error: () => {
+          this.loansError = 'Unable to open the request from the notification.';
+        },
+      });
+  }
+
+  private openEventById(eventId: number): void {
+    this.onPageChange('events');
+    const focusTarget = () => {
+      const target = this.events.find((ev) => ev.idEvent === eventId);
+      if (!target) {
+        return;
+      }
+      const idx = this.filteredEvents.findIndex((ev) => ev.idEvent === eventId);
+      if (idx >= 0) {
+        this.eventsPage = Math.floor(idx / this.eventsPageSize) + 1;
+      }
+      this.expandedEventId = eventId;
+    };
+
+    if (this.events.length > 0) {
+      focusTarget();
+      return;
+    }
+
+    this.eventsLoading = true;
+    this.eventsError = '';
+    this.eventService
+      .getEvents(0, 1000)
+      .pipe(finalize(() => (this.eventsLoading = false)))
+      .subscribe({
+        next: (response: EventPageResponse) => {
+          this.events = Array.isArray(response?.content) ? response.content : [];
+          focusTarget();
+        },
+        error: () => {
+          this.eventsError = 'Unable to open the event from the notification.';
+        },
+      });
+  }
 
   reports = [
     {
@@ -670,36 +1149,955 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   };
 
   dossier = {
-    reference: '#CR-2025-043',
-    status: 'In analysis',
-    submittedDate: '26/02/2026',
+    reference: '-',
+    status: 'N/A',
+    submittedDate: '-',
     client: {
-      name: 'Bilel Mrabet',
-      cin: '08 123 456',
-      phone: '+216 20 123 456',
-      email: 'bilel.mrabt@email.com'
-    }
+      name: '-',
+      cin: '-',
+      phone: '-',
+      email: '-',
+    },
   };
 
+  private syncCreditViewsFromApi(): void {
+    const loans = this.requestLoans ?? [];
 
+    this.dossiers = loans.slice(0, 3).map((loan) => {
+      const firstName = loan.user?.firstName ?? '';
+      const lastName = loan.user?.lastName ?? '';
+      const fullName = `${firstName} ${lastName}`.trim() || 'Unknown client';
+      const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.trim().toUpperCase() || 'NA';
+      return {
+        ref: `#CR-${loan.idDemande}`,
+        initials,
+        client: fullName,
+        clientSince: 'Source: database',
+        type: loan.objectifCredit || 'N/A',
+        amount: `${loan.montantDemande ?? 0} TND`,
+        score: this.formatRiskScore(loan.riskScore),
+        scoreColor: this.riskScoreColor(loan.riskScore),
+        status: loan.statutDemande || 'N/A',
+        statusClass:
+          loan.statutDemande === 'APPROVED'
+            ? 'b-actif'
+            : loan.statutDemande === 'REJECTED'
+              ? 'b-danger'
+              : 'b-review',
+      };
+    });
 
+    const pending = loans.filter((loan) => loan.statutDemande === 'PENDING');
+    const decided = loans.filter((loan) => loan.statutDemande !== 'PENDING');
 
-  goToBusinessRules() {
-    this.navigateTo('penalty-tiers');
+    this.pipelineColumns = [
+      {
+        title: 'New requests',
+        shortTitle: 'New',
+        class: 'ph-new',
+        count: pending.length,
+        cards: pending.slice(0, 8).map((loan) => ({
+          idDemande: loan.idDemande,
+          statutDemande: loan.statutDemande,
+          dateCreation: loan.dateCreation,
+          user: loan.user,
+          vehicle: loan.vehicle,
+          vehicule: loan.vehicule,
+          name:
+            `${loan.user?.firstName ?? ''} ${loan.user?.lastName ?? ''}`.trim() ||
+            `Request #${loan.idDemande}`,
+          ref: `#CR-${loan.idDemande}`,
+          amount: `${loan.montantDemande ?? 0} TND`,
+          type: loan.objectifCredit || 'N/A',
+          warn: this.isOlderThan48h(loan.dateCreation),
+        })),
+      },
+      {
+        title: 'Processed files',
+        shortTitle: 'Done',
+        class: 'ph-analysis',
+        count: decided.length,
+        cards: decided.slice(0, 8).map((loan) => ({
+          idDemande: loan.idDemande,
+          statutDemande: loan.statutDemande,
+          dateCreation: loan.dateCreation,
+          user: loan.user,
+          vehicle: loan.vehicle,
+          vehicule: loan.vehicule,
+          name:
+            `${loan.user?.firstName ?? ''} ${loan.user?.lastName ?? ''}`.trim() ||
+            `Request #${loan.idDemande}`,
+          ref: `#CR-${loan.idDemande}`,
+          amount: `${loan.montantDemande ?? 0} TND`,
+          type: loan.objectifCredit || 'N/A',
+          warn: this.isOlderThan48h(loan.dateCreation),
+        })),
+      },
+    ];
+
+    this.analysisFiles = pending.slice(0, 12).map((loan) => ({
+      idDemande: loan.idDemande,
+      statutDemande: loan.statutDemande,
+      montantDemande: loan.montantDemande ?? 0,
+      apportPersonnel: loan.apportPersonnel ?? 0,
+      dureeMois: loan.dureeMois ?? 0,
+      mensualiteEstimee: loan.mensualiteEstimee ?? 0,
+      objectifCredit: loan.objectifCredit || 'N/A',
+      dateCreation: loan.dateCreation,
+      user: loan.user,
+      vehicle: loan.vehicle,
+      vehicule: loan.vehicule,
+      ref: `#CR-${loan.idDemande}`,
+      initials:
+        `${loan.user?.firstName?.charAt(0) ?? ''}${loan.user?.lastName?.charAt(0) ?? ''}`.toUpperCase() ||
+        'NA',
+      name: `${loan.user?.firstName ?? ''} ${loan.user?.lastName ?? ''}`.trim() || 'Unknown client',
+      clientInfo: 'Source: database',
+      type: loan.objectifCredit || 'N/A',
+      amount: `${loan.montantDemande ?? 0} TND`,
+      duration: `${loan.dureeMois ?? 0} months`,
+      score: Math.round(loan.riskScore ?? 0),
+      debtRatio: this.extractDebtRatio(this.adaptiveBreakdownText(loan)),
+      seniority: 'N/A',
+      recommendation: this.riskDecisionLabel(loan.riskDecision),
+      riskDecision: loan.riskDecision,
+      riskBreakdown: loan.riskBreakdown,
+      internalRiskBreakdown: loan.internalRiskBreakdown,
+    }));
+    this.pipelinePage = 1;
+    this.analysisPage = 1;
   }
+
+  private startFallbackNotificationPolling(): void {
+    if (this.fallbackPollingHandle) return;
+    this.fallbackPollingHandle = setInterval(() => {
+      this.pollForNewRequests();
+    }, 10000);
+  }
+
+  private stopFallbackNotificationPolling(): void {
+    if (!this.fallbackPollingHandle) return;
+    clearInterval(this.fallbackPollingHandle);
+    this.fallbackPollingHandle = null;
+  }
+
+  private syncSeenRequestIds(loans: RequestLoanDto[]): void {
+    loans.forEach((loan) => {
+      if (loan?.idDemande != null) {
+        this.seenRequestIds.add(loan.idDemande);
+      }
+    });
+  }
+
+  private pollForNewRequests(): void {
+    this.creditService.getRequestLoans(0, 100).subscribe({
+      next: (response: PageResponse<RequestLoanDto>) => {
+        const loans = Array.isArray(response?.content) ? response.content : [];
+        if (this.seenRequestIds.size === 0) {
+          this.syncSeenRequestIds(loans);
+          return;
+        }
+
+        loans.forEach((loan) => {
+          if (!loan?.idDemande || this.seenRequestIds.has(loan.idDemande) || loan.statutDemande === 'DRAFT') {
+            return;
+          }
+          const clientFullName =
+            `${loan.user?.firstName ?? ''} ${loan.user?.lastName ?? ''}`.trim() || 'Client';
+          this.handleRealtimeNotification({
+            type: 'NEW_REQUEST',
+            requestId: loan.idDemande,
+            clientFullName,
+            amount: loan.montantDemande ?? 0,
+            objective: loan.objectifCredit ?? 'Credit request',
+            status: loan.statutDemande ?? 'PENDING',
+            createdAt: loan.dateCreation ? new Date(loan.dateCreation).toISOString() : new Date().toISOString(),
+          });
+          this.seenRequestIds.add(loan.idDemande);
+          this.requestLoans = loans;
+          this.syncCreditViewsFromApi();
+        });
+      },
+      error: () => {
+        // Silent fallback polling; websocket remains primary realtime channel.
+      },
+    });
+  }
+
+  private seedNotificationsFromExistingPending(loans: RequestLoanDto[]): void {
+    if (!Array.isArray(loans) || loans.length === 0) return;
+    const latestPending = loans
+      .filter((loan) => loan?.idDemande != null && loan.statutDemande === 'PENDING')
+      .sort((a, b) => {
+        const ta = a.dateCreation ? new Date(a.dateCreation).getTime() : 0;
+        const tb = b.dateCreation ? new Date(b.dateCreation).getTime() : 0;
+        return tb - ta;
+      })
+      .slice(0, 10);
+
+    latestPending.forEach((loan) => {
+      if (!loan.idDemande || this.seededNotificationRequestIds.has(loan.idDemande)) {
+        return;
+      }
+      const clientFullName =
+        `${loan.user?.firstName ?? ''} ${loan.user?.lastName ?? ''}`.trim() || 'Client';
+      this.handleRealtimeNotification({
+        type: 'NEW_REQUEST',
+        requestId: loan.idDemande,
+        clientFullName,
+        amount: loan.montantDemande ?? 0,
+        objective: loan.objectifCredit ?? 'Credit request',
+        status: loan.statutDemande ?? 'PENDING',
+        createdAt: loan.dateCreation ? new Date(loan.dateCreation).toISOString() : new Date().toISOString(),
+      });
+      this.seededNotificationRequestIds.add(loan.idDemande);
+    });
+  }
+
+
+
 
   goCredits() {
-    console.log('Navigate credits');
+    this.onPageChange('credits');
+  }
+
+  openCreateEventModal(): void {
+    this.resetEventForm();
+    this.isEditingEvent = false;
+    this.editingEventId = null;
+    this.showEventModal = true;
+  }
+
+  openEditEventModal(ev: EventDto): void {
+    if (!this.canEditEvent(ev) || !ev.idEvent) {
+      return;
+    }
+    this.eventCreateError = '';
+    this.eventCreateSuccess = '';
+    this.isEditingEvent = true;
+    this.editingEventId = ev.idEvent;
+    this.eventForm = {
+      title: ev.title || '',
+      description: ev.description || '',
+      rules: ev.rules || '',
+      city: ev.city || '',
+      address: ev.address || '',
+      startDate: this.toDateTimeLocal(ev.startDate),
+      endDate: this.toDateTimeLocal(ev.endDate),
+      registrationDeadline: this.toDateTimeLocal(ev.registrationDeadline),
+      maxParticipants: ev.maxParticipants ?? 0,
+      currentParticipants: ev.currentParticipants ?? 0,
+      imageUrl: ev.imageUrl || ev.image || '',
+      status: ev.status || 'PUBLISHED',
+      publicEvent: ev.publicEvent ?? true,
+      userId: ev.userId || this.getConnectedUserId() || 0,
+    };
+    this.showEventModal = true;
+  }
+
+  closeCreateEventModal(resetMessages = true): void {
+    this.showEventModal = false;
+    this.isEditingEvent = false;
+    this.editingEventId = null;
+    if (resetMessages) {
+      this.eventCreateError = '';
+      this.eventCreateSuccess = '';
+    }
+    this.isCreatingEvent = false;
+  }
+
+  openAddressMapPicker(): void {
+    this.mapPickerError = '';
+    this.mapSearchQuery = '';
+    this.selectedMapAddress = this.eventForm.address || '';
+    this.selectedMapLocation = null;
+    this.showAddressMapModal = true;
+    // Initialize only after modal is visible in the DOM.
+    setTimeout(() => {
+      if (this.showAddressMapModal) this.initAddressMap();
+    }, 200);
+  }
+
+  closeAddressMapPicker(): void {
+    this.showAddressMapModal = false;
+  }
+
+  async confirmAddressFromMap(): Promise<void> {
+    if (!this.selectedMapLocation || !this.selectedMapAddress.trim()) {
+      this.mapPickerError = 'Pick a location on the map.';
+      return;
+    }
+    // Emit selected address payload to parent form state.
+    this.eventForm.address = this.selectedMapAddress.trim();
+    this.showAddressMapModal = false;
+  }
+
+  async searchAddressOnMap(): Promise<void> {
+    const query = this.mapSearchQuery.trim();
+    if (!query) {
+      this.mapPickerError = 'Enter an address to search.';
+      return;
+    }
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`
+      );
+      const data = await res.json();
+      const first = Array.isArray(data) ? data[0] : null;
+      if (!first) {
+        this.mapPickerError = 'No results found.';
+        return;
+      }
+      const lat = Number(first.lat);
+      const lon = Number(first.lon);
+      if (Number.isNaN(lat) || Number.isNaN(lon)) {
+        this.mapPickerError = 'Invalid coordinates.';
+        return;
+      }
+      this.placeOrMoveMarker(lat, lon);
+      this.addressMap?.setView([lat, lon], 13);
+      await this.reverseGeocodeAddress(lat, lon);
+    } catch {
+      this.mapPickerError = 'Search is unavailable right now.';
+    }
+  }
+
+  private async initAddressMap(): Promise<void> {
+    const mapContainerId = 'event-address-map';
+    const el = document.getElementById(mapContainerId);
+    if (!el) {
+      this.mapPickerError = 'Map unavailable.';
+      return;
+    }
+
+    const L = await import('leaflet');
+    this.leafletLib = L;
+    if (this.addressMap) {
+      this.addressMap.remove();
+      this.addressMap = null;
+      this.addressMarker = null;
+    }
+
+    this.addressMap = L.map(mapContainerId).setView([36.8065, 10.1815], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(this.addressMap);
+
+    this.addressMap.on('click', async (e: any) => {
+      const { lat, lng } = e.latlng;
+      this.placeOrMoveMarker(lat, lng);
+      await this.reverseGeocodeAddress(lat, lng);
+    });
+
+    // Required delayed tile fix after modal open.
+    setTimeout(() => this.addressMap?.invalidateSize(), 200);
+  }
+
+  private placeOrMoveMarker(lat: number, lng: number): void {
+    this.selectedMapLat = lat;
+    this.selectedMapLng = lng;
+    if (this.addressMarker) {
+      this.addressMarker.setLatLng([lat, lng]);
+    } else {
+      if (!this.leafletLib) return;
+      this.addressMarker = this.leafletLib.marker([lat, lng]).addTo(this.addressMap);
+    }
+  }
+
+  private async reverseGeocodeAddress(lat: number, lng: number): Promise<void> {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+      const data = await res.json();
+      this.selectedMapAddress = data?.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      this.selectedMapLocation = {
+        lat,
+        lon: lng,
+        display_name: this.selectedMapAddress,
+      };
+      this.mapPickerError = '';
+    } catch {
+      this.selectedMapAddress = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      this.selectedMapLocation = {
+        lat,
+        lon: lng,
+        display_name: this.selectedMapAddress,
+      };
+      this.mapPickerError = 'Address could not be resolved; coordinates kept.';
+    }
+  }
+
+  createEvent(): void {
+    const userId = this.getConnectedUserId();
+    if (!userId) {
+      this.eventCreateError = 'Signed-in user not found.';
+      return;
+    }
+
+    this.eventForm.userId = userId;
+    this.isCreatingEvent = true;
+    this.eventCreateError = '';
+    this.eventCreateSuccess = '';
+
+    const payload: CreateEventPayload = {
+      title: this.eventForm.title.trim(),
+      description: this.eventForm.description.trim(),
+      rules: this.eventForm.rules.trim(),
+      city: this.eventForm.city.trim(),
+      address: this.eventForm.address.trim(),
+      startDate: this.eventForm.startDate,
+      endDate: this.eventForm.endDate,
+      registrationDeadline: this.eventForm.registrationDeadline,
+      maxParticipants: Number(this.eventForm.maxParticipants) || 0,
+      currentParticipants: 0,
+      imageUrl: this.eventForm.imageUrl.trim(),
+      status: this.eventForm.status || 'PUBLISHED',
+      publicEvent: this.eventForm.publicEvent,
+      userId,
+    };
+
+    const duplicateTitleExists = this.events.some((ev) => {
+      const sameTitle = (ev.title || '').trim().toLowerCase() === payload.title.toLowerCase();
+      const isDifferentEvent = !this.isEditingEvent || ev.idEvent !== this.editingEventId;
+      return sameTitle && isDifferentEvent;
+    });
+    if (duplicateTitleExists) {
+      this.isCreatingEvent = false;
+      this.eventCreateError = `Another event already uses the title "${payload.title}".`;
+      return;
+    }
+
+    if (!payload.title || !payload.city || !payload.address || !payload.startDate || !payload.endDate) {
+      this.isCreatingEvent = false;
+      this.eventCreateError = 'Please fill in the required fields.';
+      return;
+    }
+
+    const startDate = new Date(payload.startDate);
+    const endDate = new Date(payload.endDate);
+    const registrationDeadline = payload.registrationDeadline ? new Date(payload.registrationDeadline) : null;
+
+    if (!Number.isNaN(startDate.getTime()) && !Number.isNaN(endDate.getTime()) && endDate <= startDate) {
+      this.isCreatingEvent = false;
+      this.eventCreateError = 'End date must be after the start date.';
+      return;
+    }
+
+    if (
+      registrationDeadline &&
+      !Number.isNaN(registrationDeadline.getTime()) &&
+      !Number.isNaN(endDate.getTime()) &&
+      registrationDeadline > endDate
+    ) {
+      this.isCreatingEvent = false;
+      this.eventCreateError = 'Registration deadline must be on or before the end date.';
+      return;
+    }
+
+    const request$ =
+      this.isEditingEvent && this.editingEventId
+        ? this.eventService.updateEvent(this.editingEventId, payload)
+        : this.eventService.createEvent(payload);
+
+    request$
+      .pipe(finalize(() => (this.isCreatingEvent = false)))
+      .subscribe({
+        next: () => {
+          this.eventCreateSuccess = this.isEditingEvent
+            ? 'Event updated successfully.'
+            : 'Event created successfully.';
+          this.closeCreateEventModal(false);
+          this.loadEvents();
+        },
+        error: (err: any) => {
+          if (err?.status === 403) {
+            this.eventCreateError = 'Backend refused access to create or update this event.';
+            return;
+          }
+          this.eventCreateError = err?.error?.message || err?.message || 'Failed to save the event.';
+        },
+      });
+  }
+
+  approveEvent(ev: EventDto): void {
+    this.changeEventStatus(ev, 'PUBLISHED');
+  }
+
+  declineEvent(ev: EventDto): void {
+    this.changeEventStatus(ev, 'CANCELLED');
+  }
+
+  private changeEventStatus(ev: EventDto, targetStatus: 'PUBLISHED' | 'CANCELLED'): void {
+    if (!ev?.idEvent) {
+      this.eventsError = 'Event not found.';
+      return;
+    }
+    if ((ev.status || '').toUpperCase() === targetStatus) {
+      return;
+    }
+
+    const userId = this.getConnectedUserId() || ev.userId || 0;
+    const payload: CreateEventPayload = {
+      title: (ev.title || '').trim(),
+      description: (ev.description || '').trim(),
+      rules: (ev.rules || '').trim(),
+      city: (ev.city || '').trim(),
+      address: (ev.address || '').trim(),
+      startDate: ev.startDate || '',
+      endDate: ev.endDate || '',
+      registrationDeadline: ev.registrationDeadline || ev.endDate || '',
+      maxParticipants: Number(ev.maxParticipants) || 0,
+      currentParticipants: Number(ev.currentParticipants) || 0,
+      imageUrl: (ev.imageUrl || ev.image || '').trim(),
+      status: targetStatus,
+      publicEvent: ev.publicEvent ?? true,
+      userId,
+    };
+
+    if (!payload.title || !payload.city || !payload.address || !payload.startDate || !payload.endDate) {
+      this.eventsError = 'Cannot update status: event data is incomplete.';
+      return;
+    }
+
+    this.eventsError = '';
+    this.eventService.updateEvent(ev.idEvent, payload).subscribe({
+      next: () => this.loadEvents(),
+      error: (err: any) => {
+        this.eventsError = err?.error?.message || err?.message || 'Failed to update event status.';
+      },
+    });
+  }
+
+  private resetEventForm(): void {
+    this.eventCreateError = '';
+    this.eventCreateSuccess = '';
+    this.eventForm = {
+      title: '',
+      description: '',
+      rules: '',
+      city: '',
+      address: '',
+      startDate: '',
+      endDate: '',
+      registrationDeadline: '',
+      maxParticipants: 0,
+      currentParticipants: 0,
+      imageUrl: '',
+      status: 'PUBLISHED',
+      publicEvent: true,
+      userId: this.getConnectedUserId() || 0,
+    };
+  }
+
+  canEditEvent(ev: EventDto): boolean {
+    if (!ev.startDate) return false;
+    const start = new Date(ev.startDate);
+    if (Number.isNaN(start.getTime())) return false;
+    return start.getTime() > Date.now();
+  }
+
+  private toDateTimeLocal(value?: string): string {
+    if (!value) return '';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    const y = d.getFullYear();
+    const m = `${d.getMonth() + 1}`.padStart(2, '0');
+    const day = `${d.getDate()}`.padStart(2, '0');
+    const hh = `${d.getHours()}`.padStart(2, '0');
+    const mm = `${d.getMinutes()}`.padStart(2, '0');
+    return `${y}-${m}-${day}T${hh}:${mm}`;
+  }
+
+  private getConnectedUserId(): number | null {
+    try {
+      const raw = localStorage.getItem('currentUser');
+      if (!raw) return null;
+      const user = JSON.parse(raw);
+      return typeof user.userId === 'number' ? user.userId : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private isOlderThan48h(value?: string | Date): boolean {
+    if (!value) {
+      return false;
+    }
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) {
+      return false;
+    }
+    return Date.now() - d.getTime() > 48 * 60 * 60 * 1000;
+  }
+
+  private formatRiskScore(score?: number): string {
+    if (typeof score !== 'number' || Number.isNaN(score)) {
+      return 'N/A';
+    }
+    return `${Math.round(score)}/100`;
+  }
+
+  private riskScoreColor(score?: number): string {
+    if (typeof score !== 'number' || Number.isNaN(score)) {
+      return '#64748B';
+    }
+    if (score >= 75) return 'var(--success)';
+    if (score >= 50) return 'var(--warning)';
+    if (score >= 25) return 'var(--orange, #f59e0b)';
+    return 'var(--danger)';
+  }
+
+  private riskDecisionLabel(decision?: RequestLoanDto['riskDecision']): string {
+    if (decision === 'ACCEPTE_AUTO') return 'Auto-accepted (to validate)';
+    if (decision === 'REVUE_AGENT') return 'Agent review';
+    if (decision === 'COMITE_CREDIT') return 'Credit committee';
+    if (decision === 'REFUSE_AUTO') return 'Auto-rejected';
+    return 'To review';
+  }
+
+  /**
+   * Prefer persisted rule-based breakdown when ML replaced riskBreakdown (EXTERNAL_PKL).
+   */
+  adaptiveBreakdownText(file?: RequestLoanDto | null): string | undefined {
+    if (!file) return undefined;
+    const internal = file.internalRiskBreakdown?.trim();
+    if (internal) return file.internalRiskBreakdown;
+    return file.riskBreakdown;
+  }
+
+  private extractDebtRatio(breakdown?: string): number {
+    if (!breakdown) return 0;
+    const match = breakdown.match(/X1 \(DTI\).*?=\s*([0-9]+(?:\.[0-9]+)?)/);
+    if (!match) return 0;
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? Number(value.toFixed(2)) : 0;
+  }
+
+  getScoringFactorValue(factorKey: 'X1' | 'X4' | 'X5', breakdown?: string): string {
+    if (!breakdown) return '-';
+    const match = breakdown.match(new RegExp(`${factorKey}.*?=\\s*([0-9]+(?:\\.[0-9]+)?)`, 'i'));
+    if (!match) return '-';
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? value.toFixed(2) : '-';
+  }
+
+  getRiskDecisionDisplay(decision?: string): string {
+    if (!decision) return '-';
+    if (decision === 'ACCEPTE_AUTO') return 'Low risk';
+    if (decision === 'REFUSE_AUTO') return 'High risk';
+    return decision;
+  }
+
+  /** True when breakdown text is from external ML (pkl pipeline), not internal X1/X4/X5 scoring. */
+  isMlRiskBreakdown(breakdown?: string): boolean {
+    if (!breakdown) return false;
+    const n = breakdown.toLowerCase();
+    return (
+      n.includes('ml service') ||
+      n.includes('anomaly probability') ||
+      n.includes('mapped decision') ||
+      (n.includes('decision') && n.includes('automatically_validated')) ||
+      /\balerts\s*=/.test(n)
+    );
+  }
+
+  /**
+   * Cards under "Adaptive scoring detail" — internal rule-based lines only.
+   * ML-specific lines belong in "ML scoring detail".
+   */
+  getAdaptiveBreakdownOnlyEntries(breakdown?: string): Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> {
+    if (!breakdown) return [];
+    if (this.isMlRiskBreakdown(breakdown)) return [];
+    return this.getBeautifiedScoringEntries(breakdown);
+  }
+
+  getBeautifiedScoringEntries(breakdown?: string): Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> {
+    if (!breakdown) {
+      return [];
+    }
+
+    const lines = breakdown
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
+    const entries: Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> = [];
+
+    for (const line of lines) {
+      const lower = line.toLowerCase();
+      if (lower.includes('ml service')) {
+        entries.push({
+          label: 'Scoring source',
+          value: line.replace(/^[-*]\s*/, ''),
+          tone: 'neutral',
+        });
+        continue;
+      }
+
+      const idx = line.indexOf('=');
+      if (idx <= 0) continue;
+
+      const rawKey = line.slice(0, idx).trim();
+      const rawValue = line.slice(idx + 1).trim();
+      if (!rawValue) continue;
+
+      const normalizedKey = rawKey.toLowerCase();
+      let label = rawKey;
+      if (normalizedKey.includes('x1') && normalizedKey.includes('dti')) label = 'x1 (DTI)';
+      else if (normalizedKey === 'x4') label = 'x2';
+      else if (normalizedKey === 'x5') label = 'x3';
+      else if (normalizedKey.includes('decision')) label = normalizedKey.includes('mapped') ? 'Mapped decision' : 'Decision';
+      else if (normalizedKey.includes('anomaly probability')) label = 'Anomaly probability';
+      else if (normalizedKey.includes('alerts')) label = 'Alerts';
+
+      entries.push({
+        label,
+        value: rawValue,
+        tone: this.resolveScoringEntryTone(label, rawValue),
+      });
+    }
+
+    return entries;
+  }
+
+  getRiskScoringSummaryEntries(
+    file?: RequestLoanDto | null,
+  ): Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> {
+    if (!file) return [];
+
+    const scoreValue = file.riskScore != null && Number.isFinite(file.riskScore)
+      ? `${Math.round(file.riskScore)}/100`
+      : 'N/A';
+    const decisionValue = this.getRiskDecisionDisplay(file.riskDecision);
+    const decisionSourceValue = file.decisionSource || '-';
+    const riskSourceValue = file.riskSource || '-';
+
+    return [
+      { label: 'Risk score', value: scoreValue, tone: this.resolveRiskScoreTone(file.riskScore) },
+      { label: 'Automatic decision', value: decisionValue, tone: this.resolveScoringEntryTone('Decision', file.riskDecision || '') },
+      { label: 'Decision source', value: decisionSourceValue, tone: 'neutral' },
+      { label: 'Risk source', value: riskSourceValue, tone: 'neutral' },
+    ];
+  }
+
+  /**
+   * ML-only cards: prefer structured API fields when present; otherwise parse riskBreakdown
+   * (covers older responses where backend only sends the text block).
+   */
+  parseMlScoringCardsFromBreakdown(breakdown?: string): Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> {
+    if (!breakdown || !this.isMlRiskBreakdown(breakdown)) {
+      return [];
+    }
+
+    const lines = breakdown.split('\n').map((line) => line.trim()).filter((line) => line.length > 0);
+    const entries: Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> = [];
+
+    for (const line of lines) {
+      const lower = line.toLowerCase();
+      if (lower.includes('ml service')) {
+        entries.push({
+          label: 'ML source',
+          value: line.replace(/^[-*]\s*/, ''),
+          tone: 'neutral',
+        });
+        continue;
+      }
+      const idx = line.indexOf('=');
+      if (idx <= 0) continue;
+
+      const rawKey = line.slice(0, idx).trim();
+      const rawValue = line.slice(idx + 1).trim();
+      if (!rawValue) continue;
+
+      const nk = rawKey.toLowerCase();
+      let label = rawKey;
+      if (nk.includes('anomaly probability')) label = 'Anomaly probability';
+      else if (nk.includes('mapped decision')) label = 'Mapped decision';
+      else if (nk.includes('alerts')) label = 'Alerts';
+      else if (nk.includes('decision')) label = 'ML decision';
+
+      entries.push({
+        label,
+        value: rawValue,
+        tone:
+          label === 'Anomaly probability'
+            ? this.resolveAnomalyProbabilityTone(rawValue)
+            : this.resolveScoringEntryTone(label, rawValue),
+      });
+    }
+
+    return entries;
+  }
+
+  private resolveAnomalyProbabilityTone(rawValue: string): 'neutral' | 'good' | 'warn' | 'danger' {
+    const numeric = Number(String(rawValue).replace(/,/g, '').trim());
+    if (!Number.isFinite(numeric)) return 'neutral';
+    if (numeric <= 1) {
+      return numeric >= 0.7 ? 'danger' : numeric >= 0.35 ? 'warn' : 'good';
+    }
+    return numeric >= 70 ? 'danger' : numeric >= 35 ? 'warn' : 'good';
+  }
+
+  private buildMlScoringFromDtoFields(
+    file?: RequestLoanDto | null,
+  ): Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> {
+    if (!file) return [];
+    // Never build "ML cards" from DTO fragments for INTERNAL_FALLBACK — upstream used to mistakenly set mlDecision from "Decision = ACCEPTE_AUTO".
+    if ((file.riskSource || '').toUpperCase() !== 'EXTERNAL_PKL') {
+      return [];
+    }
+
+    const entries: Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> = [];
+
+    if (file.mlScoringSource?.trim()) {
+      entries.push({ label: 'ML source', value: file.mlScoringSource.trim(), tone: 'neutral' });
+    }
+
+    if (file.mlProbability != null && Number.isFinite(file.mlProbability)) {
+      const prob = Number(file.mlProbability);
+      const pctLabel = `${(prob * 100).toFixed(2)}%`;
+      const value = `${prob.toFixed(4)} (${pctLabel})`;
+      entries.push({
+        label: 'Anomaly probability',
+        value,
+        tone: this.resolveAnomalyProbabilityTone(String(prob)),
+      });
+    }
+
+    if (file.mlDecision?.trim()) {
+      const value = file.mlDecision.trim();
+      entries.push({
+        label: 'ML decision',
+        value,
+        tone: this.resolveScoringEntryTone('ML decision', value),
+      });
+    }
+
+    if (file.mlAlerts?.trim()) {
+      entries.push({
+        label: 'Alerts',
+        value: file.mlAlerts.trim(),
+        tone: this.resolveScoringEntryTone('Alerts', file.mlAlerts),
+      });
+    }
+
+    return entries;
+  }
+
+  getMlScoringEntries(file?: RequestLoanDto | null): Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> {
+    if (!file) return [];
+    // ML panel is only meaningful for EXTERNAL_PKL; internal adaptive scoring fills the upper section.
+    if ((file.riskSource || '').toUpperCase() !== 'EXTERNAL_PKL') {
+      return [];
+    }
+
+    const fromBreakdown = this.parseMlScoringCardsFromBreakdown(file.riskBreakdown);
+    if (fromBreakdown.length > 0) {
+      return fromBreakdown;
+    }
+
+    return this.buildMlScoringFromDtoFields(file);
+  }
+
+  hasInternalFactorBreakdown(breakdown?: string): boolean {
+    if (!breakdown) return false;
+    const normalized = breakdown.toLowerCase();
+    return normalized.includes('x1') || normalized.includes('x4') || normalized.includes('x5');
+  }
+
+  private resolveRiskScoreTone(score?: number): 'neutral' | 'good' | 'warn' | 'danger' {
+    if (typeof score !== 'number' || Number.isNaN(score)) return 'neutral';
+    if (score >= 75) return 'good';
+    if (score >= 50) return 'warn';
+    return 'danger';
+  }
+
+  private resolveScoringEntryTone(label: string, value: string): 'neutral' | 'good' | 'warn' | 'danger' {
+    const l = label.toLowerCase();
+    const v = value.toLowerCase();
+
+    if (l.includes('decision')) {
+      if (v.includes('accepte') || v.includes('validated') || v.includes('automatically')) return 'good';
+      if (v.includes('revue') || v.includes('comite') || v.includes('manual')) return 'warn';
+      if (v.includes('refuse') || v.includes('rejected')) return 'danger';
+      return 'neutral';
+    }
+
+    if (l.includes('alerts')) {
+      const clean = v.replace(/\|/g, ' ').trim();
+      if (clean.includes('no alerts') || clean === 'none' || clean === '[]' || clean === '-' || clean === 'aucune') return 'good';
+      return 'warn';
+    }
+
+    if (l.includes('anomaly probability')) {
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric)) return 'neutral';
+      if (numeric < 0.35) return 'good';
+      if (numeric < 0.7) return 'warn';
+      return 'danger';
+    }
+
+    return 'neutral';
+  }
+
+  hasMlOutput(file?: RequestLoanDto | null): boolean {
+    if (!file) return false;
+    if ((file.riskSource || '').toUpperCase() !== 'EXTERNAL_PKL') {
+      return false;
+    }
+    return (
+      this.parseMlScoringCardsFromBreakdown(file.riskBreakdown).length > 0 ||
+      this.buildMlScoringFromDtoFields(file).length > 0
+    );
+  }
+
+  formatMoney(value?: number | null): string {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      return '-';
+    }
+    return `${value} TND`;
+  }
+
+  formatMonths(value?: number | null): string {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      return '-';
+    }
+    return `${value} months`;
   }
 
 
 
-  selectedFile:any;
+  selectedFile: (RequestLoanDto & { vehicle?: any; vehicule?: any; user?: any }) | null = null;
 
-  openModal(file:any){
-    this.selectedFile = file;
-    console.log(file);
+  openModal(file: RequestLoanDto | PipelineCard | DossierItem | AnalysisFileItem | Record<string, unknown>): void {
+    this.selectedFile = this.resolveLoanForModal(file);
+    this.decisionNote = '';
+    this.decisionError = '';
+    this.ignoreNextOverlayClose = true;
     this.showModal = true;
+    this.syncBodyScrollLock();
+  }
+
+  private resolveLoanForModal(
+    file: RequestLoanDto | PipelineCard | DossierItem | AnalysisFileItem | Record<string, unknown>,
+  ): (RequestLoanDto & { vehicle?: any; vehicule?: any; user?: any }) | null {
+    const candidate = file as any;
+    const id = Number(candidate?.idDemande);
+    if (!Number.isFinite(id) || id <= 0) {
+      return candidate as (RequestLoanDto & { vehicle?: any; vehicule?: any; user?: any });
+    }
+
+    const fullLoan = this.requestLoans.find((loan) => Number(loan.idDemande) === id);
+    if (!fullLoan) {
+      return candidate as (RequestLoanDto & { vehicle?: any; vehicule?: any; user?: any });
+    }
+
+    // Keep any UI-only extras from the clicked card, but always prefer full API loan fields.
+    return {
+      ...candidate,
+      ...fullLoan,
+    } as (RequestLoanDto & { vehicle?: any; vehicule?: any; user?: any });
   }
   toggleConfig(key: string): void {
     if (this.notificationsConfig && key in this.notificationsConfig) {
@@ -711,430 +2109,114 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
 
   closeModal(event?: Event) {
+    if (this.ignoreNextOverlayClose) {
+      this.ignoreNextOverlayClose = false;
+      return;
+    }
     if (event) {
       event.stopPropagation();
     }
     this.showModal = false;
+    this.syncBodyScrollLock();
   }
 
-  approveCase() {
-    console.log("Approved", this.decisionNote);
-    this.closeModal();
+  approveCase(): void {
+    if (this.selectedFile?.idDemande != null) {
+      const id = this.selectedFile.idDemande as number;
+      this.decisionSubmitting = true;
+      this.decisionError = '';
+      this.creditService
+        .approveRequestLoan(id, this.decisionPayload())
+        .pipe(finalize(() => (this.decisionSubmitting = false)))
+        .subscribe({
+          next: () => this.loadRequestLoans(),
+          error: () => {
+            this.decisionError = 'Unable to approve the request.';
+          },
+        });
+      return;
+    }
+    this.closeDecisionModalUi();
   }
 
-  rejectCase() {
-    console.log("Rejected", this.decisionNote);
-    this.closeModal();
+  rejectCase(): void {
+    if (this.selectedFile?.idDemande != null) {
+      const id = this.selectedFile.idDemande as number;
+      this.decisionSubmitting = true;
+      this.decisionError = '';
+      this.creditService
+        .rejectRequestLoan(id, this.decisionPayload())
+        .pipe(finalize(() => (this.decisionSubmitting = false)))
+        .subscribe({
+          next: () => this.loadRequestLoans(),
+          error: () => {
+            this.decisionError = 'Unable to reject the request.';
+          },
+        });
+      return;
+    }
+    this.closeDecisionModalUi();
+  }
+
+  private decisionPayload(): { note?: string } | undefined {
+    const n = this.decisionNote?.trim();
+    return n ? { note: n } : undefined;
+  }
+
+  /** Close modal without ignoreNextOverlayClose blocking (mock files off API). */
+  private closeDecisionModalUi(): void {
+    this.ignoreNextOverlayClose = false;
+    this.showModal = false;
+    this.syncBodyScrollLock();
+  }
+
+  private syncBodyScrollLock(): void {
+    if (this.showHistoryTable || this.showStatsWindow || this.showModal) {
+      this.lockBodyScroll();
+      return;
+    }
+    this.unlockBodyScroll();
+  }
+
+  private lockBodyScroll(): void {
+    this.renderer.setStyle(document.body, 'overflow', 'hidden');
+  }
+
+  private unlockBodyScroll(): void {
+    this.renderer.removeStyle(document.body, 'overflow');
   }
 
   requestMoreInfo() {
     console.log("More info requested", this.decisionNote);
   }
 
-  /* ── Clients API ── */
-  loadClients(): void {
-    this.clientsLoading = true;
-    this.http.get<any[]>(`${this.API}/users`).subscribe({
-      next: (users) => {
-        this.clients = users
-          .filter((u: any) => u.role === 'CLIENT')
-          .map((u: any) => ({
-            id: u.id,
-            initials: ((u.firstName?.[0] || '') + (u.lastName?.[0] || '')).toUpperCase(),
-            name: (u.firstName || '') + ' ' + (u.lastName || ''),
-            email: u.email || '—',
-            phone: u.phoneNumber ? '+216 ' + u.phoneNumber : '—',
-            cin: u.cin || '—',
-            city: u.city || '—',
-            status: 'Active',
-            statusClass: 'b-actif'
-          }));
-        this.clientsLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.clientsLoading = false;
-        this.cdr.detectChanges();
-      }
-    });
+  onLogout(): void {
+    this.authService.logout();
   }
 
-  /* ── Logs API ── */
-  loadLogs(): void {
-    this.logsLoading = true;
-    this.http.get<any[]>(`${this.API}/users/logs`).subscribe({
-      next: (logs) => {
-        this.logsList = logs;
-        this.logsLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.logsLoading = false;
-        this.cdr.detectChanges();
-      }
-    });
+  onToggleTheme(): void {
+    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+    this.applyTheme(this.currentTheme);
+    localStorage.setItem(this.themeStorageKey, this.currentTheme);
   }
 
-  /* ── Users API ── */
-  loadUsers(): void {
-    this.usersLoading = true;
-    this.http.get<any[]>(`${this.API}/users`).subscribe({
-      next: (users) => {
-        this.usersList = users.filter((u: any) => u.role === 'AGENT' || u.role === 'INSURER');
-        this.usersLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        console.error('[loadUsers] Erreur chargement utilisateurs:', err);
-        this.usersLoading = false;
-        this.cdr.detectChanges();
-      }
-    });
+  private readSavedTheme(): 'light' | 'dark' {
+    const raw = localStorage.getItem(this.themeStorageKey);
+    return raw === 'light' ? 'light' : 'dark';
   }
 
-  /* Create */
-  openAddUser(): void {
-    this.editingUserId = null;
-    this.newUser = { firstName: '', lastName: '', email: '', password: '', role: 'AGENT', phoneNumber: '', cin: '', address: '', city: '', agenceCode: '', region: '', insurerName: '', insurerEmail: '' };
-    this.addUserError = '';
-    this.showUserModal = true;
+  private applyTheme(theme: 'light' | 'dark'): void {
+    this.renderer.setAttribute(document.documentElement, 'data-theme', theme);
   }
 
-  /* Edit */
-  openEditUser(user: any): void {
-    this.editingUserId = user.id;
-    this.newUser = {
-      firstName: user.firstName || '',
-      lastName: user.lastName || '',
-      email: user.email || '',
-      password: '',
-      role: user.role || 'AGENT',
-      phoneNumber: user.phoneNumber || '',
-      cin: user.cin || '',
-      address: user.address || '',
-      city: user.city || '',
-      agenceCode: user.agenceCode || '',
-      region: user.region || '',
-      insurerName: user.insurerName || '',
-      insurerEmail: user.insurerEmail || '',
-    };
-    this.addUserError = '';
-    this.showUserModal = true;
+  get canTakeDecision(): boolean {
+    const status = this.selectedFile?.statutDemande;
+    return status !== 'APPROVED' && status !== 'REJECTED';
   }
 
-  closeUserModal(): void {
-    this.showUserModal = false;
-  }
-
-  /* View */
-  openViewUser(user: any): void {
-    this.viewUser = user;
-    this.showViewUserModal = true;
-  }
-
-  closeViewUser(): void {
-    this.showViewUserModal = false;
-  }
-
-  /* Submit create or update */
-  submitUser(): void {
-    console.log('[ADMIN] submitUser() called');
-    console.log('[ADMIN] newUser:', JSON.stringify(this.newUser));
-    this.addUserError = '';
-    if (!this.newUser.firstName || !this.newUser.lastName || !this.newUser.email) {
-      this.addUserError = 'Veuillez remplir tous les champs obligatoires.';
-      console.log('[ADMIN] Validation failed: champs obligatoires manquants');
-      return;
-    }
-    if (!this.editingUserId && !this.newUser.password) {
-      this.addUserError = 'Le mot de passe est obligatoire pour un nouveau compte.';
-      console.log('[ADMIN] Validation failed: password manquant');
-      return;
-    }
-    console.log('[ADMIN] Validation passed, sending request...');
-    this.addUserLoading = true;
-
-    if (this.editingUserId) {
-      // UPDATE
-      const payload: any = {
-        firstName: this.newUser.firstName,
-        lastName: this.newUser.lastName,
-        email: this.newUser.email,
-        phoneNumber: this.newUser.phoneNumber ? Number(this.newUser.phoneNumber) : null,
-        cin: this.newUser.cin || null,
-        address: this.newUser.address || null,
-        city: this.newUser.city || null,
-        role: this.newUser.role,
-      };
-      if (this.newUser.password) {
-        payload.password = this.newUser.password;
-      }
-      if (this.newUser.role === 'AGENT') {
-        payload.agenceCode = this.newUser.agenceCode ? Number(this.newUser.agenceCode) : null;
-        payload.region = this.newUser.region ? Number(this.newUser.region) : null;
-      } else if (this.newUser.role === 'INSURER') {
-        payload.insurerName = this.newUser.insurerName;
-        payload.insurerEmail = this.newUser.insurerEmail;
-      }
-      this.http.put(`${this.API}/users/${this.editingUserId}`, payload).subscribe({
-        next: () => {
-          this.addUserLoading = false;
-          this.showUserModal = false;
-          this.cdr.detectChanges();
-          this.loadUsers();
-          setTimeout(() => this.loadUsers(), 0);
-        },
-        error: (err: any) => {
-          this.addUserLoading = false;
-          this.addUserError = err.error?.message || 'Erreur lors de la mise à jour.';
-          this.cdr.detectChanges();
-        }
-      });
-    } else {
-      // CREATE
-      // CREATE — uses /api/users/register (no JWT generation, password hashed server-side)
-      const payload: any = {
-        firstName: this.newUser.firstName,
-        lastName: this.newUser.lastName,
-        email: this.newUser.email,
-        password: this.newUser.password,
-        role: this.newUser.role,
-        phoneNumber: this.newUser.phoneNumber ? Number(this.newUser.phoneNumber) : null,
-        cin: this.newUser.cin || null,
-        address: this.newUser.address || null,
-        city: this.newUser.city || null,
-      };
-      if (this.newUser.role === 'AGENT') {
-        payload.agenceCode = this.newUser.agenceCode ? Number(this.newUser.agenceCode) : null;
-        payload.region = this.newUser.region ? Number(this.newUser.region) : null;
-      } else if (this.newUser.role === 'INSURER') {
-        payload.insurerName = this.newUser.insurerName;
-        payload.insurerEmail = this.newUser.insurerEmail;
-      }
-      console.log('[ADMIN] Creating user with payload:', JSON.stringify(payload));
-      this.http.post(`${this.API}/users/register`, payload).subscribe({
-        next: (res) => {
-          console.log('[ADMIN] User created successfully:', res);
-          this.addUserLoading = false;
-          this.showUserModal = false;
-          this.cdr.detectChanges();
-          this.loadUsers();
-          setTimeout(() => this.loadUsers(), 0);
-        },
-        error: (err: any) => {
-          console.error('[ADMIN] Create user error:', err);
-          this.addUserLoading = false;
-          this.addUserError = err.error?.message || err.error || err.message || 'Erreur lors de la création.';
-          this.cdr.detectChanges();
-        }
-      });
-    }
-  }
-
-  /* Delete */
-  deleteUser(id: number): void {
-    this.http.delete(`${this.API}/users/${id}`).subscribe({
-      next: () => this.loadUsers(),
-      error: (err: any) => console.error('[ADMIN] Delete error:', err)
-    });
-  }
-
-  getUserInitials(user: any): string {
-    return ((user.firstName?.[0] || '') + (user.lastName?.[0] || '')).toUpperCase();
-  }
-
-  /* ── Admin Payment Form ── */
-  showAdminPayModal = false;
-  adminCinSearch = '';
-  adminClientResults: any[] = [];
-  adminSelectedClient: any = null;
-  adminNextInstallment: any = null;
-  adminInstLoading = false;
-  adminInstError = '';
-  adminPayLoading = false;
-  adminPayError = '';
-  adminPaySuccess = false;
-  adminLastPayment: any = null;
-
-  openAdminPayModal(): void {
-    this.showAdminPayModal = true;
-    this.resetAdminPayForm();
-  }
-
-  closeAdminPayModal(): void {
-    this.showAdminPayModal = false;
-  }
-
-  resetAdminPayForm(): void {
-    this.adminCinSearch = '';
-    this.adminClientResults = [];
-    this.adminSelectedClient = null;
-    this.adminNextInstallment = null;
-    this.adminInstLoading = false;
-    this.adminInstError = '';
-    this.adminPayError = '';
-    this.adminPaySuccess = false;
-    this.adminLastPayment = null;
-  }
-
-  onAdminCinInput(event: Event): void {
-    this.adminCinSearch = (event.target as HTMLInputElement).value;
-    this.searchAdminCin();
-  }
-
-  searchAdminCin(): void {
-    const q = this.adminCinSearch.trim();
-    if (q.length < 1) { this.adminClientResults = []; return; }
-    this.adminInstError = '';
-    this.http.get<any[]>(`${this.API}/users/search?q=${encodeURIComponent(q)}`).subscribe({
-      next: (res) => {
-        this.adminClientResults = res;
-        if (res.length === 1 && res[0].cin?.toString().toLowerCase() === q.toLowerCase()) {
-          this.selectAdminClient(res[0]);
-        }
-        this.cdr.detectChanges();
-      },
-      error: () => { this.adminClientResults = []; }
-    });
-  }
-
-  selectAdminClient(c: any): void {
-    this.adminSelectedClient = c;
-    this.adminClientResults = [];
-    this.adminCinSearch = '';
-    this.adminPaySuccess = false;
-    this.adminPayError = '';
-    this.adminInstError = '';
-    this.adminNextInstallment = null;
-    this.adminInstLoading = true;
-    this.http.get<any>(`${this.API}/payment-history/next-installment/by-user/${c.id}`).subscribe({
-      next: (res) => { this.adminInstLoading = false; this.adminNextInstallment = res; this.cdr.detectChanges(); },
-      error: (err) => {
-        this.adminInstLoading = false;
-        this.adminInstError = err?.error?.error || 'Aucune mensualité en attente pour ce client.';
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  submitAdminPayment(): void {
-    if (!this.adminSelectedClient) return;
-    this.adminPayLoading = true;
-    this.adminPayError = '';
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    const body = { userId: this.adminSelectedClient.id, adminId: currentUser.userId || null };
-    this.http.post<any>(`${this.API}/payment-history/record-admin`, body).pipe(
-      finalize(() => { this.adminPayLoading = false; this.cdr.detectChanges(); })
-    ).subscribe({
-      next: (res) => {
-        this.adminPaySuccess = true;
-        this.adminLastPayment = res;
-        this.adminNextInstallment = null;
-        this.loadAdminPayments();
-      },
-      error: (err) => {
-        this.adminPayError = err?.error?.error || err?.message || 'Erreur lors du paiement.';
-      }
-    });
-  }
-
-  /* ── Admin Payments API ── */
-  loadAdminPayments(): void {
-    this.adminPaymentsLoading = true;
-    this.http.get<any[]>(`${this.API}/payment-history/admin/all`).pipe(
-      finalize(() => { this.adminPaymentsLoading = false; this.cdr.detectChanges(); })
-    ).subscribe({
-      next: (res) => { this.adminPayments = Array.isArray(res) ? res : []; },
-      error: (err) => { console.error('[Admin] payments error:', err); this.adminPayments = []; },
-    });
-  }
-
-  changePaymentStatus(paymentId: number, newStatus: string): void {
-    this.http.put<any>(`${this.API}/payment-history/admin/${paymentId}/status`, { status: newStatus }).subscribe({
-      next: (updated) => {
-        const idx = this.adminPayments.findIndex((p: any) => p.id === paymentId);
-        if (idx !== -1) this.adminPayments[idx] = updated;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('[Admin] status change error:', err),
-    });
-  }
-
-  /* ── Réservations véhicules (validation admin) ── */
-  adminReservations: VehicleReservationDto[] = [];
-  adminReservationsLoading = false;
-  adminReservationDetail: VehicleReservationDto | null = null;
-  adminRejectReason = '';
-  reservationActionLoading = false;
-
-  reservationStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      PENDING_ADMIN_APPROVAL: 'En attente validation admin',
-      WAITING_CUSTOMER_ACTION: 'Action client requise',
-      UNDER_REVIEW: 'En examen',
-      APPROVED: 'Approuvée',
-      REJECTED: 'Refusée',
-      CANCELLED_BY_CLIENT: 'Annulée (client)',
-      CANCELLED_BY_ADMIN: 'Annulée (admin)',
-      EXPIRED: 'Expirée',
-    };
-    return labels[status] || status;
-  }
-
-  loadAdminReservations(): void {
-    this.adminReservationsLoading = true;
-    this.reservationService
-      .getPendingReservations()
-      .pipe(finalize(() => { this.adminReservationsLoading = false; this.cdr.markForCheck(); }))
-      .subscribe({
-        next: (list) => {
-          this.adminReservations = list;
-          if (this.adminReservationDetail) {
-            const fresh = list.find((x) => x.id === this.adminReservationDetail!.id);
-            if (fresh) this.adminReservationDetail = fresh;
-          }
-        },
-        error: () => { this.adminReservations = []; },
-      });
-  }
-
-  openReservationDetail(r: VehicleReservationDto): void {
-    this.adminReservationDetail = r;
-    this.adminRejectReason = '';
-  }
-
-  closeReservationDetail(): void {
-    this.adminReservationDetail = null;
-  }
-
-  approveReservation(id: number): void {
-    this.reservationActionLoading = true;
-    this.reservationService
-      .approveReservation(id)
-      .pipe(finalize(() => { this.reservationActionLoading = false; this.cdr.markForCheck(); }))
-      .subscribe({
-        next: () => this.loadAdminReservations(),
-        error: (err) => console.error('[Admin] approve reservation', err),
-      });
-  }
-
-  rejectReservation(id: number): void {
-    const reason = this.adminRejectReason.trim();
-    if (!reason) return;
-    this.reservationActionLoading = true;
-    this.reservationService
-      .rejectReservation(id, { reason })
-      .pipe(finalize(() => { this.reservationActionLoading = false; this.cdr.markForCheck(); }))
-      .subscribe({
-        next: () => {
-          this.adminRejectReason = '';
-          this.loadAdminReservations();
-        },
-        error: (err) => console.error('[Admin] reject reservation', err),
-      });
-  }
-
-  reservationCanAct(d: VehicleReservationDto): boolean {
-    return d.status === 'PENDING_ADMIN_APPROVAL';
-  }
 }
+
+
+
+
+

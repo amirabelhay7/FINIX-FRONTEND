@@ -7,6 +7,12 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    // Ensure Node-style globals exist before Angular/runtime chunks execute.
+    window.global = window;
+    window.globalThis = window.globalThis || window;
+    window.globalThis.global = window.globalThis;
+  </script>
   
   <!-- Google Fonts: Plus Jakarta Sans (landing + UI), Material Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">

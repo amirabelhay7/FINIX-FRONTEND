@@ -128,8 +128,14 @@
         <div class="rl-msg err" *ngIf="participateError">{{ participateError }}</div>
         <div class="rl-msg err" *ngIf="chatError">{{ chatError }}</div>
 
-        <button class="btn btn-primary ev-participate-btn" [disabled]="participating || selectedIsFull" (click)="participate()">
-          {{ selectedIsFull ? 'Full' : (participating ? 'Please wait…' : 'Join') }}
+        <button class="btn btn-primary ev-participate-btn" [disabled]="participating || (!selectedIsParticipated && selectedIsFull)" (click)="participate()">
+          {{
+            participating
+              ? 'Please wait...'
+              : (selectedIsParticipated
+                  ? 'Undo join'
+                  : (selectedIsFull ? 'Full' : 'Join'))
+          }}
         </button>
         <button class="ev-close-link" (click)="closeEventDetails()">Close</button>
       </div>
