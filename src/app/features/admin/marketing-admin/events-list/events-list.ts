@@ -1,5 +1,13 @@
-import { Component } from '@angular/core';
-import { EventListItem } from '../../../../models';
+import { Component, OnInit } from '@angular/core';
+import { finalize } from 'rxjs';
+import { EventDto, EventService } from '../../../../services/event.service';
+
+interface EventListItem {
+  id: number;
+  name: string;
+  date: string;
+  registrations: string;
+}
 
 /**
  * ViewModel: events list (MVVM).
@@ -10,15 +18,42 @@ import { EventListItem } from '../../../../models';
   templateUrl: './events-list.html',
   styleUrl: './events-list.css',
 })
-export class EventsList {
+export class EventsList implements OnInit {
   readonly pageTitle = 'Events';
   readonly pageSubtitle = 'Events and registrations.';
+  loading = false;
+  error = '';
 
-  readonly events: EventListItem[] = [
-    { id: 1, name: 'Financial literacy workshop', date: '2025-03-15', registrations: '42' },
-    { id: 2, name: 'Savings challenge kickoff', date: '2025-04-01', registrations: '128' },
-    { id: 3, name: 'Agent summit Q2', date: '2025-04-20', registrations: '56' },
-  ];
+  events: EventListItem[] = [];
+
+  constructor(private readonly eventService: EventService) {}
+
+  ngOnInit(): void {
+    this.loadEvents();
+  }
+
+  loadEvents(): void {
+    this.loading = true;
+    this.error = '';
+    this.events = [];
+    this.eventService
+      .getEvents(0, 1000)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: (response) => {
+          const content = Array.isArray(response?.content) ? response.content : [];
+          this.events = content.map((event: EventDto) => ({
+            id: Number(event.idEvent ?? 0),
+            name: event.title || 'Untitled event',
+            date: event.startDate ? new Date(event.startDate).toISOString().slice(0, 10) : '-',
+            registrations: `${event.currentParticipants ?? 0}`,
+          }));
+        },
+        error: () => {
+          this.error = 'Unable to load events from database.';
+        },
+      });
+  }
 
   onAddEvent(): void {}
   onView(event: EventListItem): void {}

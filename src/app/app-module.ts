@@ -13,10 +13,12 @@ import { TopbarComponent } from './layout/backoffice/components/topbar/topbar.co
 import { BackofficeComponent } from './layout/backoffice/backoffice.component';
 import { ReservationsAdminComponent } from './layout/backoffice/components/reservations-admin/reservations-admin.component';
 import { authInterceptor } from './services/auth/auth.interceptor';
+import { httpLoggingInterceptor } from './services/auth/http-logging.interceptor';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { RepaymentBackofficeComponent } from './layout/backoffice/repayment-backoffice/repayment-backoffice.component';
 import { RepaymentsAdminModule } from './features/admin/repayments-admin/repayments-admin-module';
+import { LoanContractsExplorerModule } from './features/admin/credit-center/loan-contracts-explorer.module';
 
 @NgModule({
   declarations: [
@@ -37,12 +39,13 @@ import { RepaymentsAdminModule } from './features/admin/repayments-admin/repayme
     FormsModule,
     SharedModule,
     RepaymentsAdminModule,
+    LoanContractsExplorerModule,
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([httpLoggingInterceptor, authInterceptor])),
     provideCharts(withDefaultRegisterables()),
   ],
-  bootstrap: [App]
+  bootstrap: [App],
 })
 export class AppModule {}

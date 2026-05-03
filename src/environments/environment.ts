@@ -14,4 +14,17 @@ export const environment = {
   apiBaseUrl: '',
   /** Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID (Web). Must match backend `google.oauth.client-id`. */
   googleClientId: '935462295405-g6grs2gfgep891ff1a7jcr6i6mmtncjm.apps.googleusercontent.com',
+  /** Paths relative to same origin (use with `apiBaseUrl: ''` + proxy) or append to full `apiBaseUrl`. */
+  apiEndpoints: {
+    auth: '/api/auth',
+    credit: '/api/credit/request-loans',
+    event: '/api/event',
+    insurance: '/api/insurance',
+    repayment: '/api/repayment',
+    user: '/api/user',
+    /** Must match backend {@code VehicleController} base path {@code /api/vehicles}. */
+    vehicle: '/api/vehicles',
+    wallet: '/api/wallet',
+    score: '/api/score',
+  },
 };

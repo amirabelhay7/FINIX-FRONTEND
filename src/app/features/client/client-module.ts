@@ -25,15 +25,41 @@ import { ClientWallet } from './wallet/wallet';
 import { ClientScore } from './score/score';
 import { ClientDocuments } from './documents/documents';
 import { UserProfileComponent } from './user-profile/user-profile';
+import { ClientEvents } from './events/events';
+import { ClientGroupChat } from './group-chat/group-chat';
 
 @NgModule({
   declarations: [
-    ClientDashboard, ClientCredits, ClientRepayments,
-    ClientVehiclesShell, ClientVehicleCatalog, ClientVehicleDetail, ClientMyReservations, ClientFeedbackPage,
-    PageHeaderComponent, VehicleFiltersComponent, VehicleStatsCardComponent, VehicleCardComponent, EmptyStateComponent, AppFooterComponent,
-    ClientInsurance, ClientWallet, ClientScore, ClientDocuments, UserProfileComponent,
-    VehicleRecommendationsComponent, VehiclePreferencesFormComponent,
+    ClientDashboard,
+    ClientCredits,
+    ClientRepayments,
+    ClientVehiclesShell,
+    ClientVehicleCatalog,
+    ClientVehicleDetail,
+    ClientMyReservations,
+    ClientFeedbackPage,
+    PageHeaderComponent,
+    VehicleFiltersComponent,
+    VehicleStatsCardComponent,
+    VehicleCardComponent,
+    EmptyStateComponent,
+    AppFooterComponent,
+    ClientInsurance,
+    ClientWallet,
+    ClientScore,
+    ClientDocuments,
+    UserProfileComponent,
+    VehicleRecommendationsComponent,
+    VehiclePreferencesFormComponent,
+    ClientEvents,
   ],
-  imports: [CommonModule, FormsModule, RouterModule, ClientRoutingModule, SharedModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    ClientRoutingModule,
+    SharedModule,
+    ClientGroupChat,
+  ],
 })
 export class ClientModule {}

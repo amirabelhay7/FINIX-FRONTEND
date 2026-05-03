@@ -1,0 +1,201 @@
+<div class="gc-root">
+  <div class="gc-topbar">
+    <div>
+      <button type="button" class="gc-burger" aria-label="My groups" (click)="toggleSidebar()">
+        <i class="fa-solid fa-comments"></i>
+      </button>
+      <div class="gc-top-text">
+        <div class="gc-title">Group Chat</div>
+        <div class="gc-subtitle">Messaging for your events</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gc-layout">
+    <div
+      class="gc-drawer-backdrop"
+      *ngIf="sidebarOpen"
+      (click)="sidebarOpen = false"
+      aria-hidden="true"
+    ></div>
+    <aside class="gc-sidebar" [class.gc-sidebar--open]="sidebarOpen">
+      <div class="gc-sidebar-head">My groups</div>
+      <div class="gc-muted" *ngIf="loadingGroups">Loading...</div>
+      <div class="gc-err gc-muted" *ngIf="groupsError">{{ groupsError }}</div>
+
+      <button
+        type="button"
+        class="gc-room"
+        *ngFor="let g of groups"
+        [class.gc-room--active]="selectedGroup?.eventId === g.eventId"
+        (click)="selectGroup(g)"
+      >
+        <div class="gc-room-avatar" [style.background]="getAvatarColorFromUsername(g.title)">
+          {{ getAvatarInitials(g.title) }}
+        </div>
+        <div class="gc-room-main">
+          <div class="gc-room-line1">{{ g.title }}</div>
+          <div class="gc-room-line2">{{ g.city }} · #EV-{{ g.eventId }}</div>
+        </div>
+        <span class="gc-unread-badge" *ngIf="g.unreadCount > 0">{{ g.unreadCount > 99 ? '99+' : g.unreadCount }}</span>
+      </button>
+
+      <div class="gc-muted gc-sidebar-empty" *ngIf="!loadingGroups && !groupsError && groups.length === 0">
+        No groups for now.
+      </div>
+    </aside>
+
+    <section class="gc-main">
+      <ng-container *ngIf="selectedGroup; else gcNoSelection">
+        <header class="gc-main-head">
+          <div>
+            <div class="gc-main-title">{{ selectedGroup.title }}</div>
+            <div class="gc-main-sub">{{ selectedGroup.city }} · {{ selectedGroup.address }}</div>
+          </div>
+          <button class="gc-btn-outline" type="button" [disabled]="!canChat || leaveLoading || loadingMessages" (click)="leaveGroup()">
+            {{ leaveLoading ? 'Leaving…' : 'Leave group' }}
+          </button>
+        </header>
+
+        <div class="gc-msg-scroll-wrap">
+          <div class="gc-msg-scroll" #msgScroll>
+            <ng-container *ngIf="!loadingMessages; else gcLoadingMessages">
+              <div class="gc-muted gc-msg-empty" *ngIf="messages.length === 0">Start the conversation ✨</div>
+
+              <ng-container *ngFor="let row of timelineRows; trackBy: trackTimeline">
+                <div class="gc-day-sep" *ngIf="row.kind === 'day'">{{ row.label }}</div>
+
+                <ng-container *ngIf="row.kind === 'msg'">
+                  <div class="gc-msg-block" [class.gc-msg-block--mine]="isMine(row.msg)">
+                    <div class="gc-row-wrap" [class.gc-row-wrap--mine]="isMine(row.msg)">
+                      <div class="gc-avatar" *ngIf="!isMine(row.msg)" [style.background]="getAvatarColorFromUsername(row.msg.senderName || row.msg.userId)">
+                        {{ getAvatarInitials(row.msg.senderName) }}
+                      </div>
+
+                      <div class="gc-bubble-shell" [class.gc-bubble-shell--mine]="isMine(row.msg)">
+                        <div class="gc-msg-meta" *ngIf="!isMine(row.msg)">
+                          <strong class="gc-sender-name">{{ row.msg.senderName || ('Utilisateur #' + (row.msg.userId || '')) }}</strong>
+                          <span class="gc-time">{{ row.msg.sentAt ? (row.msg.sentAt | date : 'short') : '' }}</span>
+                        </div>
+
+                        <div class="gc-msg-meta gc-msg-meta--mine" *ngIf="isMine(row.msg)">
+                          <span class="gc-time">{{ row.msg.sentAt ? (row.msg.sentAt | date : 'short') : '' }}</span>
+                        </div>
+
+                        <div class="gc-divider" *ngIf="!isMine(row.msg)"></div>
+
+                        <div class="gc-bubble" [class.gc-bubble--mine]="isMine(row.msg)" [class.gc-bubble--plain]="msgKind(row.msg) === 'TEXT'">
+                          <ng-container [ngSwitch]="msgKind(row.msg)">
+                            <div *ngSwitchCase="'TEXT'" class="gc-text">{{ row.msg.content }}</div>
+
+                            <app-voice-player
+                              *ngSwitchCase="'VOICE'"
+                              [audioUrl]="resolveMediaUrl(row.msg.audioUrl)"
+                              [variant]="isMine(row.msg) ? 'outgoing' : 'incoming'"
+                            ></app-voice-player>
+
+                            <div *ngSwitchCase="'LOCATION'" class="gc-loc-holder">
+                              <app-location-bubble
+                                [lat]="row.msg.lat ?? 0"
+                                [lng]="row.msg.lng ?? 0"
+                                [address]="row.msg.address || ''"
+                              ></app-location-bubble>
+                            </div>
+                            <div *ngSwitchDefault class="gc-text">{{ row.msg.content }}</div>
+                          </ng-container>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+            <ng-template #gcLoadingMessages>
+              <div class="gc-muted">Loading messages...</div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="gc-voice-draft-bar" *ngIf="voiceDraft && !recordingUi">
+          <div class="gc-voice-draft-label">
+            <i class="fa-solid fa-microphone"></i>
+            Voice message ready to send
+          </div>
+          <div class="gc-voice-draft-actions">
+            <button type="button" class="gc-send gc-send-voice" [disabled]="sendLoading || !canChat" (click)="sendVoiceDraft()">
+              {{ sendLoading ? 'Sending…' : 'Send voice message' }}
+            </button>
+            <button type="button" class="gc-draft-discard" [disabled]="sendLoading" (click)="clearVoiceDraft()">Delete</button>
+          </div>
+        </div>
+
+        <footer class="gc-footer">
+          <div class="gc-recording-overlay" *ngIf="recordingUi">
+            <div class="gc-recording-pulse">● RECORDING</div>
+            <button type="button" class="gc-cancel-rec" (click)="cancelRecording()">Cancel</button>
+          </div>
+
+          <div class="gc-compose" *ngIf="!recordingUi" [class.gc-compose--with-draft]="voiceDraft">
+            <div class="gc-compose-icons" #emojiPanel>
+              <button type="button" class="gc-icon-btn" aria-label="Emoji" (click)="$event.stopPropagation(); toggleEmoji()">
+                <i class="fa-regular fa-face-smile"></i>
+              </button>
+              <div class="gc-emoji-panel" *ngIf="showEmojiPicker" (click)="$event.stopPropagation()">
+                <button type="button" class="gc-emoji-cell" *ngFor="let e of getEmojiOptions()" (click)="appendEmoji(e)">
+                  {{ e }}
+                </button>
+              </div>
+
+              <button
+                type="button"
+                class="gc-icon-btn"
+                aria-label="Voice message — hold"
+                [disabled]="!canChat || loadingMessages || sendLoading || !!voiceDraft"
+                (pointerdown)="onMicPointerDown($event)"
+              >
+                <i class="fa-solid fa-microphone"></i>
+              </button>
+
+              <button
+                type="button"
+                class="gc-icon-btn"
+                aria-label="Pick a location on map"
+                [disabled]="!canChat || loadingMessages || sendLoading || recordingUi || !!voiceDraft"
+                (click)="openLocationPicker()"
+              >
+                <i class="fa-solid fa-location-dot"></i>
+              </button>
+            </div>
+
+            <input
+              class="gc-input"
+              [(ngModel)]="messageInput"
+              (keyup.enter)="canChat && !sendLoading && sendText()"
+              [placeholder]="canChat ? 'Write a message...' : 'Access reserved for group members'"
+              [disabled]="!canChat || loadingMessages || sendLoading || recordingUi"
+              type="text"
+            />
+
+            <button type="button" class="gc-send" [disabled]="!canChat || loadingMessages || sendLoading || !messageInput.trim()" (click)="sendText()">
+              {{ sendLoading ? 'Sending…' : 'Send' }}
+            </button>
+          </div>
+        </footer>
+
+        <div class="gc-err-msg" *ngIf="messageError">{{ messageError }}</div>
+      </ng-container>
+
+      <ng-template #gcNoSelection>
+        <div class="gc-muted gc-no-select">Choose a group from the list.</div>
+      </ng-template>
+    </section>
+  </div>
+
+  <app-location-map-picker
+    *ngIf="locationPickerOpen"
+    [initialLat]="locationPickerLat"
+    [initialLng]="locationPickerLng"
+    (pickerClosed)="onLocationPickerDismiss()"
+    (locationChosen)="onLocationPicked($event)"
+  ></app-location-map-picker>
+</div>

@@ -1,7 +1,16 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { Observable, catchError, throwError } from 'rxjs';
 import { apiUrl } from '../../core/config/api-url';
+import {
+  CreateRequestLoanPayload,
+  LoanContractDetailsDto,
+  LoanContractDto as AdminLoanContractDto,
+  LoanDocumentDto,
+  PageResponse,
+  RequestLoanDecisionPayload,
+  RequestLoanDto,
+} from '../../models/credit.model';
 
 export interface LoanContractDto {
   id: number;
@@ -9,7 +18,7 @@ export interface LoanContractDto {
   montantCredit: number;
   tauxInteret: number;
   dureeMois: number;
-  montantTotalRembourse: number; // montant total à rembourser (montant du credit+frais de dossier)
+  montantTotalRembourse: number;
   datePremiereEcheance: string;
   firstPaymentDate: string;
   gracePeriodDays: number;
@@ -22,12 +31,12 @@ export interface StripeConfigDto {
 }
 
 export interface StripePaymentIntentRequestDto {
-  amount: number;        // en centimes (mensualite × 100)
-  currency: string;      // 'eur'
+  amount: number;
+  currency: string;
   installmentNumber: number;
   userId: number;
   loanContractId: number;
-  dueDate: string;       // YYYY-MM-DD
+  dueDate: string;
   description: string;
 }
 
@@ -44,7 +53,7 @@ export interface PaymentRequestDto {
   userId: number;
   loanContractId: number;
   installmentNumber: number;
-  dueDate: string; // YYYY-MM-DD
+  dueDate: string;
 }
 
 export interface PaymentResponseDto {
@@ -74,14 +83,51 @@ export interface PaymentHistoryResponseDto {
   dueDate: string;
 }
 
+export interface InstallmentDto {
+  id: number;
+  installmentNumber: number;
+  dueDate: string;
+  amountDue: number;
+  principalPart: number;
+  interestPart: number;
+  remainingBalance: number;
+  status: string;
+}
+
+export interface PenaltyDto {
+  id: number;
+  installmentId: number;
+  installmentNumber: number;
+  installmentDueDate: string;
+  installmentAmountDue: number;
+  penaltyTier: string;
+  tierLabel: string;
+  daysOverdue: number;
+  penaltyRate: number;
+  penaltyAmount: number;
+  relanceFee: number;
+  totalPenalty: number;
+  cappedAt: number;
+  status: string;
+  appliedDate: string;
+  paidDate: string | null;
+  waivedByName: string | null;
+  waivedAt: string | null;
+  waivedReason: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class Credit {
-  private readonly API          = apiUrl('/api/loans');
-  private readonly PAY_API      = apiUrl('/api/payments');
-  private readonly HISTORY_API  = apiUrl('/api/payment-history');
-  private readonly STRIPE_API   = apiUrl('/api/stripe');
+  private readonly API = apiUrl('/api/loans');
+  private readonly PAY_API = apiUrl('/api/payments');
+  private readonly HISTORY_API = apiUrl('/api/payment-history');
+  private readonly STRIPE_API = apiUrl('/api/stripe');
   private readonly SCHEDULE_API = apiUrl('/api/schedule-repayment');
-  private readonly PENALTY_API  = apiUrl('/api/penalties');
+  private readonly PENALTY_API = apiUrl('/api/penalties');
+  /** Request-loan flow (credit module). */
+  private readonly REQUEST_LOANS = apiUrl('/api/credit/request-loans');
+  private readonly LOAN_DOCUMENTS = apiUrl('/api/credit/loan-documents');
+  private readonly LOAN_CONTRACTS_LIST = apiUrl('/api/credit/loan-contracts');
 
   constructor(private http: HttpClient) {}
 
@@ -116,8 +162,13 @@ export class Credit {
     return this.http.get<StripeConfigDto>(`${this.STRIPE_API}/config`);
   }
 
-  createStripePaymentIntent(dto: StripePaymentIntentRequestDto): Observable<StripePaymentIntentResponseDto> {
-    return this.http.post<StripePaymentIntentResponseDto>(`${this.STRIPE_API}/create-payment-intent`, dto);
+  createStripePaymentIntent(
+    dto: StripePaymentIntentRequestDto,
+  ): Observable<StripePaymentIntentResponseDto> {
+    return this.http.post<StripePaymentIntentResponseDto>(
+      `${this.STRIPE_API}/create-payment-intent`,
+      dto,
+    );
   }
 
   getInstallments(loanContractId: number): Observable<InstallmentDto[]> {
@@ -135,37 +186,121 @@ export class Credit {
   applyAllPenalties(): Observable<string> {
     return this.http.post(`${this.PENALTY_API}/apply-all`, {}, { responseType: 'text' });
   }
-}
 
-export interface InstallmentDto {
-  id: number;
-  installmentNumber: number;
-  dueDate: string;   // 'YYYY-MM-DD'
-  amountDue: number;
-  principalPart: number;
-  interestPart: number;
-  remainingBalance: number;
-  status: string;    // 'PENDING' | 'PAID' | 'OVERDUE'
-}
+  // --- Request loans & documents (client credit module) ---
 
-export interface PenaltyDto {
-  id: number;
-  installmentId: number;
-  installmentNumber: number;
-  installmentDueDate: string;
-  installmentAmountDue: number;
-  penaltyTier: string;       // 'TIER_1' | 'TIER_2' | 'TIER_3'
-  tierLabel: string;          // 'Retard leger' | 'Retard modere' | 'Retard grave'
-  daysOverdue: number;
-  penaltyRate: number;
-  penaltyAmount: number;
-  relanceFee: number;
-  totalPenalty: number;
-  cappedAt: number;
-  status: string;             // 'APPLIED' | 'PAID' | 'WAIVED'
-  appliedDate: string;
-  paidDate: string | null;
-  waivedByName: string | null;
-  waivedAt: string | null;
-  waivedReason: string | null;
+  getRequestLoans(page = 0, size = 10, userId?: number): Observable<PageResponse<RequestLoanDto>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (typeof userId === 'number') {
+      params = params.set('userId', userId);
+    }
+    return this.http
+      .get<PageResponse<RequestLoanDto>>(this.REQUEST_LOANS, { params })
+      .pipe(catchError(this.handleRequestLoanError));
+  }
+
+  getRequestLoansByUserId(
+    userId: number,
+    page = 0,
+    size = 20,
+  ): Observable<PageResponse<RequestLoanDto>> {
+    return this.getRequestLoans(page, size, userId);
+  }
+
+  createRequestLoan(payload: CreateRequestLoanPayload): Observable<RequestLoanDto> {
+    return this.http
+      .post<RequestLoanDto>(this.REQUEST_LOANS, payload)
+      .pipe(catchError(this.handleRequestLoanError));
+  }
+
+  updateRequestLoan(
+    idDemande: number,
+    payload: Partial<CreateRequestLoanPayload>,
+  ): Observable<RequestLoanDto> {
+    return this.http
+      .put<RequestLoanDto>(`${this.REQUEST_LOANS}/${idDemande}`, payload)
+      .pipe(catchError(this.handleRequestLoanError));
+  }
+
+  deleteRequestLoan(idDemande: number): Observable<void> {
+    return this.http
+      .delete<void>(`${this.REQUEST_LOANS}/${idDemande}`)
+      .pipe(catchError(this.handleRequestLoanError));
+  }
+
+  uploadLoanDocument(requestLoanId: number, typeDocument: string, file: File): Observable<LoanDocumentDto> {
+    const formData = new FormData();
+    formData.append('requestLoanId', String(requestLoanId));
+    formData.append('typeDocument', typeDocument);
+    formData.append('file', file);
+    return this.http
+      .post<LoanDocumentDto>(`${this.LOAN_DOCUMENTS}/upload`, formData)
+      .pipe(catchError(this.handleRequestLoanError));
+  }
+
+  getLoanDocuments(page = 0, size = 200): Observable<PageResponse<LoanDocumentDto>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http
+      .get<PageResponse<LoanDocumentDto>>(this.LOAN_DOCUMENTS, { params })
+      .pipe(catchError(this.handleRequestLoanError));
+  }
+
+  downloadLoanDocument(documentId: number): Observable<Blob> {
+    return this.http
+      .get(`${this.LOAN_DOCUMENTS}/${documentId}/file`, { responseType: 'blob' })
+      .pipe(catchError(this.handleRequestLoanError));
+  }
+
+  getLoanContracts(page = 0, size = 20): Observable<PageResponse<AdminLoanContractDto>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http
+      .get<PageResponse<AdminLoanContractDto>>(this.LOAN_CONTRACTS_LIST, { params })
+      .pipe(catchError(this.handleRequestLoanError));
+  }
+
+  getLoanContractDetails(idContrat: number): Observable<LoanContractDetailsDto> {
+    return this.http
+      .get<LoanContractDetailsDto>(`${this.LOAN_CONTRACTS_LIST}/${idContrat}/details`)
+      .pipe(catchError(this.handleRequestLoanError));
+  }
+
+  downloadLoanContractPdf(idContrat: number): Observable<Blob> {
+    return this.http
+      .get(`${this.LOAN_CONTRACTS_LIST}/${idContrat}/download`, { responseType: 'blob' })
+      .pipe(catchError(this.handleRequestLoanError));
+  }
+
+  approveRequestLoan(
+    idDemande: number,
+    payload?: RequestLoanDecisionPayload,
+  ): Observable<RequestLoanDto> {
+    const body = this.decisionBody(payload);
+    return this.http
+      .post<RequestLoanDto>(`${this.REQUEST_LOANS}/${idDemande}/approve`, body)
+      .pipe(catchError(this.handleRequestLoanError));
+  }
+
+  rejectRequestLoan(
+    idDemande: number,
+    payload?: RequestLoanDecisionPayload,
+  ): Observable<RequestLoanDto> {
+    const body = this.decisionBody(payload);
+    return this.http
+      .post<RequestLoanDto>(`${this.REQUEST_LOANS}/${idDemande}/reject`, body)
+      .pipe(catchError(this.handleRequestLoanError));
+  }
+
+  private decisionBody(payload?: RequestLoanDecisionPayload): RequestLoanDecisionPayload {
+    const note = payload?.note?.trim();
+    return note ? { note } : {};
+  }
+
+  private handleRequestLoanError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      console.error('Client error:', error.error);
+    } else {
+      console.error('Server error:', { status: error.status, message: error.message, body: error.error });
+    }
+    return throwError(() => error);
+  }
 }

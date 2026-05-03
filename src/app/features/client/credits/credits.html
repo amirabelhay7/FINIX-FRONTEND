@@ -1,129 +1,320 @@
 <div class="page-body">
   <div class="ph s1">
     <div>
-      <div class="ph-eyebrow">Mes Crédits</div>
-      <div class="ph-title">Gestion des dossiers</div>
-      <div class="ph-desc">3 crédits actifs · Encours total : 24 500 TND</div>
+      <div class="ph-eyebrow">My requests</div>
+      <div class="ph-title">Loan requests</div>
+      <div class="ph-desc">Requests linked to your client account</div>
     </div>
     <div class="ph-actions">
-      <button class="btn btn-outline">📊 Simulateur</button>
-      <button class="btn btn-primary">+ Nouvelle demande</button>
+      <button class="btn btn-outline draft-toggle-btn" [class.active]="showDrafts" (click)="toggleDraftsPanel()">
+        {{ showDrafts ? 'Hide drafts' : 'My drafts' }}
+      </button>
     </div>
   </div>
 
-  <div class="filter-bar s2">
-    <button class="filter-chip active">Tous (4)</button>
-    <button class="filter-chip">Actifs (2)</button>
-    <button class="filter-chip">En étude (1)</button>
-    <button class="filter-chip">Clôturés (1)</button>
-    <button class="filter-chip">Auto</button>
-    <button class="filter-chip">Consommation</button>
-    <button class="filter-chip">Immobilier</button>
+  <div class="panel s2">
+    <div class="panel-body" *ngIf="loading">Loading requests...</div>
+    <div class="panel-body" *ngIf="error">{{ error }}</div>
+
+    <div class="tbl-wrap" *ngIf="!loading && myLoans.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Amount</th>
+            <th>Down payment</th>
+            <th>Term</th>
+            <th>Monthly payment</th>
+            <th>Purpose</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let loan of paginatedLoans"
+            [style.cursor]="loan.statutDemande === 'PENDING' ? 'pointer' : 'default'"
+            [ngClass]="getRowClass(loan.statutDemande)"
+            (click)="openEditModal(loan)"
+          >
+            <td>{{ loan.montantDemande }} TND</td>
+            <td>{{ loan.apportPersonnel }} TND</td>
+            <td>{{ loan.dureeMois }} months</td>
+            <td>{{ loan.mensualiteEstimee }} TND</td>
+            <td>{{ displayLoanObjective(loan.objectifCredit) }}</td>
+            <td>
+              <span [ngClass]="getBadgeClass(loan.statutDemande)">
+                {{ loan.statutDemande }}
+              </span>
+            </td>
+            <td>{{ formatDate(loan.dateCreation || loan.dateSoumission || loan.dateDecision) }}</td>
+            <td>
+              <button
+                *ngIf="loan.statutDemande === 'PENDING'"
+                class="btn btn-danger btn-xs"
+                (click)="deletePendingFromList(loan, $event)"
+              >
+                Delete
+              </button>
+              <span *ngIf="loan.statutDemande !== 'PENDING'">-</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-wrap" *ngIf="!loading && myLoans.length > 0">
+      <div class="pagination-meta">
+        <span>{{ myLoans.length }} requests</span>
+        <label>
+          <span>Per page</span>
+          <select [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
+          </select>
+        </label>
+      </div>
+      <div class="pagination-controls">
+        <button class="btn btn-outline btn-xs" [disabled]="currentPage === 1" (click)="previousPage()">Previous</button>
+        <button
+          class="btn btn-outline btn-xs"
+          *ngFor="let page of pageNumbers"
+          [class.active-page]="page === currentPage"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+        <button class="btn btn-outline btn-xs" [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+      </div>
+    </div>
+
+    <div class="panel-body" *ngIf="!loading && myLoans.length === 0 && !error">
+      {{ emptyCreditsMessage }}
+    </div>
   </div>
 
-  <div class="credit-card-grid s3">
-    <div class="credit-card">
-      <div class="cc-top">
-        <div class="cc-type">Crédit Automobile</div>
-        <div class="cc-amount">12 500 TND</div>
-        <div class="cc-ref">#CR-2024-001 · Toyota Corolla 2022</div>
-        <div class="cc-tag cc-tag-active">Actif</div>
+  <div class="drafts-overlay" [class.open]="showDrafts" [attr.aria-hidden]="!showDrafts">
+    <div class="drafts-backdrop" (click)="toggleDraftsPanel()"></div>
+    <div class="panel s2 drafts-floating-panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="ptdot"></span>Local drafts</div>
+        <button class="btn btn-outline btn-xs" (click)="toggleDraftsPanel()">Hide</button>
       </div>
-      <div class="cc-body">
-        <div class="cc-progress">
-          <div style="display:flex;justify-content:space-between;font-size:.73rem;color:var(--g500);margin-bottom:.35rem;">
-            <span>Progression</span><span style="font-weight:700;color:var(--blue)">72%</span>
-          </div>
-          <div class="cc-progress-track">
-            <div class="cc-progress-fill" style="--w:72%"></div>
-          </div>
-          <div class="cc-progress-labels">
-            <span>Payé : 9 000 TND</span>
-            <span>Restant : 3 500 TND</span>
-          </div>
-        </div>
-        <div class="cc-meta">
-          <div class="cc-meta-item"><div class="ccm-lbl">Durée</div><div class="ccm-val">48 mois</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Mensualité</div><div class="ccm-val">260 TND</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Taux</div><div class="ccm-val">7.5%</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Fin</div><div class="ccm-val">Mar 2027</div></div>
-        </div>
+      <div class="panel-body" *ngIf="drafts.length === 0">
+        No local drafts found.
       </div>
-      <div class="cc-footer">
-        <span class="badge b-actif">Actif</span>
-        <div style="display:flex;gap:.5rem;">
-          <button class="btn btn-outline btn-xs">Détails</button>
-          <button class="btn btn-primary btn-xs">Payer</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="credit-card">
-      <div class="cc-top">
-        <div class="cc-type">Crédit Consommation</div>
-        <div class="cc-amount">7 000 TND</div>
-        <div class="cc-ref">#CR-2024-018 · Personnel</div>
-        <div class="cc-tag cc-tag-active">Actif</div>
-      </div>
-      <div class="cc-body">
-        <div class="cc-progress">
-          <div style="display:flex;justify-content:space-between;font-size:.73rem;color:var(--g500);margin-bottom:.35rem;">
-            <span>Progression</span><span style="font-weight:700;color:var(--blue)">45%</span>
-          </div>
-          <div class="cc-progress-track">
-            <div class="cc-progress-fill" style="--w:45%"></div>
-          </div>
-          <div class="cc-progress-labels">
-            <span>Payé : 3 150 TND</span>
-            <span>Restant : 3 850 TND</span>
-          </div>
-        </div>
-        <div class="cc-meta">
-          <div class="cc-meta-item"><div class="ccm-lbl">Durée</div><div class="ccm-val">24 mois</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Mensualité</div><div class="ccm-val">310 TND</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Taux</div><div class="ccm-val">9.2%</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Fin</div><div class="ccm-val">Jan 2026</div></div>
-        </div>
-      </div>
-      <div class="cc-footer">
-        <span class="badge b-actif">Actif</span>
-        <div style="display:flex;gap:.5rem;">
-          <button class="btn btn-outline btn-xs">Détails</button>
-          <button class="btn btn-primary btn-xs">Payer</button>
-        </div>
+      <div class="tbl-wrap" *ngIf="drafts.length > 0">
+        <table>
+          <thead>
+          <tr>
+            <th>Vehicle ID</th>
+            <th>Name</th>
+            <th>Amount</th>
+            <th>Term</th>
+            <th>Docs</th>
+            <th>Saved on</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let d of drafts">
+            <td>{{ d.vehicleId }}</td>
+            <td>{{ d.fullName }}</td>
+            <td>{{ d.amount }} TND</td>
+            <td>{{ d.duration }} months</td>
+            <td>{{ d.docsCount }}</td>
+            <td>{{ formatDate(d.savedAt) }}</td>
+            <td>
+              <a class="btn btn-outline btn-xs" routerLink="/client/vehicles">Open</a>
+              <button class="btn btn-danger btn-xs" (click)="removeDraft(d.vehicleId)">Delete</button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
       </div>
     </div>
+  </div>
 
-    <div class="credit-card">
-      <div class="cc-top">
-        <div class="cc-type">Crédit Immobilier</div>
-        <div class="cc-amount">85 000 TND</div>
-        <div class="cc-ref">#CR-2025-043 · Appartement Ariana</div>
-        <div class="cc-tag cc-tag-review">En étude</div>
-      </div>
-      <div class="cc-body">
-        <div class="cc-progress">
-          <div style="display:flex;justify-content:space-between;font-size:.73rem;color:var(--g500);margin-bottom:.35rem;">
-            <span>Dossier</span><span style="font-weight:700;color:var(--blue)">Analyse BCT</span>
-          </div>
-          <div class="cc-progress-track">
-            <div class="cc-progress-fill" style="--w:60%;background:linear-gradient(90deg,var(--blue),var(--chart2))"></div>
-          </div>
-          <div class="cc-progress-labels">
-            <span>Soumis : 26 Fév 2026</span>
-            <span>Délai : 7-15 jours</span>
-          </div>
+  <div class="rl-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="rl-modal" (click)="$event.stopPropagation()">
+      <div class="rl-head">
+        <div>
+          <div class="rl-title">Edit request #{{ selectedLoan?.idDemande }}</div>
+          <div class="rl-sub">Editing is only allowed for requests in PENDING status</div>
         </div>
-        <div class="cc-meta">
-          <div class="cc-meta-item"><div class="ccm-lbl">Durée</div><div class="ccm-val">180 mois</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Mensualité est.</div><div class="ccm-val">~880 TND</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Taux est.</div><div class="ccm-val">6.8%</div></div>
-          <div class="cc-meta-item"><div class="ccm-lbl">Agent</div><div class="ccm-val">Khaled M.</div></div>
-        </div>
+        <button class="btn btn-outline btn-xs" (click)="closeEditModal()">Close</button>
       </div>
-      <div class="cc-footer">
-        <span class="badge b-review">En étude</span>
-        <button class="btn btn-outline btn-xs">Suivi dossier</button>
+
+      <div class="rl-body">
+        <section class="edit-section">
+          <h4>1. Applicant details</h4>
+          <div class="rl-grid">
+            <label class="rl-field rl-full">
+              <span>Full name</span>
+              <input class="form-input" type="text" [(ngModel)]="editForm.fullName">
+            </label>
+            <label class="rl-field">
+              <span>Date of birth</span>
+              <input class="form-input" type="date" [(ngModel)]="editForm.dateOfBirth">
+            </label>
+            <label class="rl-field">
+              <span>National ID (CIN)</span>
+              <input class="form-input" type="text" [(ngModel)]="editForm.cinNumber">
+            </label>
+            <label class="rl-field rl-full">
+              <span>Address</span>
+              <input class="form-input" type="text" [(ngModel)]="editForm.address">
+            </label>
+            <label class="rl-field">
+              <span>Phone</span>
+              <input class="form-input" type="text" [(ngModel)]="editForm.phone">
+            </label>
+            <label class="rl-field">
+              <span>Email</span>
+              <input class="form-input" type="email" [(ngModel)]="editForm.email">
+            </label>
+            <label class="rl-field">
+              <span>Marital status</span>
+              <select class="form-input" [(ngModel)]="editForm.maritalStatus">
+                <option *ngFor="let option of maritalStatusOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </label>
+            <label class="rl-field">
+              <span>Employment type</span>
+              <select class="form-input" [(ngModel)]="editForm.employmentType">
+                <option *ngFor="let option of employmentOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </label>
+            <label class="rl-field rl-full">
+              <span>Estimated monthly income (TND)</span>
+              <input class="form-input" type="number" min="0" [(ngModel)]="editForm.estimatedMonthlyIncome">
+            </label>
+          </div>
+        </section>
+
+        <section class="edit-section">
+          <h4>2. Loan details</h4>
+          <div class="rl-grid">
+            <label class="rl-field">
+              <span>Loan amount (TND)</span>
+              <input class="form-input" type="number" [value]="montantDemandeNet" readonly>
+            </label>
+            <label class="rl-field">
+              <span>Down payment (TND)</span>
+              <input class="form-input" type="number" min="0" [max]="montantTotalCredit" [(ngModel)]="editForm.apportPersonnel" (ngModelChange)="onApportPersonnelChange()">
+            </label>
+            <label class="rl-field">
+              <span>Loan term</span>
+              <select class="form-input" [(ngModel)]="editForm.dureeMois" (ngModelChange)="recalculateMensualite()">
+                <option *ngFor="let option of dureeOptions" [ngValue]="option">{{ option }} months</option>
+              </select>
+            </label>
+            <label class="rl-field">
+              <span>Estimated monthly payment (TND)</span>
+              <input class="form-input" type="number" [value]="editForm.mensualiteEstimee" readonly>
+            </label>
+            <label class="rl-field">
+              <span>Loan purpose</span>
+              <input class="form-input" type="text" [(ngModel)]="editForm.objectifCredit" readonly>
+            </label>
+            <label class="rl-field">
+              <span>Preferred repayment type</span>
+              <select class="form-input" [(ngModel)]="editForm.repaymentType">
+                <option *ngFor="let option of repaymentTypeOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </label>
+            <label class="rl-field rl-full check-line">
+              <input type="checkbox" [(ngModel)]="editForm.demandePeriodeGrace">
+              <span>Grace period requested</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="edit-section">
+          <h4>3. Selected vehicle</h4>
+          <div class="vehicle-auto-grid">
+            <div><strong>Make:</strong> {{ selectedVehicleInfo.marque }}</div>
+            <div><strong>Model:</strong> {{ selectedVehicleInfo.modele }}</div>
+            <div><strong>Vehicle price:</strong> {{ selectedVehicleInfo.prixTnd }} TND</div>
+            <div class="rl-full"><strong>Reference:</strong> {{ selectedVehicleInfo.reference }}</div>
+          </div>
+        </section>
+
+        <section class="edit-section">
+          <h4>4. Documents to upload</h4>
+          <div class="rl-grid">
+            <label class="rl-field">
+              <span>National ID (CIN)</span>
+              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('cinDoc', $event)">
+              <small *ngIf="editUploadState.cinDoc">
+                Current file: {{ editUploadState.cinDoc.name }}
+                <button type="button" class="btn btn-outline btn-xs" (click)="openExistingDocument(getExistingDocumentByType('CIN'))">View</button>
+              </small>
+            </label>
+            <label class="rl-field">
+              <span>Recent payslip</span>
+              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('payslipDoc', $event)">
+              <small *ngIf="editUploadState.payslipDoc">
+                Current file: {{ editUploadState.payslipDoc.name }}
+                <button type="button" class="btn btn-outline btn-xs" (click)="openExistingDocument(getExistingDocumentByType('FICHE_PAIE'))">View</button>
+              </small>
+            </label>
+            <label class="rl-field">
+              <span>Bank statements (last 3 months)</span>
+              <input type="file" accept=".pdf" (change)="onSingleFileSelected('bankStatementDoc', $event)">
+              <small *ngIf="editUploadState.bankStatementDoc">
+                Current file: {{ editUploadState.bankStatementDoc.name }}
+                <button type="button" class="btn btn-outline btn-xs" (click)="openExistingDocument(getExistingDocumentByType('RELEVE_BANCAIRE'))">View</button>
+              </small>
+            </label>
+            <label class="rl-field">
+              <span>Employment letter / proof of activity</span>
+              <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('workProofDoc', $event)">
+              <small *ngIf="editUploadState.workProofDoc">
+                Current file: {{ editUploadState.workProofDoc.name }}
+                <button type="button" class="btn btn-outline btn-xs" (click)="openExistingDocument(getExistingDocumentByType('ATTESTATION_TRAVAIL'))">View</button>
+              </small>
+            </label>
+            <label class="rl-field">
+              <span>Other documents (optional)</span>
+              <input type="file" multiple accept=".pdf,image/*" (change)="onOptionalFilesSelected($event)">
+            </label>
+            <div class="rl-full optional-docs" *ngIf="editUploadState.optionalDocs.length > 0">
+              <div class="doc-chip" *ngFor="let doc of editUploadState.optionalDocs; let i = index">
+                {{ doc.name }}
+                <button type="button" (click)="removeOptionalDoc(i)">×</button>
+              </div>
+            </div>
+            <div class="rl-full" *ngIf="loadingExistingDocuments">
+              <small>Loading existing documents...</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="edit-section">
+          <h4>5. Verification and consent</h4>
+          <div class="consent-list">
+            <label class="check-line"><input type="checkbox" [(ngModel)]="editForm.infoAccuracyConfirmed"> I confirm the information provided is accurate</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="editForm.documentsCheckAuthorized"> I authorize verification of my documents</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="editForm.termsAccepted"> I accept the terms and conditions</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="editForm.personalDataConsent"> I consent to the processing of my personal data</label>
+          </div>
+        </section>
+
+        <div class="edit-summary-card">
+          <div><strong>Total amount:</strong> {{ montantTotalCredit | number:'1.0-2' }} TND</div>
+          <div><strong>Down payment:</strong> {{ editForm.apportPersonnel | number:'1.0-2' }} TND</div>
+          <div><strong>Net financed:</strong> {{ montantDemandeNet | number:'1.0-2' }} TND</div>
+          <div><strong>Term:</strong> {{ editForm.dureeMois }} months</div>
+        </div>
+
+        <div class="rl-msg ok" *ngIf="submitSuccess">{{ submitSuccess }}</div>
+        <div class="rl-msg err" *ngIf="submitError">{{ submitError }}</div>
+      </div>
+
+      <div class="rl-actions">
+        <button class="btn btn-primary" [disabled]="submitting" (click)="validateModification()">
+          {{ submitting ? 'Updating…' : 'Update request' }}
+        </button>
       </div>
     </div>
   </div>
