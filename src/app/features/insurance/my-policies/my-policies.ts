@@ -1,28 +1,114 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { of } from 'rxjs';
+import { catchError, finalize, timeout } from 'rxjs/operators';
 import { InsurancePolicy } from '../../../models';
+import type { InsurancePolicyDto } from '../../../models/insurance.model';
+import { InsuranceService } from '../../../services/insurance/insurance.service';
 
-/**
- * ViewModel: my policies (MVVM).
- */
+const ICONS = ['🛡️', '🏥', '🏠', '👤', '🌾'];
+const REQ_TIMEOUT_MS = 30000;
+
+function hashPick(s: string, mod: number): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h) % mod;
+}
+
+function mapPolicy(p: InsurancePolicyDto): InsurancePolicy & { statusLabel?: string; emoji: string } {
+  const hi = hashPick(p.insuranceProductName, ICONS.length);
+  const exp = new Date(p.expirationDate);
+  const detail = `Jusqu’au ${exp.toLocaleDateString('fr-FR')} · ${p.installmentAmount} ${p.currencyCode} / installment`;
+  return {
+    id: p.id,
+    productName: p.insuranceProductName,
+    policyNumber: p.policyNumber,
+    detail,
+    route: `/client/insurance/policy/${p.id}`,
+    icon: ICONS[hi],
+    iconBgClass: '',
+    iconColorClass: '',
+    statusLabel: p.status,
+    emoji: ICONS[hi],
+  };
+}
+
+function isActive(p: InsurancePolicyDto): boolean {
+  if (p.status !== 'ACTIVE') return false;
+  const exp = new Date(p.expirationDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return exp >= today;
+}
+
 @Component({
   selector: 'app-my-policies',
   standalone: false,
   templateUrl: './my-policies.html',
   styleUrl: './my-policies.css',
 })
-export class MyPolicies {
+export class MyPolicies implements OnInit {
   readonly pageTitle = 'My Policies';
-  readonly pageSubtitle = 'Your active and past insurance policies.';
-  readonly activeSectionTitle = 'Active policies';
-  readonly pastSectionTitle = 'Past policies';
+  readonly pageSubtitle = 'Policys actives et historique.';
+  readonly activeSectionTitle = 'Policys actives';
+  readonly pastSectionTitle = 'Past Policies';
 
-  readonly activePolicies: InsurancePolicy[] = [
-    { id: 1, productName: 'Moto Cover', policyNumber: 'POL-2026-0012', detail: 'Active until Dec 15, 2026 · 25 TND/month · Next due Mar 15', route: '/insurance/policy/1', icon: 'two_wheeler', iconBgClass: 'bg-green-50', iconColorClass: 'text-green-600' },
-    { id: 2, productName: 'Health Micro', policyNumber: 'POL-2026-0048', detail: 'Active until Aug 20, 2026 · 38 TND/month · Next due Mar 20', route: '/insurance/policy/2', icon: 'health_and_safety', iconBgClass: 'bg-green-50', iconColorClass: 'text-green-600' },
-  ];
+  activePolicies: (InsurancePolicy & { emoji: string })[] = [];
+  pastPolicies: (InsurancePolicy & { statusLabel: string; emoji: string })[] = [];
+  loading = true;
+  loadError: string | null = null;
 
-  readonly pastPolicies: (InsurancePolicy & { statusLabel: string })[] = [
-    { id: 3, productName: 'Home Shield', policyNumber: 'POL-2024-0892', detail: 'Expired Dec 31, 2025 · Was 45 TND/month', route: '', icon: 'home', iconBgClass: 'bg-gray-100', iconColorClass: 'text-gray-500', statusLabel: 'Expired' },
-    { id: 4, productName: 'Moto Cover', policyNumber: 'POL-2024-0122', detail: 'Cancelled Jun 10, 2025', route: '', icon: 'two_wheeler', iconBgClass: 'bg-gray-100', iconColorClass: 'text-gray-500', statusLabel: 'Cancelled' },
-  ];
+  private loadGen = 0;
+
+  constructor(
+    private readonly insuranceApi: InsuranceService,
+    private readonly cdr: ChangeDetectorRef,
+  ) {}
+
+  ngOnInit(): void {
+    this.loadPolicies();
+  }
+
+  loadPolicies(): void {
+    const g = ++this.loadGen;
+    this.loading = true;
+    this.loadError = null;
+    this.cdr.markForCheck();
+    this.insuranceApi
+      .getMyPolicies()
+      .pipe(
+        timeout(REQ_TIMEOUT_MS),
+        catchError((err: unknown) => {
+          if (g !== this.loadGen) return of([] as InsurancePolicyDto[]);
+          const anyErr = err as { error?: { message?: string }; message?: string };
+          this.loadError =
+            anyErr?.error?.message ??
+            anyErr?.message ??
+            'Unable to load your policies. Check network or backend (port 8082).';
+          return of([] as InsurancePolicyDto[]);
+        }),
+        finalize(() => {
+          if (g === this.loadGen) {
+            this.loading = false;
+            this.cdr.markForCheck();
+          }
+        }),
+      )
+      .subscribe((list) => {
+        if (g !== this.loadGen) return;
+        const active: InsurancePolicyDto[] = [];
+        const past: InsurancePolicyDto[] = [];
+        for (const p of list) {
+          if (isActive(p)) active.push(p);
+          else past.push(p);
+        }
+        this.activePolicies = active.map((p) => mapPolicy(p) as InsurancePolicy & { emoji: string });
+        this.pastPolicies = past.map((p) => {
+          const m = mapPolicy(p) as InsurancePolicy & { statusLabel: string; emoji: string };
+          m.statusLabel =
+            p.status === 'EXPIRED' ? 'Expired' : p.status === 'CANCELLED' ? 'Cancelled' : String(p.status);
+          return m;
+        });
+        this.cdr.markForCheck();
+      });
+  }
 }

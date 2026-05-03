@@ -1,0 +1,45 @@
+<div class="page-body">
+  <app-insurance-nav></app-insurance-nav>
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Insurance</div>
+      <div class="ph-title">{{ pageTitle }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="panel s2" style="padding:1rem;color:var(--g500)">Loading...</div>
+  <div *ngIf="!loading && loadError" class="panel s2" style="padding:1rem;color:var(--danger)">
+    {{ loadError }} <button type="button" class="btn btn-outline btn-xs" (click)="load()">Retry</button>
+  </div>
+
+  <div class="panel s2" *ngIf="!loading && !loadError">
+    <div class="tbl-wrap">
+      <table *ngIf="list.length">
+        <thead>
+          <tr>
+            <th>ID</th><th>Product</th><th>Type</th><th>Valeur</th><th>Duration</th><th>Frequency</th>
+            <th>Premium</th><th>Installment</th><th>Status</th><th>Date</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of list">
+            <td>{{ r.id }}</td>
+            <td class="td-primary">{{ r.insuranceProductName }}</td>
+            <td>{{ r.vehicleType }}</td>
+            <td>{{ r.insuredValue | number:'1.0-3' }} {{ r.currencyCode }}</td>
+            <td>{{ r.durationMonths }} months</td>
+            <td>{{ r.paymentFrequency }}</td>
+            <td>{{ r.estimatedPremiumTotal | number:'1.0-3' }}</td>
+            <td>{{ r.estimatedInstallmentAmount | number:'1.0-3' }}</td>
+            <td><span class="badge b-blue">{{ r.status }}</span></td>
+            <td>{{ r.createdAt || '—' }}</td>
+            <td><a class="btn btn-ghost btn-xs" [routerLink]="['/client/insurance/credit-requests', r.id]">Voir</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!list.length" style="padding:1rem;color:var(--g500)">
+        No requests. <a routerLink="/client/insurance/products">Create from offers</a>.
+      </div>
+    </div>
+  </div>
+</div>

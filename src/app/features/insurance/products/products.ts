@@ -1,25 +1,132 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { of } from 'rxjs';
+import { catchError, finalize, timeout } from 'rxjs/operators';
 import { InsuranceProduct } from '../../../models';
+import type { InsuranceProductDto, VehicleTypeDto } from '../../../models/insurance.model';
+import { InsuranceService } from '../../../services/insurance/insurance.service';
 
-/**
- * ViewModel: insurance products list (MVVM).
- */
+const EMOJIS = ['🛡️', '🏥', '🏠', '👤', '🌾', '🚗'];
+const FETCH_TIMEOUT_MS = 30000;
+
+function vehicleBadges(p: InsuranceProductDto): NonNullable<InsuranceProduct['badges']> {
+  const allowed = p.allowedVehicleTypes ?? [];
+  const out: NonNullable<InsuranceProduct['badges']> = [];
+  if (!allowed.length) {
+    out.push({ label: 'All Vehicles', class: 'b-g500' });
+    return out;
+  }
+  for (const vt of allowed) {
+    if (vt === 'CAR') out.push({ label: 'Best for Cars', class: 'b-blue' });
+    else if (vt === 'MOTORCYCLE') out.push({ label: 'Best for Motorcycles', class: 'b-review' });
+    else if (vt === 'TRUCK') out.push({ label: 'Pro / Truck', class: 'b-insured' });
+  }
+  return out;
+}
+
+function mapApiToCard(p: InsuranceProductDto, index: number): InsuranceProduct {
+  const badges: InsuranceProduct['badges'] = [];
+  if (p.popular) badges.push({ label: 'Popular', class: 'b-insured' });
+  if (p.recommended) badges.push({ label: 'Recommended', class: 'b-review' });
+  badges.push(...vehicleBadges(p));
+  return {
+    id: p.id,
+    name: p.name,
+    description: p.description ?? '',
+    priceNote: `Base rate ${p.baseRatePct}% - ${p.partnerCompanyName}`,
+    route: `/client/insurance/products/${p.id}`,
+    accentColor: '',
+    icon: EMOJIS[index % EMOJIS.length],
+    iconBgClass: '',
+    iconColorClass: '',
+    badges: badges.length ? badges : undefined,
+  };
+}
+
 @Component({
   selector: 'app-products',
   standalone: false,
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
-export class Products {
-  readonly pageTitle = 'Insurance Products';
-  readonly pageSubtitle = 'Micro-protection for you and your assets.';
-  readonly whyMicroCopy = 'Low premiums (from 18 TND/month), simple terms, and fast claims. Designed for Tunisia and emerging markets. All products are offered by licensed partners.';
+export class Products implements OnInit {
+  readonly pageTitle = 'Insurance Offers';
+  readonly pageSubtitle = 'Filter by vehicle type and compare partner products.';
+  readonly whyMicroCopy =
+    'Affordable premiums, clear terms, and trusted partners. Final pricing depends on your profile and backoffice rules.';
 
-  readonly products: InsuranceProduct[] = [
-    { id: 1, name: 'Moto Cover', description: 'Theft & damage for two-wheelers. Third-party liability included.', priceNote: 'Base rate: 2.4% · From 25 TND/month', route: '/insurance/quote', accentColor: 'bg-[#135bec]', icon: 'two_wheeler', iconBgClass: 'bg-blue-50', iconColorClass: 'text-[#135bec]', badges: [{ label: 'Popular', class: 'bg-[#135bec] text-white' }, { label: 'Recommended', class: 'bg-amber-100 text-amber-800' }] },
-    { id: 2, name: 'Health Micro', description: 'Basic health coverage for individuals. Doctor visits & prescriptions.', priceNote: 'Base rate: 3.2% · From 38 TND/month', route: '/insurance/quote', accentColor: 'bg-green-500', icon: 'health_and_safety', iconBgClass: 'bg-green-50', iconColorClass: 'text-green-600', badges: [{ label: 'Recommended', class: 'bg-amber-100 text-amber-800' }] },
-    { id: 3, name: 'Home Shield', description: 'Fire, theft & natural disaster for your home.', priceNote: 'Base rate: 1.8% · From 45 TND/month', route: '/insurance/quote', accentColor: 'bg-amber-500', icon: 'home', iconBgClass: 'bg-amber-50', iconColorClass: 'text-amber-600' },
-    { id: 4, name: 'Life Micro', description: 'Term life coverage. Payout to beneficiaries.', priceNote: 'Base rate: 1.2% · From 18 TND/month', route: '/insurance/quote', accentColor: 'bg-purple-500', icon: 'person', iconBgClass: 'bg-purple-50', iconColorClass: 'text-purple-600', badges: [{ label: 'Popular', class: 'bg-[#135bec] text-white' }] },
-    { id: 5, name: 'Crop Shield', description: 'Weather & crop failure for smallholder farmers.', priceNote: 'Base rate: 4.0% · Seasonal plans', route: '/insurance/quote', accentColor: 'bg-emerald-600', icon: 'grass', iconBgClass: 'bg-emerald-50', iconColorClass: 'text-emerald-600' },
+  readonly vehicleFilterOptions: { value: VehicleTypeDto | 'ALL'; label: string }[] = [
+    { value: 'ALL', label: 'All Vehicles' },
+    { value: 'CAR', label: 'Car' },
+    { value: 'MOTORCYCLE', label: 'Motorcycle' },
+    { value: 'TRUCK', label: 'Truck' },
   ];
+
+  vehicleFilter: VehicleTypeDto | 'ALL' = 'ALL';
+
+  private fetchGen = 0;
+
+  products: InsuranceProduct[] = [];
+  loading = true;
+  loadError: string | null = null;
+
+  constructor(
+    private readonly insuranceApi: InsuranceService,
+    private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef,
+  ) {}
+
+  ngOnInit(): void {
+    this.fetchProducts();
+  }
+
+  onVehicleFilterChange(): void {
+    this.fetchProducts();
+  }
+
+  /** Retry button */
+  retryProducts(): void {
+    this.fetchProducts();
+  }
+
+  private fetchProducts(): void {
+    const g = ++this.fetchGen;
+    this.loading = true;
+    this.loadError = null;
+    const vt = this.vehicleFilter === 'ALL' ? undefined : this.vehicleFilter;
+    this.insuranceApi
+      .getProducts(vt ? { vehicleType: vt } : undefined)
+      .pipe(
+        timeout(FETCH_TIMEOUT_MS),
+        catchError((err: unknown) => {
+          if (g !== this.fetchGen) return of([] as InsuranceProductDto[]);
+          const anyErr = err as { error?: { message?: string }; message?: string };
+          this.loadError =
+            anyErr?.error?.message ??
+            anyErr?.message ??
+            'Unable to load products. Is backend running (port 8082)?';
+          return of([] as InsuranceProductDto[]);
+        }),
+        finalize(() => {
+          if (g === this.fetchGen) {
+            this.loading = false;
+            this.cdr.markForCheck();
+          }
+        }),
+      )
+      .subscribe((list) => {
+        if (g !== this.fetchGen) return;
+        this.products = list.map((p, idx) => mapApiToCard(p, idx));
+        this.cdr.markForCheck();
+      });
+  }
+
+  openProduct(route: string): void {
+    void this.router.navigateByUrl(route);
+  }
+
+  openCreditRequest(productId: number, event: Event): void {
+    event.stopPropagation();
+    void this.router.navigate(['/client/insurance/credit-requests/new'], { queryParams: { productId } });
+  }
 }

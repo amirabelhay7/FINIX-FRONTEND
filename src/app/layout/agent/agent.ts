@@ -1167,7 +1167,7 @@ tr:nth-child(even) td{background:#fafafa}
       },
       error: (err) => {
         this.agentDecisionMlError = err?.status === 0
-          ? 'Backend inaccessible (port 8081).'
+          ? 'Backend inaccessible (port 8082).'
           : err?.status === 500
             ? 'Erreur serveur — vérifiez que l\'API ML Python tourne sur le port 8000.'
             : err?.error?.message || err?.message || 'Erreur inconnue';

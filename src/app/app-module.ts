@@ -16,6 +16,7 @@ import { authInterceptor } from './services/auth/auth.interceptor';
 import { httpLoggingInterceptor } from './services/auth/http-logging.interceptor';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 import { LoanContractsExplorerModule } from './features/admin/credit-center/loan-contracts-explorer.module';
+import { InsuranceAdminComponent } from './layout/backoffice/components/insurance-admin/insurance-admin.component';
 
 @NgModule({
   declarations: [
@@ -26,8 +27,7 @@ import { LoanContractsExplorerModule } from './features/admin/credit-center/loan
     BackofficeComponent,
     TopbarComponent,
     UnauthorizedComponent,
-
-
+    InsuranceAdminComponent,
   ],
   imports: [
     BrowserModule,

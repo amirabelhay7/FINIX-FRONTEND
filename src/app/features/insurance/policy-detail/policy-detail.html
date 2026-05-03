@@ -1,45 +1,79 @@
-<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+<div class="page-body">
+  <app-insurance-nav></app-insurance-nav>
 
-    <div class="flex items-center gap-4">
-        <a [routerLink]="backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
-        </div>
+  <div class="ph s1">
+    <div style="display:flex;align-items:flex-start;gap:1rem;flex:1">
+      <a [routerLink]="backRoute" class="btn btn-outline btn-sm" style="margin-top:.2rem">←</a>
+      <div>
+        <div class="ph-eyebrow">Policy</div>
+        <div class="ph-title">{{ pageTitle }}</div>
+        <div class="ph-desc">{{ pageSubtitle }}</div>
+      </div>
     </div>
+  </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <h4 class="font-bold text-gray-800 flex items-center mb-4">
-                <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">info</span>
-                {{ detailsTitle }}
-            </h4>
-            <dl class="space-y-3 text-sm">
-                <div class="flex justify-between" *ngFor="let d of details"><dt class="text-gray-500">{{ d.label }}</dt><dd class="font-bold text-gray-800">{{ d.value }}</dd></div>
-            </dl>
+  <div *ngIf="loading" class="panel s2" style="padding:1.25rem;text-align:center">
+    <p style="color:var(--g500);margin:0;font-size:.875rem">Loading...</p>
+  </div>
+  <p *ngIf="!loading && loadError" style="color:var(--danger)">{{ loadError }}</p>
+
+  <div class="g2 s2" *ngIf="!loading && !loadError">
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>{{ detailsTitle }}</div></div>
+      <div style="padding:1rem 1.25rem">
+        <div *ngFor="let d of details" style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--g100);font-size:.84rem">
+          <span style="color:var(--g500)">{{ d.label }}</span>
+          <span style="font-weight:700;color:var(--navy)">{{ d.value }}</span>
         </div>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <h4 class="font-bold text-gray-800 flex items-center mb-4">
-                <span class="material-symbols-outlined mr-2 text-amber-500 text-[20px]">receipt</span>
-                {{ nextPaymentTitle }}
-            </h4>
-            <p class="text-2xl font-black text-gray-900">{{ nextPaymentAmount }}</p>
-            <p class="text-xs text-gray-500 mt-1">{{ nextPaymentDue }}</p>
-            <a [routerLink]="payFromWalletRoute" class="mt-4 inline-block text-sm font-bold text-[#135bec] hover:underline">{{ payFromWalletLabel }}</a>
-        </div>
+      </div>
     </div>
-
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-gray-50 flex items-center justify-between">
-            <h4 class="font-bold text-gray-800 flex items-center">
-                <span class="material-symbols-outlined mr-2 text-orange-500 text-[20px]">report</span>
-                {{ claimsTitle }}
-            </h4>
-            <a [routerLink]="fileClaimRoute" class="text-xs font-bold text-[#135bec] hover:underline">{{ fileClaimLabel }}</a>
-        </div>
-        <div class="px-6 py-8 text-center text-sm text-gray-500">{{ noClaimsText }}</div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title"><span class="ptdot" style="background:var(--warning)"></span>{{ nextPaymentTitle }}</div></div>
+      <div style="padding:1.25rem">
+        <div style="font-family:'Sora',sans-serif;font-size:1.35rem;font-weight:800;color:var(--navy)">{{ nextPaymentAmount }}</div>
+        <p style="font-size:.78rem;color:var(--g500);margin-top:.35rem">{{ nextPaymentDue }}</p>
+        <a [routerLink]="payFromWalletRoute" class="btn btn-outline btn-sm" style="margin-top:1rem">{{ payFromWalletLabel }}</a>
+      </div>
     </div>
+  </div>
 
+  <div class="panel s2" *ngIf="!loading && !loadError">
+    <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>{{ coveragesTitle }}</div></div>
+    <div *ngIf="!coverageRules.length" style="padding:1.25rem;color:var(--g500);font-size:.85rem">
+      No published coverage rule for this product.
+    </div>
+    <div class="tbl-wrap" *ngIf="coverageRules.length">
+      <table>
+        <thead>
+          <tr><th>Garantie</th><th>%</th><th>Franchise</th><th>Plafond</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of coverageRules">
+            <td class="td-primary">{{ r.coverageCode }}</td>
+            <td>{{ r.coveragePct }}%</td>
+            <td>{{ r.deductibleAmount ?? '—' }}</td>
+            <td>{{ r.limitAmount ?? '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel s3" *ngIf="!loading && !loadError">
+    <div class="panel-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+      <div class="panel-title"><span class="ptdot" style="background:var(--danger)"></span>{{ claimsTitle }}</div>
+      <a [routerLink]="fileClaimRoute" [queryParams]="policyId ? { policyId: policyId } : {}" class="btn btn-ghost btn-sm">{{ fileClaimLabel }}</a>
+    </div>
+    <div *ngIf="policyClaims.length === 0" style="padding:1.5rem;text-align:center;color:var(--g500);font-size:.85rem">{{ noClaimsText }}</div>
+    <div class="transactions-list" *ngIf="policyClaims.length">
+      <div *ngFor="let c of policyClaims" class="tx-item">
+        <div class="tx-ico" style="background:var(--fx-warning-soft)">📋</div>
+        <div style="flex:1;min-width:0">
+          <div class="tx-title">{{ c.coverageCode }} · {{ c.incidentDate }}</div>
+          <div class="tx-sub">Estimation {{ c.estimatedPayoutAmount }} TND</div>
+        </div>
+        <a [routerLink]="['/client/insurance/claims', c.id]" class="btn btn-outline btn-xs">Voir</a>
+      </div>
+    </div>
+  </div>
 </div>

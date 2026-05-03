@@ -1,0 +1,30 @@
+.ins-client-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  padding: 0.65rem 0;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.ins-client-nav a {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--g500, #64748b);
+  text-decoration: none;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.ins-client-nav a:hover {
+  color: var(--navy, #0f172a);
+  background: var(--soft, #f1f5f9);
+}
+
+.ins-client-nav a.active {
+  color: var(--blue, #1f6fea);
+  background: rgba(31, 111, 234, 0.1);
+  border-color: rgba(31, 111, 234, 0.25);
+}

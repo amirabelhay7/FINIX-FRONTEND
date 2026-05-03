@@ -8,7 +8,6 @@ import { ClientVehicleCatalog } from './vehicles/client-vehicle-catalog/client-v
 import { ClientVehicleDetail } from './vehicles/client-vehicle-detail/client-vehicle-detail';
 import { ClientMyReservations } from './vehicles/client-my-reservations/client-my-reservations';
 import { ClientFeedbackPage } from './vehicles/client-feedback-page/client-feedback-page';
-import { ClientInsurance } from './insurance/insurance';
 import { ClientWallet } from './wallet/wallet';
 import { ClientScore } from './score/score';
 import { ClientDocuments } from './documents/documents';
@@ -32,7 +31,10 @@ const routes: Routes = [
   },
   { path: 'events', component: ClientEvents },
   { path: 'group-chat', component: ClientGroupChat },
-  { path: 'insurance', component: ClientInsurance },
+  {
+    path: 'insurance',
+    loadChildren: () => import('../insurance/insurance-module').then((m) => m.InsuranceModule),
+  },
   { path: 'wallet', component: ClientWallet },
   { path: 'score', component: ClientScore },
   { path: 'documents', component: ClientDocuments },

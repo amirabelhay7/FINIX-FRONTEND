@@ -1,39 +1,57 @@
-<div class="space-y-8 pb-10">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
-        </div>
-        <a [routerLink]="fileClaimRoute" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
-            <span class="material-symbols-outlined mr-2 text-[18px]">add</span>{{ fileClaimLabel }}
-        </a>
+<div class="page-body">
+  <app-insurance-nav></app-insurance-nav>
+
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Insurance</div>
+      <div class="ph-title">{{ pageTitle }}</div>
+      <div class="ph-desc">{{ pageSubtitle }}</div>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Policy</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Amount</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Status</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Date</th>
-                        <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    <tr class="hover:bg-gray-50 transition-colors" *ngFor="let c of claims">
-                        <td class="py-4 px-6 font-mono text-gray-500">{{ c.id }}</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">{{ c.policy }}</td>
-                        <td class="py-4 px-6 font-bold text-[#135bec]">{{ c.amount }}</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="c.statusClass">{{ c.status }}</span></td>
-                        <td class="py-4 px-6 text-gray-600">{{ c.date }}</td>
-                        <td class="py-4 px-6 text-right">
-                            <a [routerLink]="c.viewRoute" class="text-[#135bec] font-bold hover:underline">View</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="ph-actions" style="display:flex;flex-wrap:wrap;gap:.5rem">
+      <a [routerLink]="fileClaimRoute" class="btn btn-primary btn-sm">{{ fileClaimLabel }}</a>
+      <a routerLink="/client/insurance/my-policy" class="btn btn-outline btn-sm">My Subscription</a>
     </div>
+  </div>
+
+  <div *ngIf="loading" class="panel s2" style="padding:1.25rem;text-align:center">
+    <p style="color:var(--g500);margin:0;font-size:.875rem">Loading...</p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="panel s2" style="padding:1.25rem;border-color:rgba(239,68,68,.35)">
+    <p style="color:var(--danger);margin:0 0 .75rem;font-size:.875rem">{{ loadError }}</p>
+    <button type="button" class="btn btn-outline btn-sm" (click)="loadClaims()">Retry</button>
+  </div>
+
+  <div *ngIf="!loading && !loadError && claims.length === 0" class="panel s2" style="padding:1.5rem;text-align:center;color:var(--g500)">
+    <p style="margin:0 0 .75rem">No simulations found.</p>
+    <a [routerLink]="fileClaimRoute" class="btn btn-primary btn-sm">Lancer une simulation</a>
+  </div>
+
+  <div class="panel s2" *ngIf="!loading && !loadError && claims.length">
+    <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Simulations</div></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Policy / coverage</th>
+            <th>Estimated Amount</th>
+            <th>Type</th>
+            <th>Date</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of claims">
+            <td style="font-family:monospace;font-size:.75rem;color:var(--g500)">{{ c.id }}</td>
+            <td class="td-primary">{{ c.policy }}</td>
+            <td style="font-weight:700;color:var(--blue)">{{ c.amount }}</td>
+            <td><span class="badge b-review">{{ c.status }}</span></td>
+            <td style="color:var(--g500);font-size:.8rem">{{ c.date }}</td>
+            <td style="text-align:right"><a [routerLink]="c.viewRoute" class="btn btn-ghost btn-xs">Voir</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

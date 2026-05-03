@@ -20,7 +20,6 @@ import { EmptyStateComponent } from './vehicles/client-vehicle-catalog/component
 import { AppFooterComponent } from './vehicles/client-vehicle-catalog/components/app-footer/app-footer.component';
 import { VehicleRecommendationsComponent } from './vehicles/client-vehicle-catalog/components/vehicle-recommendations/vehicle-recommendations.component';
 import { VehiclePreferencesFormComponent } from './vehicles/client-vehicle-catalog/components/vehicle-preferences-form/vehicle-preferences-form.component';
-import { ClientInsurance } from './insurance/insurance';
 import { ClientWallet } from './wallet/wallet';
 import { ClientScore } from './score/score';
 import { ClientDocuments } from './documents/documents';
@@ -44,7 +43,6 @@ import { ClientGroupChat } from './group-chat/group-chat';
     VehicleCardComponent,
     EmptyStateComponent,
     AppFooterComponent,
-    ClientInsurance,
     ClientWallet,
     ClientScore,
     ClientDocuments,

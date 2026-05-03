@@ -1,0 +1,4 @@
+.ins-policy-card:hover {
+  border-color: var(--blue, #1f6fea);
+  box-shadow: 0 4px 14px rgba(31, 111, 234, 0.12);
+}

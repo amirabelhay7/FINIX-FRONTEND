@@ -1,39 +1,67 @@
-<div class="space-y-8 animate-in fade-in duration-700 pb-10">
+<div class="page-body">
+  <app-insurance-nav></app-insurance-nav>
 
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
+  <div class="ph s1">
+    <div>
+      <div class="ph-eyebrow">Insurance</div>
+      <div class="ph-title">{{ pageTitle }}</div>
+      <div class="ph-desc">{{ pageSubtitle }}</div>
+    </div>
+    <div class="ph-actions" style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
+      <label style="font-size:.78rem;color:var(--g500);display:flex;align-items:center;gap:.35rem">
+        Vehicle Type
+        <select class="form-control" style="min-width:180px;padding:.35rem .5rem;font-size:.85rem" [(ngModel)]="vehicleFilter" (ngModelChange)="onVehicleFilterChange()">
+          <option *ngFor="let o of vehicleFilterOptions" [ngValue]="o.value">{{ o.label }}</option>
+        </select>
+      </label>
+      <a routerLink="/client/insurance/quote" class="btn btn-primary btn-sm">Devis estimatif</a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="panel s2" style="padding:1.25rem;text-align:center">
+    <p style="color:var(--g500);margin:0;font-size:.875rem">Loading offers...</p>
+  </div>
+  <div *ngIf="!loading && loadError" class="panel s2" style="padding:1.25rem;border-color:rgba(239,68,68,.35)">
+    <p style="color:var(--danger);margin:0 0 .75rem;font-size:.875rem">{{ loadError }}</p>
+    <button type="button" class="btn btn-outline btn-sm" (click)="retryProducts()">Retry</button>
+  </div>
+
+  <div *ngIf="!loading && !loadError && products.length === 0" class="panel s2" style="padding:1.5rem;text-align:center;color:var(--g500)">
+    No products for this filter. An administrator can create partners, products, and rules in <strong>Backoffice -> Insurance</strong>.
+  </div>
+
+  <div class="catalog-grid s2" *ngIf="!loading && products.length">
+    <div class="cat-card" *ngFor="let product of products">
+      <div style="text-decoration:none;color:inherit;display:block;cursor:pointer" (click)="openProduct(product.route)">
+        <div class="cat-img">{{ product.icon }}</div>
+        <div class="cat-body">
+          <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.35rem" *ngIf="product.badges?.length">
+            <span *ngFor="let badge of product.badges" class="badge" [ngClass]="badge.class">{{ badge.label }}</span>
+          </div>
+          <div class="cat-name">{{ product.name }}</div>
+          <div class="cat-sub">{{ product.description }}</div>
+          <div class="cat-price" style="font-size:.85rem;margin-top:.5rem;color:var(--g600)">{{ product.priceNote }}</div>
         </div>
-        <a routerLink="/insurance/quote" class="inline-flex items-center px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-md">
-            <span class="material-symbols-outlined mr-2 text-[18px]">calculate</span>Get a Quote
-        </a>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow relative" *ngFor="let product of products">
-            <div class="h-2" [ngClass]="product.accentColor"></div>
-            <div class="absolute top-4 right-4 flex gap-1" *ngIf="product.badges?.length">
-                <span *ngFor="let badge of product.badges" class="px-2 py-0.5 rounded text-[10px] font-bold" [ngClass]="badge.class">{{ badge.label }}</span>
-            </div>
-            <div class="p-6">
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" [ngClass]="product.iconBgClass">
-                    <span class="material-symbols-outlined text-[24px]" [ngClass]="product.iconColorClass || 'text-gray-600'">{{ product.icon }}</span>
-                </div>
-                <h3 class="text-lg font-black text-gray-900">{{ product.name }}</h3>
-                <p class="text-sm text-gray-500 mt-1">{{ product.description }}</p>
-                <p class="text-xs font-bold text-gray-600 mt-2">{{ product.priceNote }}</p>
-                <a [routerLink]="product.route" class="mt-4 inline-block text-sm font-bold text-[#135bec] hover:underline">Get quote →</a>
-            </div>
+        <div class="cat-foot">
+          <div style="display:flex;gap:.45rem;flex-wrap:wrap">
+            <span class="btn btn-outline btn-sm" style="pointer-events:none">View details →</span>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              (click)="openCreditRequest(product.id, $event)"
+            >
+              Insurance Credit Request
+            </button>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <h4 class="font-bold text-gray-800 flex items-center mb-4">
-            <span class="material-symbols-outlined mr-2 text-[#135bec] text-[20px]">info</span>
-            Why micro-insurance?
-        </h4>
-        <p class="text-sm text-gray-500">{{ whyMicroCopy }}</p>
+  <div class="panel s3" *ngIf="!loading">
+    <div class="panel-head">
+      <div class="panel-title"><span class="ptdot"></span>Why Subscribe Here?</div>
     </div>
-
+    <div style="padding:1rem 1.25rem;font-size:.84rem;color:var(--g500);line-height:1.5">{{ whyMicroCopy }}</div>
+  </div>
 </div>

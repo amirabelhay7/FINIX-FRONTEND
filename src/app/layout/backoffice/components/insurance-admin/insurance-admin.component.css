@@ -1,0 +1,17 @@
+/* Uses backoffice global .bk-modal-*, .panel, .btn — tab buttons only */
+.ins-tab-btn {
+  padding: 0.65rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  background: none;
+  position: relative;
+  bottom: -2px;
+  color: var(--muted, #8fa3bc);
+  border-bottom: 2px solid transparent;
+}
+.ins-tab-btn.active {
+  color: var(--blue, #1f6fea);
+  border-bottom-color: var(--blue, #1f6fea);
+}

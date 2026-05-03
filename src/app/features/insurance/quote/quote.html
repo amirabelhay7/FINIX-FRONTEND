@@ -1,39 +1,84 @@
-<div class="max-w-2xl mx-auto space-y-8 animate-in fade-in duration-700 pb-10">
+<div class="page-body" style="max-width:640px;margin:0 auto">
+  <app-insurance-nav></app-insurance-nav>
 
-    <div class="flex items-center gap-4">
-        <a [routerLink]="backRoute" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
-            <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
-        </div>
+  <div class="ph s1">
+    <a [routerLink]="backRoute" class="btn btn-outline btn-sm">← Back</a>
+    <div style="margin-left:1rem">
+      <div class="ph-eyebrow">Insurance</div>
+      <div class="ph-title">{{ pageTitle }}</div>
+      <div class="ph-desc">{{ pageSubtitle }}</div>
     </div>
+  </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
-        <div class="space-y-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ productLabel }}</label>
-            <select class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all">
-                <option *ngFor="let p of products" [value]="p.value">{{ p.label }}</option>
-            </select>
-        </div>
-        <div class="space-y-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ coverageLabel }}</label>
-            <input type="number" [placeholder]="coveragePlaceholder" value="2000" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all" />
-        </div>
-        <div class="space-y-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">{{ durationLabel }}</label>
-            <select class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all">
-                <option *ngFor="let d of durationOptions" [value]="d.value">{{ d.label }}</option>
-            </select>
-        </div>
-        <button type="button" class="w-full px-4 py-3 bg-[#135bec] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-md">{{ calculateLabel }}</button>
+  <div *ngIf="!productsLoading && productsLoadError" class="panel s2" style="padding:1.25rem;border-color:rgba(239,68,68,.35);margin-bottom:1rem">
+    <p style="color:var(--danger);margin:0 0 .75rem;font-size:.875rem">{{ productsLoadError }}</p>
+    <button type="button" class="btn btn-outline btn-sm" (click)="retryLoadProducts()">Retry</button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="panel s2">
+    <div class="panel-head"><div class="panel-title"><span class="ptdot"></span>Vehicle Data</div></div>
+    <div style="padding:1.25rem;display:flex;flex-direction:column;gap:1rem">
+      <div>
+        <label class="form-label">Product</label>
+        <select formControlName="insuranceProductId" class="form-control" [disabled]="productsLoading">
+          <option [ngValue]="null" disabled>- Select a product -</option>
+          <option *ngFor="let p of productOptions" [ngValue]="p.id">{{ p.label }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Vehicle Type *</label>
+        <select formControlName="vehicleType" class="form-control">
+          <option *ngFor="let vt of vehicleTypeOptions" [ngValue]="vt.value">{{ vt.label }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Insured Value (TND) *</label>
+        <input type="number" class="form-control" formControlName="vehiclePrice" min="0.01" step="0.01" />
+      </div>
+      <div>
+        <label class="form-label">Estimated Vehicle Value (TND) *</label>
+        <input type="number" class="form-control" formControlName="estimatedVehicleValue" min="0.01" step="0.01" />
+      </div>
+      <div>
+        <label class="form-label">Vehicle Age (years) *</label>
+        <input type="number" class="form-control" formControlName="vehicleAgeYears" min="0" max="99" step="1" />
+      </div>
+      <div>
+        <label class="form-label">Duration</label>
+        <select formControlName="durationMonths" class="form-control">
+          <option *ngFor="let d of durationOptions" [ngValue]="d.months">{{ d.label }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Payment Frequency</label>
+        <select formControlName="paymentFrequency" class="form-control">
+          <option *ngFor="let f of frequencyOptions" [ngValue]="f.value">{{ f.label }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Usage (optionnel)</label>
+        <select formControlName="usageType" class="form-control">
+          <option [ngValue]="null">—</option>
+          <option *ngFor="let u of usageOptions" [ngValue]="u.value">{{ u.label }}</option>
+        </select>
+      </div>
+      <p *ngIf="productsLoading" style="color:var(--g500);font-size:.8rem">Loading products...</p>
+      <p *ngIf="fieldErrors.length" style="color:var(--danger);font-size:.8rem">{{ fieldErrors.join(' ') }}</p>
+      <p *ngIf="apiError" style="color:var(--danger);font-size:.8rem">{{ apiError }}</p>
+      <button type="submit" class="btn btn-primary" [disabled]="submitting || productsLoading">{{ calculateLabel }}</button>
     </div>
+  </form>
 
-    <div class="bg-blue-50 rounded-2xl border border-blue-100 p-6">
-        <p class="text-xs font-bold text-blue-700 uppercase tracking-widest mb-2">{{ estimatedLabel }}</p>
-        <p class="text-2xl font-black text-gray-900">{{ estimatedAmount }} <span class="text-sm font-medium text-gray-500">{{ estimatedUnit }}</span></p>
-        <p class="text-xs text-gray-500 mt-1">{{ estimatedNote }}</p>
+  <div class="panel s3" style="background:var(--soft);border-color:rgba(31,111,234,.2)">
+    <div style="padding:1.25rem">
+      <div style="font-size:.69rem;font-weight:800;text-transform:uppercase;color:var(--blue);margin-bottom:.35rem">{{ estimatedLabel }}</div>
+      <div style="font-family:'Sora',sans-serif;font-size:1.5rem;font-weight:800;color:var(--navy)">
+        {{ estimatedAmount }} <span style="font-size:.85rem;font-weight:500;color:var(--g500)">{{ estimatedUnit }}</span>
+      </div>
+      <p style="font-size:.78rem;color:var(--g500);margin-top:.5rem;line-height:1.4">{{ estimatedNote }}</p>
+      <p *ngIf="pricingExplanation" style="font-size:.78rem;color:var(--navy);margin-top:.75rem;line-height:1.45;border-top:1px solid var(--border,#e5e7eb);padding-top:.75rem">
+        <strong>Details:</strong> {{ pricingExplanation }}
+      </p>
     </div>
-
+  </div>
 </div>
