@@ -49,7 +49,11 @@ export class AdminRequestNotificationService {
       return;
     }
 
-    const wsBase = environment.apiBaseUrl.replace(/\/api$/, '');
+    const normalizedApiBase = (environment.apiBaseUrl || '').trim();
+    // When frontend runs without proxy, fallback directly to backend host.
+    const wsBase = normalizedApiBase
+      ? normalizedApiBase.replace(/\/api$/, '')
+      : 'http://127.0.0.1:8082';
     const token = localStorage.getItem('finix_access_token') || '';
 
     this.client = new Client({

@@ -32,6 +32,7 @@ export class ClientEvents implements OnInit, OnDestroy {
   canChat = false;
   private chatSubscription?: Subscription;
   private participatedEventIds = new Set<number>();
+  private registrationIdByEventId = new Map<number, number>();
 
   ngOnInit(): void {
     this.loadParticipatedEventsFromStorage();
@@ -252,6 +253,11 @@ export class ClientEvents implements OnInit, OnDestroy {
     return Number(ev?.registrationFee || 0) > 0;
   }
 
+  get selectedIsParticipated(): boolean {
+    if (!this.selectedEvent) return false;
+    return this.hasParticipated(this.selectedEvent);
+  }
+
   closeEventDetails(): void {
     this.showDetailsModal = false;
     this.selectedEvent = null;
@@ -286,6 +292,11 @@ export class ClientEvents implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.hasParticipated(this.selectedEvent)) {
+      this.undoParticipate();
+      return;
+    }
+
     this.participating = true;
     this.participateError = '';
     this.participateSuccess = '';
@@ -303,15 +314,58 @@ export class ClientEvents implements OnInit, OnDestroy {
         }),
       )
       .subscribe({
-        next: () => {
-          this.participateSuccess = 'Registration recorded successfully.';
+        next: (registration) => {
+          this.participateSuccess = 'You joined this event successfully.';
           this.markEventParticipated(this.selectedEvent?.idEvent);
+          if (this.selectedEvent?.idEvent && registration?.idRegistration) {
+            this.registrationIdByEventId.set(this.selectedEvent.idEvent, Number(registration.idRegistration));
+          }
           this.applyLocalParticipantIncrement(this.selectedEvent?.idEvent);
           this.loadEvents();
         },
         error: (err: any) => {
-          this.participateError =
-            err?.error?.message || err?.message || 'Failed to register for this event.';
+          const normalizedMessage = this.normalizeRegistrationError(err);
+          this.participateError = normalizedMessage;
+          if (err?.status === 409) {
+            // User already registered on backend; sync local state.
+            this.markEventParticipated(this.selectedEvent?.idEvent);
+            this.loadParticipatedEventsFromBackend();
+          }
+        },
+      });
+  }
+
+  undoParticipate(): void {
+    const eventId = this.selectedEvent?.idEvent;
+    if (!eventId) return;
+    const registrationId = this.registrationIdByEventId.get(eventId);
+    if (!registrationId) {
+      this.participateError = 'Unable to undo join right now. Please refresh and try again.';
+      return;
+    }
+
+    this.participating = true;
+    this.participateError = '';
+    this.participateSuccess = '';
+
+    this.eventService
+      .deleteEventRegistration(registrationId)
+      .pipe(
+        timeout(15000),
+        finalize(() => {
+          this.participating = false;
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.participateSuccess = 'Your participation has been cancelled.';
+          this.unmarkEventParticipated(eventId);
+          this.registrationIdByEventId.delete(eventId);
+          this.applyLocalParticipantDecrement(eventId);
+          this.loadEvents();
+        },
+        error: (err: any) => {
+          this.participateError = err?.error?.message || err?.message || 'Failed to cancel participation.';
         },
       });
   }
@@ -331,6 +385,25 @@ export class ClientEvents implements OnInit, OnDestroy {
       this.selectedEvent = {
         ...this.selectedEvent,
         currentParticipants: (this.selectedEvent.currentParticipants ?? 0) + 1,
+      };
+    }
+  }
+
+  private applyLocalParticipantDecrement(eventId?: number): void {
+    if (!eventId) {
+      return;
+    }
+    this.events = this.events.map((ev) => {
+      if (ev.idEvent !== eventId) return ev;
+      return {
+        ...ev,
+        currentParticipants: Math.max(0, (ev.currentParticipants ?? 0) - 1),
+      };
+    });
+    if (this.selectedEvent?.idEvent === eventId) {
+      this.selectedEvent = {
+        ...this.selectedEvent,
+        currentParticipants: Math.max(0, (this.selectedEvent.currentParticipants ?? 0) - 1),
       };
     }
   }
@@ -393,9 +466,18 @@ export class ClientEvents implements OnInit, OnDestroy {
           .map((r: EventRegistrationDto) => Number(r.eventId))
           .filter((id) => Number.isInteger(id) && id > 0);
 
-        if (participatedIds.length === 0) return;
-        for (const id of participatedIds) {
+        this.registrationIdByEventId.clear();
+        const myRows = rows.filter(
+          (r: EventRegistrationDto) => !!r && Number(r.userId) === Number(userId) && !!r.eventId,
+        );
+        if (myRows.length === 0) return;
+
+        for (const row of myRows) {
+          const id = Number(row.eventId);
           this.participatedEventIds.add(id);
+          if (row.idRegistration) {
+            this.registrationIdByEventId.set(id, Number(row.idRegistration));
+          }
         }
         try {
           localStorage.setItem(this.storageKey(), JSON.stringify(Array.from(this.participatedEventIds)));
@@ -407,6 +489,26 @@ export class ClientEvents implements OnInit, OnDestroy {
         // keep local fallback only if backend call fails
       },
     });
+  }
+
+  private unmarkEventParticipated(eventId: number): void {
+    this.participatedEventIds.delete(eventId);
+    try {
+      localStorage.setItem(this.storageKey(), JSON.stringify(Array.from(this.participatedEventIds)));
+    } catch {
+      // ignore storage write failure
+    }
+  }
+
+  private normalizeRegistrationError(err: any): string {
+    const message = String(err?.error?.message || err?.message || '').toLowerCase();
+    if (err?.status === 409 && message.includes('already')) {
+      return 'You are already registered for this event.';
+    }
+    if (err?.status === 409 && (message.includes('déjà') || message.includes('inscrit'))) {
+      return 'You are already registered for this event.';
+    }
+    return err?.error?.message || err?.message || 'Failed to register for this event.';
   }
 
   sendChatMessage(): void {

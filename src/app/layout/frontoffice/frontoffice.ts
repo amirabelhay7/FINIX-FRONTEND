@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, Renderer2, ViewEncapsulation, HostListener } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgFor, NgIf } from '@angular/common';
 import { AuthService } from '../../services/auth/auth.service';
@@ -23,6 +23,8 @@ export class Frontoffice implements OnInit, OnDestroy {
     { label: 'Repayments', icon: '💸', route: '/client/repayments', badge: '1', badgeClass: 'warn' },
     { label: 'Vehicles', icon: '🚗', route: '/client/vehicles' },
     { label: 'Insurance', icon: '🛡️', route: '/client/insurance' },
+    { label: 'Events', icon: '📅', route: '/client/events' },
+    { label: 'Chat groups', icon: '💬', route: '/client/group-chat' },
     { label: 'Wallet', icon: '👛', route: '/client/wallet' },
     { label: 'My Score', icon: '📊', route: '/client/score' },
     { label: 'Documents', icon: '📄', route: '/client/documents' },

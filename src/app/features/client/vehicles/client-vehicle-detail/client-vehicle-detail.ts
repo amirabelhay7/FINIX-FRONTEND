@@ -1,23 +1,40 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { finalize } from 'rxjs/operators';
 import { VehicleService } from '../../../../services/vehicle/vehicle.service';
 import { ReservationService } from '../../../../services/vehicle/reservation.service';
 import { FinancingRequestService } from '../../../../services/vehicle/financing-request.service';
 import { ClientFinancingDocumentService } from '../../../../services/vehicle/client-financing-document.service';
 import { AuthService } from '../../../../services/auth/auth.service';
+import { Credit } from '../../../../services/credit/credit.service';
 import {
+  CreateRequestLoanPayload,
   FeedbackType,
   FeedbackVehicleDto,
   ClientDocumentType,
   ClientFinancingDocumentDto,
   FinancingRequestPayload,
+  RequestLoanDto,
   VehicleCondition,
   VehicleDto,
   VehicleReservationDto,
   VehicleReservationPayload,
 } from '../../../../models';
+
+type MaritalStatus = 'Célibataire' | 'Marié(e)' | 'Divorcé(e)' | 'Veuf/Veuve';
+type EmploymentType = 'Salarié' | 'Indépendant' | 'Sans emploi' | 'Étudiant' | 'Retraité';
+type RepaymentType = 'Mensualités fixes' | 'Mensualités flexibles';
+type GuaranteeType = 'VEHICULE' | 'IMMOBILIERE' | 'CAUTION' | 'AUCUNE';
+
+interface UploadFileState {
+  cinDoc: File | null;
+  payslipDoc: File | null;
+  bankStatementDocs: File[];
+  workProofDoc: File | null;
+  optionalDocs: File[];
+}
 
 @Component({
   selector: 'app-client-vehicle-detail',
@@ -41,6 +58,57 @@ export class ClientVehicleDetail implements OnInit {
   resMessage = '';
   /** true = erreur API / validation (style rouge dans la modale). */
   resMessageError = false;
+  useApportPersonnel = false;
+  readonly minDureeMois = 12;
+  readonly maxDureeMois = 60;
+  readonly dureeOptions = [12, 24, 36, 48, 60];
+  readonly maritalStatusOptions: MaritalStatus[] = ['Célibataire', 'Marié(e)', 'Divorcé(e)', 'Veuf/Veuve'];
+  readonly employmentOptions: EmploymentType[] = ['Salarié', 'Indépendant', 'Sans emploi', 'Étudiant', 'Retraité'];
+  readonly repaymentTypeOptions: RepaymentType[] = ['Mensualités fixes', 'Mensualités flexibles'];
+  readonly guaranteeTypeOptions: Array<{ value: GuaranteeType; label: string }> = [
+    { value: 'VEHICULE', label: 'Vehicle' },
+    { value: 'IMMOBILIERE', label: 'Real estate' },
+    { value: 'CAUTION', label: 'Joint surety' },
+    { value: 'AUCUNE', label: 'No guarantee' },
+  ];
+  requestForm = {
+    fullName: '',
+    dateOfBirth: '',
+    cinNumber: '',
+    address: '',
+    phone: '',
+    email: '',
+    maritalStatus: 'Célibataire' as MaritalStatus,
+    employmentType: 'Salarié' as EmploymentType,
+    estimatedMonthlyIncome: 0,
+    revenuMensuelBrut: 0,
+    chargesMensuelles: 0,
+    revenuMensuelNet: 0,
+    montantDemande: 0,
+    apportPersonnel: 0,
+    dureeMois: 48,
+    tauxAnnuel: 8,
+    mensualiteEstimee: 0,
+    objectifCredit: 'Achat véhicule',
+    repaymentType: 'Mensualités fixes' as RepaymentType,
+    demandePeriodeGrace: false,
+    garantieType: 'VEHICULE' as GuaranteeType,
+    garantieValeurEstimee: 0,
+    infoAccuracyConfirmed: false,
+    documentsCheckAuthorized: false,
+    termsAccepted: false,
+    personalDataConsent: false,
+  };
+  uploadState: UploadFileState = this.createInitialUploadState();
+  isSubmittingRequest = false;
+  submitRequestError = '';
+  submitRequestSuccess = '';
+  pickedLat = 36.8065;
+  pickedLng = 10.1815;
+  showInlineMap = false;
+  mapLat = 36.8065;
+  mapLng = 10.1815;
+  mapEmbedUrl!: SafeResourceUrl;
 
   financing: FinancingRequestPayload = {
     vehicleId: 0,
@@ -132,18 +200,64 @@ export class ClientVehicleDetail implements OnInit {
     return labels[status] || status;
   }
 
+  getMaritalStatusLabel(value: MaritalStatus): string {
+    switch (value) {
+      case 'Célibataire':
+        return 'Single';
+      case 'Marié(e)':
+        return 'Married';
+      case 'Divorcé(e)':
+        return 'Divorced';
+      case 'Veuf/Veuve':
+        return 'Widowed';
+      default:
+        return value;
+    }
+  }
+
+  getEmploymentTypeLabel(value: EmploymentType): string {
+    switch (value) {
+      case 'Salarié':
+        return 'Employee';
+      case 'Indépendant':
+        return 'Self-employed';
+      case 'Sans emploi':
+        return 'Unemployed';
+      case 'Étudiant':
+        return 'Student';
+      case 'Retraité':
+        return 'Retired';
+      default:
+        return value;
+    }
+  }
+
+  getRepaymentTypeLabel(value: RepaymentType): string {
+    switch (value) {
+      case 'Mensualités fixes':
+        return 'Fixed installments';
+      case 'Mensualités flexibles':
+        return 'Flexible installments';
+      default:
+        return value;
+    }
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private vehicleService: VehicleService,
     private reservationService: ReservationService,
+    private creditService: Credit,
     private financingService: FinancingRequestService,
     private docService: ClientFinancingDocumentService,
     public auth: AuthService,
     private cdr: ChangeDetectorRef,
+    private sanitizer: DomSanitizer,
   ) {}
-
+  
   ngOnInit(): void {
+    this.mapEmbedUrl = this.buildMapEmbedUrl(this.mapLat, this.mapLng);
     this.auth.syncRoleFromToken();
     this.route.paramMap.subscribe((pm) => {
       const id = Number(pm.get('id'));
@@ -315,11 +429,18 @@ export class ClientVehicleDetail implements OnInit {
       this.showResModal = false;
       return;
     }
-    this.reservationNotes = '';
-    this.reservationPhone = '';
-    this.reservationDesiredDate = null;
-    this.resMessage = '';
-    this.resMessageError = false;
+    this.hydrateUserIdentity();
+    this.useApportPersonnel = false;
+    this.requestForm.montantDemande = Number(this.vehicle?.prixTnd) || 0;
+    this.requestForm.garantieValeurEstimee = Number(this.vehicle?.prixTnd) || 0;
+    this.requestForm.apportPersonnel = 0;
+    this.requestForm.dureeMois = 48;
+    this.requestForm.tauxAnnuel = 8;
+    this.requestForm.objectifCredit = 'Achat véhicule';
+    this.uploadState = this.createInitialUploadState();
+    this.recalculateMensualite();
+    this.submitRequestError = '';
+    this.submitRequestSuccess = '';
     this.showResModal = true;
   }
 
@@ -329,65 +450,98 @@ export class ClientVehicleDetail implements OnInit {
   }
 
   confirmReservation(): void {
-    if (!this.vehicle) return;
-    this.auth.syncRoleFromToken();
-    if (!this.auth.hasValidToken()) {
-      this.resMessage = 'Session expired or token missing. Please sign in again and retry.';
-      this.resMessageError = true;
-      return;
-    }
-    if (!this.auth.isClient()) {
-      this.resMessage =
-        'Your account is not a CLIENT account. Only clients can reserve (API /api/reservations).';
-      this.resMessageError = true;
-      return;
-    }
-    this.resSubmitting = true;
-    this.resMessage = '';
-    this.resMessageError = false;
-    const normalizedPhone = this.normalizePhoneDigits(this.reservationPhone);
-    if (!normalizedPhone || normalizedPhone.length < 8) {
-      this.resMessage = 'Phone number is required (at least 8 digits).';
-      this.resMessageError = true;
-      this.resSubmitting = false;
+    if (!this.vehicle || !this.auth.hasValidToken() || !this.auth.isClient()) return;
+    if (!this.validateLoanForm()) return;
+    const userId = this.getCurrentUserId();
+    if (!userId) {
+      this.submitRequestError = 'Unable to detect current user. Please reconnect and retry.';
       return;
     }
 
-    const payload: VehicleReservationPayload = {
-      vehicleId: this.vehicle.id,
-      phoneNumber: Number(normalizedPhone),
-      clientNotes: this.reservationNotes.trim() || null,
-      desiredDate: this.reservationDesiredDate || null,
+    this.isSubmittingRequest = true;
+    this.submitRequestError = '';
+    const payload: CreateRequestLoanPayload = {
+      fullName: this.requestForm.fullName.trim(),
+      dateOfBirth: this.requestForm.dateOfBirth ? new Date(this.requestForm.dateOfBirth).toISOString() : undefined,
+      cinNumber: this.requestForm.cinNumber.trim(),
+      address: this.requestForm.address.trim(),
+      phone: this.requestForm.phone.trim(),
+      email: this.requestForm.email.trim(),
+      situationFamiliale: this.requestForm.maritalStatus,
+      typeEmploi: this.requestForm.employmentType,
+      revenuMensuelEstime: Number(this.requestForm.revenuMensuelNet) || 0,
+      montantDemande: Number(this.requestForm.montantDemande) || 0,
+      apportPersonnel: this.useApportPersonnel ? Number(this.requestForm.apportPersonnel) || 0 : 0,
+      dureeMois: Number(this.requestForm.dureeMois) || 48,
+      mensualiteEstimee: Number(this.requestForm.mensualiteEstimee) || 0,
+      objectifCredit: this.requestForm.objectifCredit,
+      typeRemboursementSouhaite: this.requestForm.repaymentType,
+      demandePeriodeGrace: this.requestForm.demandePeriodeGrace,
+      garantieType: this.requestForm.garantieType,
+      garantieValeurEstimee: Number(this.requestForm.garantieValeurEstimee) || 0,
+      confirmExactitudeInformations: this.requestForm.infoAccuracyConfirmed,
+      autorisationVerificationDocuments: this.requestForm.documentsCheckAuthorized,
+      acceptationConditionsGenerales: this.requestForm.termsAccepted,
+      consentementTraitementDonnees: this.requestForm.personalDataConsent,
+      docCinFourni: !!this.uploadState.cinDoc,
+      docFichePaieFournie: !!this.uploadState.payslipDoc,
+      docReleveBancaireFourni: this.uploadState.bankStatementDocs.length > 0,
+      docAttestationTravailFournie: !!this.uploadState.workProofDoc,
+      docJustificatifDomicileFourni: true,
+      nombreDocumentsOptionnels: this.uploadState.optionalDocs.length,
+      statutDemande: 'PENDING',
+      userId,
+      vehiculeId: this.vehicle.id,
     };
-    this.reservationService
-      .create(payload)
-      .pipe(
-        finalize(() => {
-          this.resSubmitting = false;
-          this.cdr.markForCheck();
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.showResModal = false;
-          this.resMessage =
-            'Request submitted. It is pending administrator approval. The vehicle remains listed as available until approval.';
-          this.resMessageError = false;
-          this.load(this.vehicle!.id);
-          this.refreshMyReservation();
-          this.cdr.markForCheck();
-        },
-        error: (e) => {
-          const normalizedMsg = this.errMsg(e);
-          if (normalizedMsg.toLowerCase().includes('active vehicle reservation')) {
-            this.resMessage = 'You already have an active vehicle reservation. Please wait for the admin decision.';
-          } else {
-            this.resMessage = normalizedMsg;
-          }
-          this.resMessageError = true;
-          this.cdr.markForCheck();
-        },
-      });
+
+    this.creditService.createRequestLoan(payload).subscribe({
+      next: (loan) => this.uploadRequestDocuments(loan),
+      error: (e) => {
+        this.isSubmittingRequest = false;
+        this.submitRequestError = this.errMsg(e);
+      },
+    });
+  }
+
+  onUseApportPersonnelChange(checked: boolean): void {
+    this.useApportPersonnel = checked;
+    if (!checked) this.requestForm.apportPersonnel = 0;
+    this.recalculateMensualite();
+  }
+
+  recalculateMensualite(): void {
+    const total = Number(this.vehicle?.prixTnd) || Number(this.requestForm.montantDemande) || 0;
+    const apport = this.useApportPersonnel ? Math.max(0, Number(this.requestForm.apportPersonnel) || 0) : 0;
+    this.requestForm.apportPersonnel = Math.min(apport, total);
+    this.requestForm.montantDemande = Math.max(0, total - this.requestForm.apportPersonnel);
+    this.requestForm.garantieValeurEstimee = total;
+    this.requestForm.revenuMensuelNet = Math.max(
+      0,
+      Number(this.requestForm.revenuMensuelBrut || 0) - Number(this.requestForm.chargesMensuelles || 0),
+    );
+    this.requestForm.estimatedMonthlyIncome = this.requestForm.revenuMensuelNet;
+    const n = Math.max(this.minDureeMois, Math.min(this.maxDureeMois, Number(this.requestForm.dureeMois) || 48));
+    this.requestForm.dureeMois = n;
+    this.requestForm.mensualiteEstimee = n > 0 ? Number((this.requestForm.montantDemande / n).toFixed(2)) : 0;
+  }
+
+  onSingleFileSelected(field: 'cinDoc' | 'payslipDoc' | 'workProofDoc', event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.uploadState[field] = input.files?.[0] ?? null;
+  }
+
+  onBankStatementFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.uploadState.bankStatementDocs = Array.from(input.files ?? []).slice(0, 3);
+  }
+
+  onOptionalFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.uploadState.optionalDocs = Array.from(input.files ?? []);
+  }
+
+  removeOptionalDoc(index: number): void {
+    this.uploadState.optionalDocs = this.uploadState.optionalDocs.filter((_, i) => i !== index);
   }
 
   submitFinancing(): void {
@@ -482,6 +636,39 @@ export class ClientVehicleDetail implements OnInit {
     this.hasImageError = true;
   }
 
+  openLocationPicker(): void {
+    this.showInlineMap = true;
+    this.mapLat = this.pickedLat;
+    this.mapLng = this.pickedLng;
+    this.refreshInlineMap();
+  }
+
+  onMapCoordinatesChanged(): void {
+    this.refreshInlineMap();
+  }
+
+  applyInlineMapLocation(): void {
+    this.pickedLat = Number(this.mapLat) || this.pickedLat;
+    this.pickedLng = Number(this.mapLng) || this.pickedLng;
+    this.requestForm.address = `${this.pickedLat.toFixed(5)}, ${this.pickedLng.toFixed(5)}`;
+    this.showInlineMap = false;
+  }
+
+  cancelInlineMap(): void {
+    this.showInlineMap = false;
+  }
+
+  private refreshInlineMap(): void {
+    this.mapEmbedUrl = this.buildMapEmbedUrl(this.mapLat, this.mapLng);
+  }
+
+  private buildMapEmbedUrl(lat: number, lng: number): SafeResourceUrl {
+    const safeLat = Number.isFinite(Number(lat)) ? Number(lat) : 36.8065;
+    const safeLng = Number.isFinite(Number(lng)) ? Number(lng) : 10.1815;
+    const src = `https://maps.google.com/maps?q=${safeLat},${safeLng}&z=15&output=embed`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(src);
+  }
+
   private errMsg(err: unknown): string {
     if (err instanceof HttpErrorResponse) {
       const body = err.error;
@@ -507,5 +694,104 @@ export class ClientVehicleDetail implements OnInit {
 
   private normalizePhoneDigits(raw: string): string {
     return (raw || '').replace(/\D/g, '');
+  }
+
+  private getCurrentUserId(): number | null {
+    const payload = this.auth.getPayload();
+    if (payload?.userId) return payload.userId;
+    try {
+      const raw = localStorage.getItem('currentUser');
+      if (!raw) return null;
+      const user = JSON.parse(raw);
+      return typeof user?.userId === 'number' ? user.userId : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private createInitialUploadState(): UploadFileState {
+    return {
+      cinDoc: null,
+      payslipDoc: null,
+      bankStatementDocs: [],
+      workProofDoc: null,
+      optionalDocs: [],
+    };
+  }
+
+  private hydrateUserIdentity(): void {
+    try {
+      const raw = localStorage.getItem('currentUser');
+      if (!raw) return;
+      const user = JSON.parse(raw);
+      this.requestForm.fullName = user?.name ?? this.requestForm.fullName;
+      this.requestForm.email = user?.email ?? this.requestForm.email;
+      this.requestForm.phone = user?.phoneNumber ? `+216 ${user.phoneNumber}` : this.requestForm.phone;
+    } catch {
+      // no-op
+    }
+  }
+
+  private validateLoanForm(): boolean {
+    const required = [
+      this.requestForm.fullName,
+      this.requestForm.dateOfBirth,
+      this.requestForm.cinNumber,
+      this.requestForm.address,
+      this.requestForm.phone,
+      this.requestForm.email,
+    ].every((v) => String(v || '').trim().length > 0);
+    const hasDocs =
+      !!this.uploadState.cinDoc &&
+      !!this.uploadState.payslipDoc &&
+      !!this.uploadState.workProofDoc &&
+      this.uploadState.bankStatementDocs.length === 3;
+    const hasConsents =
+      this.requestForm.infoAccuracyConfirmed &&
+      this.requestForm.documentsCheckAuthorized &&
+      this.requestForm.termsAccepted &&
+      this.requestForm.personalDataConsent;
+    if (!required || !hasDocs || !hasConsents) {
+      this.submitRequestError =
+        'Please complete all required fields, upload CIN/payslip/work proof + 3 bank statements, and accept all consents.';
+      return false;
+    }
+    return true;
+  }
+
+  private uploadRequestDocuments(loan: RequestLoanDto): void {
+    const reqId = Number(loan.idDemande);
+    const uploads: Array<{ type: string; file: File }> = [];
+    if (this.uploadState.cinDoc) uploads.push({ type: 'CIN', file: this.uploadState.cinDoc });
+    if (this.uploadState.payslipDoc) uploads.push({ type: 'FICHE_PAIE', file: this.uploadState.payslipDoc });
+    if (this.uploadState.workProofDoc) uploads.push({ type: 'ATTESTATION_TRAVAIL', file: this.uploadState.workProofDoc });
+    this.uploadState.bankStatementDocs.forEach((f, i) => uploads.push({ type: `RELEVE_BANCAIRE_${i + 1}`, file: f }));
+    this.uploadState.optionalDocs.forEach((f, i) => uploads.push({ type: `OPTIONAL_${i + 1}`, file: f }));
+
+    if (uploads.length === 0) {
+      this.finishRequestSubmit();
+      return;
+    }
+    const next = (idx: number) => {
+      if (idx >= uploads.length) {
+        this.finishRequestSubmit();
+        return;
+      }
+      const u = uploads[idx];
+      this.creditService.uploadLoanDocument(reqId, u.type, u.file).subscribe({
+        next: () => next(idx + 1),
+        error: () => next(idx + 1),
+      });
+    };
+    next(0);
+  }
+
+  private finishRequestSubmit(): void {
+    this.isSubmittingRequest = false;
+    this.showResModal = false;
+    this.submitRequestSuccess = 'Credit request submitted successfully.';
+    this.resMessage = this.submitRequestSuccess;
+    this.resMessageError = false;
+    this.cdr.markForCheck();
   }
 }

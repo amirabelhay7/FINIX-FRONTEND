@@ -11,7 +11,8 @@
   font-family: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 112px);
+  /* Match client shell: frontoffice.css --total-h (topbar + client-nav) */
+  height: calc(100vh - var(--total-h, 106px));
   min-height: 420px;
   overflow: hidden;
   padding: 0.9rem;
@@ -613,7 +614,7 @@
 
   .gc-root {
     height: auto;
-    min-height: calc(100vh - 96px);
+    min-height: calc(100vh - var(--total-h, 106px));
   }
 
   .gc-msg-scroll-wrap {

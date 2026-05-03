@@ -1,221 +1,39 @@
 <div class="space-y-8 pb-10">
-
-    <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
             <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
-        <a [routerLink]="backRoute"
-           class="inline-flex items-center px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all">
+        <a [routerLink]="backRoute" class="inline-flex items-center px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all">
             <span class="material-symbols-outlined mr-2 text-[18px]">arrow_back</span>Back
         </a>
     </div>
-
-    <!-- Loading -->
-    <div *ngIf="loadingList" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center text-gray-400">
-        <span class="material-symbols-outlined text-4xl animate-spin">progress_activity</span>
-        <p class="mt-2 text-sm">Loading requests...</p>
-    </div>
-
-    <!-- Empty -->
-    <div *ngIf="!loadingList && requests.length === 0"
-         class="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center text-gray-400">
-        <span class="material-symbols-outlined text-5xl">inbox</span>
-        <p class="mt-2 text-sm">No grace period requests yet.</p>
-    </div>
-
-    <!-- Table -->
-    <div *ngIf="!loadingList && requests.length > 0"
-         class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 border-b border-gray-100">
                     <tr>
                         <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Client</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Contract</th>
                         <th class="text-left py-4 px-6 font-bold text-gray-600">Grace days</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Reason</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Start – End</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Type</th>
                         <th class="text-left py-4 px-6 font-bold text-gray-600">Status</th>
                         <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    <tr *ngFor="let row of requests" class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">#{{ row.id }}</td>
-                        <td class="py-4 px-6 text-gray-800 font-medium">
-                            {{ row.clientFirstName }} {{ row.clientLastName }}
-                            <div class="text-xs text-gray-400 font-normal">CIN: {{ row.clientCin }}</div>
-                        </td>
-                        <td class="py-4 px-6 text-gray-600">{{ row.numeroContrat }}</td>
-                        <td class="py-4 px-6 font-bold text-gray-800">{{ row.requestedGraceDays }}</td>
-                        <td class="py-4 px-6 text-gray-600 max-w-xs truncate" [title]="row.reason">{{ row.reason }}</td>
-                        <td class="py-4 px-6">
-                            <span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="statusClass(row.status)">{{ row.status }}</span>
-                        </td>
+                    <tr *ngFor="let row of rows" class="hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6 font-mono text-gray-500">{{ row.id }}</td>
+                        <td class="py-4 px-6 font-bold text-gray-800">{{ row.graceDays }}</td>
+                        <td class="py-4 px-6 text-gray-600">{{ row.startEnd }}</td>
+                        <td class="py-4 px-6 text-gray-600">{{ row.type }}</td>
+                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="row.statusClass">{{ row.status }}</span></td>
                         <td class="py-4 px-6 text-right">
-                            <button *ngIf="row.status === 'PENDING'"
-                                    (click)="openDecisionModal(row)"
-                                    class="inline-flex items-center gap-1 bg-[#135bec] hover:bg-[#0f4cc7] text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">
-                                <span class="material-symbols-outlined text-[16px]">psychology</span>
-                                Take Decision
-                            </button>
-                            <span *ngIf="row.status !== 'PENDING'" class="text-xs text-gray-400">Reviewed</span>
+                            <a [routerLink]="row.viewRoute" class="text-[#135bec] font-bold hover:underline">View</a>
                         </td>
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
-</div>
-
-
-<!-- DECISION MODAL -->
-<div *ngIf="modalOpen"
-     class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto"
-     (click)="closeModal()">
-
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"
-         (click)="$event.stopPropagation()">
-
-        <!-- Modal header -->
-        <div class="flex items-center justify-between p-6 border-b border-gray-100 sticky top-0 bg-white z-10">
-            <div>
-                <h2 class="text-xl font-extrabold text-gray-900 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[#135bec]">psychology</span>
-                    AI Decision Assistant
-                </h2>
-                <p class="text-xs text-gray-500 mt-0.5" *ngIf="selectedRequest">
-                    Request #{{ selectedRequest.id }} —
-                    {{ selectedRequest.clientFirstName }} {{ selectedRequest.clientLastName }} —
-                    {{ selectedRequest.numeroContrat }}
-                </p>
-            </div>
-            <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-        </div>
-
-        <!-- Request summary -->
-        <div *ngIf="selectedRequest" class="p-6 border-b border-gray-100 bg-gray-50">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                    <p class="text-xs text-gray-500 uppercase font-medium">Grace days</p>
-                    <p class="font-bold text-gray-800 mt-0.5">{{ selectedRequest.requestedGraceDays }}</p>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 uppercase font-medium">Affected installments</p>
-                    <p class="font-bold text-gray-800 mt-0.5">{{ selectedRequest.numberOfAffectedInstallments }}</p>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 uppercase font-medium">Installment #</p>
-                    <p class="font-bold text-gray-800 mt-0.5">{{ selectedRequest.installmentNumber }}</p>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 uppercase font-medium">Submitted</p>
-                    <p class="font-bold text-gray-800 mt-0.5">{{ selectedRequest.createdAt | date:'short' }}</p>
-                </div>
-            </div>
-            <div class="mt-3">
-                <p class="text-xs text-gray-500 uppercase font-medium">Reason</p>
-                <p class="text-sm text-gray-700 mt-0.5">{{ selectedRequest.reason }}</p>
-            </div>
-        </div>
-
-        <!-- ML Loading -->
-        <div *ngIf="mlLoading" class="p-12 text-center text-gray-400">
-            <span class="material-symbols-outlined text-5xl animate-spin">progress_activity</span>
-            <p class="mt-2 text-sm">Analyzing client behavior with ML model...</p>
-        </div>
-
-        <!-- ML Error -->
-        <div *ngIf="mlError && !mlLoading" class="p-6">
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
-                <span class="material-symbols-outlined align-middle mr-1">error</span>
-                {{ mlError }}
-            </div>
-        </div>
-
-        <!-- ML Result -->
-        <div *ngIf="mlResult && !mlLoading" class="p-6 space-y-5">
-            <h3 class="font-bold text-gray-800 flex items-center gap-2">
-                <span class="material-symbols-outlined text-[#135bec]">analytics</span>
-                AI Analysis
-            </h3>
-
-            <!-- Solvability + Risk -->
-            <div class="grid grid-cols-2 gap-3">
-                <div class="border rounded-xl p-4" [ngClass]="solvabilityColorClass()">
-                    <p class="text-xs font-medium uppercase tracking-wide opacity-70">Solvability</p>
-                    <p class="text-2xl font-extrabold mt-1">{{ mlResult.solvability }}</p>
-                </div>
-                <div class="border rounded-xl p-4" [ngClass]="riskColorClass()">
-                    <p class="text-xs font-medium uppercase tracking-wide opacity-70">Risk Level</p>
-                    <p class="text-2xl font-extrabold mt-1">{{ mlResult.riskLevel }}</p>
-                </div>
-            </div>
-
-            <!-- Recommendation -->
-            <div class="border-2 rounded-xl p-5" [ngClass]="graceColorClass()">
-                <p class="text-xs font-medium uppercase tracking-wide opacity-70">AI Recommendation</p>
-                <div class="flex items-center justify-between mt-2">
-                    <p class="text-3xl font-extrabold">
-                        {{ mlResult.graceRecommendation === 'APPROVE' ? '✓ APPROVE' : '✗ REJECT' }}
-                    </p>
-                    <div class="text-right">
-                        <p class="text-xs opacity-70">Confidence</p>
-                        <p class="text-2xl font-extrabold">{{ mlResult.confidence }}%</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recovery suggestion -->
-            <div class="border border-gray-200 bg-gray-50 rounded-xl p-4">
-                <p class="text-xs font-medium uppercase tracking-wide text-gray-500">If client defaults — suggested recovery action</p>
-                <p class="text-lg font-bold text-gray-800 mt-1">{{ mlResult.recoveryAction }}</p>
-            </div>
-
-            <!-- Reasons -->
-            <div *ngIf="mlResult.reasons.length">
-                <p class="text-xs font-medium text-gray-600 mb-2 uppercase">Why this recommendation</p>
-                <ul class="space-y-1 bg-gray-50 rounded-xl p-3">
-                    <li *ngFor="let reason of mlResult.reasons" class="text-sm text-gray-700 flex items-start">
-                        <span class="material-symbols-outlined text-base mr-2 text-gray-400">chevron_right</span>
-                        {{ reason }}
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Decision Section -->
-        <div class="p-6 border-t border-gray-100 bg-gray-50 space-y-4 sticky bottom-0">
-            <h3 class="font-bold text-gray-800">Your Decision</h3>
-
-            <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1">Rejection reason (required if rejecting)</label>
-                <textarea [(ngModel)]="rejectionReason" rows="2"
-                          placeholder="e.g. Client has too many active grace periods..."
-                          class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#135bec]"></textarea>
-            </div>
-
-            <div *ngIf="decisionError"
-                 class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
-                {{ decisionError }}
-            </div>
-
-            <div class="flex gap-3">
-                <button (click)="reject()" [disabled]="decisionLoading"
-                        class="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined">close</span>
-                    Reject Request
-                </button>
-                <button (click)="approve()" [disabled]="decisionLoading"
-                        class="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined">check</span>
-                    Approve Request
-                </button>
-            </div>
         </div>
     </div>
 </div>

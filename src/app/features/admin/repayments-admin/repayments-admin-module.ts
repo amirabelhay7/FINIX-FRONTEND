@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 
 import { RepaymentsAdminRoutingModule } from './repayments-admin-routing-module';
 import { List } from './list/list';
@@ -9,13 +8,10 @@ import { PaymentsList } from './payments-list/payments-list';
 import { PaymentDetail } from './payment-detail/payment-detail';
 import { SchedulesList } from './schedules-list/schedules-list';
 import { DelinquencyList } from './delinquency-list/delinquency-list';
-import { DelinquencyDetail } from './delinquency-detail/delinquency-detail';
 import { GraceList } from './grace-list/grace-list';
 import { RecoveryList } from './recovery-list/recovery-list';
 import { PenaltiesList } from './penalties-list/penalties-list';
-import { RiskScore } from './risk-score/risk-score';
 
-import { PenaltyTiers } from './penalty-tiers/penalty-tiers';
 
 @NgModule({
   declarations: [
@@ -24,14 +20,14 @@ import { PenaltyTiers } from './penalty-tiers/penalty-tiers';
     PaymentDetail,
     SchedulesList,
     DelinquencyList,
-    DelinquencyDetail,
     GraceList,
     RecoveryList,
-    PenaltiesList,
-    RiskScore,
-    PenaltyTiers,
+    PenaltiesList
   ],
-  imports: [CommonModule, RouterModule, FormsModule, RepaymentsAdminRoutingModule],
-  exports: [PenaltyTiers],
+  imports: [
+    CommonModule,
+    RouterModule,
+    RepaymentsAdminRoutingModule
+  ]
 })
-export class RepaymentsAdminModule {}
+export class RepaymentsAdminModule { }

@@ -135,8 +135,12 @@ export class EventService {
     return this.http.get<EventDto>(`${this.listApiUrl}/${eventId}`).pipe(catchError(this.handleError));
   }
 
-  createEventRegistration(payload: CreateEventRegistrationPayload): Observable<unknown> {
-    return this.http.post(this.registrationApiUrl, payload).pipe(catchError(this.handleError));
+  createEventRegistration(payload: CreateEventRegistrationPayload): Observable<EventRegistrationDto> {
+    return this.http.post<EventRegistrationDto>(this.registrationApiUrl, payload).pipe(catchError(this.handleError));
+  }
+
+  deleteEventRegistration(registrationId: number): Observable<void> {
+    return this.http.delete<void>(`${this.registrationApiUrl}/${registrationId}`).pipe(catchError(this.handleError));
   }
 
   getEventRegistrations(page = 0, size = 1000): Observable<EventRegistrationPageResponse> {
