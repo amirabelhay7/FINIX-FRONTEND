@@ -1,13 +1,13 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { catchError, finalize, of, Subject, takeUntil, timeout } from 'rxjs';
 import { AuthService } from '../../../services/auth/auth.service';
 import { Credit } from '../../../services/credit/credit.service';
 import { ClientCreditsSearchService } from '../../../services/client-credits-search.service';
 import { LoanDocumentDto, RequestLoanDto } from '../../../models/credit.model';
 
-type MaritalStatus = 'Célibataire' | 'Marié(e)' | 'Divorcé(e)' | 'Veuf/Veuve';
-type EmploymentType = 'Salarié' | 'Indépendant' | 'Sans emploi' | 'Étudiant' | 'Retraité';
-type RepaymentType = 'Mensualités fixes' | 'Mensualités flexibles';
+type MaritalStatus = 'Single' | 'Married' | 'Divorced' | 'Widowed';
+type EmploymentType = 'Employed' | 'Self-employed' | 'Unemployed' | 'Student' | 'Retired';
+type RepaymentType = 'Fixed installments' | 'Flexible installments';
 
 interface UploadFileState {
   cinDoc: File | null;
@@ -54,14 +54,14 @@ export class ClientCredits implements OnInit, OnDestroy {
   submitError = '';
   submitSuccess = '';
 
-  /** Snapshot: montant demandé (net) + apport = total à financer (fixe à l’ouverture du modal). */
+  /** Snapshot: net loan amount + down payment = total financed (fixed when the modal opens). */
   montantTotalCredit = 0;
   readonly minDureeMois = 12;
   readonly maxDureeMois = 60;
   readonly dureeOptions = [12, 24, 36, 48, 60];
-  readonly maritalStatusOptions: MaritalStatus[] = ['Célibataire', 'Marié(e)', 'Divorcé(e)', 'Veuf/Veuve'];
-  readonly employmentOptions: EmploymentType[] = ['Salarié', 'Indépendant', 'Sans emploi', 'Étudiant', 'Retraité'];
-  readonly repaymentTypeOptions: RepaymentType[] = ['Mensualités fixes', 'Mensualités flexibles'];
+  readonly maritalStatusOptions: MaritalStatus[] = ['Single', 'Married', 'Divorced', 'Widowed'];
+  readonly employmentOptions: EmploymentType[] = ['Employed', 'Self-employed', 'Unemployed', 'Student', 'Retired'];
+  readonly repaymentTypeOptions: RepaymentType[] = ['Fixed installments', 'Flexible installments'];
   editUploadState: UploadFileState = this.createInitialUploadState();
   isSavingDraft = false;
   loadingExistingDocuments = false;
@@ -74,14 +74,14 @@ export class ClientCredits implements OnInit, OnDestroy {
     address: '',
     phone: '',
     email: '',
-    maritalStatus: 'Célibataire' as MaritalStatus,
-    employmentType: 'Salarié' as EmploymentType,
+    maritalStatus: 'Single' as MaritalStatus,
+    employmentType: 'Employed' as EmploymentType,
     estimatedMonthlyIncome: 0,
     dureeMois: 12,
     mensualiteEstimee: 0,
     apportPersonnel: 0,
-    objectifCredit: 'Achat véhicule',
-    repaymentType: 'Mensualités fixes' as RepaymentType,
+    objectifCredit: 'Vehicle purchase',
+    repaymentType: 'Fixed installments' as RepaymentType,
     demandePeriodeGrace: false,
     infoAccuracyConfirmed: false,
     documentsCheckAuthorized: false,
@@ -94,6 +94,7 @@ export class ClientCredits implements OnInit, OnDestroy {
     private authService: AuthService,
     private clientCreditsSearch: ClientCreditsSearchService,
     private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
   ) {}
 
   ngOnInit(): void {
@@ -109,7 +110,7 @@ export class ClientCredits implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /** Message sous la liste vide (aucune donnée API vs filtre sans résultat). */
+  /** Empty-list message (no API data vs filter with no rows). */
   get emptyCreditsMessage(): string {
     if (this.loading || this.error) {
       return '';
@@ -120,42 +121,37 @@ export class ClientCredits implements OnInit, OnDestroy {
     if (this.myLoans.length === 0) {
       const q = this.clientCreditsSearch.getSearchQuery().trim().toUpperCase();
       if (q && !['PENDING', 'APPROVED', 'REJECTED'].includes(q)) {
-        return 'Saisissez PENDING, APPROVED ou REJECTED.';
+        return 'Enter PENDING, APPROVED, or REJECTED.';
       }
-      return 'Aucune demande pour ce statut.';
+      return 'No requests for this status.';
     }
     return '';
   }
 
   /**
-   * Recherche vide → uniquement PENDING (comportement par défaut).
-   * Sinon filtre exact (insensible à la casse) sur PENDING | APPROVED | REJECTED.
+   * Empty search → show every request (sidebar filter client-side).
+   * Otherwise filter on PENDING | APPROVED | REJECTED (case-insensitive).
    */
   private applyStatusFilter(): void {
-    // Si aucune donnée → rien à afficher
     if (!this.allLoans.length) {
       this.myLoans = [];
       return;
     }
 
-    // Récupérer la valeur de recherche
     const q = this.clientCreditsSearch.getSearchQuery().trim().toUpperCase();
 
-    // Cas 1 : aucune recherche → afficher TOUS les crédits
     if (!q) {
       this.myLoans = this.allLoans;
       this.currentPage = 1;
       return;
     }
 
-    // Cas 2 : filtre valide → filtrer selon statut
     if (q === 'PENDING' || q === 'APPROVED' || q === 'REJECTED') {
       this.myLoans = this.allLoans.filter((l) => l.statutDemande === q);
       this.currentPage = 1;
       return;
     }
 
-    // Cas 3 : input invalide → aucun résultat
     this.myLoans = [];
     this.currentPage = 1;
   }
@@ -163,14 +159,14 @@ export class ClientCredits implements OnInit, OnDestroy {
   loadMyRequestLoans(): void {
     const userId = this.getCurrentUserId();
     if (!userId) {
-      this.loading = false;
+      this.setLoading(false);
       this.allLoans = [];
       this.myLoans = [];
-      this.error = 'Utilisateur connecte introuvable (userId manquant).';
+      this.error = 'Signed-in user not found (missing userId).';
       return;
     }
 
-    this.loading = true;
+    this.setLoading(true);
     this.error = '';
     this.allLoans = [];
     this.myLoans = [];
@@ -181,32 +177,55 @@ export class ClientCredits implements OnInit, OnDestroy {
       .pipe(
         timeout(15000),
         finalize(() => {
-          this.loading = false;
-          this.cdr.detectChanges();
+          this.setLoading(false);
         }),
         catchError(() => {
-          this.error = 'Impossible de charger vos demandes (timeout ou serveur indisponible).';
+          this.error = 'Unable to load your requests (timeout or server unavailable).';
           return of({ content: [] as RequestLoanDto[] });
         }),
       )
       .subscribe({
         next: (response: any) => {
-          const list = Array.isArray((response as any)?.content)
-            ? (response as any).content
-            : [response as RequestLoanDto];
+          const list = this.extractRows(response);
           this.allLoans = list;
           try {
             this.applyStatusFilter();
           } catch {
             this.myLoans = this.allLoans;
           }
-          this.cdr.detectChanges();
         },
         error: () => {
-          this.error = 'Impossible de charger vos demandes.';
-          this.cdr.detectChanges();
+          this.setLoading(false);
+          this.error = 'Unable to load your requests.';
         },
       });
+  }
+
+  private setLoading(value: boolean): void {
+    this.ngZone.run(() => {
+      this.loading = value;
+      this.cdr.markForCheck();
+    });
+  }
+
+  private extractRows(response: any): RequestLoanDto[] {
+    if (Array.isArray(response)) {
+      return response.filter((row) => !!row) as RequestLoanDto[];
+    }
+
+    if (Array.isArray(response?.content)) {
+      return response.content.filter((row: unknown) => !!row) as RequestLoanDto[];
+    }
+
+    if (Array.isArray(response?.data)) {
+      return response.data.filter((row: unknown) => !!row) as RequestLoanDto[];
+    }
+
+    if (response && typeof response === 'object' && ('idDemande' in response || 'statutDemande' in response)) {
+      return [response as RequestLoanDto];
+    }
+
+    return [];
   }
 
   get totalPages(): number {
@@ -247,7 +266,7 @@ export class ClientCredits implements OnInit, OnDestroy {
     this.creditService.deleteRequestLoan(loan.idDemande).subscribe({
       next: () => this.loadMyRequestLoans(),
       error: () => {
-        this.error = "Echec de la suppression de la demande.";
+        this.error = 'Failed to delete the request.';
       },
     });
   }
@@ -382,11 +401,11 @@ export class ClientCredits implements OnInit, OnDestroy {
     this.editForm.address = loan.address ?? '';
     this.editForm.phone = loan.phone ?? '';
     this.editForm.email = loan.email ?? '';
-    this.editForm.maritalStatus = (loan.situationFamiliale as MaritalStatus) ?? 'Célibataire';
-    this.editForm.employmentType = (loan.typeEmploi as EmploymentType) ?? 'Salarié';
+    this.editForm.maritalStatus = this.normalizeMaritalStatus(loan.situationFamiliale);
+    this.editForm.employmentType = this.normalizeEmploymentType(loan.typeEmploi);
     this.editForm.estimatedMonthlyIncome = Number(loan.revenuMensuelEstime) || 0;
-    this.editForm.objectifCredit = loan.objectifCredit || 'Achat véhicule';
-    this.editForm.repaymentType = (loan.typeRemboursementSouhaite as RepaymentType) ?? 'Mensualités fixes';
+    this.editForm.objectifCredit = this.normalizeLoanObjective(loan.objectifCredit);
+    this.editForm.repaymentType = this.normalizeRepaymentType(loan.typeRemboursementSouhaite);
     this.editForm.demandePeriodeGrace = !!loan.demandePeriodeGrace;
     this.editForm.infoAccuracyConfirmed = !!loan.confirmExactitudeInformations;
     this.editForm.documentsCheckAuthorized = !!loan.autorisationVerificationDocuments;
@@ -401,7 +420,7 @@ export class ClientCredits implements OnInit, OnDestroy {
     this.showEditModal = true;
   }
 
-  /** Montant demandé (TND) affiché = part financée après déduction de l’apport. */
+  /** Net loan amount (TND) = financed amount minus down payment. */
   get montantDemandeNet(): number {
     const cap = this.montantTotalCredit;
     const ap = Math.max(0, Math.min(cap, Number(this.editForm.apportPersonnel) || 0));
@@ -426,6 +445,61 @@ export class ClientCredits implements OnInit, OnDestroy {
     this.existingLoanDocuments = [];
     this.submitError = '';
     this.submitSuccess = '';
+  }
+
+  private normalizeMaritalStatus(raw: unknown): MaritalStatus {
+    const s = String(raw ?? '').trim();
+    if (this.maritalStatusOptions.includes(s as MaritalStatus)) {
+      return s as MaritalStatus;
+    }
+    const legacy: Record<string, MaritalStatus> = {
+      Célibataire: 'Single',
+      'Marié(e)': 'Married',
+      Marié: 'Married',
+      'Divorcé(e)': 'Divorced',
+      Divorcé: 'Divorced',
+      'Veuf/Veuve': 'Widowed',
+    };
+    return legacy[s] ?? 'Single';
+  }
+
+  private normalizeEmploymentType(raw: unknown): EmploymentType {
+    const s = String(raw ?? '').trim();
+    if (this.employmentOptions.includes(s as EmploymentType)) {
+      return s as EmploymentType;
+    }
+    const legacy: Record<string, EmploymentType> = {
+      Salarié: 'Employed',
+      Indépendant: 'Self-employed',
+      'Sans emploi': 'Unemployed',
+      Étudiant: 'Student',
+      Retraité: 'Retired',
+    };
+    return legacy[s] ?? 'Employed';
+  }
+
+  private normalizeRepaymentType(raw: unknown): RepaymentType {
+    const s = String(raw ?? '').trim();
+    if (this.repaymentTypeOptions.includes(s as RepaymentType)) {
+      return s as RepaymentType;
+    }
+    const legacy: Record<string, RepaymentType> = {
+      'Mensualités fixes': 'Fixed installments',
+      'Mensualités flexibles': 'Flexible installments',
+    };
+    return legacy[s] ?? 'Fixed installments';
+  }
+
+  private normalizeLoanObjective(raw: unknown): string {
+    const s = String(raw ?? '').trim();
+    if (!s) {
+      return 'Vehicle purchase';
+    }
+    const legacy: Record<string, string> = {
+      'Achat véhicule': 'Vehicle purchase',
+      'Achat voiture': 'Vehicle purchase',
+    };
+    return legacy[s] ?? s;
   }
 
   recalculateMensualite(): void {
@@ -456,7 +530,7 @@ export class ClientCredits implements OnInit, OnDestroy {
     localStorage.setItem(key, JSON.stringify(draft));
     this.isSavingDraft = false;
     this.submitError = '';
-    this.submitSuccess = 'Brouillon de modification enregistré localement.';
+    this.submitSuccess = 'Edit draft saved locally.';
   }
 
   validateModification(): void {
@@ -486,7 +560,7 @@ export class ClientCredits implements OnInit, OnDestroy {
         montantDemande: this.montantDemandeNet,
         apportPersonnel: Number(this.editForm.apportPersonnel) || 0,
         mensualiteEstimee: this.editForm.mensualiteEstimee,
-        objectifCredit: this.editForm.objectifCredit || 'Achat véhicule',
+        objectifCredit: this.editForm.objectifCredit || 'Vehicle purchase',
         typeRemboursementSouhaite: this.editForm.repaymentType,
         demandePeriodeGrace: this.editForm.demandePeriodeGrace,
         confirmExactitudeInformations: this.editForm.infoAccuracyConfirmed,
@@ -501,14 +575,17 @@ export class ClientCredits implements OnInit, OnDestroy {
         nombreDocumentsOptionnels: this.editUploadState.optionalDocs.length,
         statutDemande: 'PENDING',
       })
-      .pipe(finalize(() => (this.submitting = false)))
+      .pipe(
+        timeout(15000),
+        finalize(() => (this.submitting = false)),
+      )
       .subscribe({
         next: () => {
           this.closeEditModal();
           this.loadMyRequestLoans();
         },
         error: () => {
-          this.submitError = 'Echec de la modification de la demande.';
+          this.submitError = 'Failed to update the request.';
         },
       });
   }
@@ -541,14 +618,17 @@ export class ClientCredits implements OnInit, OnDestroy {
 
     this.creditService
       .deleteRequestLoan(this.selectedLoan.idDemande)
-      .pipe(finalize(() => (this.submitting = false)))
+      .pipe(
+        timeout(15000),
+        finalize(() => (this.submitting = false)),
+      )
       .subscribe({
         next: () => {
           this.closeEditModal();
           this.loadMyRequestLoans();
         },
         error: () => {
-          this.submitError = "Echec de l'annulation de la demande.";
+          this.submitError = 'Failed to cancel the request.';
         },
       });
   }
@@ -573,6 +653,13 @@ export class ClientCredits implements OnInit, OnDestroy {
     if (!value) return '-';
     const d = new Date(value as string);
     return Number.isNaN(d.getTime()) ? '-' : d.toLocaleString();
+  }
+
+  /** Show loan purpose in English while keeping unknown API strings as-is. */
+  displayLoanObjective(raw: string | undefined): string {
+    const s = String(raw ?? '').trim();
+    if (!s) return '-';
+    return this.normalizeLoanObjective(s);
   }
 
   get selectedVehicleInfo(): { marque: string; modele: string; prixTnd: number; reference: string } {
@@ -616,7 +703,7 @@ export class ClientCredits implements OnInit, OnDestroy {
 
     const valid = requiredText && hasIncome && hasDocs && hasConsents;
     if (!valid && setError) {
-      this.submitError = 'Veuillez compléter toutes les informations, documents et consentements.';
+      this.submitError = 'Please complete all fields, documents, and consents.';
     }
     return valid;
   }
@@ -721,21 +808,32 @@ export class ClientCredits implements OnInit, OnDestroy {
   private loadExistingDocuments(requestLoanId: number): void {
     this.loadingExistingDocuments = true;
     this.existingLoanDocuments = [];
-    this.creditService.getLoanDocuments(0, 500).subscribe({
-      next: (response) => {
-        const docs = Array.isArray(response?.content)
-          ? response.content.filter((d) => Number(d.requestLoanId) === Number(requestLoanId))
-          : [];
-        this.existingLoanDocuments = docs;
-        if (docs.length > 0) {
-          this.applyExistingDocumentsToEditState(docs);
-        }
-        this.loadingExistingDocuments = false;
-      },
-      error: () => {
-        this.loadingExistingDocuments = false;
-      },
-    });
+    this.creditService
+      .getLoanDocuments(0, 500)
+      .pipe(
+        timeout(15000),
+        catchError(() => {
+          this.submitError = 'Unable to load existing documents right now.';
+          return of({ content: [] as LoanDocumentDto[] });
+        }),
+        finalize(() => {
+          this.loadingExistingDocuments = false;
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          const docs = Array.isArray(response?.content)
+            ? response.content.filter((d) => Number(d.requestLoanId) === Number(requestLoanId))
+            : [];
+          this.existingLoanDocuments = docs;
+          if (docs.length > 0) {
+            this.applyExistingDocumentsToEditState(docs);
+          }
+        },
+        error: () => {
+          // Fallback handled by catchError/finalize.
+        },
+      });
   }
 
   getExistingDocumentByType(type: string): LoanDocumentDto | undefined {
@@ -753,7 +851,7 @@ export class ClientCredits implements OnInit, OnDestroy {
         setTimeout(() => URL.revokeObjectURL(url), 60_000);
       },
       error: () => {
-        this.submitError = 'Impossible de consulter ce document pour le moment.';
+        this.submitError = 'Unable to open this document right now.';
       },
     });
   }

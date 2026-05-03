@@ -12,6 +12,9 @@ export class AgentLayout implements OnInit, OnDestroy {
   currentTheme: 'light' | 'dark' = 'dark';
   selectedPage = 'dashboard';
   showUserMenu = false;
+  currentTime = '';
+
+  private timeTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private renderer: Renderer2,
@@ -22,10 +25,16 @@ export class AgentLayout implements OnInit, OnDestroy {
     const saved = localStorage.getItem('finix_theme') as 'light' | 'dark' | null;
     this.currentTheme = saved || 'dark';
     this.applyTheme();
+    this.refreshCurrentTime();
+    this.timeTimer = setInterval(() => this.refreshCurrentTime(), 1000);
   }
 
   ngOnDestroy(): void {
     this.renderer.removeAttribute(document.documentElement, 'data-theme');
+    if (this.timeTimer) {
+      clearInterval(this.timeTimer);
+      this.timeTimer = null;
+    }
   }
 
   toggleTheme(): void {
@@ -48,9 +57,9 @@ export class AgentLayout implements OnInit, OnDestroy {
     this.renderer.setAttribute(document.documentElement, 'data-theme', this.currentTheme);
   }
 
-  get currentTime(): string {
+  private refreshCurrentTime(): void {
     const now = new Date();
-    return now.toLocaleTimeString('fr-FR', {
+    this.currentTime = now.toLocaleTimeString('fr-FR', {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',

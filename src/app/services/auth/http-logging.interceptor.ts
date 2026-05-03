@@ -29,10 +29,6 @@ export const httpLoggingInterceptor: HttpInterceptorFn = (req, next) => {
     'color: #0066cc; font-weight: bold;'
   );
 
-  if (method !== 'GET') {
-    console.log('📤 Request body:', req.body);
-  }
-
   return next(authReq).pipe(
     tap(event => {
       // Log response
@@ -43,9 +39,7 @@ export const httpLoggingInterceptor: HttpInterceptorFn = (req, next) => {
           `%c[HTTP] ${method} ${url} - ✅ ${event.status} (${responseTime}ms)`,
           'color: #00aa00; font-weight: bold;'
         );
-        if (event.body) {
-          console.log('📥 Response:', event.body);
-        }
+        // Keep logs lightweight; large payload logs can freeze UI.
       }
     }),
     catchError((err: HttpErrorResponse) => {

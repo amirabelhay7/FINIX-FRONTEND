@@ -7,7 +7,20 @@
   <div class="in-tb-divider"></div>
   <div class="in-tb-sub">Espace Assureur · Gestion des polices & sinistres</div>
   <div class="in-tb-right">
-    <button class="in-tb-btn">🔔<span class="in-notif-dot"></span></button>
+    <div class="in-notif-wrap">
+      <button class="in-tb-btn" (click)="toggleNotificationsDropdown()">
+        🔔
+        <span class="in-notif-dot" *ngIf="unreadNotificationsCount > 0"></span>
+      </button>
+      <div class="in-notif-dropdown" *ngIf="showNotificationsDropdown">
+        <div class="in-notif-head">Notifications</div>
+        <button class="in-notif-item" *ngFor="let item of notificationItems | slice:0:6" (click)="openNotification(item)">
+          <div class="in-notif-title">{{ item.title }}</div>
+          <div class="in-notif-meta">{{ item.meta }}</div>
+        </button>
+        <div class="in-notif-empty" *ngIf="notificationItems.length === 0">Aucune notification</div>
+      </div>
+    </div>
     <button class="in-tb-btn">⚙️</button>
     <button class="in-theme-toggle" (click)="toggleTheme()" title="Changer le thème">
       {{ currentTheme === 'dark' ? '☀️' : '🌙' }}
@@ -49,7 +62,7 @@
     📋 Offres <span class="in-nav-badge">{{ offerCounts.total }}</span>
   </button>
   <button class="in-nav-tab" [class.active]="activeSection === 'events'" (click)="activeSection = 'events'">
-    ⚡ Événements <span class="in-nav-badge" [class.in-warn]="eventCounts.urgent > 0">{{ eventCounts.total }}</span>
+    ⚡ Events <span class="in-nav-badge" [class.in-warn]="eventCounts.urgent > 0">{{ eventCounts.total }}</span>
   </button>
   <button class="in-nav-tab" [class.active]="activeSection === 'catalogs'" (click)="activeSection = 'catalogs'">
     📚 Catalogues <span class="in-nav-badge">{{ catalogs.length }}</span>
@@ -87,10 +100,10 @@
       </div>
     </div>
     <div class="in-quick-actions">
-      <button class="in-qa-card" (click)="activeSection = 'events'; openAddEventModal()">
+      <button class="in-qa-card" (click)="activeSection = 'events'">
         <div class="in-qa-icon">⚡</div>
-        <div class="in-qa-label">Ajouter un événement</div>
-        <div class="in-qa-sub">Déclarer un sinistre, renouvellement...</div>
+        <div class="in-qa-label">View events</div>
+        <div class="in-qa-sub">Browse only</div>
       </button>
       <button class="in-qa-card" (click)="activeSection = 'offers'; openAddOfferModal()">
         <div class="in-qa-icon">📋</div>
@@ -107,25 +120,23 @@
     <!-- RECENT EVENTS -->
     <div class="in-section-head">
       <div>
-        <div class="in-section-title">Événements récents</div>
-        <div class="in-section-sub">{{ eventCounts.urgent }} urgent(s) · {{ eventCounts.en_cours }} en cours</div>
+        <div class="in-section-title">Recent events</div>
+        <div class="in-section-sub">{{ eventCounts.urgent }} cancelled · {{ eventCounts.en_cours }} drafts</div>
       </div>
-      <button class="in-btn-link" (click)="activeSection = 'events'">Voir tout →</button>
+      <button class="in-btn-link" (click)="activeSection = 'events'">View all →</button>
     </div>
     <div class="in-events-list">
       <div class="in-event-row" *ngFor="let e of events | slice:0:4">
-        <div class="in-ev-type-icon">
-          {{ e.type === 'sinistre' ? '🔴' : e.type === 'renouvellement' ? '🔄' : e.type === 'resiliation' ? '❌' : '🟢' }}
-        </div>
+        <div class="in-ev-type-icon">⚡</div>
         <div class="in-ev-info">
           <div class="in-ev-title">{{ e.title }}</div>
-          <div class="in-ev-sub">{{ e.client }} · {{ e.date }}</div>
+          <div class="in-ev-sub">{{ e.city || '-' }} · {{ getEventDateTimeLabel(e) }}</div>
         </div>
         <span class="in-ev-status"
-              [class.in-st-urgent]="e.status === 'urgent'"
-              [class.in-st-encours]="e.status === 'en_cours'"
-              [class.in-st-traite]="e.status === 'traite'">
-          {{ getStatusLabel(e.status) }}
+              [class.in-st-urgent]="(e.status || '').toUpperCase() === 'CANCELLED'"
+              [class.in-st-encours]="(e.status || '').toUpperCase() === 'DRAFT'"
+              [class.in-st-traite]="(e.status || '').toUpperCase() === 'PUBLISHED'">
+          {{ getStatusLabel(e.status || '') }}
         </span>
       </div>
     </div>
@@ -178,46 +189,153 @@
   <div *ngIf="activeSection === 'events'">
     <div class="in-section-head">
       <div>
-        <div class="in-section-title">Événements</div>
-        <div class="in-section-sub">{{ eventCounts.urgent }} urgent(s) · {{ eventCounts.en_cours }} en cours · {{ eventCounts.traite }} traité(s)</div>
+        <div class="in-section-title">Events</div>
+        <div class="in-section-sub">Create and publish client events</div>
       </div>
-      <button class="in-btn-new" (click)="openAddEventModal()">+ Nouvel événement</button>
+      <button class="in-btn-new" *ngIf="canManageEvents" (click)="openAddEventModal()">+ Create event</button>
     </div>
-    <div class="in-events-full">
-      <div class="in-event-card" *ngFor="let e of filteredEvents">
-        <div class="in-ec-left">
-          <div class="in-ec-type-icon">
-            {{ e.type === 'sinistre' ? '🔴' : e.type === 'renouvellement' ? '🔄' : e.type === 'resiliation' ? '❌' : '🟢' }}
+
+    <div class="events-filter-bar">
+      <input
+        class="in-input events-search-input"
+        type="text"
+        placeholder="Search by title, city..."
+        [(ngModel)]="eventsSearchTerm"
+        (ngModelChange)="onEventsFilterChange()"
+      />
+      <select class="in-input events-status-select" [(ngModel)]="eventsStatusFilter" (ngModelChange)="onEventsFilterChange()">
+        <option value="ALL">All statuses</option>
+        <option value="PUBLISHED">Published</option>
+        <option value="DRAFT">Draft</option>
+        <option value="CANCELLED">Cancelled</option>
+      </select>
+      <select class="in-input events-size-select" [(ngModel)]="eventsPageSize" (ngModelChange)="onEventsFilterChange()">
+        <option [ngValue]="6">6 per page</option>
+        <option [ngValue]="10">10 per page</option>
+        <option [ngValue]="15">15 per page</option>
+      </select>
+    </div>
+
+    <div class="in-empty" *ngIf="eventsError">
+      <div class="in-empty-title">{{ eventsError }}</div>
+    </div>
+
+    <div class="events-content" *ngIf="filteredEvents.length > 0">
+      <div class="events-cards">
+        <article class="event-card" *ngFor="let ev of paginatedEvents; trackBy: trackByEventId">
+          <div class="event-card-main">
+            <img class="event-thumb" [src]="ev.imageUrl || 'https://picsum.photos/240/180?grayscale'" [alt]="ev.title || 'event'" />
+
+            <div class="event-main-content">
+              <div class="event-title-row">
+                <div>
+                  <h3 class="event-title">{{ ev.title || 'Untitled event' }}</h3>
+                  <a class="event-category-link" href="javascript:void(0)">{{ getCategoryLabel(ev) }}</a>
+                  <div class="event-meta-line">{{ getEventDateTimeLabel(ev) }}</div>
+                </div>
+                <div class="event-stat-top-right">{{ getEventFillStat(ev) }}</div>
+              </div>
+
+              <div class="event-days-row">
+                <span
+                  class="event-day-pill"
+                  *ngFor="let day of weekDays; let i = index"
+                  [class.active]="isEventDayActive(ev, i)"
+                >
+                  {{ day }}
+                </span>
+              </div>
+
+              <div class="event-status-line">
+                <span class="event-status-dot" [ngClass]="getEventStatusClass(ev.status)"></span>
+                <span class="event-status-label">{{ ev.status || 'UNKNOWN' }}</span>
+              </div>
+            </div>
+
+            <div class="event-side-info">
+              <div class="event-locations">
+                <div class="event-location-item" *ngFor="let loc of getEventLocations(ev)">
+                  <span class="loc-pin">⌖</span>
+                  <span>{{ loc }}</span>
+                </div>
+              </div>
+
+              <div class="event-donut-row">
+                <div class="event-metric">
+                  <div class="event-donut" [style.--pct]="getEventMetricPct(ev, 'inscrits') + '%'">
+                    <span>{{ getEventMetricValue(ev, 'inscrits') }}</span>
+                  </div>
+                  <div class="event-metric-label">Registered</div>
+                </div>
+                <div class="event-metric">
+                  <div class="event-donut blue" [style.--pct]="getEventMetricPct(ev, 'capacite') + '%'">
+                    <span>{{ getEventMetricValue(ev, 'capacite') }}</span>
+                  </div>
+                  <div class="event-metric-label">Capacity</div>
+                </div>
+                <div class="event-metric">
+                  <div class="event-donut gray" [style.--pct]="getEventMetricPct(ev, 'restants') + '%'">
+                    <span>{{ getEventMetricValue(ev, 'restants') }}</span>
+                  </div>
+                  <div class="event-metric-label">Remaining</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="in-ec-type-label">{{ getEventTypeLabel(e.type) }}</div>
-        </div>
-        <div class="in-ec-body">
-          <div class="in-ec-title">{{ e.title }}</div>
-          <div class="in-ec-desc">{{ e.description }}</div>
-          <div class="in-ec-meta">
-            <span>👤 {{ e.client }}</span>
-            <span>📅 {{ e.date }}</span>
+
+          <div class="event-card-actions">
+            <button class="in-btn-outline" [disabled]="!canEditEvent(ev)" (click)="openEditEventModal(ev)" *ngIf="canManageEvents">
+              Edit
+            </button>
+            <button class="in-btn-outline" (click)="openChatMembersModal(ev)" *ngIf="canManageEvents">
+              Chat members
+            </button>
+            <button class="in-btn-outline" (click)="toggleEventExpand(ev.idEvent)">
+              {{ expandedEventId === ev.idEvent ? 'Hide stats' : 'View stats' }}
+            </button>
           </div>
-        </div>
-        <div class="in-ec-right">
-          <span class="in-ev-status"
-                [class.in-st-urgent]="e.status === 'urgent'"
-                [class.in-st-encours]="e.status === 'en_cours'"
-                [class.in-st-traite]="e.status === 'traite'">
-            {{ getStatusLabel(e.status) }}
-          </span>
-          <div class="in-ec-actions">
-            <button class="in-o-btn">✏️</button>
-            <button class="in-o-btn in-o-btn-danger">🗑️</button>
+
+          <div class="event-expand-row" *ngIf="expandedEventId === ev.idEvent">
+            <div class="event-stat-box">
+              <div class="event-stat-val">{{ ev.maxParticipants ?? 0 }}</div>
+              <div class="event-stat-lbl">Capacity</div>
+            </div>
+            <div class="event-stat-box">
+              <div class="event-stat-val">{{ ev.currentParticipants ?? 0 }}</div>
+              <div class="event-stat-lbl">Registrations</div>
+            </div>
+            <div class="event-stat-box">
+              <div class="event-stat-val">{{ getEventMetricValue(ev, 'inscrits') }}</div>
+              <div class="event-stat-lbl">Confirmed</div>
+            </div>
+            <div class="event-stat-box">
+              <div class="event-stat-val">{{ getEventMetricValue(ev, 'restants') }}</div>
+              <div class="event-stat-lbl">Available</div>
+            </div>
           </div>
-        </div>
+        </article>
+      </div>
+
+      <div class="events-pagination">
+        <button class="in-btn-outline" [disabled]="eventsPage === 1" (click)="goToEventsPage(eventsPage - 1)">Prev</button>
+        <button
+          class="in-btn-outline"
+          *ngFor="let p of eventPaginationPages"
+          (click)="goToEventsPage(p)"
+          [style.background]="eventsPage === p ? 'var(--fx-blue)' : ''"
+          [style.color]="eventsPage === p ? '#fff' : ''"
+        >
+          {{ p }}
+        </button>
+        <button class="in-btn-outline" [disabled]="eventsPage === totalEventPages" (click)="goToEventsPage(eventsPage + 1)">Next</button>
+        <span class="events-pagination-info">{{ eventsPage }} / {{ totalEventPages }}</span>
       </div>
     </div>
-    <div class="in-empty" *ngIf="filteredEvents.length === 0">
+
+    <div class="in-empty" *ngIf="!eventsLoading && filteredEvents.length === 0 && !eventsError">
       <div class="in-empty-icon">⚡</div>
-      <div class="in-empty-title">Aucun événement trouvé</div>
-      <div class="in-empty-sub">Modifiez votre recherche ou déclarez un nouvel événement.</div>
-      <button class="in-btn-new" (click)="openAddEventModal()">+ Nouvel événement</button>
+      <div class="in-empty-title">No events found</div>
+      <div class="in-empty-sub">Adjust your search or create a new event.</div>
     </div>
   </div>
 
@@ -322,50 +440,151 @@
   </div>
 </div>
 
-<!-- ═══════════ ADD EVENT MODAL ═══════════ -->
-<div class="in-modal-overlay" *ngIf="showAddEventModal" (click)="closeAddEventModal()">
+<!-- ═══════════ CHAT MEMBERS MODAL ═══════════ -->
+<div class="in-modal-overlay" *ngIf="showChatMembersModal" (click)="closeChatMembersModal()">
   <div class="in-modal" (click)="$event.stopPropagation()">
     <div class="in-modal-head">
       <div>
-        <div class="in-modal-title">Déclarer un événement</div>
-        <div class="in-modal-sub">Sinistre, renouvellement, résiliation ou nouveau contrat</div>
+        <div class="in-modal-title">Chat members</div>
+        <div class="in-modal-sub">{{ selectedChatEvent?.title || '' }}</div>
+      </div>
+      <button class="in-modal-close" (click)="closeChatMembersModal()">✕</button>
+    </div>
+    <div class="in-modal-body">
+      <div class="in-empty-sub" *ngIf="chatMembersLoading">Loading...</div>
+      <div class="in-empty-sub" style="color:#ef4444" *ngIf="chatMembersError">{{ chatMembersError }}</div>
+      <div class="in-events-list" *ngIf="!chatMembersLoading && chatMembers.length > 0">
+        <div class="in-event-row" *ngFor="let m of chatMembers">
+          <div class="in-ev-type-icon">👤</div>
+          <div class="in-ev-info">
+            <div class="in-ev-title">{{ m.fullName || ('User #' + (m.userId || '-')) }}</div>
+            <div class="in-ev-sub">Role: {{ m.role || 'MEMBER' }}</div>
+          </div>
+          <button
+            class="in-btn-outline"
+            [disabled]="removingMemberUserId === m.userId || (m.role || '').toUpperCase() === 'ADMIN'"
+            (click)="removeMemberFromChat(m)"
+          >
+            {{ removingMemberUserId === m.userId ? 'Removing…' : 'Remove' }}
+          </button>
+        </div>
+      </div>
+      <div class="in-empty-sub" *ngIf="!chatMembersLoading && chatMembers.length === 0 && !chatMembersError">
+        No members found.
+      </div>
+    </div>
+    <div class="in-modal-foot">
+      <button class="in-btn-outline" (click)="closeChatMembersModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ADD EVENT MODAL ═══════════ -->
+<div class="in-modal-overlay" *ngIf="canManageEvents && showAddEventModal" (click)="closeAddEventModal()">
+  <div class="in-modal" (click)="$event.stopPropagation()">
+    <div class="in-modal-head">
+      <div>
+        <div class="in-modal-title">Create an event</div>
+        <div class="in-modal-sub">Publish an event as an insurer</div>
       </div>
       <button class="in-modal-close" (click)="closeAddEventModal()">✕</button>
     </div>
     <div class="in-modal-body">
       <div class="in-form-row">
         <div class="in-form-group">
-          <label class="in-label">Titre</label>
-          <input class="in-input" type="text" placeholder="Ex: Déclaration sinistre auto" [(ngModel)]="newEvent.title">
+          <label class="in-label">Title</label>
+          <input class="in-input" type="text" placeholder="e.g. Road safety awareness day" [(ngModel)]="newEvent.title">
         </div>
         <div class="in-form-group">
-          <label class="in-label">Type</label>
-          <select class="in-input" [(ngModel)]="newEvent.type">
-            <option value="sinistre">Sinistre</option>
-            <option value="renouvellement">Renouvellement</option>
-            <option value="resiliation">Résiliation</option>
-            <option value="nouveau">Nouveau contrat</option>
+          <label class="in-label">Status</label>
+          <select class="in-input" [(ngModel)]="newEvent.status">
+            <option value="PUBLISHED">Published</option>
+            <option value="DRAFT">Draft</option>
+            <option value="CANCELLED">Cancelled</option>
           </select>
         </div>
       </div>
       <div class="in-form-row">
+        <div class="in-form-group" style="grid-column: 1 / -1;">
+          <label class="in-label">Address</label>
+          <input class="in-input" type="text" placeholder="e.g. Main Street" [(ngModel)]="newEvent.address">
+          <button type="button" class="in-btn-outline" style="margin-top:.45rem" (click)="openAddressMapPicker()">Pick on map</button>
+        </div>
+      </div>
+      <div class="in-form-row">
         <div class="in-form-group">
-          <label class="in-label">Client</label>
-          <input class="in-input" type="text" placeholder="Nom du client" [(ngModel)]="newEvent.client">
+          <label class="in-label">Start date</label>
+          <input class="in-input" type="datetime-local" [(ngModel)]="newEvent.startDate">
         </div>
         <div class="in-form-group">
-          <label class="in-label">Date</label>
-          <input class="in-input" type="date" [(ngModel)]="newEvent.date">
+          <label class="in-label">End date</label>
+          <input class="in-input" type="datetime-local" [(ngModel)]="newEvent.endDate">
+        </div>
+      </div>
+      <div class="in-form-row">
+        <div class="in-form-group">
+          <label class="in-label">Registration deadline</label>
+          <input class="in-input" type="datetime-local" [(ngModel)]="newEvent.registrationDeadline">
+        </div>
+        <div class="in-form-group">
+          <label class="in-label">Max capacity</label>
+          <input class="in-input" type="number" min="0" [(ngModel)]="newEvent.maxParticipants">
         </div>
       </div>
       <div class="in-form-group">
-        <label class="in-label">Description</label>
-        <textarea class="in-input in-textarea" placeholder="Décrivez l'événement..." [(ngModel)]="newEvent.description"></textarea>
+        <label class="in-label">Image URL (optional)</label>
+        <input class="in-input" type="text" placeholder="https://..." [(ngModel)]="newEvent.imageUrl">
       </div>
+      <div class="in-form-group">
+        <label class="in-label">Description</label>
+        <textarea class="in-input in-textarea" placeholder="Describe the event..." [(ngModel)]="newEvent.description"></textarea>
+      </div>
+      <label class="check-line" style="margin-top:8px">
+        <input type="checkbox" [(ngModel)]="newEvent.publicEvent" />
+        <span>Public event</span>
+      </label>
+      <div class="in-empty-sub" style="margin-top:.5rem;color:#ef4444" *ngIf="eventCreateError">{{ eventCreateError }}</div>
+      <div class="in-empty-sub" style="margin-top:.5rem;color:#16a34a" *ngIf="eventCreateSuccess">{{ eventCreateSuccess }}</div>
     </div>
     <div class="in-modal-foot">
-      <button class="in-btn-outline" (click)="closeAddEventModal()">Annuler</button>
-      <button class="in-btn-primary" (click)="closeAddEventModal()">Enregistrer</button>
+      <button class="in-btn-outline" (click)="closeAddEventModal()">Cancel</button>
+      <button class="in-btn-primary" [disabled]="isCreatingEvent" (click)="createEvent()">
+        {{ isCreatingEvent ? 'Saving…' : 'Save' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ADDRESS MAP PICKER MODAL ═══════════ -->
+<div class="in-modal-overlay" *ngIf="showAddressMapModal" (click)="closeAddressMapPicker()">
+  <div class="in-modal" (click)="$event.stopPropagation()">
+    <div class="in-modal-head">
+      <div>
+        <div class="in-modal-title">Select address</div>
+        <div class="in-modal-sub">Search or click on the map</div>
+      </div>
+      <button class="in-modal-close" (click)="closeAddressMapPicker()">✕</button>
+    </div>
+    <div class="in-modal-body">
+      <div class="in-form-row" style="grid-template-columns:1fr auto">
+        <div class="in-form-group" style="margin-bottom:0">
+          <label class="in-label">Address search</label>
+          <input class="in-input" type="text" [(ngModel)]="mapSearchQuery" placeholder="e.g. Street, City" />
+        </div>
+        <div class="in-form-group" style="display:flex;align-items:flex-end;margin-bottom:0">
+          <button type="button" class="in-btn-primary" (click)="searchAddressOnMap()">Search</button>
+        </div>
+      </div>
+      <div id="insurer-event-address-map" class="event-address-map"></div>
+      <div class="in-form-group" style="margin-top:.85rem">
+        <label class="in-label">Selected address</label>
+        <input class="in-input" type="text" [(ngModel)]="selectedMapAddress" readonly />
+      </div>
+      <div class="in-empty-sub" style="margin-top:.25rem;color:#ef4444" *ngIf="mapPickerError">{{ mapPickerError }}</div>
+    </div>
+    <div class="in-modal-foot">
+      <button class="in-btn-outline" (click)="closeAddressMapPicker()">Cancel</button>
+      <button class="in-btn-primary" (click)="confirmAddressFromMap()">Confirm address</button>
     </div>
   </div>
 </div>

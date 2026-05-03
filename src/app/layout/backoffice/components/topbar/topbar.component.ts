@@ -1,4 +1,12 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
+
+export interface TopbarNotificationItem {
+  title: string;
+  meta: string;
+  targetPage?: string;
+  requestId?: number;
+  eventId?: number;
+}
 
 @Component({
   selector: 'app-topbar',
@@ -10,11 +18,20 @@ export class TopbarComponent {
 
   @Input() currentPage: string = 'dashboard';
   @Input() currentTheme: 'light' | 'dark' = 'light';
+  @Input() notificationCount: number = 0;
+  @Input() notificationItems: TopbarNotificationItem[] = [];
   @Output() themeToggled = new EventEmitter<void>();
   @Output() loggedOut = new EventEmitter<void>();
+  @Output() notificationSelected = new EventEmitter<TopbarNotificationItem>();
+  @Output() notificationsPanelOpened = new EventEmitter<void>();
 
   searchValue: string = '';
-  hasNotifications: boolean = true;
+  showNotificationsDropdown: boolean = false;
+
+  constructor(private host: ElementRef<HTMLElement>) {}
+  get hasNotifications(): boolean {
+    return this.notificationCount > 0;
+  }
 
   onToggleTheme(): void {
     this.themeToggled.emit();
@@ -24,8 +41,32 @@ export class TopbarComponent {
     console.log('Import clicked');
   }
 
-  goToNotifications(): void {
-    console.log('Go to notifications');
+  toggleNotificationsDropdown(event: MouseEvent): void {
+    event.stopPropagation();
+    this.showNotificationsDropdown = !this.showNotificationsDropdown;
+    if (this.showNotificationsDropdown) {
+      this.notificationsPanelOpened.emit();
+    }
+  }
+
+  closeNotificationsDropdown(): void {
+    this.showNotificationsDropdown = false;
+  }
+
+  onNotificationItemClick(item: TopbarNotificationItem): void {
+    this.notificationSelected.emit(item);
+    this.showNotificationsDropdown = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.showNotificationsDropdown) {
+      return;
+    }
+    const target = event.target as Node | null;
+    if (!target || !this.host.nativeElement.contains(target)) {
+      this.showNotificationsDropdown = false;
+    }
   }
 
   openHelp(): void {

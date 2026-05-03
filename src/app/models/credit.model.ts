@@ -84,6 +84,12 @@ export interface RequestLoanDto {
   situationFamiliale?: string;
   typeEmploi?: string;
   revenuMensuelEstime?: number;
+  tauxAnnuel?: number;
+  revenuMensuelBrut?: number;
+  revenuMensuelNet?: number;
+  chargesMensuelles?: number;
+  garantieType?: 'VEHICULE' | 'IMMOBILIERE' | 'CAUTION' | 'AUCUNE';
+  garantieValeurEstimee?: number;
   typeRemboursementSouhaite?: string;
   demandePeriodeGrace?: boolean;
   confirmExactitudeInformations?: boolean;
@@ -100,6 +106,18 @@ export interface RequestLoanDto {
   dateSoumission: string;
   dateDecision: string;
   statutDemande: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'CONDITIONAL';
+  riskScore?: number;
+  riskDecision?: 'ACCEPTE_AUTO' | 'REVUE_AGENT' | 'COMITE_CREDIT' | 'REFUSE_AUTO';
+  decisionSource?: 'SYSTEM' | 'ADMIN' | string;
+  riskBreakdown?: string;
+  /** Rule-based X1/X4/X5 text; present when riskBreakdown holds ML output (EXTERNAL_PKL). */
+  internalRiskBreakdown?: string;
+  /** EXTERNAL_PKL | INTERNAL_FALLBACK | string */
+  riskSource?: string;
+  mlDecision?: string;
+  mlProbability?: number;
+  mlAlerts?: string;
+  mlScoringSource?: string;
   userId?: number;
   vehiculeId?: number;
 
@@ -145,6 +163,12 @@ export interface CreateRequestLoanPayload {
   situationFamiliale?: string;
   typeEmploi?: string;
   revenuMensuelEstime?: number;
+  tauxAnnuel?: number;
+  revenuMensuelBrut?: number;
+  revenuMensuelNet?: number;
+  chargesMensuelles?: number;
+  garantieType?: 'VEHICULE' | 'IMMOBILIERE' | 'CAUTION' | 'AUCUNE';
+  garantieValeurEstimee?: number;
   typeRemboursementSouhaite?: string;
   demandePeriodeGrace?: boolean;
   confirmExactitudeInformations?: boolean;
@@ -167,6 +191,57 @@ export interface CreateRequestLoanPayload {
 /** Corps optionnel pour POST approve / reject (si le backend accepte une note). */
 export interface RequestLoanDecisionPayload {
   note?: string;
+}
+
+/** Mirrors backend LoanContractResponse; statutContrat enum as string from JSON. */
+export interface LoanContractDto {
+  idContrat: number;
+  numeroContrat: string;
+  montantCredit?: number;
+  tauxInteret?: number;
+  dureeMois?: number;
+  montantTotalRembourse?: number;
+  datePremiereEcheance?: string;
+  dateSignature?: string;
+  dateDebutCredit?: string;
+  dateFinPrevue?: string;
+  statutContrat?: string;
+  assuranceObligatoire?: boolean;
+  montantPrimeAssurance?: number;
+  traceurGPSObligatoire?: boolean;
+  requestLoanId?: number;
+  clientFirstName?: string;
+  clientLastName?: string;
+}
+
+/** Mirrors backend LoanContractDetailsResponse. */
+export interface LoanContractDetailsDto {
+  idContrat: number;
+  numeroContrat: string;
+  montantCredit?: number;
+  tauxInteret?: number;
+  dureeMois?: number;
+  mensualite?: number;
+  montantTotalRembourse?: number;
+  dateDebutCredit?: string;
+  dateFinPrevue?: string;
+  datePremiereEcheance?: string;
+  dateSignature?: string;
+  statutContrat?: string;
+  assuranceObligatoire?: boolean;
+  montantPrimeAssurance?: number;
+  traceurGPSObligatoire?: boolean;
+  idDemande?: number;
+  montantDemande?: number;
+  apportPersonnel?: number;
+  objectifCredit?: string;
+  dateCreation?: string;
+  statutDemande?: string;
+  clientPrenom?: string;
+  clientNom?: string;
+  vehiculeMarque?: string;
+  vehiculeModele?: string;
+  vehiculePrixTnd?: number;
 }
 
 export interface LoanDocumentDto {

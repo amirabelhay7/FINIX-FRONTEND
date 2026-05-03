@@ -345,6 +345,68 @@
   font-weight: 700;
 }
 
+.ev-chat-section {
+  margin-top: 14px;
+}
+
+.ev-chat-loading {
+  font-size: 0.74rem;
+  color: #64748b;
+}
+
+.ev-chat-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 10px;
+  max-height: 180px;
+  overflow-y: auto;
+  display: grid;
+  gap: 8px;
+}
+
+.ev-chat-empty {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.ev-chat-message {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.ev-chat-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.67rem;
+  color: #64748b;
+  margin-bottom: 3px;
+}
+
+.ev-chat-content {
+  font-size: 0.76rem;
+  color: #0f172a;
+  white-space: pre-wrap;
+}
+
+.ev-chat-compose {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.ev-chat-input {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-size: 0.76rem;
+}
+
 .part-bar {
   height: 8px;
   border-radius: 99px;

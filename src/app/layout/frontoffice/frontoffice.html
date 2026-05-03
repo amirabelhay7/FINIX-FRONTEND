@@ -9,7 +9,21 @@
   <div class="tb-right">
 
     <button class="tb-btn">🔔<span class="notif-dot"></span></button>
-    <button class="tb-btn">⚙️</button>
+    <div class="tb-chat-wrap">
+      <button class="tb-btn" (click)="toggleChatGroupsDropdown()" title="My chat groups">👥</button>
+      <div class="chat-groups-dropdown" *ngIf="showChatGroupsDropdown">
+        <div class="chat-groups-head">My chat groups</div>
+        <div class="chat-groups-state" *ngIf="chatGroupsLoading">Loading...</div>
+        <div class="chat-groups-state err" *ngIf="chatGroupsError">{{ chatGroupsError }}</div>
+        <button class="chat-group-item" *ngFor="let g of chatGroups" (click)="openChatGroup(g.eventId)">
+          <div class="cgi-title">{{ g.title }}</div>
+          <div class="cgi-meta">{{ g.city }} · #EV-{{ g.eventId }}</div>
+        </button>
+        <div class="chat-groups-state" *ngIf="!chatGroupsLoading && !chatGroupsError && chatGroups.length === 0">
+          No groups for now.
+        </div>
+      </div>
+    </div>
     <button class="tb-theme-toggle" (click)="toggleTheme()" title="Changer le thème">
       {{ currentTheme === 'dark' ? '☀️' : '🌙' }}
     </button>
@@ -58,13 +72,13 @@
       <span>🔍</span>
       <input
         type="text"
-        placeholder="Rechercher…"
+        placeholder="Search…"
         [value]="creditsSearchQuery"
         (input)="onCreditsSearchInput($event)"
-        title="Par défaut: demandes PENDING. Saisissez un statut pour filtrer."
+        title="Default shows all requests; type PENDING, APPROVED, or REJECTED to filter."
       >
     </div>
-    <button class="btn-new">+ Nouvelle demande</button>
+    <button class="btn-new">+ New request</button>
   </div>
 </nav>
 

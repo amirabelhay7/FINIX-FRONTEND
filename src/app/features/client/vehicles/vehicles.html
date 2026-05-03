@@ -2,67 +2,40 @@
   <div class="veh-toast" *ngIf="toastMessage" role="status" aria-live="polite">{{ toastMessage }}</div>
   <div class="ph s1">
     <div>
-      <div class="ph-eyebrow">Mes Véhicules</div>
-      <div class="ph-title">Parc automobile</div>
-      <div class="ph-desc">2 véhicules enregistrés · Tous assurés</div>
+      <div class="ph-eyebrow">My vehicles</div>
+      <div class="ph-title">Vehicle fleet</div>
+      <div class="ph-desc">2 registered vehicles - All insured</div>
     </div>
     <div class="ph-actions">
-      <button class="btn btn-outline">🔍 Catalogue</button>
-      <button class="btn btn-primary">+ Ajouter un véhicule</button>
+      <button class="btn btn-outline">🔍 Catalog</button>
+      <button class="btn btn-primary">+ Add vehicle</button>
     </div>
   </div>
 
   <div class="vehicle-grid s2">
-    <div class="vehicle-card">
+    <div class="vehicle-card" *ngFor="let v of catalogVehicles | slice:0:2">
       <div class="vc-header">
         <div>
-          <div class="vc-make">Toyota Corolla</div>
-          <div class="vc-model">Automatique · Essence</div>
+          <div class="vc-make">{{ v.marque }} {{ v.modele }}</div>
+          <div class="vc-model">Catalogue FINIX</div>
         </div>
-        <div class="vc-year">2022</div>
+        <div class="vc-year">{{ v.annee }}</div>
       </div>
       <div class="vc-body">
         <div class="vc-grid">
-          <div class="vc-item"><div class="vi-lbl">Immatriculation</div><div class="vi-val">267 TN 2022</div></div>
-          <div class="vc-item"><div class="vi-lbl">Couleur</div><div class="vi-val">Blanc nacré</div></div>
-          <div class="vc-item"><div class="vi-lbl">Kilométrage</div><div class="vi-val">32 450 km</div></div>
-          <div class="vc-item"><div class="vi-lbl">Assurance</div><div class="vi-val" style="color:var(--success)">✓ Active</div></div>
-          <div class="vc-item"><div class="vi-lbl">Crédit lié</div><div class="vi-val">#CR-2024-001</div></div>
-          <div class="vc-item"><div class="vi-lbl">Valeur actuelle</div><div class="vi-val">42 000 TND</div></div>
+          <div class="vc-item"><div class="vi-lbl">Reference</div><div class="vi-val">{{ v.reference }}</div></div>
+          <div class="vc-item"><div class="vi-lbl">Status</div><div class="vi-val">{{ v.etat }}</div></div>
+          <div class="vc-item"><div class="vi-lbl">Value</div><div class="vi-val">{{ v.prixTnd | number:'1.0-0' }} TND</div></div>
+          <div class="vc-item"><div class="vi-lbl">Seller</div><div class="vi-val">{{ v.vendeur }}</div></div>
+          <div class="vc-item"><div class="vi-lbl">Linked credit</div><div class="vi-val">New file</div></div>
+          <div class="vc-item"><div class="vi-lbl">Action</div><div class="vi-val" style="color:var(--success)">Loan available</div></div>
         </div>
       </div>
       <div class="vc-footer">
-        <span class="badge b-insured">🛡️ Assuré</span>
+        <span class="badge b-insured">🛡️ Financeable</span>
         <div style="display:flex;gap:.5rem;">
-          <button class="btn btn-outline btn-xs">Documents</button>
-          <button class="btn btn-primary btn-xs">Détails</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="vehicle-card">
-      <div class="vc-header" style="background:var(--fx-vehicle-grad);">
-        <div>
-          <div class="vc-make">Kia Picanto</div>
-          <div class="vc-model">Manuelle · Essence</div>
-        </div>
-        <div class="vc-year">2019</div>
-      </div>
-      <div class="vc-body">
-        <div class="vc-grid">
-          <div class="vc-item"><div class="vi-lbl">Immatriculation</div><div class="vi-val">158 TN 2019</div></div>
-          <div class="vc-item"><div class="vi-lbl">Couleur</div><div class="vi-val">Gris métallisé</div></div>
-          <div class="vc-item"><div class="vi-lbl">Kilométrage</div><div class="vi-val">78 200 km</div></div>
-          <div class="vc-item"><div class="vi-lbl">Assurance</div><div class="vi-val" style="color:var(--success)">✓ Active</div></div>
-          <div class="vc-item"><div class="vi-lbl">Crédit lié</div><div class="vi-val">Soldé ✓</div></div>
-          <div class="vc-item"><div class="vi-lbl">Valeur actuelle</div><div class="vi-val">18 500 TND</div></div>
-        </div>
-      </div>
-      <div class="vc-footer">
-        <span class="badge b-insured">🛡️ Assuré</span>
-        <div style="display:flex;gap:.5rem;">
-          <button class="btn btn-outline btn-xs">Documents</button>
-          <button class="btn btn-primary btn-xs">Détails</button>
+          <button class="btn btn-outline btn-xs" (click)="openRequestLoanModal(v)">Simulate</button>
+          <button class="btn btn-primary btn-xs" (click)="openRequestLoanModal(v)">Details</button>
         </div>
       </div>
     </div>
@@ -71,10 +44,15 @@
   <!-- Catalog preview -->
   <div class="panel s3">
     <div class="panel-head">
-      <div class="panel-title"><span class="ptdot"></span>Catalogue — Véhicules disponibles à l'achat</div>
-      <button class="btn btn-ghost btn-sm">Voir tout le catalogue →</button>
+      <div class="panel-title"><span class="ptdot"></span>Catalog - Vehicles available for purchase</div>
+      <button class="btn btn-ghost btn-sm">View full catalog →</button>
     </div>
     <div class="panel-body">
+      <div class="rl-msg err" *ngIf="catalogLoadError">{{ catalogLoadError }}</div>
+      <div class="rl-msg" *ngIf="isLoadingCatalog && !catalogLoadError">Loading catalog...</div>
+      <div class="rl-msg" *ngIf="!isLoadingCatalog && !catalogLoadError && catalogVehicles.length === 0">
+        No vehicles available for now.
+      </div>
       <div class="catalog-grid">
         <div class="cat-card" *ngFor="let v of catalogVehicles">
           <div class="cat-img">{{ v.emoji }}</div>
@@ -83,12 +61,12 @@
             <div class="cat-sub">{{ v.subtitle }}</div>
             <div class="cat-price">
               {{ v.prixTnd }} TND
-              <small>ou {{ (v.prixTnd / maxDureeMois) | number:'1.0-0' }} TND/mois</small>
+              <small>or {{ (v.prixTnd / maxDureeMois) | number:'1.0-0' }} TND/month</small>
             </div>
           </div>
           <div class="cat-foot">
-            <button class="btn btn-outline btn-xs" style="flex:1" (click)="openRequestLoanModal(v)">Simuler</button>
-            <button class="btn btn-primary btn-xs" style="flex:1" (click)="openRequestLoanModal(v)">Acheter</button>
+            <button class="btn btn-outline btn-xs" style="flex:1" (click)="openRequestLoanModal(v)">Simulate</button>
+            <button class="btn btn-primary btn-xs" style="flex:1" (click)="openRequestLoanModal(v)">Buy</button>
           </div>
         </div>
       </div>
@@ -99,36 +77,36 @@
     <div class="rl-modal" (click)="$event.stopPropagation()">
       <div class="rl-head">
         <div>
-          <div class="rl-title">Formulaire de demande de crédit voiture</div>
+          <div class="rl-title">Car loan request form</div>
           <div class="rl-sub">
-            {{ selectedVehicle?.marque }} {{ selectedVehicle?.modele }} · {{ selectedVehicle?.prixTnd }} TND · Réf {{ selectedVehicle?.reference }}
+            {{ selectedVehicle?.marque }} {{ selectedVehicle?.modele }} · {{ selectedVehicle?.prixTnd }} TND · Ref {{ selectedVehicle?.reference }}
           </div>
         </div>
-        <button class="btn btn-outline btn-xs" (click)="closeRequestLoanModal()">Fermer</button>
+        <button class="btn btn-outline btn-xs" (click)="closeRequestLoanModal()">Close</button>
       </div>
 
       <div class="rl-body">
         <section class="rl-section">
-          <h4>1. Informations personnelles du demandeur</h4>
+          <h4>1. Applicant personal information</h4>
           <div class="rl-grid">
             <label class="rl-field rl-full">
-              <span>Nom complet</span>
+              <span>Full name</span>
               <input class="form-input" type="text" [(ngModel)]="requestForm.fullName" />
             </label>
             <label class="rl-field">
-              <span>Date de naissance</span>
+              <span>Date of birth</span>
               <input class="form-input" type="date" [(ngModel)]="requestForm.dateOfBirth" />
             </label>
             <label class="rl-field">
-              <span>Numéro CIN</span>
+              <span>ID number (CIN)</span>
               <input class="form-input" type="text" [(ngModel)]="requestForm.cinNumber" />
             </label>
             <label class="rl-field rl-full">
-              <span>Adresse</span>
+              <span>Address</span>
               <input class="form-input" type="text" [(ngModel)]="requestForm.address" />
             </label>
             <label class="rl-field">
-              <span>Téléphone</span>
+              <span>Phone</span>
               <input class="form-input" type="text" [(ngModel)]="requestForm.phone" />
             </label>
             <label class="rl-field">
@@ -136,33 +114,41 @@
               <input class="form-input" type="email" [(ngModel)]="requestForm.email" />
             </label>
             <label class="rl-field">
-              <span>Situation familiale</span>
+              <span>Marital status</span>
               <select class="form-input" [(ngModel)]="requestForm.maritalStatus">
-                <option *ngFor="let option of maritalStatusOptions" [ngValue]="option">{{ option }}</option>
+                <option *ngFor="let option of maritalStatusOptions" [ngValue]="option">{{ getMaritalStatusLabel(option) }}</option>
               </select>
             </label>
             <label class="rl-field">
-              <span>Type d’emploi</span>
+              <span>Employment type</span>
               <select class="form-input" [(ngModel)]="requestForm.employmentType">
-                <option *ngFor="let option of employmentOptions" [ngValue]="option">{{ option }}</option>
+                <option *ngFor="let option of employmentOptions" [ngValue]="option">{{ getEmploymentTypeLabel(option) }}</option>
               </select>
             </label>
             <label class="rl-field rl-full">
-              <span>Revenu mensuel estimé (TND)</span>
-              <input class="form-input" type="number" min="0" [(ngModel)]="requestForm.estimatedMonthlyIncome" />
+              <span>Gross monthly income (TND)</span>
+              <input class="form-input" type="number" min="0" [(ngModel)]="requestForm.revenuMensuelBrut" (ngModelChange)="recalculateMensualite()" />
+            </label>
+            <label class="rl-field">
+              <span>Monthly expenses (TND)</span>
+              <input class="form-input" type="number" min="0" [(ngModel)]="requestForm.chargesMensuelles" (ngModelChange)="recalculateMensualite()" />
+            </label>
+            <label class="rl-field">
+              <span>Calculated net monthly income (TND)</span>
+              <input class="form-input" type="number" [value]="requestForm.revenuMensuelNet" readonly />
             </label>
           </div>
         </section>
 
         <section class="rl-section">
-          <h4>2. Informations du crédit demandé</h4>
+          <h4>2. Requested loan information</h4>
           <div class="rl-grid">
             <label class="rl-field">
-              <span>Montant demandé (TND)</span>
+              <span>Requested amount (TND)</span>
               <input class="form-input" type="number" [(ngModel)]="requestForm.montantDemande" readonly />
             </label>
             <label class="rl-field">
-              <span>Apport personnel (TND)</span>
+              <span>Down payment (TND)</span>
               <input
                 class="form-input"
                 type="number"
@@ -174,69 +160,83 @@
             </label>
             <label class="rl-field rl-full check-line">
               <input type="checkbox" [(ngModel)]="useApportPersonnel" (ngModelChange)="onUseApportPersonnelChange($event)" />
-              <span>Utiliser un apport personnel</span>
+              <span>Use a down payment</span>
             </label>
             <label class="rl-field">
-              <span>Durée du crédit</span>
+              <span>Loan duration</span>
               <select class="form-input" [(ngModel)]="requestForm.dureeMois" (ngModelChange)="recalculateMensualite()">
-                <option *ngFor="let option of dureeOptions" [ngValue]="option">{{ option }} mois</option>
+                <option *ngFor="let option of dureeOptions" [ngValue]="option">{{ option }} months</option>
               </select>
             </label>
             <label class="rl-field">
-              <span>Mensualité estimée (TND)</span>
+              <span>Annual rate (%)</span>
+              <input class="form-input" type="number" min="0" step="0.01" [(ngModel)]="requestForm.tauxAnnuel" (ngModelChange)="recalculateMensualite()" />
+            </label>
+            <label class="rl-field">
+              <span>Estimated monthly payment (TND)</span>
               <input class="form-input" type="number" [value]="requestForm.mensualiteEstimee" readonly />
             </label>
             <label class="rl-field">
-              <span>Objectif du crédit</span>
+              <span>Loan purpose</span>
               <input class="form-input" type="text" [(ngModel)]="requestForm.objectifCredit" readonly />
             </label>
             <label class="rl-field">
-              <span>Type de remboursement souhaité</span>
+              <span>Preferred repayment type</span>
               <select class="form-input" [(ngModel)]="requestForm.repaymentType">
-                <option *ngFor="let option of repaymentTypeOptions" [ngValue]="option">{{ option }}</option>
+                <option *ngFor="let option of repaymentTypeOptions" [ngValue]="option">{{ getRepaymentTypeLabel(option) }}</option>
               </select>
             </label>
             <label class="rl-field rl-full check-line">
               <input type="checkbox" [(ngModel)]="requestForm.demandePeriodeGrace" />
-              <span>Demande de période de grâce</span>
+              <span>Request grace period</span>
+            </label>
+            <label class="rl-field">
+              <span>Guarantee type</span>
+              <select class="form-input" [(ngModel)]="requestForm.garantieType">
+                <option *ngFor="let option of guaranteeTypeOptions" [ngValue]="option.value">{{ option.label }}</option>
+              </select>
+            </label>
+            <label class="rl-field">
+              <span>Estimated guarantee value (TND)</span>
+              <input class="form-input" type="number" min="0" [(ngModel)]="requestForm.garantieValeurEstimee" />
             </label>
           </div>
         </section>
 
         <section class="rl-section">
-          <h4>3. Véhicule sélectionné (automatique)</h4>
+          <h4>3. Selected vehicle (automatic)</h4>
           <div class="vehicle-auto-grid">
-            <div><strong>Marque:</strong> {{ selectedVehicle?.marque }}</div>
-            <div><strong>Modèle:</strong> {{ selectedVehicle?.modele }}</div>
-            <div><strong>Année:</strong> {{ selectedVehicle?.annee }}</div>
-            <div><strong>Prix du véhicule:</strong> {{ selectedVehicle?.prixTnd }} TND</div>
-            <div><strong>Vendeur:</strong> {{ selectedVehicle?.vendeur }}</div>
-            <div><strong>État:</strong> {{ selectedVehicle?.etat }}</div>
-            <div class="rl-full"><strong>Référence:</strong> {{ selectedVehicle?.reference }}</div>
+            <div><strong>Brand:</strong> {{ selectedVehicle?.marque }}</div>
+            <div><strong>Model:</strong> {{ selectedVehicle?.modele }}</div>
+            <div><strong>Year:</strong> {{ selectedVehicle?.annee }}</div>
+            <div><strong>Vehicle price:</strong> {{ selectedVehicle?.prixTnd }} TND</div>
+            <div><strong>Seller:</strong> {{ selectedVehicle?.vendeur }}</div>
+            <div><strong>Status:</strong> {{ selectedVehicle?.etat }}</div>
+            <div class="rl-full"><strong>Reference:</strong> {{ selectedVehicle?.reference }}</div>
           </div>
         </section>
 
         <section class="rl-section">
-          <h4>4. Documents à téléverser</h4>
+          <h4>4. Documents to upload</h4>
           <div class="rl-grid">
             <label class="rl-field">
-              <span>Carte d’identité nationale (CIN)</span>
+              <span>National ID card (CIN)</span>
               <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('cinDoc', $event)" />
             </label>
             <label class="rl-field">
-              <span>Fiche de paie récente</span>
+              <span>Recent payslip</span>
               <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('payslipDoc', $event)" />
             </label>
             <label class="rl-field">
-              <span>Relevé bancaire des 3 derniers mois</span>
-              <input type="file" accept=".pdf" (change)="onSingleFileSelected('bankStatementDoc', $event)" />
+              <span>Bank statements for the last 3 months</span>
+              <input type="file" multiple accept=".pdf" (change)="onBankStatementFilesSelected($event)" />
             </label>
             <label class="rl-field">
-              <span>Attestation de travail / preuve d’activité</span>
+              <span>Employment certificate / activity proof</span>
               <input type="file" accept=".pdf,image/*" (change)="onSingleFileSelected('workProofDoc', $event)" />
             </label>
             <label class="rl-field">
-              <span>Autres documents (optionnel)</span>
+              <span>Other documents (optional)</span>
               <input type="file" multiple accept=".pdf,image/*" (change)="onOptionalFilesSelected($event)" />
             </label>
             <div class="rl-full optional-docs" *ngIf="uploadState.optionalDocs.length > 0">
@@ -249,19 +249,19 @@
         </section>
 
         <section class="rl-section">
-          <h4>5. Vérification et consentement</h4>
+          <h4>5. Verification and consent</h4>
           <div class="consent-list">
-            <label class="check-line"><input type="checkbox" [(ngModel)]="requestForm.infoAccuracyConfirmed" /> Confirmation de l’exactitude des informations</label>
-            <label class="check-line"><input type="checkbox" [(ngModel)]="requestForm.documentsCheckAuthorized" /> Autorisation de vérification des documents</label>
-            <label class="check-line"><input type="checkbox" [(ngModel)]="requestForm.termsAccepted" /> Acceptation des conditions générales</label>
-            <label class="check-line"><input type="checkbox" [(ngModel)]="requestForm.personalDataConsent" /> Consentement au traitement des données personnelles</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="requestForm.infoAccuracyConfirmed" /> Confirmation that information is accurate</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="requestForm.documentsCheckAuthorized" /> Authorization to verify documents</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="requestForm.termsAccepted" /> Acceptance of general terms</label>
+            <label class="check-line"><input type="checkbox" [(ngModel)]="requestForm.personalDataConsent" /> Consent to personal data processing</label>
           </div>
         </section>
 
         <div class="rl-summary-card">
-          <div><strong>Montant financé:</strong> {{ requestForm.montantDemande | number:'1.0-0' }} TND</div>
-          <div><strong>Durée:</strong> {{ requestForm.dureeMois }} mois</div>
-          <div><strong>Mensualité estimée:</strong> {{ requestForm.mensualiteEstimee | number:'1.0-2' }} TND</div>
+          <div><strong>Financed amount:</strong> {{ requestForm.montantDemande | number:'1.0-0' }} TND</div>
+          <div><strong>Duration:</strong> {{ requestForm.dureeMois }} months</div>
+          <div><strong>Estimated monthly payment:</strong> {{ requestForm.mensualiteEstimee | number:'1.0-2' }} TND</div>
         </div>
 
         <div class="rl-msg ok" *ngIf="submitSuccess">{{ submitSuccess }}</div>
@@ -269,12 +269,12 @@
       </div>
 
       <div class="rl-actions">
-        <button class="btn btn-outline" (click)="closeRequestLoanModal()">Annuler</button>
+        <button class="btn btn-outline" (click)="closeRequestLoanModal()">Cancel</button>
         <button class="btn btn-outline" [disabled]="isSavingDraft || isSubmitting" (click)="saveDraft()">
-          {{ isSavingDraft ? 'Sauvegarde...' : 'Enregistrer comme brouillon' }}
+          {{ isSavingDraft ? 'Saving...' : 'Save as draft' }}
         </button>
         <button class="btn btn-primary" [disabled]="isSubmitting || !canSubmit" (click)="submitRequestLoan()">
-          {{ isSubmitting ? 'Envoi...' : 'Soumettre la demande' }}
+          {{ isSubmitting ? 'Submitting...' : 'Submit request' }}
         </button>
       </div>
     </div>

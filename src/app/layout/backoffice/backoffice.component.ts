@@ -1,10 +1,16 @@
-import { Component, OnInit, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, OnInit, OnDestroy, Renderer2, HostListener } from '@angular/core';
 import { Credit } from '../../services/credit/credit.service';
 import { RequestLoanDto, PageResponse } from '../../models/credit.model';
-import { finalize } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { CreateEventPayload, EventDto, EventPageResponse, EventService } from '../../services/event.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
+import {
+  AdminEventNotificationEvent,
+  AdminRequestNotificationEvent,
+  AdminRequestNotificationService,
+} from '../../services/credit/admin-request-notification.service';
+import { TopbarNotificationItem } from './components/topbar/topbar.component';
 
 interface PipelineCard {
   idDemande?: number;
@@ -22,6 +28,7 @@ interface PipelineCard {
 
 interface PipelineColumn {
   title: string;
+  shortTitle?: string;
   class: string;
   count: number;
   cards: PipelineCard[];
@@ -63,6 +70,27 @@ interface AnalysisFileItem {
   debtRatio: number;
   seniority: string;
   recommendation: string;
+  riskDecision?: RequestLoanDto['riskDecision'];
+  riskBreakdown?: string;
+  internalRiskBreakdown?: string;
+}
+
+interface CriticalNotificationItem {
+  title: string;
+  meta: string;
+  type: 'danger' | 'warning' | string;
+  requestId?: number;
+  targetPage?: string;
+  eventId?: number;
+}
+
+interface RecentNotificationItem {
+  title: string;
+  meta: string;
+  color: string;
+  requestId?: number;
+  targetPage?: string;
+  eventId?: number;
 }
 
 @Component({
@@ -72,6 +100,27 @@ interface AnalysisFileItem {
   styleUrls: ['./backoffice.component.css']
 })
 export class BackofficeComponent implements OnInit, OnDestroy {
+  readonly scoringFactors = [
+    {
+      sourceKey: 'X1',
+      displayKey: 'x1',
+      label: 'x1 (DTI)',
+      meaning: 'Monthly debt-to-income ratio (payment / income).',
+    },
+    {
+      sourceKey: 'X4',
+      displayKey: 'x2',
+      label: 'x2',
+      meaning: 'Down payment relative to vehicle price.',
+    },
+    {
+      sourceKey: 'X5',
+      displayKey: 'x3',
+      label: 'x3',
+      meaning: 'Collateral coverage relative to the requested amount.',
+    },
+  ] as const;
+
   readonly weekDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
   selectedPage = 'dashboard';
   currentTheme: 'light' | 'dark' = 'dark';
@@ -80,10 +129,26 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   decisionNote = '';
   private ignoreNextOverlayClose = false;
   private readonly themeStorageKey = 'finix_theme';
+  private realtimeSubscription?: Subscription;
+  private eventRealtimeSubscription?: Subscription;
+  private fallbackPollingHandle: ReturnType<typeof setInterval> | null = null;
+  private seenRequestIds = new Set<number>();
+  private seededNotificationRequestIds = new Set<number>();
+  private seededNotificationEventIds = new Set<number>();
 
   requestLoans: RequestLoanDto[] = [];
   loansLoading = false;
   loansError = '';
+  showHistoryTable = false;
+  showStatsWindow = false;
+  unreadNotificationsCount = 0;
+  historyPage = 1;
+  historyPageSize = 9;
+  historyGridColumns = 3;
+  pipelinePage = 1;
+  pipelinePageSize = 4;
+  analysisPage = 1;
+  analysisPageSize = 8;
 
   decisionSubmitting = false;
   decisionError = '';
@@ -133,6 +198,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   constructor(
     private creditService: Credit,
     private eventService: EventService,
+    private adminNotificationService: AdminRequestNotificationService,
     private authService: AuthService,
     private router: Router,
     private renderer: Renderer2,
@@ -142,10 +208,25 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.currentTheme = this.readSavedTheme();
     this.applyTheme(this.currentTheme);
     this.loadRequestLoans();
+    this.unreadNotificationsCount = this.notificationsCritical.length;
+    this.adminNotificationService.connect();
+    this.realtimeSubscription = this.adminNotificationService.events$.subscribe((event) =>
+      this.handleRealtimeNotification(event)
+    );
+    this.eventRealtimeSubscription = this.adminNotificationService.eventEvents$.subscribe((event) =>
+      this.handleRealtimeEventNotification(event)
+    );
+    this.seedNotificationsFromExistingPendingEvents();
+    this.startFallbackNotificationPolling();
   }
 
   ngOnDestroy(): void {
     this.renderer.removeAttribute(document.documentElement, 'data-theme');
+    this.unlockBodyScroll();
+    this.realtimeSubscription?.unsubscribe();
+    this.eventRealtimeSubscription?.unsubscribe();
+    this.adminNotificationService.disconnect();
+    this.stopFallbackNotificationPolling();
   }
 
   onPageChange(page: string) {
@@ -172,7 +253,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
           this.expandedEventId = null;
         },
         error: () => {
-          this.eventsError = 'Impossible de charger les événements.';
+          this.eventsError = 'Unable to load events.';
         },
       });
   }
@@ -200,6 +281,74 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     return this.filteredEvents.slice(start, start + this.eventsPageSize);
   }
 
+  get visiblePipelineColumns(): PipelineColumn[] {
+    const columns = this.pipelineColumns ?? [];
+    const nonEmpty = columns.filter((col) => (col.cards?.length ?? 0) > 0);
+    return nonEmpty.length > 0 ? nonEmpty : columns;
+  }
+
+  get totalPipelinePages(): number {
+    const maxCards = this.visiblePipelineColumns.reduce((max, col) => Math.max(max, col.cards.length), 0);
+    return Math.max(1, Math.ceil(maxCards / this.pipelinePageSize));
+  }
+
+  get paginatedPipelineColumns(): PipelineColumn[] {
+    const start = (this.pipelinePage - 1) * this.pipelinePageSize;
+    return this.visiblePipelineColumns.map((col) => ({
+      ...col,
+      cards: col.cards.slice(start, start + this.pipelinePageSize),
+    }));
+  }
+
+  goToPipelinePage(page: number): void {
+    this.pipelinePage = Math.min(Math.max(1, page), this.totalPipelinePages);
+  }
+
+  get pipelinePaginationPages(): number[] {
+    const total = this.totalPipelinePages;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const current = this.pipelinePage;
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, start + 4);
+    const pages: number[] = [];
+    for (let i = start; i <= end; i += 1) pages.push(i);
+    return pages;
+  }
+
+  get totalAnalysisPages(): number {
+    return Math.max(1, Math.ceil(this.analysisFiles.length / this.analysisPageSize));
+  }
+
+  get paginatedAnalysisFiles(): AnalysisFileItem[] {
+    const start = (this.analysisPage - 1) * this.analysisPageSize;
+    return this.analysisFiles.slice(start, start + this.analysisPageSize);
+  }
+
+  goToAnalysisPage(page: number): void {
+    this.analysisPage = Math.min(Math.max(1, page), this.totalAnalysisPages);
+  }
+
+  get analysisPaginationPages(): number[] {
+    const total = this.totalAnalysisPages;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const current = this.analysisPage;
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, start + 4);
+    const pages: number[] = [];
+    for (let i = start; i <= end; i += 1) pages.push(i);
+    return pages;
+  }
+
+  get creditsSummaryText(): string {
+    const loans = this.requestLoans ?? [];
+    const total = loans.length;
+    const pending = loans.filter((loan) => loan.statutDemande === 'PENDING').length;
+    const decided = Math.max(0, total - pending);
+    const approved = loans.filter((loan) => loan.statutDemande === 'APPROVED').length;
+    const approvalRate = decided > 0 ? ((approved / decided) * 100).toFixed(1) : '0.0';
+    return `${total} active files · ${pending} pending · Approval rate ${approvalRate}%`;
+  }
+
   onEventsFilterChange(): void {
     this.eventsPage = 1;
     this.expandedEventId = null;
@@ -208,6 +357,114 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   goToEventsPage(page: number): void {
     this.eventsPage = Math.min(Math.max(1, page), this.totalEventPages);
     this.expandedEventId = null;
+  }
+
+  toggleHistoryWindow(): void {
+    this.showHistoryTable = !this.showHistoryTable;
+    if (this.showHistoryTable) {
+      this.recalculateHistoryLayout();
+      this.historyPage = 1;
+    }
+    if (this.showHistoryTable && !this.loansLoading && this.requestLoans.length === 0 && !this.loansError) {
+      this.loadRequestLoans();
+    }
+    this.syncBodyScrollLock();
+  }
+
+  closeHistoryWindow(): void {
+    this.showHistoryTable = false;
+    this.syncBodyScrollLock();
+  }
+
+  get totalHistoryPages(): number {
+    return Math.max(1, Math.ceil(this.requestLoans.length / this.historyPageSize));
+  }
+
+  get paginatedHistoryLoans(): RequestLoanDto[] {
+    const start = (this.historyPage - 1) * this.historyPageSize;
+    return this.requestLoans.slice(start, start + this.historyPageSize);
+  }
+
+  get historyPaginationPages(): number[] {
+    const total = this.totalHistoryPages;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const current = this.historyPage;
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, start + 4);
+    const pages: number[] = [];
+    for (let i = start; i <= end; i += 1) pages.push(i);
+    return pages;
+  }
+
+  goToHistoryPage(page: number): void {
+    this.historyPage = Math.min(Math.max(1, page), this.totalHistoryPages);
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    if (!this.showHistoryTable) return;
+    this.recalculateHistoryLayout();
+  }
+
+  private recalculateHistoryLayout(): void {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    if (width >= 1500) this.historyGridColumns = 4;
+    else if (width >= 1150) this.historyGridColumns = 3;
+    else if (width >= 820) this.historyGridColumns = 2;
+    else this.historyGridColumns = 1;
+
+    const rows = height >= 920 ? 3 : 2;
+    this.historyPageSize = this.historyGridColumns * rows;
+
+    if (this.historyPage > this.totalHistoryPages) {
+      this.historyPage = this.totalHistoryPages;
+    }
+  }
+
+  toggleStatsWindow(): void {
+    this.showStatsWindow = !this.showStatsWindow;
+    if (this.showStatsWindow && !this.loansLoading && this.requestLoans.length === 0 && !this.loansError) {
+      this.loadRequestLoans();
+    }
+    this.syncBodyScrollLock();
+  }
+
+  closeStatsWindow(): void {
+    this.showStatsWindow = false;
+    this.syncBodyScrollLock();
+  }
+
+  get statsTotalDossiers(): number {
+    return this.requestLoans.length;
+  }
+
+  get statsApprovedCount(): number {
+    return this.requestLoans.filter((loan) => loan.statutDemande === 'APPROVED').length;
+  }
+
+  get statsRejectedCount(): number {
+    return this.requestLoans.filter((loan) => loan.statutDemande === 'REJECTED').length;
+  }
+
+  get statsPendingCount(): number {
+    return this.requestLoans.filter((loan) => loan.statutDemande === 'PENDING').length;
+  }
+
+  get statsApprovedPct(): number {
+    const total = this.statsTotalDossiers || 1;
+    return Math.round((this.statsApprovedCount / total) * 100);
+  }
+
+  get statsRejectedPct(): number {
+    const total = this.statsTotalDossiers || 1;
+    return Math.round((this.statsRejectedCount / total) * 100);
+  }
+
+  get statsPendingPct(): number {
+    const total = this.statsTotalDossiers || 1;
+    return Math.round((this.statsPendingCount / total) * 100);
   }
 
   get eventPaginationPages(): number[] {
@@ -240,12 +497,12 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   getEventDateTimeLabel(ev: EventDto): string {
     if (!ev.startDate || !ev.endDate) {
-      return 'Date non définie';
+      return 'Date not set';
     }
     const start = new Date(ev.startDate);
     const end = new Date(ev.endDate);
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
-      return 'Date non définie';
+      return 'Date not set';
     }
     const date = start.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase();
     const startTime = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -297,7 +554,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   getEventFillStat(ev: EventDto): string {
     const pct = this.getEventMetricPct(ev, 'inscrits');
-    return `${pct}% rempli`;
+    return `${pct}% full`;
   }
 
   getEventStatusClass(status?: string): string {
@@ -326,10 +583,12 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         next: (response: PageResponse<RequestLoanDto>) => {
           this.requestLoans = Array.isArray(response?.content) ? response.content : [];
           this.syncCreditViewsFromApi();
+          this.syncSeenRequestIds(this.requestLoans);
+          this.seedNotificationsFromExistingPending(this.requestLoans);
         },
         error: (error: unknown) => {
           console.error('Error while loading request loans', error);
-          this.loansError = 'Impossible de charger les demandes de crédit.';
+          this.loansError = 'Unable to load loan requests.';
           this.syncCreditViewsFromApi();
         },
       });
@@ -554,51 +813,203 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     { label: "< 500", pct: 3, color: "var(--danger)" }
   ];
 
-  notificationsCritical = [
-    {
-      title: "Critical overdue — Hanen Gharbi — J+14",
-      meta: "2 hours ago · #CR-2023-092 · 890 TND · Action required",
-      type: "danger"
-    },
-    {
-      title: "File waiting > 48h — #CR-2025-043 — Bilel Mrabet",
-      meta: "3 hours ago · Real estate · 85,000 TND · Decision required",
-      type: "warning"
-    },
-    {
-      title: "Insurance expired — Toyota Corolla — Bilel Mrabet",
-      meta: "5 hours ago · STAR-2025-048291 · Expire in 2 days",
-      type: "danger"
-    }
-  ];
+  notificationsCritical: CriticalNotificationItem[] = [];
 
-  notificationsRecent = [
-    {
-      title: "Payment received — Bilel Mrabet — 850 TND",
-      meta: "4 min ago · Bank transfer · #PAY-2026-028",
-      color: "success"
-    },
-    {
-      title: "New file submitted — Karim Hadj",
-      meta: "18 min ago · Consumption · 8,000 TND",
-      color: "blue"
-    },
-    {
-      title: "New client registered — Marwa Ferchichi",
-      meta: "3 hours ago · Web channel · Sfax · KYC pending",
-      color: "purple"
-    },
-    {
-      title: "File approved — Amira Selmi — #CR-2025-037",
-      meta: "Yesterday 16:42 · Automobile · 45,000 TND",
-      color: "success"
-    },
-    {
-      title: "Monthly report January 2026 available",
-      meta: "Yesterday 08:00 · Auto generated",
-      color: "blue"
+  get unreadCriticalCount(): number {
+    return this.notificationsCritical.length;
+  }
+
+  get topbarUnreadCount(): number {
+    return this.unreadNotificationsCount;
+  }
+
+  notificationsRecent: RecentNotificationItem[] = [];
+
+  get topbarNotifications(): TopbarNotificationItem[] {
+    return [...this.notificationsCritical, ...this.notificationsRecent];
+  }
+
+  private handleRealtimeNotification(event: AdminRequestNotificationEvent): void {
+    if (!event || event.type !== 'NEW_REQUEST') {
+      return;
     }
-  ];
+
+    const createdAt = event.createdAt ? new Date(event.createdAt) : new Date();
+    const amountLabel = typeof event.amount === 'number' ? `${event.amount} TND` : '-';
+    const objective = event.objective || 'Credit request';
+    const title = `New request — ${event.clientFullName || 'Client'} — #CR-${event.requestId}`;
+    const meta = `${createdAt.toLocaleString()} · ${objective} · ${amountLabel} · Action required`;
+
+    this.notificationsCritical = [
+      {
+        title,
+        meta,
+        type: 'warning',
+        requestId: event.requestId,
+        targetPage: 'credits',
+      },
+      ...this.notificationsCritical,
+    ].slice(0, 25);
+    this.unreadNotificationsCount += 1;
+  }
+
+  private handleRealtimeEventNotification(event: AdminEventNotificationEvent): void {
+    if (!event || event.type !== 'EVENT_SUBMITTED' || !event.eventId) {
+      return;
+    }
+
+    const createdAt = event.createdAt ? new Date(event.createdAt) : new Date();
+    const title = `New event — ${event.organizerFullName || 'Insurer'} — #EV-${event.eventId}`;
+    const meta = `${createdAt.toLocaleString()} · ${event.title || 'Event'} · Pending validation`;
+
+    this.notificationsCritical = [
+      {
+        title,
+        meta,
+        type: 'warning',
+        eventId: event.eventId,
+        targetPage: 'events',
+      },
+      ...this.notificationsCritical,
+    ].slice(0, 25);
+    this.seededNotificationEventIds.add(event.eventId);
+    this.unreadNotificationsCount += 1;
+  }
+
+  private seedNotificationsFromExistingPendingEvents(): void {
+    this.eventService.getEvents(0, 1000).subscribe({
+      next: (response: EventPageResponse) => {
+        const rows = Array.isArray(response?.content) ? response.content : [];
+        const pending = rows
+          .filter((ev) => ev?.idEvent != null && (ev.status || '').toUpperCase() === 'DRAFT')
+          .slice(0, 20);
+
+        pending.forEach((ev) => {
+          if (!ev.idEvent || this.seededNotificationEventIds.has(ev.idEvent)) return;
+          this.handleRealtimeEventNotification({
+            type: 'EVENT_SUBMITTED',
+            eventId: ev.idEvent,
+            title: ev.title || 'Event',
+            status: (ev.status || 'DRAFT').toUpperCase(),
+            organizerId: ev.userId,
+            organizerFullName: 'Insurer',
+            createdAt: new Date().toISOString(),
+            message: 'New event submitted for validation',
+          });
+        });
+      },
+      error: () => {
+        // Keep websocket as primary channel.
+      },
+    });
+  }
+
+  onNotificationsPanelOpened(): void {
+    this.unreadNotificationsCount = 0;
+  }
+
+  openNotification(item: CriticalNotificationItem): void {
+    if (!item.requestId) {
+      return;
+    }
+    this.openLoanRequestById(item.requestId);
+  }
+
+  openTopbarNotification(item: TopbarNotificationItem): void {
+    if (item.eventId) {
+      this.openEventById(item.eventId);
+      return;
+    }
+
+    const requestId = item.requestId ?? this.extractRequestIdFromText(`${item.title} ${item.meta}`);
+    if (requestId) {
+      this.openLoanRequestById(requestId);
+      return;
+    }
+
+    if (item.targetPage) {
+      this.onPageChange(item.targetPage);
+      return;
+    }
+
+    // Fallback for event-like notifications without explicit target metadata.
+    if (/event/i.test(item.title) || /event/i.test(item.meta)) {
+      this.onPageChange('events');
+      return;
+    }
+
+    this.onPageChange('notifications');
+  }
+
+  private extractRequestIdFromText(text: string): number | undefined {
+    const match = text.match(/#CR-(\d+)/i);
+    if (!match) return undefined;
+    const id = Number(match[1]);
+    return Number.isFinite(id) ? id : undefined;
+  }
+
+  private openLoanRequestById(requestId: number): void {
+    this.onPageChange('credits');
+    const existing = this.requestLoans.find((loan) => loan.idDemande === requestId);
+    if (existing) {
+      this.openModal(existing);
+      return;
+    }
+
+    this.loansLoading = true;
+    this.loansError = '';
+    this.creditService
+      .getRequestLoans(0, 2000)
+      .pipe(finalize(() => (this.loansLoading = false)))
+      .subscribe({
+        next: (response: PageResponse<RequestLoanDto>) => {
+          this.requestLoans = Array.isArray(response?.content) ? response.content : [];
+          this.syncCreditViewsFromApi();
+          const target = this.requestLoans.find((loan) => loan.idDemande === requestId);
+          if (target) {
+            this.openModal(target);
+          }
+        },
+        error: () => {
+          this.loansError = 'Unable to open the request from the notification.';
+        },
+      });
+  }
+
+  private openEventById(eventId: number): void {
+    this.onPageChange('events');
+    const focusTarget = () => {
+      const target = this.events.find((ev) => ev.idEvent === eventId);
+      if (!target) {
+        return;
+      }
+      const idx = this.filteredEvents.findIndex((ev) => ev.idEvent === eventId);
+      if (idx >= 0) {
+        this.eventsPage = Math.floor(idx / this.eventsPageSize) + 1;
+      }
+      this.expandedEventId = eventId;
+    };
+
+    if (this.events.length > 0) {
+      focusTarget();
+      return;
+    }
+
+    this.eventsLoading = true;
+    this.eventsError = '';
+    this.eventService
+      .getEvents(0, 1000)
+      .pipe(finalize(() => (this.eventsLoading = false)))
+      .subscribe({
+        next: (response: EventPageResponse) => {
+          this.events = Array.isArray(response?.content) ? response.content : [];
+          focusTarget();
+        },
+        error: () => {
+          this.eventsError = 'Unable to open the event from the notification.';
+        },
+      });
+  }
 
   reports = [
     {
@@ -755,17 +1166,17 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.dossiers = loans.slice(0, 3).map((loan) => {
       const firstName = loan.user?.firstName ?? '';
       const lastName = loan.user?.lastName ?? '';
-      const fullName = `${firstName} ${lastName}`.trim() || 'Client inconnu';
+      const fullName = `${firstName} ${lastName}`.trim() || 'Unknown client';
       const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.trim().toUpperCase() || 'NA';
       return {
         ref: `#CR-${loan.idDemande}`,
         initials,
         client: fullName,
-        clientSince: 'Source: base de donnees',
+        clientSince: 'Source: database',
         type: loan.objectifCredit || 'N/A',
         amount: `${loan.montantDemande ?? 0} TND`,
-        score: 'N/A',
-        scoreColor: '#64748B',
+        score: this.formatRiskScore(loan.riskScore),
+        scoreColor: this.riskScoreColor(loan.riskScore),
         status: loan.statutDemande || 'N/A',
         statusClass:
           loan.statutDemande === 'APPROVED'
@@ -781,7 +1192,8 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
     this.pipelineColumns = [
       {
-        title: 'New',
+        title: 'New requests',
+        shortTitle: 'New',
         class: 'ph-new',
         count: pending.length,
         cards: pending.slice(0, 8).map((loan) => ({
@@ -793,7 +1205,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
           vehicule: loan.vehicule,
           name:
             `${loan.user?.firstName ?? ''} ${loan.user?.lastName ?? ''}`.trim() ||
-            `Demande #${loan.idDemande}`,
+            `Request #${loan.idDemande}`,
           ref: `#CR-${loan.idDemande}`,
           amount: `${loan.montantDemande ?? 0} TND`,
           type: loan.objectifCredit || 'N/A',
@@ -801,7 +1213,8 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         })),
       },
       {
-        title: 'Analysis',
+        title: 'Processed files',
+        shortTitle: 'Done',
         class: 'ph-analysis',
         count: decided.length,
         cards: decided.slice(0, 8).map((loan) => ({
@@ -813,7 +1226,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
           vehicule: loan.vehicule,
           name:
             `${loan.user?.firstName ?? ''} ${loan.user?.lastName ?? ''}`.trim() ||
-            `Demande #${loan.idDemande}`,
+            `Request #${loan.idDemande}`,
           ref: `#CR-${loan.idDemande}`,
           amount: `${loan.montantDemande ?? 0} TND`,
           type: loan.objectifCredit || 'N/A',
@@ -838,16 +1251,107 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       initials:
         `${loan.user?.firstName?.charAt(0) ?? ''}${loan.user?.lastName?.charAt(0) ?? ''}`.toUpperCase() ||
         'NA',
-      name: `${loan.user?.firstName ?? ''} ${loan.user?.lastName ?? ''}`.trim() || 'Client inconnu',
-      clientInfo: 'Source: base de donnees',
+      name: `${loan.user?.firstName ?? ''} ${loan.user?.lastName ?? ''}`.trim() || 'Unknown client',
+      clientInfo: 'Source: database',
       type: loan.objectifCredit || 'N/A',
       amount: `${loan.montantDemande ?? 0} TND`,
       duration: `${loan.dureeMois ?? 0} months`,
-      score: 0,
-      debtRatio: 0,
+      score: Math.round(loan.riskScore ?? 0),
+      debtRatio: this.extractDebtRatio(this.adaptiveBreakdownText(loan)),
       seniority: 'N/A',
-      recommendation: 'To analyze',
+      recommendation: this.riskDecisionLabel(loan.riskDecision),
+      riskDecision: loan.riskDecision,
+      riskBreakdown: loan.riskBreakdown,
+      internalRiskBreakdown: loan.internalRiskBreakdown,
     }));
+    this.pipelinePage = 1;
+    this.analysisPage = 1;
+  }
+
+  private startFallbackNotificationPolling(): void {
+    if (this.fallbackPollingHandle) return;
+    this.fallbackPollingHandle = setInterval(() => {
+      this.pollForNewRequests();
+    }, 10000);
+  }
+
+  private stopFallbackNotificationPolling(): void {
+    if (!this.fallbackPollingHandle) return;
+    clearInterval(this.fallbackPollingHandle);
+    this.fallbackPollingHandle = null;
+  }
+
+  private syncSeenRequestIds(loans: RequestLoanDto[]): void {
+    loans.forEach((loan) => {
+      if (loan?.idDemande != null) {
+        this.seenRequestIds.add(loan.idDemande);
+      }
+    });
+  }
+
+  private pollForNewRequests(): void {
+    this.creditService.getRequestLoans(0, 100).subscribe({
+      next: (response: PageResponse<RequestLoanDto>) => {
+        const loans = Array.isArray(response?.content) ? response.content : [];
+        if (this.seenRequestIds.size === 0) {
+          this.syncSeenRequestIds(loans);
+          return;
+        }
+
+        loans.forEach((loan) => {
+          if (!loan?.idDemande || this.seenRequestIds.has(loan.idDemande) || loan.statutDemande === 'DRAFT') {
+            return;
+          }
+          const clientFullName =
+            `${loan.user?.firstName ?? ''} ${loan.user?.lastName ?? ''}`.trim() || 'Client';
+          this.handleRealtimeNotification({
+            type: 'NEW_REQUEST',
+            requestId: loan.idDemande,
+            clientFullName,
+            amount: loan.montantDemande ?? 0,
+            objective: loan.objectifCredit ?? 'Credit request',
+            status: loan.statutDemande ?? 'PENDING',
+            createdAt: loan.dateCreation ? new Date(loan.dateCreation).toISOString() : new Date().toISOString(),
+          });
+          this.seenRequestIds.add(loan.idDemande);
+          this.requestLoans = loans;
+          this.syncCreditViewsFromApi();
+        });
+      },
+      error: () => {
+        // Silent fallback polling; websocket remains primary realtime channel.
+      },
+    });
+  }
+
+  private seedNotificationsFromExistingPending(loans: RequestLoanDto[]): void {
+    if (!Array.isArray(loans) || loans.length === 0) return;
+    const latestPending = loans
+      .filter((loan) => loan?.idDemande != null && loan.statutDemande === 'PENDING')
+      .sort((a, b) => {
+        const ta = a.dateCreation ? new Date(a.dateCreation).getTime() : 0;
+        const tb = b.dateCreation ? new Date(b.dateCreation).getTime() : 0;
+        return tb - ta;
+      })
+      .slice(0, 10);
+
+    latestPending.forEach((loan) => {
+      if (!loan.idDemande || this.seededNotificationRequestIds.has(loan.idDemande)) {
+        return;
+      }
+      const clientFullName =
+        `${loan.user?.firstName ?? ''} ${loan.user?.lastName ?? ''}`.trim() || 'Client';
+      this.handleRealtimeNotification({
+        type: 'NEW_REQUEST',
+        requestId: loan.idDemande,
+        clientFullName,
+        amount: loan.montantDemande ?? 0,
+        objective: loan.objectifCredit ?? 'Credit request',
+        status: loan.statutDemande ?? 'PENDING',
+        createdAt: loan.dateCreation ? new Date(loan.dateCreation).toISOString() : new Date().toISOString(),
+      });
+      this.seededNotificationRequestIds.add(loan.idDemande);
+    });
   }
 
 
@@ -920,7 +1424,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   async confirmAddressFromMap(): Promise<void> {
     if (!this.selectedMapLocation || !this.selectedMapAddress.trim()) {
-      this.mapPickerError = 'Choisissez un point sur la carte.';
+      this.mapPickerError = 'Pick a location on the map.';
       return;
     }
     // Emit selected address payload to parent form state.
@@ -931,7 +1435,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   async searchAddressOnMap(): Promise<void> {
     const query = this.mapSearchQuery.trim();
     if (!query) {
-      this.mapPickerError = 'Entrez une adresse à rechercher.';
+      this.mapPickerError = 'Enter an address to search.';
       return;
     }
     try {
@@ -941,20 +1445,20 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       const data = await res.json();
       const first = Array.isArray(data) ? data[0] : null;
       if (!first) {
-        this.mapPickerError = 'Aucun résultat trouvé.';
+        this.mapPickerError = 'No results found.';
         return;
       }
       const lat = Number(first.lat);
       const lon = Number(first.lon);
       if (Number.isNaN(lat) || Number.isNaN(lon)) {
-        this.mapPickerError = 'Coordonnées invalides.';
+        this.mapPickerError = 'Invalid coordinates.';
         return;
       }
       this.placeOrMoveMarker(lat, lon);
       this.addressMap?.setView([lat, lon], 13);
       await this.reverseGeocodeAddress(lat, lon);
     } catch {
-      this.mapPickerError = 'Recherche impossible pour le moment.';
+      this.mapPickerError = 'Search is unavailable right now.';
     }
   }
 
@@ -962,7 +1466,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     const mapContainerId = 'event-address-map';
     const el = document.getElementById(mapContainerId);
     if (!el) {
-      this.mapPickerError = 'Carte indisponible.';
+      this.mapPickerError = 'Map unavailable.';
       return;
     }
 
@@ -1020,14 +1524,14 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         lon: lng,
         display_name: this.selectedMapAddress,
       };
-      this.mapPickerError = "Adresse non trouvée automatiquement, coordonnées conservées.";
+      this.mapPickerError = 'Address could not be resolved; coordinates kept.';
     }
   }
 
   createEvent(): void {
     const userId = this.getConnectedUserId();
     if (!userId) {
-      this.eventCreateError = 'Utilisateur connecté introuvable.';
+      this.eventCreateError = 'Signed-in user not found.';
       return;
     }
 
@@ -1060,13 +1564,13 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     });
     if (duplicateTitleExists) {
       this.isCreatingEvent = false;
-      this.eventCreateError = `Un autre événement existe déjà avec le titre « ${payload.title} ».`;
+      this.eventCreateError = `Another event already uses the title "${payload.title}".`;
       return;
     }
 
     if (!payload.title || !payload.city || !payload.address || !payload.startDate || !payload.endDate) {
       this.isCreatingEvent = false;
-      this.eventCreateError = 'Veuillez remplir les champs obligatoires.';
+      this.eventCreateError = 'Please fill in the required fields.';
       return;
     }
 
@@ -1076,7 +1580,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
     if (!Number.isNaN(startDate.getTime()) && !Number.isNaN(endDate.getTime()) && endDate <= startDate) {
       this.isCreatingEvent = false;
-      this.eventCreateError = 'La date de fin doit être postérieure à la date de début.';
+      this.eventCreateError = 'End date must be after the start date.';
       return;
     }
 
@@ -1087,7 +1591,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       registrationDeadline > endDate
     ) {
       this.isCreatingEvent = false;
-      this.eventCreateError = 'La date limite d’inscription doit être antérieure ou égale à la date de fin.';
+      this.eventCreateError = 'Registration deadline must be on or before the end date.';
       return;
     }
 
@@ -1101,19 +1605,68 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.eventCreateSuccess = this.isEditingEvent
-            ? 'Evenement modifié avec succès.'
-            : 'Evenement créé avec succès.';
+            ? 'Event updated successfully.'
+            : 'Event created successfully.';
           this.closeCreateEventModal(false);
           this.loadEvents();
         },
         error: (err: any) => {
           if (err?.status === 403) {
-            this.eventCreateError = 'Accès refusé par le backend pour la création d’événement.';
+            this.eventCreateError = 'Backend refused access to create or update this event.';
             return;
           }
-          this.eventCreateError = err?.error?.message || err?.message || "Echec de la création de l'evenement.";
+          this.eventCreateError = err?.error?.message || err?.message || 'Failed to save the event.';
         },
       });
+  }
+
+  approveEvent(ev: EventDto): void {
+    this.changeEventStatus(ev, 'PUBLISHED');
+  }
+
+  declineEvent(ev: EventDto): void {
+    this.changeEventStatus(ev, 'CANCELLED');
+  }
+
+  private changeEventStatus(ev: EventDto, targetStatus: 'PUBLISHED' | 'CANCELLED'): void {
+    if (!ev?.idEvent) {
+      this.eventsError = 'Event not found.';
+      return;
+    }
+    if ((ev.status || '').toUpperCase() === targetStatus) {
+      return;
+    }
+
+    const userId = this.getConnectedUserId() || ev.userId || 0;
+    const payload: CreateEventPayload = {
+      title: (ev.title || '').trim(),
+      description: (ev.description || '').trim(),
+      rules: (ev.rules || '').trim(),
+      city: (ev.city || '').trim(),
+      address: (ev.address || '').trim(),
+      startDate: ev.startDate || '',
+      endDate: ev.endDate || '',
+      registrationDeadline: ev.registrationDeadline || ev.endDate || '',
+      maxParticipants: Number(ev.maxParticipants) || 0,
+      currentParticipants: Number(ev.currentParticipants) || 0,
+      imageUrl: (ev.imageUrl || ev.image || '').trim(),
+      status: targetStatus,
+      publicEvent: ev.publicEvent ?? true,
+      userId,
+    };
+
+    if (!payload.title || !payload.city || !payload.address || !payload.startDate || !payload.endDate) {
+      this.eventsError = 'Cannot update status: event data is incomplete.';
+      return;
+    }
+
+    this.eventsError = '';
+    this.eventService.updateEvent(ev.idEvent, payload).subscribe({
+      next: () => this.loadEvents(),
+      error: (err: any) => {
+        this.eventsError = err?.error?.message || err?.message || 'Failed to update event status.';
+      },
+    });
   }
 
   private resetEventForm(): void {
@@ -1178,16 +1731,373 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     return Date.now() - d.getTime() > 48 * 60 * 60 * 1000;
   }
 
+  private formatRiskScore(score?: number): string {
+    if (typeof score !== 'number' || Number.isNaN(score)) {
+      return 'N/A';
+    }
+    return `${Math.round(score)}/100`;
+  }
+
+  private riskScoreColor(score?: number): string {
+    if (typeof score !== 'number' || Number.isNaN(score)) {
+      return '#64748B';
+    }
+    if (score >= 75) return 'var(--success)';
+    if (score >= 50) return 'var(--warning)';
+    if (score >= 25) return 'var(--orange, #f59e0b)';
+    return 'var(--danger)';
+  }
+
+  private riskDecisionLabel(decision?: RequestLoanDto['riskDecision']): string {
+    if (decision === 'ACCEPTE_AUTO') return 'Auto-accepted (to validate)';
+    if (decision === 'REVUE_AGENT') return 'Agent review';
+    if (decision === 'COMITE_CREDIT') return 'Credit committee';
+    if (decision === 'REFUSE_AUTO') return 'Auto-rejected';
+    return 'To review';
+  }
+
+  /**
+   * Prefer persisted rule-based breakdown when ML replaced riskBreakdown (EXTERNAL_PKL).
+   */
+  adaptiveBreakdownText(file?: RequestLoanDto | null): string | undefined {
+    if (!file) return undefined;
+    const internal = file.internalRiskBreakdown?.trim();
+    if (internal) return file.internalRiskBreakdown;
+    return file.riskBreakdown;
+  }
+
+  private extractDebtRatio(breakdown?: string): number {
+    if (!breakdown) return 0;
+    const match = breakdown.match(/X1 \(DTI\).*?=\s*([0-9]+(?:\.[0-9]+)?)/);
+    if (!match) return 0;
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? Number(value.toFixed(2)) : 0;
+  }
+
+  getScoringFactorValue(factorKey: 'X1' | 'X4' | 'X5', breakdown?: string): string {
+    if (!breakdown) return '-';
+    const match = breakdown.match(new RegExp(`${factorKey}.*?=\\s*([0-9]+(?:\\.[0-9]+)?)`, 'i'));
+    if (!match) return '-';
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? value.toFixed(2) : '-';
+  }
+
+  getRiskDecisionDisplay(decision?: string): string {
+    if (!decision) return '-';
+    if (decision === 'ACCEPTE_AUTO') return 'Low risk';
+    if (decision === 'REFUSE_AUTO') return 'High risk';
+    return decision;
+  }
+
+  /** True when breakdown text is from external ML (pkl pipeline), not internal X1/X4/X5 scoring. */
+  isMlRiskBreakdown(breakdown?: string): boolean {
+    if (!breakdown) return false;
+    const n = breakdown.toLowerCase();
+    return (
+      n.includes('ml service') ||
+      n.includes('anomaly probability') ||
+      n.includes('mapped decision') ||
+      (n.includes('decision') && n.includes('automatically_validated')) ||
+      /\balerts\s*=/.test(n)
+    );
+  }
+
+  /**
+   * Cards under "Adaptive scoring detail" — internal rule-based lines only.
+   * ML-specific lines belong in "ML scoring detail".
+   */
+  getAdaptiveBreakdownOnlyEntries(breakdown?: string): Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> {
+    if (!breakdown) return [];
+    if (this.isMlRiskBreakdown(breakdown)) return [];
+    return this.getBeautifiedScoringEntries(breakdown);
+  }
+
+  getBeautifiedScoringEntries(breakdown?: string): Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> {
+    if (!breakdown) {
+      return [];
+    }
+
+    const lines = breakdown
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
+    const entries: Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> = [];
+
+    for (const line of lines) {
+      const lower = line.toLowerCase();
+      if (lower.includes('ml service')) {
+        entries.push({
+          label: 'Scoring source',
+          value: line.replace(/^[-*]\s*/, ''),
+          tone: 'neutral',
+        });
+        continue;
+      }
+
+      const idx = line.indexOf('=');
+      if (idx <= 0) continue;
+
+      const rawKey = line.slice(0, idx).trim();
+      const rawValue = line.slice(idx + 1).trim();
+      if (!rawValue) continue;
+
+      const normalizedKey = rawKey.toLowerCase();
+      let label = rawKey;
+      if (normalizedKey.includes('x1') && normalizedKey.includes('dti')) label = 'x1 (DTI)';
+      else if (normalizedKey === 'x4') label = 'x2';
+      else if (normalizedKey === 'x5') label = 'x3';
+      else if (normalizedKey.includes('decision')) label = normalizedKey.includes('mapped') ? 'Mapped decision' : 'Decision';
+      else if (normalizedKey.includes('anomaly probability')) label = 'Anomaly probability';
+      else if (normalizedKey.includes('alerts')) label = 'Alerts';
+
+      entries.push({
+        label,
+        value: rawValue,
+        tone: this.resolveScoringEntryTone(label, rawValue),
+      });
+    }
+
+    return entries;
+  }
+
+  getRiskScoringSummaryEntries(
+    file?: RequestLoanDto | null,
+  ): Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> {
+    if (!file) return [];
+
+    const scoreValue = file.riskScore != null && Number.isFinite(file.riskScore)
+      ? `${Math.round(file.riskScore)}/100`
+      : 'N/A';
+    const decisionValue = this.getRiskDecisionDisplay(file.riskDecision);
+    const decisionSourceValue = file.decisionSource || '-';
+    const riskSourceValue = file.riskSource || '-';
+
+    return [
+      { label: 'Risk score', value: scoreValue, tone: this.resolveRiskScoreTone(file.riskScore) },
+      { label: 'Automatic decision', value: decisionValue, tone: this.resolveScoringEntryTone('Decision', file.riskDecision || '') },
+      { label: 'Decision source', value: decisionSourceValue, tone: 'neutral' },
+      { label: 'Risk source', value: riskSourceValue, tone: 'neutral' },
+    ];
+  }
+
+  /**
+   * ML-only cards: prefer structured API fields when present; otherwise parse riskBreakdown
+   * (covers older responses where backend only sends the text block).
+   */
+  parseMlScoringCardsFromBreakdown(breakdown?: string): Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> {
+    if (!breakdown || !this.isMlRiskBreakdown(breakdown)) {
+      return [];
+    }
+
+    const lines = breakdown.split('\n').map((line) => line.trim()).filter((line) => line.length > 0);
+    const entries: Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> = [];
+
+    for (const line of lines) {
+      const lower = line.toLowerCase();
+      if (lower.includes('ml service')) {
+        entries.push({
+          label: 'ML source',
+          value: line.replace(/^[-*]\s*/, ''),
+          tone: 'neutral',
+        });
+        continue;
+      }
+      const idx = line.indexOf('=');
+      if (idx <= 0) continue;
+
+      const rawKey = line.slice(0, idx).trim();
+      const rawValue = line.slice(idx + 1).trim();
+      if (!rawValue) continue;
+
+      const nk = rawKey.toLowerCase();
+      let label = rawKey;
+      if (nk.includes('anomaly probability')) label = 'Anomaly probability';
+      else if (nk.includes('mapped decision')) label = 'Mapped decision';
+      else if (nk.includes('alerts')) label = 'Alerts';
+      else if (nk.includes('decision')) label = 'ML decision';
+
+      entries.push({
+        label,
+        value: rawValue,
+        tone:
+          label === 'Anomaly probability'
+            ? this.resolveAnomalyProbabilityTone(rawValue)
+            : this.resolveScoringEntryTone(label, rawValue),
+      });
+    }
+
+    return entries;
+  }
+
+  private resolveAnomalyProbabilityTone(rawValue: string): 'neutral' | 'good' | 'warn' | 'danger' {
+    const numeric = Number(String(rawValue).replace(/,/g, '').trim());
+    if (!Number.isFinite(numeric)) return 'neutral';
+    if (numeric <= 1) {
+      return numeric >= 0.7 ? 'danger' : numeric >= 0.35 ? 'warn' : 'good';
+    }
+    return numeric >= 70 ? 'danger' : numeric >= 35 ? 'warn' : 'good';
+  }
+
+  private buildMlScoringFromDtoFields(
+    file?: RequestLoanDto | null,
+  ): Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> {
+    if (!file) return [];
+    // Never build "ML cards" from DTO fragments for INTERNAL_FALLBACK — upstream used to mistakenly set mlDecision from "Decision = ACCEPTE_AUTO".
+    if ((file.riskSource || '').toUpperCase() !== 'EXTERNAL_PKL') {
+      return [];
+    }
+
+    const entries: Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> = [];
+
+    if (file.mlScoringSource?.trim()) {
+      entries.push({ label: 'ML source', value: file.mlScoringSource.trim(), tone: 'neutral' });
+    }
+
+    if (file.mlProbability != null && Number.isFinite(file.mlProbability)) {
+      const prob = Number(file.mlProbability);
+      const pctLabel = `${(prob * 100).toFixed(2)}%`;
+      const value = `${prob.toFixed(4)} (${pctLabel})`;
+      entries.push({
+        label: 'Anomaly probability',
+        value,
+        tone: this.resolveAnomalyProbabilityTone(String(prob)),
+      });
+    }
+
+    if (file.mlDecision?.trim()) {
+      const value = file.mlDecision.trim();
+      entries.push({
+        label: 'ML decision',
+        value,
+        tone: this.resolveScoringEntryTone('ML decision', value),
+      });
+    }
+
+    if (file.mlAlerts?.trim()) {
+      entries.push({
+        label: 'Alerts',
+        value: file.mlAlerts.trim(),
+        tone: this.resolveScoringEntryTone('Alerts', file.mlAlerts),
+      });
+    }
+
+    return entries;
+  }
+
+  getMlScoringEntries(file?: RequestLoanDto | null): Array<{ label: string; value: string; tone: 'neutral' | 'good' | 'warn' | 'danger' }> {
+    if (!file) return [];
+    // ML panel is only meaningful for EXTERNAL_PKL; internal adaptive scoring fills the upper section.
+    if ((file.riskSource || '').toUpperCase() !== 'EXTERNAL_PKL') {
+      return [];
+    }
+
+    const fromBreakdown = this.parseMlScoringCardsFromBreakdown(file.riskBreakdown);
+    if (fromBreakdown.length > 0) {
+      return fromBreakdown;
+    }
+
+    return this.buildMlScoringFromDtoFields(file);
+  }
+
+  hasInternalFactorBreakdown(breakdown?: string): boolean {
+    if (!breakdown) return false;
+    const normalized = breakdown.toLowerCase();
+    return normalized.includes('x1') || normalized.includes('x4') || normalized.includes('x5');
+  }
+
+  private resolveRiskScoreTone(score?: number): 'neutral' | 'good' | 'warn' | 'danger' {
+    if (typeof score !== 'number' || Number.isNaN(score)) return 'neutral';
+    if (score >= 75) return 'good';
+    if (score >= 50) return 'warn';
+    return 'danger';
+  }
+
+  private resolveScoringEntryTone(label: string, value: string): 'neutral' | 'good' | 'warn' | 'danger' {
+    const l = label.toLowerCase();
+    const v = value.toLowerCase();
+
+    if (l.includes('decision')) {
+      if (v.includes('accepte') || v.includes('validated') || v.includes('automatically')) return 'good';
+      if (v.includes('revue') || v.includes('comite') || v.includes('manual')) return 'warn';
+      if (v.includes('refuse') || v.includes('rejected')) return 'danger';
+      return 'neutral';
+    }
+
+    if (l.includes('alerts')) {
+      const clean = v.replace(/\|/g, ' ').trim();
+      if (clean.includes('no alerts') || clean === 'none' || clean === '[]' || clean === '-' || clean === 'aucune') return 'good';
+      return 'warn';
+    }
+
+    if (l.includes('anomaly probability')) {
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric)) return 'neutral';
+      if (numeric < 0.35) return 'good';
+      if (numeric < 0.7) return 'warn';
+      return 'danger';
+    }
+
+    return 'neutral';
+  }
+
+  hasMlOutput(file?: RequestLoanDto | null): boolean {
+    if (!file) return false;
+    if ((file.riskSource || '').toUpperCase() !== 'EXTERNAL_PKL') {
+      return false;
+    }
+    return (
+      this.parseMlScoringCardsFromBreakdown(file.riskBreakdown).length > 0 ||
+      this.buildMlScoringFromDtoFields(file).length > 0
+    );
+  }
+
+  formatMoney(value?: number | null): string {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      return '-';
+    }
+    return `${value} TND`;
+  }
+
+  formatMonths(value?: number | null): string {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      return '-';
+    }
+    return `${value} months`;
+  }
+
 
 
   selectedFile: (RequestLoanDto & { vehicle?: any; vehicule?: any; user?: any }) | null = null;
 
   openModal(file: RequestLoanDto | PipelineCard | DossierItem | AnalysisFileItem | Record<string, unknown>): void {
-    this.selectedFile = file as (RequestLoanDto & { vehicle?: any; vehicule?: any; user?: any }) | null;
+    this.selectedFile = this.resolveLoanForModal(file);
     this.decisionNote = '';
     this.decisionError = '';
     this.ignoreNextOverlayClose = true;
     this.showModal = true;
+    this.syncBodyScrollLock();
+  }
+
+  private resolveLoanForModal(
+    file: RequestLoanDto | PipelineCard | DossierItem | AnalysisFileItem | Record<string, unknown>,
+  ): (RequestLoanDto & { vehicle?: any; vehicule?: any; user?: any }) | null {
+    const candidate = file as any;
+    const id = Number(candidate?.idDemande);
+    if (!Number.isFinite(id) || id <= 0) {
+      return candidate as (RequestLoanDto & { vehicle?: any; vehicule?: any; user?: any });
+    }
+
+    const fullLoan = this.requestLoans.find((loan) => Number(loan.idDemande) === id);
+    if (!fullLoan) {
+      return candidate as (RequestLoanDto & { vehicle?: any; vehicule?: any; user?: any });
+    }
+
+    // Keep any UI-only extras from the clicked card, but always prefer full API loan fields.
+    return {
+      ...candidate,
+      ...fullLoan,
+    } as (RequestLoanDto & { vehicle?: any; vehicule?: any; user?: any });
   }
   toggleConfig(key: string): void {
     if (this.notificationsConfig && key in this.notificationsConfig) {
@@ -1207,6 +2117,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       event.stopPropagation();
     }
     this.showModal = false;
+    this.syncBodyScrollLock();
   }
 
   approveCase(): void {
@@ -1220,7 +2131,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => this.loadRequestLoans(),
           error: () => {
-            this.decisionError = "Impossible d'approuver la demande.";
+            this.decisionError = 'Unable to approve the request.';
           },
         });
       return;
@@ -1239,7 +2150,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => this.loadRequestLoans(),
           error: () => {
-            this.decisionError = 'Impossible de rejeter la demande.';
+            this.decisionError = 'Unable to reject the request.';
           },
         });
       return;
@@ -1252,10 +2163,27 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     return n ? { note: n } : undefined;
   }
 
-  /** Fermeture du modal sans être bloquée par ignoreNextOverlayClose (dossiers mock hors API). */
+  /** Close modal without ignoreNextOverlayClose blocking (mock files off API). */
   private closeDecisionModalUi(): void {
     this.ignoreNextOverlayClose = false;
     this.showModal = false;
+    this.syncBodyScrollLock();
+  }
+
+  private syncBodyScrollLock(): void {
+    if (this.showHistoryTable || this.showStatsWindow || this.showModal) {
+      this.lockBodyScroll();
+      return;
+    }
+    this.unlockBodyScroll();
+  }
+
+  private lockBodyScroll(): void {
+    this.renderer.setStyle(document.body, 'overflow', 'hidden');
+  }
+
+  private unlockBodyScroll(): void {
+    this.renderer.removeStyle(document.body, 'overflow');
   }
 
   requestMoreInfo() {
@@ -1280,6 +2208,11 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   private applyTheme(theme: 'light' | 'dark'): void {
     this.renderer.setAttribute(document.documentElement, 'data-theme', theme);
+  }
+
+  get canTakeDecision(): boolean {
+    const status = this.selectedFile?.statutDemande;
+    return status !== 'APPROVED' && status !== 'REJECTED';
   }
 
 }

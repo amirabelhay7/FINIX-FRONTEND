@@ -743,8 +743,22 @@
       </div>
     </ng-container>
 
+    <!-- IMF agent: dossiers = loan contracts catalog -->
+    <ng-container *ngIf="selectedPage === 'dossiers'">
+      <div class="cfm-page-head">
+        <div>
+          <div class="cfm-ph-eyebrow">CAPITAL FLOW MONITOR</div>
+          <div class="cfm-ph-title">Dossiers <span class="cfm-ph-grad">Crédit</span></div>
+          <div class="cfm-ph-desc">Contrats de crédit enregistrés · liste synchronisée avec le serveur</div>
+        </div>
+      </div>
+      <div class="cfm-embed-contracts">
+        <app-contracts-list [embeddedLayout]="true" />
+      </div>
+    </ng-container>
+
     <!-- Placeholder for other pages -->
-    <ng-container *ngIf="selectedPage !== 'dashboard'">
+    <ng-container *ngIf="selectedPage !== 'dashboard' && selectedPage !== 'dossiers'">
       <div class="cfm-page-head">
         <div>
           <div class="cfm-ph-eyebrow">CAPITAL FLOW MONITOR</div>

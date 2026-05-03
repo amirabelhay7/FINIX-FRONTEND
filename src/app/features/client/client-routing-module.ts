@@ -9,6 +9,7 @@ import { ClientWallet } from './wallet/wallet';
 import { ClientScore } from './score/score';
 import { ClientDocuments } from './documents/documents';
 import { ClientEvents } from './events/events';
+import { ClientGroupChat } from './group-chat/group-chat';
 
 const routes: Routes = [
   { path: 'dashboard', component: ClientDashboard },
@@ -16,6 +17,7 @@ const routes: Routes = [
   { path: 'repayments', component: ClientRepayments },
   { path: 'vehicles', component: ClientVehicles },
   { path: 'events', component: ClientEvents },
+  { path: 'group-chat', component: ClientGroupChat },
   { path: 'insurance', component: ClientInsurance },
   { path: 'wallet', component: ClientWallet },
   { path: 'score', component: ClientScore },

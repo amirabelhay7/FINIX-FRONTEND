@@ -3,6 +3,8 @@ import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http'
 import { Observable, catchError, throwError, tap } from 'rxjs';
 import {
   CreateRequestLoanPayload,
+  LoanContractDetailsDto,
+  LoanContractDto,
   LoanDocumentDto,
   PageResponse,
   RequestLoanDecisionPayload,
@@ -15,6 +17,7 @@ import { environment } from '../../../environments/environment';
 })
 export class Credit {
   private apiUrl = `${environment.apiBaseUrl}${environment.apiEndpoints.credit}`;
+  private loanContractsUrl = `${environment.apiBaseUrl}/credit/loan-contracts`;
 
   constructor(private http: HttpClient) {}
 
@@ -92,6 +95,25 @@ export class Credit {
       { responseType: 'blob' },
     ).pipe(
       tap(() => console.log('✅ Downloaded loan document:', documentId)),
+      catchError(this.handleError),
+    );
+  }
+
+  getLoanContracts(page = 0, size = 20): Observable<PageResponse<LoanContractDto>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<PageResponse<LoanContractDto>>(this.loanContractsUrl, { params }).pipe(
+      catchError(this.handleError),
+    );
+  }
+
+  getLoanContractDetails(idContrat: number): Observable<LoanContractDetailsDto> {
+    return this.http.get<LoanContractDetailsDto>(`${this.loanContractsUrl}/${idContrat}/details`).pipe(
+      catchError(this.handleError),
+    );
+  }
+
+  downloadLoanContractPdf(idContrat: number): Observable<Blob> {
+    return this.http.get(`${this.loanContractsUrl}/${idContrat}/download`, { responseType: 'blob' }).pipe(
       catchError(this.handleError),
     );
   }

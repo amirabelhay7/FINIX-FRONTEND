@@ -7,6 +7,10 @@
   <app-topbar
     [currentPage]="selectedPage"
     [currentTheme]="currentTheme"
+    [notificationCount]="topbarUnreadCount"
+    [notificationItems]="topbarNotifications"
+    (notificationSelected)="openTopbarNotification($event)"
+    (notificationsPanelOpened)="onNotificationsPanelOpened()"
     (themeToggled)="onToggleTheme()"
     (loggedOut)="onLogout()"
   ></app-topbar>
@@ -40,17 +44,17 @@
       <div class="action-needed s1">
         <div>
           <div class="an-title">
-            🚨 3 dossiers nécessitent une décision immédiate
+            🚨 3 files need an immediate decision
           </div>
           <div class="an-sub">
-            Dossiers #CR-2025-043, #CR-2025-051, #CR-2025-059 — En attente depuis plus de 48h
+            Files #CR-2025-043, #CR-2025-051, #CR-2025-059 — pending over 48h
           </div>
         </div>
         <div class="an-actions">
           <button class="btn btn-outline btn-sm" (click)="onPageChange('credits')">
-            Voir les dossiers
+            View files
           </button>
-          <button class="btn btn-primary btn-sm">Traiter maintenant</button>
+          <button class="btn btn-primary btn-sm">Process now</button>
         </div>
       </div>
 
@@ -97,8 +101,8 @@
             <div class="kpi-trend warning">⚠ Urgents : 3</div>
           </div>
           <div class="kpi-val">47</div>
-          <div class="kpi-lbl">Dossiers en cours</div>
-          <div class="kpi-foot">Taux d'approbation : <b>78.3%</b></div>
+          <div class="kpi-lbl">Files in progress</div>
+          <div class="kpi-foot">Approval rate: <b>78.3%</b></div>
         </div>
 
         <div class="kpi" style="--kc:var(--danger);">
@@ -118,25 +122,25 @@
 
       </div><!-- /kpi-row -->
 
-      <!-- ── TABLE DOSSIERS RÉCENTS ── -->
+      <!-- ── RECENT FILES TABLE ── -->
       <div class="panel s3">
         <div class="panel-head">
           <div class="panel-title">
             <span class="ptdot"></span>
-            Dossiers récents — Action requise
+            Recent files — action required
           </div>
-          <button class="btn btn-ghost btn-sm">Voir tout →</button>
+          <button class="btn btn-ghost btn-sm">View all →</button>
         </div>
         <div class="tbl-wrap">
           <table>
             <thead>
             <tr>
-              <th>Référence</th>
+              <th>Reference</th>
               <th>Client</th>
               <th>Type</th>
-              <th>Montant</th>
+              <th>Amount</th>
               <th>Score</th>
-              <th>Statut</th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
             </thead>
@@ -158,7 +162,7 @@
               <td><span class="badge" [ngClass]="dossier.statusClass">{{ dossier.status }}</span></td>
               <td>
                 <button class="btn btn-primary btn-xs" (click)="openModal(dossier)">
-                  {{ dossier.statusClass === 'b-review' ? 'Analyser' : 'Décider' }}
+                  {{ dossier.statusClass === 'b-review' ? 'Analyze' : 'Decide' }}
                 </button>
               </td>
             </tr>
@@ -223,14 +227,14 @@
           </div>
         </div>
 
-        <!-- Répartition crédits -->
+        <!-- Credit distribution -->
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title">
               <span class="ptdot"></span>
-              Répartition des crédits
+              Credit distribution
             </div>
-            <button class="btn btn-ghost btn-sm">Détails →</button>
+            <button class="btn btn-ghost btn-sm">Details →</button>
           </div>
           <div class="panel-body">
             <div style="display:flex;align-items:center;gap:1.5rem;">
@@ -461,102 +465,31 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : CRÉDITS & DOSSIERS
+         PAGE : CREDITS & FILES
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'credits'" id="page-credits">
-
-      <div class="panel s2">
-        <div class="panel-head">
-          <div class="panel-title">
-            <span class="ptdot"></span>
-            Liste des demandes de crédit depuis la base
-          </div>
-          <button class="btn btn-outline btn-sm" (click)="loadRequestLoans()">Actualiser</button>
-        </div>
-
-        <div class="panel-body" *ngIf="loansLoading">
-          Chargement des demandes...
-        </div>
-
-        <div class="panel-body" *ngIf="loansError">
-          {{ loansError }}
-        </div>
-
-        <div class="tbl-wrap" *ngIf="!loansLoading && requestLoans.length > 0">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Montant</th>
-                <th>Apport</th>
-                <th>Durée</th>
-                <th>Mensualité</th>
-                <th>Objectif</th>
-                <th>Statut</th>
-                <th>Client</th>
-                <th>Véhicule</th>
-                <th>Date création</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let loan of requestLoans" style="cursor:pointer;">
-                <td (click)="openModal(loan); $event.stopPropagation()">{{ loan.idDemande }}</td>
-                <td (click)="openModal(loan); $event.stopPropagation()">{{ loan.montantDemande }} TND</td>
-                <td (click)="openModal(loan); $event.stopPropagation()">{{ loan.apportPersonnel }} TND</td>
-                <td (click)="openModal(loan); $event.stopPropagation()">{{ loan.dureeMois }} mois</td>
-                <td (click)="openModal(loan); $event.stopPropagation()">{{ loan.mensualiteEstimee }} TND</td>
-                <td (click)="openModal(loan); $event.stopPropagation()">{{ loan.objectifCredit || '-' }}</td>
-                <td>
-                  <span class="badge"
-                        [ngClass]="{
-                          'b-actif': loan.statutDemande === 'APPROVED',
-                          'b-danger': loan.statutDemande === 'REJECTED',
-                          'b-review': loan.statutDemande === 'PENDING',
-                          'b-blue': loan.statutDemande === 'CONDITIONAL'
-                        }">
-                    {{ loan.statutDemande }}
-                  </span>
-                </td>
-                <td (click)="openModal(loan); $event.stopPropagation()">
-                  {{ loan.user?.firstName }} {{ loan.user?.lastName }}
-                </td>
-                <td (click)="openModal(loan); $event.stopPropagation()">
-                  <div class="td-primary">
-                    {{ loan.vehicle?.marque || loan.vehicule?.marque || '-' }}
-                    {{ loan.vehicle?.modele || loan.vehicule?.modele || '' }}
-                  </div>
-                  <div class="td-sub">
-                    {{ loan.vehicle?.prixTnd || loan.vehicule?.prix_tnd || loan.vehiculePrixTnd || '-' }} TND
-                  </div>
-                </td>
-                <td (click)="openModal(loan); $event.stopPropagation()">{{ loan.dateCreation | date:'short' }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="panel-body" *ngIf="!loansLoading && requestLoans.length === 0 && !loansError">
-          No credits...
-        </div>
-      </div>
       <!-- Header -->
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Gestion des crédits</div>
-          <div class="ph-title">Dossiers & Pipeline</div>
-          <div class="ph-desc">47 dossiers actifs · 3 décisions urgentes · Taux d'approbation 78.3%</div>
+          <div class="ph-eyebrow">Credit management</div>
+          <div class="ph-title">Pipeline & files</div>
+          <div class="ph-desc">{{ creditsSummaryText }}</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-outline">Statistiques</button>
-          <button class="btn btn-primary">+ Nouveau dossier</button>
+          <button class="btn btn-outline" (click)="toggleHistoryWindow()">
+            {{ showHistoryTable ? 'Hide history' : 'History' }}
+          </button>
+          <button class="btn btn-outline" (click)="toggleStatsWindow()">
+            {{ showStatsWindow ? 'Hide statistics' : 'Statistics' }}
+          </button>
         </div>
       </div>
 
       <!-- Pipeline Kanban -->
       <div class="credit-pipeline s2">
-        <div class="pipeline-col" *ngFor="let col of pipelineColumns">
+        <div class="pipeline-col" *ngFor="let col of paginatedPipelineColumns">
           <div class="pipeline-header" [ngClass]="col.class">
-            <span>{{ col.title }}</span>
+            <span>{{ col.shortTitle || col.title }}</span>
             <span>{{ col.count }}</span>
           </div>
           <div class="pipeline-cards">
@@ -575,34 +508,46 @@
           </div>
         </div>
       </div>
+      <div class="section-pagination" *ngIf="totalPipelinePages > 1">
+        <button class="btn btn-outline btn-sm" [disabled]="pipelinePage === 1" (click)="goToPipelinePage(pipelinePage - 1)">Previous</button>
+        <button
+          class="btn btn-sm"
+          *ngFor="let p of pipelinePaginationPages"
+          [ngClass]="pipelinePage === p ? 'btn-primary' : 'btn-outline'"
+          (click)="goToPipelinePage(p)"
+        >
+          {{ p }}
+        </button>
+        <button class="btn btn-outline btn-sm" [disabled]="pipelinePage === totalPipelinePages" (click)="goToPipelinePage(pipelinePage + 1)">Next</button>
+      </div>
 
       <!-- Table analyse -->
       <div class="panel s3">
         <div class="panel-head">
           <div class="panel-title">
             <span class="ptdot" style="background:var(--warning);box-shadow:0 0 0 3px rgba(245,158,11,.12);"></span>
-            Dossiers en analyse — Décision requise
+            Files under review — decision required
           </div>
-          <span class="badge b-review">12 dossiers</span>
+          <span class="badge b-review">12 files</span>
         </div>
         <div class="tbl-wrap">
           <table>
             <thead>
             <tr>
-              <th>Référence</th>
+              <th>Reference</th>
               <th>Client</th>
               <th>Type</th>
-              <th>Montant</th>
-              <th>Durée</th>
+              <th>Amount</th>
+              <th>Term</th>
               <th>Score</th>
-              <th>Taux endett.</th>
-              <th>Ancienneté</th>
-              <th>Recommandation</th>
-              <th>Décision</th>
+              <th>Debt ratio</th>
+              <th>Tenure</th>
+              <th>Recommendation</th>
+              <th>Decision</th>
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let file of analysisFiles">
+            <tr *ngFor="let file of paginatedAnalysisFiles">
               <td><span class="td-ref">{{ file.ref }}</span></td>
               <td>
                 <div style="display:flex;align-items:center;gap:.5rem;">
@@ -622,13 +567,178 @@
               <td><span class="badge b-actif">{{ file.recommendation }}</span></td>
               <td>
                 <div style="display:flex;gap:.375rem">
-                  <button class="btn btn-success btn-xs" (click)="openModal(file)">✓ Approuver</button>
-                  <button class="btn btn-danger btn-xs" (click)="openModal(file)">✗ Rejeter</button>
+                  <button class="btn btn-success btn-xs" (click)="openModal(file)">✓ Approve</button>
+                  <button class="btn btn-danger btn-xs" (click)="openModal(file)">✗ Reject</button>
                 </div>
               </td>
             </tr>
             </tbody>
           </table>
+        </div>
+        <div class="section-pagination section-pagination-table" *ngIf="totalAnalysisPages > 1">
+          <button class="btn btn-outline btn-sm" [disabled]="analysisPage === 1" (click)="goToAnalysisPage(analysisPage - 1)">Previous</button>
+          <button
+            class="btn btn-sm"
+            *ngFor="let p of analysisPaginationPages"
+            [ngClass]="analysisPage === p ? 'btn-primary' : 'btn-outline'"
+            (click)="goToAnalysisPage(p)"
+          >
+            {{ p }}
+          </button>
+          <button class="btn btn-outline btn-sm" [disabled]="analysisPage === totalAnalysisPages" (click)="goToAnalysisPage(analysisPage + 1)">Next</button>
+        </div>
+      </div>
+
+      <div class="history-overlay" *ngIf="showHistoryTable" (click)="closeHistoryWindow()">
+        <div class="history-window panel" (click)="$event.stopPropagation()">
+          <div class="panel-head">
+            <div class="panel-title">
+              <span class="ptdot"></span>
+              Loan request history
+            </div>
+            <button class="btn btn-outline btn-sm" (click)="closeHistoryWindow()">Hide history</button>
+          </div>
+
+          <div class="panel-body" *ngIf="loansLoading">
+            Loading requests...
+          </div>
+
+          <div class="panel-body" *ngIf="loansError">
+            {{ loansError }}
+          </div>
+
+          <div class="history-cards-wrap" *ngIf="!loansLoading && requestLoans.length > 0"
+               [style.grid-template-columns]="'repeat(' + historyGridColumns + ', minmax(0, 1fr))'">
+            <div class="history-card" *ngFor="let loan of paginatedHistoryLoans" (click)="openModal(loan)">
+              <div class="history-card-head">
+                <div class="history-ref">#CR-{{ loan.idDemande }}</div>
+                <span class="badge"
+                      [ngClass]="{
+                        'b-actif': loan.statutDemande === 'APPROVED',
+                        'b-danger': loan.statutDemande === 'REJECTED',
+                        'b-review': loan.statutDemande === 'PENDING',
+                        'b-blue': loan.statutDemande === 'CONDITIONAL'
+                      }">
+                  {{ loan.statutDemande }}
+                </span>
+              </div>
+
+              <div class="history-client">
+                {{ loan.user?.firstName }} {{ loan.user?.lastName }}
+              </div>
+              <div class="history-meta">{{ loan.dateCreation | date:'short' }}</div>
+
+              <div class="history-grid">
+                <div class="history-item">
+                  <div class="history-lbl">Amount</div>
+                  <div class="history-val">{{ formatMoney(loan.montantDemande) }}</div>
+                </div>
+                <div class="history-item">
+                  <div class="history-lbl">Monthly payment</div>
+                  <div class="history-val">{{ formatMoney(loan.mensualiteEstimee) }}</div>
+                </div>
+                <div class="history-item">
+                  <div class="history-lbl">Term</div>
+                  <div class="history-val">{{ formatMonths(loan.dureeMois) }}</div>
+                </div>
+                <div class="history-item">
+                  <div class="history-lbl">Score</div>
+                  <div class="history-val">{{ loan.riskScore != null ? (loan.riskScore | number:'1.0-0') + '/100' : 'N/A' }}</div>
+                </div>
+                <div class="history-item">
+                  <div class="history-lbl">Auto decision</div>
+                  <div class="history-val">{{ getRiskDecisionDisplay(loan.riskDecision) }}</div>
+                </div>
+                <div class="history-item">
+                  <div class="history-lbl">Purpose</div>
+                  <div class="history-val">{{ loan.objectifCredit || '-' }}</div>
+                </div>
+              </div>
+
+              <div class="history-vehicle">
+                {{ loan.vehicle?.marque || loan.vehicule?.marque || '-' }}
+                {{ loan.vehicle?.modele || loan.vehicule?.modele || '' }}
+                · {{ loan.vehicle?.prixTnd || loan.vehicule?.prix_tnd || loan.vehiculePrixTnd || '-' }} TND
+              </div>
+            </div>
+          </div>
+
+          <div class="history-pagination" *ngIf="!loansLoading && requestLoans.length > historyPageSize">
+            <button class="btn btn-outline btn-sm" [disabled]="historyPage === 1" (click)="goToHistoryPage(historyPage - 1)">
+              Previous
+            </button>
+            <button
+              class="btn btn-sm"
+              *ngFor="let p of historyPaginationPages"
+              [ngClass]="historyPage === p ? 'btn-primary' : 'btn-outline'"
+              (click)="goToHistoryPage(p)"
+            >
+              {{ p }}
+            </button>
+            <button class="btn btn-outline btn-sm" [disabled]="historyPage === totalHistoryPages" (click)="goToHistoryPage(historyPage + 1)">
+              Next
+            </button>
+          </div>
+
+          <div class="panel-body" *ngIf="!loansLoading && requestLoans.length === 0 && !loansError">
+            No credits...
+          </div>
+        </div>
+      </div>
+
+      <div class="history-overlay" *ngIf="showStatsWindow" (click)="closeStatsWindow()">
+        <div class="history-window panel stats-window" (click)="$event.stopPropagation()">
+          <div class="panel-head">
+            <div class="panel-title">
+              <span class="ptdot"></span>
+              Decision statistics
+            </div>
+            <button class="btn btn-outline btn-sm" (click)="closeStatsWindow()">Hide statistics</button>
+          </div>
+
+          <div class="panel-body" *ngIf="loansLoading">
+            Loading statistics...
+          </div>
+
+          <div class="panel-body" *ngIf="loansError">
+            {{ loansError }}
+          </div>
+
+          <div class="panel-body" *ngIf="!loansLoading && !loansError">
+            <div class="stats-summary-grid">
+              <div class="stats-kpi-card">
+                <div class="stats-kpi-label">Total files</div>
+                <div class="stats-kpi-value">{{ statsTotalDossiers }}</div>
+              </div>
+              <div class="stats-kpi-card approved">
+                <div class="stats-kpi-label">Approved</div>
+                <div class="stats-kpi-value">{{ statsApprovedCount }}</div>
+              </div>
+              <div class="stats-kpi-card rejected">
+                <div class="stats-kpi-label">Rejected</div>
+                <div class="stats-kpi-value">{{ statsRejectedCount }}</div>
+              </div>
+              <div class="stats-kpi-card pending">
+                <div class="stats-kpi-label">Pending</div>
+                <div class="stats-kpi-value">{{ statsPendingCount }}</div>
+              </div>
+            </div>
+
+            <div class="stats-bars">
+              <div class="stats-bar-row">
+                <div class="stats-bar-head"><span>Approved</span><strong>{{ statsApprovedPct }}%</strong></div>
+                <div class="stats-track"><div class="stats-fill approved" [style.width.%]="statsApprovedPct"></div></div>
+              </div>
+              <div class="stats-bar-row">
+                <div class="stats-bar-head"><span>Rejected</span><strong>{{ statsRejectedPct }}%</strong></div>
+                <div class="stats-track"><div class="stats-fill rejected" [style.width.%]="statsRejectedPct"></div></div>
+              </div>
+              <div class="stats-bar-row">
+                <div class="stats-bar-head"><span>Pending</span><strong>{{ statsPendingPct }}%</strong></div>
+                <div class="stats-track"><div class="stats-fill pending" [style.width.%]="statsPendingPct"></div></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -636,18 +746,15 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : EVENEMENTS
+         PAGE : EVENTS
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'events'" id="page-events">
 
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Communication & Marketing</div>
+          <div class="ph-eyebrow">Communication & marketing</div>
           <div class="ph-title">Events</div>
-          <div class="ph-desc">Créez et publiez vos événements clients</div>
-        </div>
-        <div class="ph-actions">
-          <button class="btn btn-primary" (click)="openCreateEventModal()">+ Créer Evenement</button>
+          <div class="ph-desc">Approve or decline insurer-submitted events</div>
         </div>
       </div>
 
@@ -655,26 +762,26 @@
         <div class="panel-head">
           <div class="panel-title">
             <span class="ptdot"></span>
-            Gestion des événements
+            Event management
           </div>
           <div class="events-filter-bar">
             <input
               class="form-input events-search-input"
               type="text"
-              placeholder="Rechercher par titre, ville..."
+              placeholder="Search by title, city..."
               [(ngModel)]="eventsSearchTerm"
               (ngModelChange)="onEventsFilterChange()"
             />
             <select class="form-input events-status-select" [(ngModel)]="eventsStatusFilter" (ngModelChange)="onEventsFilterChange()">
-              <option value="ALL">Tous les statuts</option>
+              <option value="ALL">All statuses</option>
               <option value="PUBLISHED">Published</option>
               <option value="DRAFT">Draft</option>
               <option value="CANCELLED">Cancelled</option>
             </select>
             <select class="form-input events-size-select" [(ngModel)]="eventsPageSize" (ngModelChange)="onEventsFilterChange()">
-              <option [ngValue]="6">6 / page</option>
-              <option [ngValue]="10">10 / page</option>
-              <option [ngValue]="15">15 / page</option>
+              <option [ngValue]="6">6 per page</option>
+              <option [ngValue]="10">10 per page</option>
+              <option [ngValue]="15">15 per page</option>
             </select>
           </div>
         </div>
@@ -692,7 +799,7 @@
               <div class="event-main-content">
                 <div class="event-title-row">
                   <div>
-                    <h3 class="event-title">{{ ev.title || 'Event sans titre' }}</h3>
+                    <h3 class="event-title">{{ ev.title || 'Untitled event' }}</h3>
                     <a class="event-category-link" href="javascript:void(0)">{{ getCategoryLabel(ev) }}</a>
                     <div class="event-meta-line">{{ getEventDateTimeLabel(ev) }}</div>
                   </div>
@@ -728,54 +835,31 @@
                     <div class="event-donut" [style.--pct]="getEventMetricPct(ev, 'inscrits') + '%'">
                       <span>{{ getEventMetricValue(ev, 'inscrits') }}</span>
                     </div>
-                    <div class="event-metric-label">Inscrits</div>
+                    <div class="event-metric-label">Registered</div>
                   </div>
                   <div class="event-metric">
                     <div class="event-donut blue" [style.--pct]="getEventMetricPct(ev, 'capacite') + '%'">
                       <span>{{ getEventMetricValue(ev, 'capacite') }}</span>
                     </div>
-                    <div class="event-metric-label">Capacité</div>
+                    <div class="event-metric-label">Capacity</div>
                   </div>
                   <div class="event-metric">
                     <div class="event-donut gray" [style.--pct]="getEventMetricPct(ev, 'restants') + '%'">
                       <span>{{ getEventMetricValue(ev, 'restants') }}</span>
                     </div>
-                    <div class="event-metric-label">Restants</div>
+                    <div class="event-metric-label">Remaining</div>
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="event-card-actions">
-              <button class="btn btn-outline btn-sm" [disabled]="!canEditEvent(ev)" (click)="openEditEventModal(ev)">
-                Modifier
+              <button class="btn btn-primary btn-sm" [disabled]="(ev.status || '').toUpperCase() === 'PUBLISHED'" (click)="approveEvent(ev)">
+                Approve
               </button>
-              <button class="btn btn-ghost btn-sm" (click)="toggleEventExpand(ev.idEvent)">
-                {{ expandedEventId === ev.idEvent ? 'Masquer stats' : 'Voir stats' }}
+              <button class="btn btn-outline btn-sm" [disabled]="(ev.status || '').toUpperCase() === 'CANCELLED'" (click)="declineEvent(ev)">
+                Decline
               </button>
-            </div>
-
-            <div class="event-expand-row" *ngIf="expandedEventId === ev.idEvent">
-              <div class="event-stat-box">
-                <div class="event-stat-val">{{ ev.maxParticipants ?? 0 }}</div>
-                <div class="event-stat-lbl">Capacity</div>
-              </div>
-              <div class="event-stat-box">
-                <div class="event-stat-val">{{ ev.currentParticipants ?? 0 }}</div>
-                <div class="event-stat-lbl">Registrations</div>
-              </div>
-              <div class="event-stat-box">
-                <div class="event-stat-val">
-                  {{ getEventMetricValue(ev, 'inscrits') }}
-                </div>
-                <div class="event-stat-lbl">Confirmés</div>
-              </div>
-              <div class="event-stat-box">
-                <div class="event-stat-val">
-                  {{ getEventMetricValue(ev, 'restants') }}
-                </div>
-                <div class="event-stat-lbl">Disponibles</div>
-              </div>
             </div>
           </article>
           </div>
@@ -804,7 +888,7 @@
         </div>
 
         <div class="panel-body" *ngIf="!eventsLoading && filteredEvents.length === 0 && !eventsError">
-          Aucun événement trouvé...
+          No events found...
         </div>
       </div>
 
@@ -1242,10 +1326,15 @@
             <span class="ptdot" style="background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.12);"></span>
             Alertes critiques
           </div>
-          <span class="badge b-danger">3 non lues</span>
+          <span class="badge b-danger">{{ unreadCriticalCount }} non lues</span>
         </div>
         <div class="notif-list">
-          <div class="notif-item unread" *ngFor="let n of notificationsCritical">
+          <div
+            class="notif-item unread"
+            [class.clickable]="!!n.requestId"
+            *ngFor="let n of notificationsCritical"
+            (click)="openNotification(n)"
+          >
             <div class="notif-ico" [style.background]="n.type==='danger' ? 'rgba(239,68,68,.1)' : 'rgba(245,158,11,.1)'">⚠</div>
             <div class="notif-body">
               <div class="notif-title">{{ n.title }}</div>
@@ -1492,15 +1581,15 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         MODAL — CRÉATION EVENEMENT
+         MODAL — CREATE / EDIT EVENT
          ═══════════════════════════════════════════════════════ -->
     <div class="bk-modal-overlay" *ngIf="showEventModal" (click)="closeCreateEventModal()">
       <div class="bk-modal" (click)="$event.stopPropagation()">
 
         <div class="bk-modal-header">
           <div>
-            <div class="bk-modal-title">{{ isEditingEvent ? 'Modifier Evenement' : 'Créer Evenement' }}</div>
-            <div class="bk-modal-sub">Renseignez les informations de publication</div>
+            <div class="bk-modal-title">{{ isEditingEvent ? 'Edit event' : 'Create event' }}</div>
+            <div class="bk-modal-sub">Fill in the publication details</div>
           </div>
           <button class="bk-modal-close" (click)="closeCreateEventModal()">✕</button>
         </div>
@@ -1508,25 +1597,25 @@
         <div class="bk-modal-body">
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Titre *</label>
+              <label class="form-label">Title *</label>
               <input class="form-input" type="text" [(ngModel)]="eventForm.title" />
             </div>
             <div class="form-group">
-              <label class="form-label">Ville *</label>
+              <label class="form-label">City *</label>
               <input class="form-input" type="text" [(ngModel)]="eventForm.city" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Adresse *</label>
+              <label class="form-label">Address *</label>
               <input class="form-input" type="text" [(ngModel)]="eventForm.address" />
               <button class="btn btn-outline btn-sm map-pick-btn" type="button" (click)="openAddressMapPicker()">
-                Choisir sur la carte
+                Pick on map
               </button>
             </div>
             <div class="form-group">
-              <label class="form-label">Participants max</label>
+              <label class="form-label">Max participants</label>
               <input class="form-input" type="number" min="0" [(ngModel)]="eventForm.maxParticipants" />
             </div>
           </div>
@@ -1537,28 +1626,28 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Règles</label>
+            <label class="form-label">Rules</label>
             <textarea class="form-input" rows="3" [(ngModel)]="eventForm.rules"></textarea>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Date début *</label>
+              <label class="form-label">Start date *</label>
               <input class="form-input" type="datetime-local" [(ngModel)]="eventForm.startDate" />
             </div>
             <div class="form-group">
-              <label class="form-label">Date fin *</label>
+              <label class="form-label">End date *</label>
               <input class="form-input" type="datetime-local" [min]="eventForm.startDate" [(ngModel)]="eventForm.endDate" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Date limite inscription</label>
+              <label class="form-label">Registration deadline</label>
               <input class="form-input" type="datetime-local" [max]="eventForm.endDate" [(ngModel)]="eventForm.registrationDeadline" />
             </div>
             <div class="form-group">
-              <label class="form-label">Participants actuels</label>
+              <label class="form-label">Current participants</label>
               <input class="form-input" type="number" [value]="eventForm.currentParticipants" readonly />
             </div>
           </div>
@@ -1585,7 +1674,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">User ID connecté</label>
+            <label class="form-label">Connected user ID</label>
             <input class="form-input" type="number" [value]="eventForm.userId" readonly />
           </div>
 
@@ -1598,9 +1687,9 @@
         </div>
 
         <div class="decision-bar">
-          <button class="btn btn-outline btn-lg" [disabled]="isCreatingEvent" (click)="closeCreateEventModal()">Annuler</button>
+          <button class="btn btn-outline btn-lg" [disabled]="isCreatingEvent" (click)="closeCreateEventModal()">Cancel</button>
           <button class="btn btn-primary btn-lg flex-1" [disabled]="isCreatingEvent" (click)="createEvent()">
-            {{ isCreatingEvent ? (isEditingEvent ? 'Modification...' : 'Création...') : (isEditingEvent ? 'Modifier Evenement' : 'Créer Evenement') }}
+            {{ isCreatingEvent ? (isEditingEvent ? 'Updating…' : 'Creating…') : (isEditingEvent ? 'Update event' : 'Create event') }}
           </button>
         </div>
       </div>
@@ -1610,8 +1699,8 @@
       <div class="bk-modal map-modal" (click)="$event.stopPropagation()">
         <div class="bk-modal-header">
           <div>
-            <div class="bk-modal-title">Choisir une adresse</div>
-            <div class="bk-modal-sub">Cliquez sur la carte puis confirmez.</div>
+            <div class="bk-modal-title">Choose an address</div>
+            <div class="bk-modal-sub">Click the map, then confirm.</div>
           </div>
           <button class="bk-modal-close" (click)="closeAddressMapPicker()">✕</button>
         </div>
@@ -1620,22 +1709,22 @@
             <input
               class="form-input"
               type="text"
-              placeholder="Rechercher une adresse..."
+              placeholder="Search for an address..."
               [(ngModel)]="mapSearchQuery"
               name="mapSearchQuery"
             />
-            <button class="btn btn-outline btn-sm" type="submit">Rechercher</button>
+            <button class="btn btn-outline btn-sm" type="submit">Search</button>
           </form>
           <div id="event-address-map" class="event-address-map"></div>
-          <div class="map-selected-address">{{ selectedMapAddress || 'Aucune adresse sélectionnée.' }}</div>
+          <div class="map-selected-address">{{ selectedMapAddress || 'No address selected.' }}</div>
           <div class="panel-body" *ngIf="mapPickerError" style="color: var(--danger, #c0392b); padding-top: 0;">
             {{ mapPickerError }}
           </div>
         </div>
         <div class="decision-bar">
-          <button class="btn btn-outline btn-lg" (click)="closeAddressMapPicker()">Annuler</button>
+          <button class="btn btn-outline btn-lg" (click)="closeAddressMapPicker()">Cancel</button>
           <button class="btn btn-primary btn-lg flex-1" [disabled]="!selectedMapLocation" (click)="confirmAddressFromMap()">
-            Utiliser cette adresse
+            Use this address
           </button>
         </div>
       </div>
@@ -1643,7 +1732,7 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         MODAL — DÉCISION DOSSIER
+         MODAL — FILE DECISION
          ═══════════════════════════════════════════════════════ -->
     <div class="bk-modal-overlay" *ngIf="showModal" (click)="closeModal($event)">
       <div class="bk-modal" (click)="$event.stopPropagation()">
@@ -1652,17 +1741,17 @@
           <div>
             <div class="bk-modal-title">
               <ng-container *ngIf="selectedFile?.idDemande; else dossierTitle">
-                Demande #{{ selectedFile?.idDemande }} — Décision requise
+                Request #{{ selectedFile?.idDemande }} — decision required
               </ng-container>
-              <ng-template #dossierTitle>{{ dossier.reference }} — Décision requise</ng-template>
+              <ng-template #dossierTitle>{{ dossier.reference }} — decision required</ng-template>
             </div>
             <div class="bk-modal-sub">
               <ng-container *ngIf="selectedFile?.idDemande; else dossierSub">
-                Soumise le {{
+                Submitted on {{
                   selectedFile?.dateCreation ? (selectedFile?.dateCreation | date:'short') : selectedFile?.dateSoumission || '-'
                 }}
               </ng-container>
-              <ng-template #dossierSub>Soumis le {{ dossier.submittedDate }} · En analyse</ng-template>
+              <ng-template #dossierSub>Submitted {{ dossier.submittedDate }} · Under review</ng-template>
             </div>
           </div>
           <span class="badge b-review">
@@ -1674,26 +1763,26 @@
         <div class="bk-modal-body">
 
           <div class="detail-section" *ngIf="selectedFile?.idDemande">
-            <div class="detail-section-title">Informations demande</div>
+            <div class="detail-section-title">Request details</div>
             <div class="detail-grid">
               <div class="detail-item">
-                <div class="di-lbl">Montant</div>
-                <div class="di-val">{{ selectedFile?.montantDemande }} TND</div>
+                <div class="di-lbl">Amount</div>
+                <div class="di-val">{{ formatMoney(selectedFile?.montantDemande) }}</div>
               </div>
               <div class="detail-item">
-                <div class="di-lbl">Apport</div>
-                <div class="di-val">{{ selectedFile?.apportPersonnel }} TND</div>
+                <div class="di-lbl">Down payment</div>
+                <div class="di-val">{{ formatMoney(selectedFile?.apportPersonnel) }}</div>
               </div>
               <div class="detail-item">
-                <div class="di-lbl">Durée</div>
-                <div class="di-val">{{ selectedFile?.dureeMois }} mois</div>
+                <div class="di-lbl">Term</div>
+                <div class="di-val">{{ formatMonths(selectedFile?.dureeMois) }}</div>
               </div>
               <div class="detail-item">
-                <div class="di-lbl">Mensualité</div>
-                <div class="di-val">{{ selectedFile?.mensualiteEstimee }} TND</div>
+                <div class="di-lbl">Monthly payment</div>
+                <div class="di-val">{{ formatMoney(selectedFile?.mensualiteEstimee) }}</div>
               </div>
               <div class="detail-item">
-                <div class="di-lbl">Objectif</div>
+                <div class="di-lbl">Purpose</div>
                 <div class="di-val">{{ selectedFile?.objectifCredit || '-' }}</div>
               </div>
               <div class="detail-item">
@@ -1703,22 +1792,92 @@
                 </div>
               </div>
               <div class="detail-item">
-                <div class="di-lbl">Véhicule</div>
+                <div class="di-lbl">Vehicle</div>
                 <div class="di-val">
                   {{ selectedFile?.vehicle?.marque || selectedFile?.vehicule?.marque || '-' }}
                   {{ selectedFile?.vehicle?.modele || selectedFile?.vehicule?.modele || '' }}
-                  · {{ selectedFile?.vehicle?.prixTnd || selectedFile?.vehicule?.prix_tnd || '-' }} TND
+                  · {{ (selectedFile?.vehicle?.prixTnd ?? selectedFile?.vehicule?.prix_tnd) != null
+                    ? ((selectedFile?.vehicle?.prixTnd ?? selectedFile?.vehicule?.prix_tnd) + ' TND')
+                    : '-' }}
                 </div>
               </div>
               <div class="detail-item">
-                <div class="di-lbl">Date création</div>
+                <div class="di-lbl">Created</div>
                 <div class="di-val">{{ selectedFile?.dateCreation | date:'short' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Risk score</div>
+                <div class="di-val">{{ selectedFile?.riskScore != null ? (selectedFile?.riskScore | number:'1.0-0') + '/100' : 'N/A' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Automatic decision</div>
+                <div class="di-val">{{ getRiskDecisionDisplay(selectedFile?.riskDecision) }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="di-lbl">Decision source</div>
+                <div class="di-val">{{ selectedFile?.decisionSource || '-' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section" *ngIf="selectedFile?.idDemande && (adaptiveBreakdownText(selectedFile) || selectedFile?.riskBreakdown)">
+            <div class="detail-section-title">Adaptive scoring detail</div>
+            <div class="scoring-beautified-grid">
+              <div
+                class="scoring-beautified-item"
+                [ngClass]="'tone-' + entry.tone"
+                *ngFor="let entry of getRiskScoringSummaryEntries(selectedFile)"
+              >
+                <div class="scoring-beautified-label">{{ entry.label }}</div>
+                <div class="scoring-beautified-value">{{ entry.value }}</div>
+              </div>
+            </div>
+
+            <div
+              class="scoring-beautified-grid"
+              *ngIf="getAdaptiveBreakdownOnlyEntries(adaptiveBreakdownText(selectedFile)).length > 0"
+            >
+              <div
+                class="scoring-beautified-item"
+                [ngClass]="'tone-' + entry.tone"
+                *ngFor="let entry of getAdaptiveBreakdownOnlyEntries(adaptiveBreakdownText(selectedFile))"
+              >
+                <div class="scoring-beautified-label">{{ entry.label }}</div>
+                <div class="scoring-beautified-value">{{ entry.value }}</div>
+              </div>
+            </div>
+            <div class="scoring-help-grid" *ngIf="hasInternalFactorBreakdown(adaptiveBreakdownText(selectedFile))">
+              <div class="scoring-help-item" *ngFor="let factor of scoringFactors">
+                <div class="scoring-help-head">
+                  <span class="scoring-help-label">{{ factor.label }}</span>
+                  <span class="scoring-help-value">{{ getScoringFactorValue(factor.sourceKey, adaptiveBreakdownText(selectedFile)) }}</span>
+                </div>
+                <div class="scoring-help-meaning">{{ factor.meaning }}</div>
+              </div>
+            </div>
+            <div class="ml-output-empty" *ngIf="!hasInternalFactorBreakdown(adaptiveBreakdownText(selectedFile)) && (selectedFile?.riskSource || '').toUpperCase() === 'EXTERNAL_PKL'">
+              Internal factor breakdown (x1/x2/x3) is not available for this request (backend snapshot missing—refresh list after deploying the update).
+            </div>
+          </div>
+
+          <div
+            class="detail-section"
+            *ngIf="selectedFile?.idDemande && (selectedFile?.riskSource || '').toUpperCase() === 'EXTERNAL_PKL'"
+          >
+            <div class="detail-section-title">ML scoring detail</div>
+            <div class="ml-output-empty" *ngIf="!hasMlOutput(selectedFile)">
+              No structured ML scoring payload returned for this request (check riskBreakdown on the backend).
+            </div>
+            <div class="ml-output-grid" *ngIf="hasMlOutput(selectedFile)">
+              <div class="ml-output-item" *ngFor="let entry of getMlScoringEntries(selectedFile)">
+                <div class="ml-output-label">{{ entry.label }}</div>
+                <div class="ml-output-value">{{ entry.value }}</div>
               </div>
             </div>
           </div>
 
           <div class="detail-section" *ngIf="!selectedFile?.idDemande">
-            <div class="detail-section-title">Informations client</div>
+            <div class="detail-section-title">Client information</div>
             <div class="detail-grid">
               <div class="detail-item">
                 <div class="di-lbl">Client</div>
@@ -1729,7 +1888,7 @@
                 <div class="di-val">{{ dossier.client.cin }}</div>
               </div>
               <div class="detail-item">
-                <div class="di-lbl">Téléphone</div>
+                <div class="di-lbl">Phone</div>
                 <div class="di-val">{{ dossier.client.phone }}</div>
               </div>
               <div class="detail-item">
@@ -1740,9 +1899,9 @@
           </div>
 
           <div class="detail-section">
-            <div class="detail-section-title">Note de décision</div>
+            <div class="detail-section-title">Decision note</div>
             <textarea class="form-input" rows="3" [(ngModel)]="decisionNote"
-                      placeholder="Saisir la note de justification…"></textarea>
+                      placeholder="Enter a justification note…"></textarea>
           </div>
 
           <div class="panel-body" *ngIf="decisionError" style="color: var(--danger, #c0392b); padding-top: 0;">
@@ -1751,12 +1910,12 @@
 
         </div>
 
-        <div class="decision-bar">
+        <div class="decision-bar" *ngIf="canTakeDecision">
           <button class="btn btn-success btn-lg flex-1" [disabled]="decisionSubmitting" (click)="approveCase()">
-            {{ decisionSubmitting ? 'En cours…' : '✓ Approuver le dossier' }}
+            {{ decisionSubmitting ? 'Please wait…' : '✓ Approve' }}
           </button>
-          <button class="btn btn-outline btn-lg" [disabled]="decisionSubmitting" (click)="requestMoreInfo()">Informations complémentaires</button>
-          <button class="btn btn-danger btn-lg" [disabled]="decisionSubmitting" (click)="rejectCase()">✗ Rejeter</button>
+          <button class="btn btn-outline btn-lg decision-btn-mid" [disabled]="decisionSubmitting" (click)="requestMoreInfo()">Request more info</button>
+          <button class="btn btn-danger btn-lg decision-btn-danger" [disabled]="decisionSubmitting" (click)="rejectCase()">✗ Reject</button>
         </div>
 
       </div>

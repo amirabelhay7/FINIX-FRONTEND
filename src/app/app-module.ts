@@ -15,6 +15,7 @@ import { BackofficeComponent } from './layout/backoffice/backoffice.component';
 import { authInterceptor } from './services/auth/auth.interceptor';
 import { httpLoggingInterceptor } from './services/auth/http-logging.interceptor';
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
+import { LoanContractsExplorerModule } from './features/admin/credit-center/loan-contracts-explorer.module';
 
 @NgModule({
   declarations: [
@@ -32,8 +33,8 @@ import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    SharedModule
-
+    SharedModule,
+    LoanContractsExplorerModule,
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),

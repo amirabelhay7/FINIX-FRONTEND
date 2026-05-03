@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:8081/api',
+  apiBaseUrl: 'http://localhost:8082/api',
   apiEndpoints: {
     auth: '/auth',
     credit: '/credit/request-loans',
@@ -8,7 +8,8 @@ export const environment = {
     insurance: '/insurance',
     repayment: '/repayment',
     user: '/user',
-    vehicle: '/vehicle',
+    /** Must match backend {@code VehicleController} base path {@code /api/vehicles}. */
+    vehicle: '/vehicles',
     wallet: '/wallet',
     score: '/score'
   }

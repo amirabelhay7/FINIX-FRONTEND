@@ -11,12 +11,18 @@ import { ClientWallet } from './wallet/wallet';
 import { ClientScore } from './score/score';
 import { ClientDocuments } from './documents/documents';
 import { ClientEvents } from './events/events';
+import { ClientGroupChat } from './group-chat/group-chat';
 
 @NgModule({
   declarations: [
     ClientDashboard, ClientCredits, ClientRepayments, ClientVehicles,
     ClientEvents, ClientInsurance, ClientWallet, ClientScore, ClientDocuments,
   ],
-  imports: [CommonModule, FormsModule, ClientRoutingModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ClientRoutingModule,
+    ClientGroupChat,
+  ],
 })
 export class ClientModule {}

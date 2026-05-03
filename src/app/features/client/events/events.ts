@@ -1,7 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { finalize } from 'rxjs';
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { catchError, finalize, of, Subscription, timeout } from 'rxjs';
 import { AuthService } from '../../../services/auth/auth.service';
-import { EventDto, EventRegistrationDto, EventService } from '../../../services/event.service';
+import { EventChatMessageDto, EventDto, EventRegistrationDto, EventService } from '../../../services/event.service';
+import { EventChatSocketService } from '../../../services/event/event-chat-socket.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-client-events',
@@ -9,7 +11,7 @@ import { EventDto, EventRegistrationDto, EventService } from '../../../services/
   templateUrl: './events.html',
   styleUrl: './events.css',
 })
-export class ClientEvents implements OnInit {
+export class ClientEvents implements OnInit, OnDestroy {
   events: EventDto[] = [];
   eventsPage = 1;
   eventsPageSize = 6;
@@ -21,6 +23,14 @@ export class ClientEvents implements OnInit {
   participating = false;
   participateError = '';
   participateSuccess = '';
+  chatMessages: EventChatMessageDto[] = [];
+  chatInput = '';
+  chatLoading = false;
+  chatError = '';
+  sendingChat = false;
+  leavingChat = false;
+  canChat = false;
+  private chatSubscription?: Subscription;
   private participatedEventIds = new Set<number>();
 
   ngOnInit(): void {
@@ -29,36 +39,74 @@ export class ClientEvents implements OnInit {
     this.loadEvents();
   }
 
+  ngOnDestroy(): void {
+    this.chatSubscription?.unsubscribe();
+    this.eventChatSocketService.disconnect();
+  }
+
   constructor(
     private eventService: EventService,
     private authService: AuthService,
+    private eventChatSocketService: EventChatSocketService,
+    private router: Router,
     private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
   ) {}
 
   loadEvents(): void {
-    this.loading = true;
+    this.setLoading(true);
     this.error = '';
     this.events = [];
 
     this.eventService
       .getEvents(0, 1000)
       .pipe(
+        timeout(15000),
+        catchError(() => {
+          this.error = 'Unable to load events.';
+          return of({ content: [] as EventDto[] } as any);
+        }),
         finalize(() => {
-          this.loading = false;
-          this.cdr.detectChanges();
+          this.setLoading(false);
         }),
       )
       .subscribe({
         next: (response) => {
-          this.events = Array.isArray(response?.content) ? response.content : [];
+          const rows = this.extractRows<EventDto>(response);
+          this.events = rows.filter((ev) => (ev?.status || '').toUpperCase() === 'PUBLISHED');
           this.eventsPage = 1;
-          this.cdr.detectChanges();
+          this.setLoading(false);
         },
         error: () => {
-          this.error = 'Impossible de charger les événements.';
-          this.cdr.detectChanges();
-        },
+          this.setLoading(false);
+        }
       });
+  }
+
+  private setLoading(value: boolean): void {
+    // Ensure UI updates even if callbacks fire outside Angular zone.
+    this.ngZone.run(() => {
+      this.loading = value;
+      this.cdr.markForCheck();
+    });
+  }
+
+  private extractRows<T>(response: any): T[] {
+    if (Array.isArray(response)) {
+      return response.filter((row) => !!row) as T[];
+    }
+
+    const content = response?.content;
+    if (Array.isArray(content)) {
+      return content.filter((row) => !!row) as T[];
+    }
+
+    const data = response?.data;
+    if (Array.isArray(data)) {
+      return data.filter((row) => !!row) as T[];
+    }
+
+    return [];
   }
 
   formatDate(value: unknown): string {
@@ -163,6 +211,9 @@ export class ClientEvents implements OnInit {
     this.selectedEvent = eventRow;
     this.participateError = '';
     this.participateSuccess = '';
+    this.chatInput = '';
+    this.chatError = '';
+    this.canChat = false;
     this.showDetailsModal = true;
   }
 
@@ -207,17 +258,31 @@ export class ClientEvents implements OnInit {
     this.participateError = '';
     this.participateSuccess = '';
     this.participating = false;
+    this.chatMessages = [];
+    this.chatInput = '';
+    this.chatError = '';
+    this.canChat = false;
+    this.chatSubscription?.unsubscribe();
+    this.chatSubscription = undefined;
+    this.eventChatSocketService.disconnect();
+  }
+
+  openDedicatedGroupChat(): void {
+    const eventId = this.selectedEvent?.idEvent;
+    if (!eventId) return;
+    this.closeEventDetails();
+    this.router.navigate(['/client/group-chat'], { queryParams: { eventId } });
   }
 
   participate(): void {
     if (!this.selectedEvent?.idEvent) {
-      this.participateError = "ID événement introuvable.";
+      this.participateError = 'Event ID not found.';
       return;
     }
 
     const userId = this.getConnectedUserId();
     if (!userId) {
-      this.participateError = 'Utilisateur connecté introuvable.';
+      this.participateError = 'Signed-in user not found.';
       return;
     }
 
@@ -231,17 +296,22 @@ export class ClientEvents implements OnInit {
         userId,
         status: 'PENDING',
       })
+      .pipe(
+        timeout(15000),
+        finalize(() => {
+          this.participating = false;
+        }),
+      )
       .subscribe({
         next: () => {
-          this.participating = false;
-          this.participateSuccess = 'Participation enregistrée avec succès.';
+          this.participateSuccess = 'Registration recorded successfully.';
           this.markEventParticipated(this.selectedEvent?.idEvent);
           this.applyLocalParticipantIncrement(this.selectedEvent?.idEvent);
           this.loadEvents();
         },
         error: (err: any) => {
-          this.participating = false;
-          this.participateError = err?.error?.message || err?.message || "Echec de l'inscription à l'événement.";
+          this.participateError =
+            err?.error?.message || err?.message || 'Failed to register for this event.';
         },
       });
   }
@@ -263,7 +333,6 @@ export class ClientEvents implements OnInit {
         currentParticipants: (this.selectedEvent.currentParticipants ?? 0) + 1,
       };
     }
-    this.cdr.detectChanges();
   }
 
   private getConnectedUserId(): number | null {
@@ -318,9 +387,9 @@ export class ClientEvents implements OnInit {
 
     this.eventService.getEventRegistrations(0, 1000).subscribe({
       next: (response) => {
-        const rows = Array.isArray(response?.content) ? response.content : [];
+        const rows = this.extractRows<EventRegistrationDto>(response);
         const participatedIds = rows
-          .filter((r: EventRegistrationDto) => Number(r.userId) === Number(userId) && !!r.eventId)
+          .filter((r: EventRegistrationDto) => !!r && Number(r.userId) === Number(userId) && !!r.eventId)
           .map((r: EventRegistrationDto) => Number(r.eventId))
           .filter((id) => Number.isInteger(id) && id > 0);
 
@@ -333,11 +402,105 @@ export class ClientEvents implements OnInit {
         } catch {
           // ignore storage write failure
         }
-        this.cdr.detectChanges();
       },
       error: () => {
         // keep local fallback only if backend call fails
       },
     });
+  }
+
+  sendChatMessage(): void {
+    const eventId = this.selectedEvent?.idEvent;
+    const userId = this.getConnectedUserId();
+    const content = this.chatInput.trim();
+    if (!eventId || !userId || !content || !this.canChat || this.chatLoading) return;
+
+    this.sendingChat = true;
+    this.chatError = '';
+    this.eventService
+      .sendEventChatMessage(eventId, userId, content)
+      .pipe(
+        timeout(15000),
+        finalize(() => (this.sendingChat = false)),
+      )
+      .subscribe({
+        next: (msg) => {
+          this.chatInput = '';
+          if (!msg?.id || this.chatMessages.some((m) => m.id === msg.id)) return;
+          this.chatMessages = [...this.chatMessages, msg];
+        },
+        error: (err: any) => {
+          this.chatError = err?.error?.message || err?.message || 'Message was rejected.';
+        },
+      });
+  }
+
+  leaveChatGroup(): void {
+    const eventId = this.selectedEvent?.idEvent;
+    const userId = this.getConnectedUserId();
+    if (!eventId || !userId) return;
+
+    this.leavingChat = true;
+    this.chatError = '';
+    this.eventService
+      .leaveEventChatGroup(eventId, userId)
+      .pipe(
+        timeout(15000),
+        finalize(() => (this.leavingChat = false)),
+      )
+      .subscribe({
+        next: () => {
+          this.chatMessages = [];
+          this.chatError = 'You left this group.';
+          this.canChat = false;
+          this.eventChatSocketService.disconnect();
+          this.chatSubscription?.unsubscribe();
+          this.chatSubscription = undefined;
+        },
+        error: (err: any) => {
+          this.chatError = err?.error?.message || err?.message || 'Unable to leave the group.';
+        },
+      });
+  }
+
+  trackChatMessage(_: number, msg: EventChatMessageDto): number | string {
+    return msg.id ?? `${msg.userId}-${msg.sentAt}-${msg.content}`;
+  }
+
+  private initChatForSelectedEvent(): void {
+    const eventId = this.selectedEvent?.idEvent;
+    const userId = this.getConnectedUserId();
+    if (!eventId || !userId) {
+      this.chatMessages = [];
+      return;
+    }
+
+    this.chatLoading = true;
+    this.chatError = '';
+    this.canChat = false;
+    this.eventService
+      .getEventChatMessages(eventId, userId)
+      .pipe(
+        timeout(15000),
+        finalize(() => (this.chatLoading = false)),
+      )
+      .subscribe({
+        next: (messages) => {
+          this.canChat = true;
+          this.chatMessages = Array.isArray(messages) ? messages : [];
+          this.chatSubscription?.unsubscribe();
+          this.eventChatSocketService.connect(eventId);
+          this.chatSubscription = this.eventChatSocketService.messages$.subscribe((msg) => {
+            if (!msg) return;
+            if (msg.id && this.chatMessages.some((m) => m.id === msg.id)) return;
+            this.chatMessages = [...this.chatMessages, msg];
+          });
+        },
+        error: (err: any) => {
+          this.canChat = false;
+          this.chatMessages = [];
+          this.chatError = err?.error?.message || err?.message || 'Unable to load chat.';
+        },
+      });
   }
 }

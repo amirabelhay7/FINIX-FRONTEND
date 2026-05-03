@@ -1,18 +1,18 @@
 <div class="page-body">
   <div class="ph s1">
     <div>
-      <div class="ph-eyebrow">Mes événements</div>
-      <div class="ph-title">Événements disponibles</div>
-      <div class="ph-desc">Découvrez et rejoignez les événements FIN'IX</div>
+      <div class="ph-eyebrow">My events</div>
+      <div class="ph-title">Available events</div>
+      <div class="ph-desc">Discover and join FIN'IX events</div>
     </div>
   </div>
 
   <div class="panel s2">
     <div class="panel-head">
-      <div class="panel-title"><span class="ptdot"></span>Calendrier des événements</div>
+      <div class="panel-title"><span class="ptdot"></span>Event calendar</div>
     </div>
 
-    <div class="panel-body" *ngIf="loading">Chargement des événements...</div>
+    <div class="panel-body" *ngIf="loading">Loading events...</div>
     <div class="panel-body" *ngIf="error">{{ error }}</div>
 
     <div class="events-grid-wrap" *ngIf="!loading && events.length > 0">
@@ -64,51 +64,51 @@
         <img class="ev-hero-img" [src]="heroImage" [alt]="selectedEvent?.title || 'event'" />
         <div class="ev-hero-overlay"></div>
         <div class="ev-hero-content">
-          <div class="ev-title">{{ selectedEvent?.title || 'Événement' }}</div>
+          <div class="ev-title">{{ selectedEvent?.title || 'Event' }}</div>
           <div class="ev-sub">{{ selectedEvent?.city || '-' }} · {{ selectedEvent?.address || '-' }} · #{{ selectedEvent?.idEvent }}</div>
         </div>
-        <button class="ev-close-btn" (click)="closeEventDetails()" aria-label="Fermer">✕</button>
+        <button class="ev-close-btn" (click)="closeEventDetails()" aria-label="Close">✕</button>
       </div>
 
       <div class="ev-hero ev-hero-placeholder" *ngIf="!getSelectedEventImage()" [ngStyle]="getSelectedEventPlaceholderStyle()">
         <div class="ev-hero-overlay"></div>
         <div class="ev-hero-icon">📅</div>
         <div class="ev-hero-content">
-          <div class="ev-title">{{ selectedEvent?.title || 'Événement' }}</div>
+          <div class="ev-title">{{ selectedEvent?.title || 'Event' }}</div>
           <div class="ev-sub">{{ selectedEvent?.city || '-' }} · {{ selectedEvent?.address || '-' }} · #{{ selectedEvent?.idEvent }}</div>
         </div>
-        <button class="ev-close-btn" (click)="closeEventDetails()" aria-label="Fermer">✕</button>
+        <button class="ev-close-btn" (click)="closeEventDetails()" aria-label="Close">✕</button>
       </div>
 
       <div class="ev-body">
         <div class="ev-top-badges">
           <span [ngClass]="getStatusBadgeClass(selectedEvent?.status)">{{ formatStatus(selectedEvent?.status) }}</span>
           <span class="ev-chip">{{ selectedEvent?.currentParticipants ?? 0 }} / {{ selectedEvent?.maxParticipants ?? 0 }} participants</span>
-          <span class="ev-chip ev-chip-price">{{ selectedIsPaid ? 'Payant' : 'Gratuit' }}</span>
+          <span class="ev-chip ev-chip-price">{{ selectedIsPaid ? 'Paid' : 'Free' }}</span>
         </div>
 
         <div class="ev-cards-grid">
           <div class="ev-mini-card">
             <div class="ev-mini-label">📅 Date</div>
-            <div><strong>Début:</strong> {{ formatModalDate(selectedEvent?.startDate) }}</div>
-            <div><strong>Fin:</strong> {{ formatModalDate(selectedEvent?.endDate) }}</div>
+            <div><strong>Start:</strong> {{ formatModalDate(selectedEvent?.startDate) }}</div>
+            <div><strong>End:</strong> {{ formatModalDate(selectedEvent?.endDate) }}</div>
           </div>
           <div class="ev-mini-card">
-            <div class="ev-mini-label">📍 Lieu</div>
-            <div><strong>Ville:</strong> {{ selectedEvent?.city || '-' }}</div>
-            <div><strong>Adresse:</strong> {{ selectedEvent?.address || '-' }}</div>
+            <div class="ev-mini-label">📍 Location</div>
+            <div><strong>City:</strong> {{ selectedEvent?.city || '-' }}</div>
+            <div><strong>Address:</strong> {{ selectedEvent?.address || '-' }}</div>
           </div>
         </div>
 
-        <div class="ev-about-label">À PROPOS</div>
+        <div class="ev-about-label">ABOUT</div>
         <div class="ev-desc" [class.ev-desc-empty]="!selectedEvent?.description">
-          {{ selectedEvent?.description || 'Aucune description disponible.' }}
+          {{ selectedEvent?.description || 'No description available.' }}
         </div>
 
         <div class="ev-progress">
           <div class="ev-progress-head">
-            <div class="ev-progress-label">Taux de participation</div>
-            <div class="ev-progress-count">{{ selectedEvent?.currentParticipants ?? 0 }} / {{ selectedEvent?.maxParticipants ?? 0 }} inscrits</div>
+            <div class="ev-progress-label">Participation rate</div>
+            <div class="ev-progress-count">{{ selectedEvent?.currentParticipants ?? 0 }} / {{ selectedEvent?.maxParticipants ?? 0 }} registered</div>
           </div>
           <div class="part-bar">
             <div class="part-fill" [style.width.%]="selectedProgressPercent"></div>
@@ -116,13 +116,22 @@
           <div class="ev-progress-pct">{{ selectedProgressPercent }}%</div>
         </div>
 
+        <div class="ev-chat-section">
+          <div class="ev-about-label">GROUP CHAT</div>
+          <div class="ev-chat-loading">Chat is now on a dedicated page.</div>
+          <button class="btn btn-primary btn-xs" (click)="openDedicatedGroupChat()">
+            Open group chat
+          </button>
+        </div>
+
         <div class="rl-msg ok" *ngIf="participateSuccess">{{ participateSuccess }}</div>
         <div class="rl-msg err" *ngIf="participateError">{{ participateError }}</div>
+        <div class="rl-msg err" *ngIf="chatError">{{ chatError }}</div>
 
         <button class="btn btn-primary ev-participate-btn" [disabled]="participating || selectedIsFull" (click)="participate()">
-          {{ selectedIsFull ? 'Complet' : (participating ? 'En cours...' : 'Participer') }}
+          {{ selectedIsFull ? 'Full' : (participating ? 'Please wait…' : 'Join') }}
         </button>
-        <button class="ev-close-link" (click)="closeEventDetails()">Fermer</button>
+        <button class="ev-close-link" (click)="closeEventDetails()">Close</button>
       </div>
     </div>
   </div>
