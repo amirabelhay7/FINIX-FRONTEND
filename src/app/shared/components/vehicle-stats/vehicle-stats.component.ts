@@ -43,6 +43,10 @@ export class VehicleStatsComponent implements OnChanges {
   topClientsBarOptions: ChartOptions<'bar'> = {};
 
   hasData = false;
+  /** Parc véhicules : graphiques statut / visibilité / marques */
+  showFleetCharts = false;
+  /** Jointure réservations : graphiques statuts résa + top clients */
+  showReservationCharts = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['stats']) {
@@ -56,7 +60,23 @@ export class VehicleStatsComponent implements OnChanges {
 
   private rebuildCharts(): void {
     const s = this.stats;
-    if (!s || s.total === 0) {
+    this.showFleetCharts = false;
+    this.showReservationCharts = false;
+    if (!s) {
+      this.hasData = false;
+      this.clearCharts();
+      return;
+    }
+
+    const reservationVolume =
+      (Number(s.totalReservations) || 0) > 0 ||
+      Object.values(s.reservationsParStatut || {}).some((v) => (Number(v) || 0) > 0) ||
+      Object.values(s.topClientsParReservation || {}).some((v) => (Number(v) || 0) > 0);
+
+    this.showFleetCharts = s.total > 0;
+    this.showReservationCharts = reservationVolume;
+
+    if (!this.showFleetCharts && !this.showReservationCharts) {
       this.hasData = false;
       this.clearCharts();
       return;
@@ -69,103 +89,114 @@ export class VehicleStatsComponent implements OnChanges {
     const vend = Number(s.vendus) || 0;
     const inact = Number(s.inactifs) || 0;
 
-    this.statusDoughnutData = {
-      labels: ['Available', 'Reserved', 'Sold', 'Inactive'],
-      datasets: [
-        {
-          data: [disp, res, vend, inact],
-          backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#64748b'],
-          hoverBackgroundColor: ['#059669', '#d97706', '#2563eb', '#475569'],
-          borderWidth: 0,
-          hoverOffset: 10,
-        },
-      ],
-    };
+    if (this.showFleetCharts) {
+      this.statusDoughnutData = {
+        labels: ['Available', 'Reserved', 'Sold', 'Inactive'],
+        datasets: [
+          {
+            data: [disp, res, vend, inact],
+            backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#64748b'],
+            hoverBackgroundColor: ['#059669', '#d97706', '#2563eb', '#475569'],
+            borderWidth: 0,
+            hoverOffset: 10,
+          },
+        ],
+      };
 
-    const actifs = Number(s.actifs) || 0;
-    const total = Number(s.total) || 0;
-    const masques = Math.max(0, total - actifs);
+      const actifs = Number(s.actifs) || 0;
+      const total = Number(s.total) || 0;
+      const masques = Math.max(0, total - actifs);
 
-    this.activeDoughnutData = {
-      labels: ['Active listings', 'Hidden listings'],
-      datasets: [
-        {
-          data: [actifs, masques],
-          backgroundColor: ['#8b5cf6', '#e2e8f0'],
-          hoverBackgroundColor: ['#7c3aed', '#cbd5e1'],
-          borderWidth: 0,
-          hoverOffset: 8,
-        },
-      ],
-    };
+      this.activeDoughnutData = {
+        labels: ['Active listings', 'Hidden listings'],
+        datasets: [
+          {
+            data: [actifs, masques],
+            backgroundColor: ['#8b5cf6', '#e2e8f0'],
+            hoverBackgroundColor: ['#7c3aed', '#cbd5e1'],
+            borderWidth: 0,
+            hoverOffset: 8,
+          },
+        ],
+      };
 
-    const entries = Object.entries(s.parMarque || {})
-      .map(([k, v]) => ({ marque: k, n: Number(v) || 0 }))
-      .filter((x) => x.n > 0)
-      .sort((a, b) => b.n - a.n)
-      .slice(0, 14);
+      const entries = Object.entries(s.parMarque || {})
+        .map(([k, v]) => ({ marque: k, n: Number(v) || 0 }))
+        .filter((x) => x.n > 0)
+        .sort((a, b) => b.n - a.n)
+        .slice(0, 14);
 
-    const barLabels = entries.length ? entries.map((e) => e.marque) : ['(no aggregated brand)'];
-    const barData = entries.length ? entries.map((e) => e.n) : [0];
+      const barLabels = entries.length ? entries.map((e) => e.marque) : ['(no aggregated brand)'];
+      const barData = entries.length ? entries.map((e) => e.n) : [0];
 
-    this.marqueBarData = {
-      labels: barLabels,
-      datasets: [
-        {
-          label: 'Vehicles',
-          data: barData,
-          backgroundColor: entries.length
-            ? entries.map((_, i) => this.barColor(i))
-            : ['#e2e8f0'],
-          borderRadius: 8,
-          borderSkipped: false,
-        },
-      ],
-    };
+      this.marqueBarData = {
+        labels: barLabels,
+        datasets: [
+          {
+            label: 'Vehicles',
+            data: barData,
+            backgroundColor: entries.length
+              ? entries.map((_, i) => this.barColor(i))
+              : ['#e2e8f0'],
+            borderRadius: 8,
+            borderSkipped: false,
+          },
+        ],
+      };
+    } else {
+      this.statusDoughnutData = { labels: [], datasets: [] };
+      this.activeDoughnutData = { labels: [], datasets: [] };
+      this.marqueBarData = { labels: [], datasets: [] };
+    }
 
-    const reservationEntries = Object.entries(s.reservationsParStatut || {})
-      .map(([status, n]) => ({ status, n: Number(n) || 0 }))
-      .filter((x) => x.n > 0)
-      .sort((a, b) => b.n - a.n);
+    if (this.showReservationCharts) {
+      const reservationEntries = Object.entries(s.reservationsParStatut || {})
+        .map(([status, n]) => ({ status, n: Number(n) || 0 }))
+        .filter((x) => x.n > 0)
+        .sort((a, b) => b.n - a.n);
 
-    this.reservationsStatusDoughnutData = {
-      labels: reservationEntries.length
-        ? reservationEntries.map((e) => this.reservationStatusLabel(e.status))
-        : ['No reservation'],
-      datasets: [
-        {
-          data: reservationEntries.length ? reservationEntries.map((e) => e.n) : [0],
-          backgroundColor: reservationEntries.length
-            ? reservationEntries.map((_, i) => this.barColor(i))
-            : ['#e2e8f0'],
-          borderWidth: 0,
-          hoverOffset: 8,
-        },
-      ],
-    };
+      this.reservationsStatusDoughnutData = {
+        labels: reservationEntries.length
+          ? reservationEntries.map((e) => this.reservationStatusLabel(e.status))
+          : ['No reservation'],
+        datasets: [
+          {
+            data: reservationEntries.length ? reservationEntries.map((e) => e.n) : [0],
+            backgroundColor: reservationEntries.length
+              ? reservationEntries.map((_, i) => this.barColor(i))
+              : ['#e2e8f0'],
+            borderWidth: 0,
+            hoverOffset: 8,
+          },
+        ],
+      };
 
-    const topClientsEntries = Object.entries(s.topClientsParReservation || {})
-      .map(([client, n]) => ({ client, n: Number(n) || 0 }))
-      .filter((x) => x.n > 0)
-      .sort((a, b) => b.n - a.n)
-      .slice(0, 10);
+      const topClientsEntries = Object.entries(s.topClientsParReservation || {})
+        .map(([client, n]) => ({ client, n: Number(n) || 0 }))
+        .filter((x) => x.n > 0)
+        .sort((a, b) => b.n - a.n)
+        .slice(0, 10);
 
-    this.topClientsBarData = {
-      labels: topClientsEntries.length
-        ? topClientsEntries.map((e) => e.client)
-        : ['(no aggregated client)'],
-      datasets: [
-        {
-          label: 'Reservations',
-          data: topClientsEntries.length ? topClientsEntries.map((e) => e.n) : [0],
-          backgroundColor: topClientsEntries.length
-            ? topClientsEntries.map((_, i) => this.barColor(i + 4))
-            : ['#e2e8f0'],
-          borderRadius: 8,
-          borderSkipped: false,
-        },
-      ],
-    };
+      this.topClientsBarData = {
+        labels: topClientsEntries.length
+          ? topClientsEntries.map((e) => e.client)
+          : ['(no aggregated client)'],
+        datasets: [
+          {
+            label: 'Reservations',
+            data: topClientsEntries.length ? topClientsEntries.map((e) => e.n) : [0],
+            backgroundColor: topClientsEntries.length
+              ? topClientsEntries.map((_, i) => this.barColor(i + 4))
+              : ['#e2e8f0'],
+            borderRadius: 8,
+            borderSkipped: false,
+          },
+        ],
+      };
+    } else {
+      this.reservationsStatusDoughnutData = { labels: [], datasets: [] };
+      this.topClientsBarData = { labels: [], datasets: [] };
+    }
 
     const baseLegend = {
       legend: {

@@ -1,3 +1,4 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
@@ -11,6 +12,7 @@ describe('ContractsList', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      schemas: [NO_ERRORS_SCHEMA],
       imports: [LoanContractsExplorerModule],
       providers: [
         {

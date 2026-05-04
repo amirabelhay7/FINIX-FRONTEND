@@ -88,32 +88,32 @@ export class InsurerLayout implements OnInit, OnDestroy {
   expandedEventId: number | null = null;
 
   stats = [
-    { label: 'Polices actives', value: '248', icon: '🛡️', trend: '+12 ce mois', trendClass: 'up' },
-    { label: 'Sinistres en cours', value: '17', icon: '⚠️', trend: '-3 vs mois dernier', trendClass: 'up' },
-    { label: 'Renouvellements', value: '34', icon: '🔄', trend: '+8 ce mois', trendClass: 'up' },
-    { label: 'Primes collectées', value: '1.2M', suffix: 'TND', icon: '💰', trend: '+15.4%', trendClass: 'up' },
+    { label: 'Active policies', value: '248', icon: '🛡️', trend: '+12 this month', trendClass: 'up' },
+    { label: 'Open claims', value: '17', icon: '⚠️', trend: '-3 vs last month', trendClass: 'up' },
+    { label: 'Renewals', value: '34', icon: '🔄', trend: '+8 this month', trendClass: 'up' },
+    { label: 'Premiums collected', value: '1.2M', suffix: 'TND', icon: '💰', trend: '+15.4%', trendClass: 'up' },
   ];
 
   offers: InsuranceOffer[] = [
-    { id: 1, name: 'Auto Tous Risques', type: 'auto', price: 850, duration: '12 mois', coverage: 'Tous risques + assistance 24h', status: 'active', subscribers: 156, date: '15 Mars 2026' },
-    { id: 2, name: 'Auto Tiers', type: 'auto', price: 420, duration: '12 mois', coverage: 'Responsabilité civile', status: 'active', subscribers: 312, date: '12 Mars 2026' },
-    { id: 3, name: 'Habitation Premium', type: 'habitation', price: 680, duration: '12 mois', coverage: 'Incendie + vol + dégâts des eaux', status: 'active', subscribers: 89, date: '10 Mars 2026' },
-    { id: 4, name: 'Santé Famille', type: 'sante', price: 1200, duration: '12 mois', coverage: 'Hospitalisation + soins courants', status: 'active', subscribers: 245, date: '8 Mars 2026' },
-    { id: 5, name: 'Vie Épargne', type: 'vie', price: 150, duration: '60 mois', coverage: 'Capital garanti + épargne', status: 'draft', subscribers: 0, date: '5 Mars 2026' },
-    { id: 6, name: 'Auto Jeune Conducteur', type: 'auto', price: 1100, duration: '12 mois', coverage: 'Tous risques + formation', status: 'expired', subscribers: 67, date: '1 Mars 2026' },
+    { id: 1, name: 'Comprehensive auto', type: 'auto', price: 850, duration: '12 months', coverage: 'All risks + 24h assistance', status: 'active', subscribers: 156, date: 'Mar 15, 2026' },
+    { id: 2, name: 'Third-party auto', type: 'auto', price: 420, duration: '12 months', coverage: 'Civil liability', status: 'active', subscribers: 312, date: 'Mar 12, 2026' },
+    { id: 3, name: 'Home premium', type: 'habitation', price: 680, duration: '12 months', coverage: 'Fire + theft + water damage', status: 'active', subscribers: 89, date: 'Mar 10, 2026' },
+    { id: 4, name: 'Family health', type: 'sante', price: 1200, duration: '12 months', coverage: 'Hospitalization + outpatient care', status: 'active', subscribers: 245, date: 'Mar 8, 2026' },
+    { id: 5, name: 'Savings life', type: 'vie', price: 150, duration: '60 months', coverage: 'Guaranteed capital + savings', status: 'draft', subscribers: 0, date: 'Mar 5, 2026' },
+    { id: 6, name: 'Young driver auto', type: 'auto', price: 1100, duration: '12 months', coverage: 'All risks + training', status: 'expired', subscribers: 67, date: 'Mar 1, 2026' },
   ];
 
   events: EventDto[] = [];
 
   catalogs: CatalogItem[] = [
-    { id: 1, name: 'Assurance Automobile', category: 'Auto', description: 'Gamme complète de couvertures pour véhicules particuliers et professionnels', icon: '🚗', offersCount: 5 },
-    { id: 2, name: 'Assurance Habitation', category: 'Habitation', description: 'Protection du logement contre les risques courants et catastrophes', icon: '🏠', offersCount: 3 },
-    { id: 3, name: 'Assurance Santé', category: 'Santé', description: 'Couvertures médicales individuelles et familiales', icon: '🏥', offersCount: 4 },
-    { id: 4, name: 'Assurance Vie', category: 'Vie', description: "Produits d'épargne et de prévoyance à long terme", icon: '💎', offersCount: 2 },
-    { id: 5, name: 'Assurance Professionnelle', category: 'Pro', description: 'Solutions pour les entreprises et professionnels indépendants', icon: '🏢', offersCount: 3 },
+    { id: 1, name: 'Auto insurance', category: 'Auto', description: 'Full range of cover for private and commercial vehicles', icon: '🚗', offersCount: 5 },
+    { id: 2, name: 'Home insurance', category: 'Home', description: 'Protect the home against common risks and disasters', icon: '🏠', offersCount: 3 },
+    { id: 3, name: 'Health insurance', category: 'Health', description: 'Medical cover for individuals and families', icon: '🏥', offersCount: 4 },
+    { id: 4, name: 'Life insurance', category: 'Life', description: 'Long-term savings and protection products', icon: '💎', offersCount: 2 },
+    { id: 5, name: 'Business insurance', category: 'Pro', description: 'Solutions for companies and independent professionals', icon: '🏢', offersCount: 3 },
   ];
 
-  newOffer = { name: '', type: 'auto', price: 0, duration: '12 mois', coverage: '', description: '' };
+  newOffer = { name: '', type: 'auto', price: 0, duration: '12 months', coverage: '', description: '' };
   newEvent = {
     title: '',
     description: '',
@@ -154,13 +154,13 @@ export class InsurerLayout implements OnInit, OnDestroy {
       const raw = localStorage.getItem('currentUser');
       if (raw) {
         const user = JSON.parse(raw);
-        this.userName = user.name || 'Assureur';
+        this.userName = user.name || 'Insurer';
         this.userEmail = user.email || '';
       }
     } catch (error) {
       console.error('Error loading user from localStorage:', error);
     }
-    if (!this.userName) this.userName = 'Assureur';
+    if (!this.userName) this.userName = 'Insurer';
     const parts = this.userName.split(' ');
     this.userInitials = parts.map((p: string) => p[0]).join('').toUpperCase().slice(0, 2);
   }
@@ -227,10 +227,10 @@ export class InsurerLayout implements OnInit, OnDestroy {
     };
   }
 
-  formatPrice(p: number): string { return p.toLocaleString('fr-FR') + ' TND'; }
+  formatPrice(p: number): string { return p.toLocaleString('en-US') + ' TND'; }
 
   getTypeLabel(type: string): string {
-    const labels: Record<string, string> = { auto: 'Auto', habitation: 'Habitation', sante: 'Santé', vie: 'Vie' };
+    const labels: Record<string, string> = { auto: 'Auto', habitation: 'Home', sante: 'Health', vie: 'Life' };
     return labels[type] || type;
   }
 
@@ -267,7 +267,7 @@ export class InsurerLayout implements OnInit, OnDestroy {
 
   openAddOfferModal(): void {
     this.showAddOfferModal = true;
-    this.newOffer = { name: '', type: 'auto', price: 0, duration: '12 mois', coverage: '', description: '' };
+    this.newOffer = { name: '', type: 'auto', price: 0, duration: '12 months', coverage: '', description: '' };
   }
   closeAddOfferModal(): void { this.showAddOfferModal = false; }
 
@@ -618,7 +618,14 @@ export class InsurerLayout implements OnInit, OnDestroy {
       err?.message ||
       'Unable to load members.';
     const msg = String(raw).toLowerCase();
-    if (err?.status === 400 && (msg.includes('accès refusé') || msg.includes('pas membre') || msg.includes('member'))) {
+    if (
+      err?.status === 400 &&
+      (msg.includes('access denied') ||
+        msg.includes('accès refusé') ||
+        msg.includes('not a member') ||
+        msg.includes('pas membre') ||
+        msg.includes('member'))
+    ) {
       return 'You are not a member of this event chat group.';
     }
     return String(raw);
@@ -672,7 +679,7 @@ export class InsurerLayout implements OnInit, OnDestroy {
             title: ev.title || 'Event',
             status: 'PUBLISHED',
             organizerId: connectedUserId,
-            organizerFullName: this.userName || 'Assureur',
+            organizerFullName: this.userName || 'Insurer',
             createdAt: new Date().toISOString(),
             message: 'Your event has been approved',
           });

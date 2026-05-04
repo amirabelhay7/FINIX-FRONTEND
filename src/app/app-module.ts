@@ -17,6 +17,10 @@ import { httpLoggingInterceptor } from './services/auth/http-logging.interceptor
 import { UnauthorizedComponent } from './features/auth/unauthorized/unauthorized';
 import { LoanContractsExplorerModule } from './features/admin/credit-center/loan-contracts-explorer.module';
 import { InsuranceAdminComponent } from './layout/backoffice/components/insurance-admin/insurance-admin.component';
+import { ReservationsAdminComponent } from './layout/backoffice/components/reservations-admin/reservations-admin.component';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { RepaymentBackofficeComponent } from './layout/backoffice/repayment-backoffice/repayment-backoffice.component';
+import { RepaymentsAdminModule } from './features/admin/repayments-admin/repayments-admin-module';
 
 @NgModule({
   declarations: [
@@ -28,6 +32,8 @@ import { InsuranceAdminComponent } from './layout/backoffice/components/insuranc
     TopbarComponent,
     UnauthorizedComponent,
     InsuranceAdminComponent,
+    ReservationsAdminComponent,
+    RepaymentBackofficeComponent,
   ],
   imports: [
     BrowserModule,
@@ -35,10 +41,12 @@ import { InsuranceAdminComponent } from './layout/backoffice/components/insuranc
     FormsModule,
     SharedModule,
     LoanContractsExplorerModule,
+    RepaymentsAdminModule,
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(withInterceptors([httpLoggingInterceptor, authInterceptor])),
+    provideCharts(withDefaultRegisterables()),
   ],
   bootstrap: [App]
 })

@@ -1,3 +1,4 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Withdraw } from './withdraw';
@@ -8,6 +9,7 @@ describe('Withdraw', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      schemas: [NO_ERRORS_SCHEMA],
       declarations: [Withdraw]
     })
     .compileComponents();

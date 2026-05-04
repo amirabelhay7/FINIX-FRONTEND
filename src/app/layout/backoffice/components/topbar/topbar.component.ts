@@ -76,13 +76,20 @@ export class TopbarComponent {
   pageMap: any = {
     dashboard:      { title: "Dashboard", breadcrumb: "Dashboard" },
     clients:        { title: "Clients", breadcrumb: "Clients" },
-    credits:        { title: "Credits & Dossiers", breadcrumb: "Credits" },
+    credits:        { title: "Credits & files", breadcrumb: "Credits" },
     repayments:     { title: "Repayments", breadcrumb: "Repayments" },
+    delinquency:    { title: "Delinquency cases", breadcrumb: "Delinquency" },
+    'grace-requests': { title: "Grace period requests", breadcrumb: "Grace requests" },
+    analytics:      { title: "Repayment analytics", breadcrumb: "Analytics" },
+    'penalty-tiers': { title: "Penalty tiers (business rules)", breadcrumb: "Penalty tiers" },
     vehicles:       { title: "Vehicles", breadcrumb: "Vehicles" },
+    reservations:   { title: "Reservation requests", breadcrumb: "Reservations" },
     insurance:      { title: "Insurance", breadcrumb: "Insurance" },
-    risk:           { title: "Risk & Scoring", breadcrumb: "Risk" },
-    rapports:       { title: "Rapports", breadcrumb: "Rapports" },
-    notifications:  { title: "Alerts & Notifications", breadcrumb: "Notifications" },
+    risk:           { title: "Risk & score", breadcrumb: "Risk" },
+    rapports:       { title: "Reports", breadcrumb: "Reports" },
+    events:         { title: "Events", breadcrumb: "Events" },
+    users:          { title: "Users", breadcrumb: "Users" },
+    notifications:  { title: "Alerts & notifications", breadcrumb: "Notifications" },
     settings:       { title: "Settings", breadcrumb: "Settings" }
   };
 }

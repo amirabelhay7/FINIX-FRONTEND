@@ -1,3 +1,4 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VehiclesList } from './vehicles-list';
@@ -8,6 +9,7 @@ describe('VehiclesList', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      schemas: [NO_ERRORS_SCHEMA],
       declarations: [VehiclesList]
     })
     .compileComponents();

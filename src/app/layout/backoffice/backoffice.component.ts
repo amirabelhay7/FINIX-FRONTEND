@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Renderer2, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, Renderer2, HostListener, ViewEncapsulation } from '@angular/core';
 import { Credit } from '../../services/credit/credit.service';
 import { RequestLoanDto, PageResponse } from '../../models/credit.model';
 import { finalize, Subscription } from 'rxjs';
@@ -97,7 +97,8 @@ interface RecentNotificationItem {
   selector: 'app-backoffice',
   standalone: false,
   templateUrl: './backoffice.component.html',
-  styleUrls: ['./backoffice.component.css']
+  styleUrls: ['./backoffice.component.css'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class BackofficeComponent implements OnInit, OnDestroy {
   readonly scoringFactors = [
@@ -207,6 +208,14 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentTheme = this.readSavedTheme();
     this.applyTheme(this.currentTheme);
+    try {
+      const savedPage = sessionStorage.getItem('finix_page');
+      if (savedPage) {
+        this.selectedPage = savedPage;
+      }
+    } catch {
+      /* ignore */
+    }
     this.loadRequestLoans();
     this.unreadNotificationsCount = this.notificationsCritical.length;
     this.adminNotificationService.connect();
@@ -229,8 +238,21 @@ export class BackofficeComponent implements OnInit, OnDestroy {
     this.stopFallbackNotificationPolling();
   }
 
-  onPageChange(page: string) {
+  navigateTo(page: string): void {
     this.selectedPage = page;
+    try {
+      sessionStorage.setItem('finix_page', page);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  goToBusinessRules(): void {
+    this.navigateTo('penalty-tiers');
+  }
+
+  onPageChange(page: string) {
+    this.navigateTo(page);
 
     if (page === 'credits' && this.requestLoans.length === 0) {
       this.loadRequestLoans();
@@ -598,29 +620,29 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   activities = [
     {
-      title: "Remboursement reçu — <b>Bilel Mrabet</b>",
-      meta: "Il y a 4 min · Virement · #PAY-2026-028",
+      title: "Repayment received — <b>Bilel Mrabet</b>",
+      meta: "4 min ago · Transfer · #PAY-2026-028",
       value: "850 TND",
       color: "text-success",
       dotColor: "var(--success)"
     },
     {
-      title: "Nouveau dossier soumis — <b>Karim Hadj</b>",
-      meta: "Il y a 18 min · Consommation",
+      title: "New file submitted — <b>Karim Hadj</b>",
+      meta: "18 min ago · Consumption",
       value: "8 000 TND",
       color: "",
       dotColor: "var(--blue)"
     },
     {
-      title: "Impayé détecté — <b>Farouk Ben Ali</b>",
-      meta: "Il y a 1h · #CR-2024-018 · J+3",
+      title: "Delinquency detected — <b>Farouk Ben Ali</b>",
+      meta: "1h ago · #CR-2024-018 · D+3",
       value: "310 TND",
       color: "text-danger",
       dotColor: "var(--danger)"
     },
     {
-      title: "Assurance renouvelée — <b>Amira Selmi</b>",
-      meta: "Il y a 2h · STAR · Toyota Corolla",
+      title: "Insurance renewed — <b>Amira Selmi</b>",
+      meta: "2h ago · STAR · Toyota Corolla",
       value: "1 200 TND",
       color: "text-success",
       dotColor: "var(--success)"
@@ -632,7 +654,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       rank: 1,
       initials: "SA",
       name: "Sami Allani",
-      desc: "18 dossiers approuvés",
+      desc: "18 files approved",
       score: "98%",
       scoreClass: "text-success"
     },
@@ -640,7 +662,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       rank: 2,
       initials: "RK",
       name: "Rania Khelifi",
-      desc: "14 dossiers approuvés",
+      desc: "14 files approved",
       score: "91%",
       scoreClass: "text-warning"
     },
@@ -648,7 +670,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       rank: 3,
       initials: "MN",
       name: "Mohamed Naifar",
-      desc: "11 dossiers approuvés",
+      desc: "11 files approved",
       score: "87%",
       scoreClass: "text-blue"
     }
@@ -657,10 +679,10 @@ export class BackofficeComponent implements OnInit, OnDestroy {
   chartBars = [55,70,85,60,75,90,65,80,70,95,88,100];
 
   creditDistribution = [
-    { name:"Automobile", value:20, pct:"42%", color:"#3B82F6" },
-    { name:"Immobilier", value:12, pct:"26%", color:"#06B6D4" },
-    { name:"Consommation", value:10, pct:"21%", color:"#8B5CF6" },
-    { name:"Autres", value:5, pct:"11%", color:"#CBD5E1" }
+    { name: "Auto", value: 20, pct: "42%", color: "#3B82F6" },
+    { name: "Mortgage", value: 12, pct: "26%", color: "#06B6D4" },
+    { name: "Consumption", value: 10, pct: "21%", color: "#8B5CF6" },
+    { name: "Other", value: 5, pct: "11%", color: "#CBD5E1" }
   ];
 
   delinquencies = [
@@ -668,25 +690,25 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       initials: "FB",
       name: "Farouk Ben Ali",
       city: "Tunis",
-      phone: "+216 20 111 222",   // ← ajouter
+      phone: "+216 20 111 222",
       dossier: "#CR-2024-018",
-      product: "Consommation · 24 mois",
+      product: "Consumption · 24 mo",
       amount: "310 TND",
-      delay: "J+3",
-      risk: "Modéré",
-      sms: "1 SMS · 0 appel"
+      delay: "D+3",
+      risk: "Moderate",
+      sms: "1 SMS · 0 calls"
     },
     {
       initials: "HG",
       name: "Hanen Gharbi",
       city: "Sfax",
-      phone: "+216 24 333 444",   // ← ajouter
+      phone: "+216 24 333 444",
       dossier: "#CR-2023-092",
-      product: "Automobile · 60 mois",
+      product: "Auto · 60 mo",
       amount: "890 TND",
-      delay: "J+14",
-      risk: "Élevé",
-      sms: "3 SMS · 2 appels"
+      delay: "D+14",
+      risk: "High",
+      sms: "3 SMS · 2 calls"
     }
   ];
 
@@ -728,59 +750,12 @@ export class BackofficeComponent implements OnInit, OnDestroy {
 
   analysisFiles: AnalysisFileItem[] = [];
 
-  payments = [
-    {
-      ref: "#PAY-2026-028",
-      client: "Bilel Mrabet",
-      file: "#CR-2024-001",
-      fileType: "Auto Loan",
-      amount: "260 TND",
-      date: "28 Feb 2026",
-      mode: "Transfer",
-      status: "Paid",
-      agent: "Auto"
-    },
-    {
-      ref: "#PAY-2026-027",
-      client: "Bilel Mrabet",
-      file: "#CR-2024-018",
-      fileType: "Consumption",
-      amount: "310 TND",
-      date: "28 Feb 2026",
-      mode: "Direct Debit",
-      status: "Paid",
-      agent: "Auto"
-    },
-    {
-      ref: "#PAY-2026-024",
-      client: "Amira Selmi",
-      file: "#CR-2024-015",
-      fileType: "Consumption",
-      amount: "420 TND",
-      date: "25 Feb 2026",
-      mode: "Cash",
-      status: "Paid",
-      agent: "Sami A."
-    },
-    {
-      ref: "#PAY-2026-019",
-      client: "Farouk Ben Ali",
-      file: "#CR-2024-018",
-      fileType: "Consumption",
-      amount: "310 TND",
-      date: "J+3",
-      mode: "",
-      status: "Pending",
-      agent: "Rania K."
-    }
-  ];
-
   riskAlerts = [
     {
       initials: "FB",
       name: "Farouk Ben Ali",
       score: 468,
-      motif: "Overdue J+3",
+      motif: "Overdue D+3",
       encours: "7,800 TND",
       actionLabel: "Process",
       badgeClass: "b-danger"
@@ -789,7 +764,7 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       initials: "HG",
       name: "Hanen Gharbi",
       score: 412,
-      motif: "Overdue J+14",
+      motif: "Overdue D+14",
       encours: "12,400 TND",
       actionLabel: "Legal",
       badgeClass: "b-danger"
@@ -1029,45 +1004,6 @@ export class BackofficeComponent implements OnInit, OnDestroy {
       date: "Generated on 05/01/2026",
       actionLabel: "Download",
       outline: true
-    }
-  ];
-
-  vehicles = [
-    {
-      plate: "267 TN 2022",
-      name: "Toyota Corolla",
-      desc: "Auto · Petrol · 2022",
-      owner: "Bilel Mrabet",
-      credit: "#CR-2024-001",
-      value: "42 000 TND",
-      km: "32 450 km",
-      insurance: "⚠ 2 days",
-      status: "Insured",
-      statusClass: "b-review"
-    },
-    {
-      plate: "158 TN 2019",
-      name: "Kia Picanto",
-      desc: "Manual · Petrol · 2019",
-      owner: "Bilel Mrabet",
-      credit: "Settled ✓",
-      value: "18 500 TND",
-      km: "78 200 km",
-      insurance: "106 days",
-      status: "Insured",
-      statusClass: "b-actif"
-    },
-    {
-      plate: "445 TN 2021",
-      name: "Volkswagen Golf",
-      desc: "Auto · Diesel · 2021",
-      owner: "Amira Selmi",
-      credit: "#CR-2024-015",
-      value: "58 000 TND",
-      km: "41 200 km",
-      insurance: "210 days",
-      status: "Insured",
-      statusClass: "b-actif"
     }
   ];
 

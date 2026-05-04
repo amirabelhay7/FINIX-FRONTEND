@@ -1,3 +1,4 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PenaltiesList } from './penalties-list';
@@ -8,6 +9,7 @@ describe('PenaltiesList', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      schemas: [NO_ERRORS_SCHEMA],
       declarations: [PenaltiesList]
     })
     .compileComponents();

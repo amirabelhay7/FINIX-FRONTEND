@@ -5,7 +5,7 @@
     <div class="sl-tb-name">FIN<span>'IX</span></div>
   </div>
   <div class="sl-tb-divider"></div>
-  <div class="sl-tb-sub">Espace Vendeur · Gestion des offres véhicules</div>
+  <div class="sl-tb-sub">Seller area · Vehicle listing management</div>
 
   <div class="sl-tb-right">
     <div class="sl-notif-wrap">
@@ -33,7 +33,7 @@
       </div>
     </div>
     <button type="button" class="sl-tb-btn">⚙️</button>
-    <button type="button" class="sl-theme-toggle" (click)="toggleTheme()" title="Changer le thème">
+    <button type="button" class="sl-theme-toggle" (click)="toggleTheme()" title="Toggle theme">
       {{ currentTheme === 'dark' ? '☀️' : '🌙' }}
     </button>
 
@@ -44,7 +44,7 @@
       </div>
       <div>
         <div class="sl-tb-uname">{{ userName }}</div>
-        <div class="sl-tb-urole">Vendeur</div>
+        <div class="sl-tb-urole">Seller</div>
       </div>
       <span style="color: rgba(255,255,255,.3); font-size: .65rem; margin-left: .25rem;">▾</span>
 
@@ -73,10 +73,10 @@
 </div>
 
 <nav class="sl-route-nav">
-  <a routerLink="/seller/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Tableau de bord</a>
-  <a routerLink="/seller/vehicles" routerLinkActive="active">Véhicules (parc)</a>
-  <a routerLink="/seller/listings" routerLinkActive="active">Annonces</a>
-  <a routerLink="/seller/orders" routerLinkActive="active">Commandes</a>
+  <a routerLink="/seller/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Dashboard</a>
+  <a routerLink="/seller/vehicles" routerLinkActive="active">Vehicles (fleet)</a>
+  <a routerLink="/seller/listings" routerLinkActive="active">Listings</a>
+  <a routerLink="/seller/orders" routerLinkActive="active">Orders</a>
 </nav>
 
 <main class="sl-main sl-main-routed">

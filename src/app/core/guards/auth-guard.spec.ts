@@ -1,3 +1,4 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CanActivateFn } from '@angular/router';
 
@@ -8,7 +9,8 @@ describe('authGuard', () => {
       TestBed.runInInjectionContext(() => authGuard(...guardParameters));
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      schemas: [NO_ERRORS_SCHEMA],});
   });
 
   it('should be created', () => {

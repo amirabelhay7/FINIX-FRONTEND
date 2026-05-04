@@ -1,0 +1,217 @@
+/* Repayment backoffice — global (ViewEncapsulation.None): scope under app-repayment-backoffice where possible */
+
+app-repayment-backoffice .page {
+  display: none;
+  grid-column: 1 / -1;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+app-repayment-backoffice .page.active {
+  display: flex;
+}
+
+/* ── Admin payment modal ───────────────────────────────────────── */
+.rp-modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.rp-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(3px);
+}
+
+.rp-modal-center {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 32rem;
+  max-height: min(92vh, 40rem);
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+
+.rp-modal-center .admin-pay-modal {
+  width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg, #fff);
+  border-radius: var(--r12, 12px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.rp-modal-center .modal-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--g100, #f3f4f6);
+}
+
+.rp-modal-center .modal-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--g900, #111827);
+}
+
+.rp-modal-center .modal-sub {
+  font-size: 0.78rem;
+  color: var(--g500, #6b7280);
+  margin-top: 0.2rem;
+}
+
+.rp-modal-center .modal-close {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--r8, 8px);
+  background: var(--g100, #f3f4f6);
+  color: var(--g600, #4b5563);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.rp-modal-center .modal-close:hover {
+  background: var(--g200, #e5e7eb);
+  color: var(--g900, #111827);
+}
+
+.rp-modal-center .modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1.15rem 1.25rem 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rp-modal-center .modal-footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  padding: 0.85rem 1.25rem 1.1rem;
+  border-top: 1px solid var(--g100, #f3f4f6);
+  background: var(--g50, #fafafa);
+}
+
+.rp-modal-field-wrap {
+  position: relative;
+  margin-top: 0.35rem;
+}
+
+.rp-modal-input.form-input {
+  width: 100%;
+  min-height: 2.65rem;
+  font-size: 0.9rem;
+}
+
+.rp-modal-input.form-input:focus {
+  outline: none;
+  border-color: var(--blue, #1f6fea);
+  box-shadow: 0 0 0 3px rgba(31, 111, 234, 0.12);
+}
+
+.admin-search-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 10;
+  max-height: 14rem;
+  overflow-y: auto;
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--g200, #e5e7eb);
+  border-radius: var(--r8, 8px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.admin-search-item {
+  padding: 0.65rem 0.85rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--g100, #f3f4f6);
+  transition: background 0.12s;
+}
+
+.admin-search-item:last-child {
+  border-bottom: none;
+}
+
+.admin-search-item:hover {
+  background: var(--g50, #f9fafb);
+}
+
+.admin-pay-error {
+  font-size: 0.82rem;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--r8, 8px);
+  padding: 0.65rem 0.85rem;
+}
+
+.admin-pay-success {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: var(--r8, 8px);
+  padding: 0.75rem 0.9rem;
+}
+
+.admin-pay-client-chip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--g50, #f9fafb);
+  border: 1px solid var(--g200, #e5e7eb);
+  border-radius: var(--r8, 8px);
+  font-size: 0.82rem;
+}
+
+.admin-pay-details {
+  margin-top: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--r8, 8px);
+  border: 1px solid var(--g200, #e5e7eb);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.admin-pay-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  font-size: 0.82rem;
+}
+
+.admin-pay-detail-row span:first-child {
+  color: var(--g500, #6b7280);
+}

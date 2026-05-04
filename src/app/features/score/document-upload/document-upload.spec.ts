@@ -1,3 +1,4 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DocumentUpload } from './document-upload';
@@ -8,6 +9,7 @@ describe('DocumentUpload', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      schemas: [NO_ERRORS_SCHEMA],
       declarations: [DocumentUpload]
     })
     .compileComponents();

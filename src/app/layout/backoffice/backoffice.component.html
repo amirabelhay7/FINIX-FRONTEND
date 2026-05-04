@@ -18,25 +18,25 @@
   <main class="main">
 
     <!-- ═══════════════════════════════════════════════════════
-         OVERVIEW PAGE — visible seulement si selectedPage === 'dashboard'
+         OVERVIEW PAGE — visible only when selectedPage === 'dashboard'
          ═══════════════════════════════════════════════════════ -->
     <ng-container *ngIf="selectedPage === 'dashboard'">
 
       <!-- ── HEADER ── -->
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">28 Février 2026 · Samedi</div>
-          <div class="ph-title">Vue d'ensemble</div>
+          <div class="ph-eyebrow">Feb 28, 2026 · Saturday</div>
+          <div class="ph-title">Overview</div>
           <div class="ph-desc">
-            1 248 clients actifs · 3 décisions en attente · Système opérationnel ✓
+            1,248 active clients · 3 pending decisions · System operational ✓
           </div>
         </div>
         <div class="ph-actions">
           <button class="btn btn-outline btn-sm">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-            Export rapport
+            Export report
           </button>
-          <button class="btn btn-primary btn-sm">+ Nouveau dossier</button>
+          <button class="btn btn-primary btn-sm">+ New file</button>
         </div>
       </div>
 
@@ -69,11 +69,11 @@
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
             </div>
-            <div class="kpi-trend success">↑ +23 ce mois</div>
+            <div class="kpi-trend success">↑ +23 this month</div>
           </div>
           <div class="kpi-val">1 248</div>
-          <div class="kpi-lbl">Clients actifs</div>
-          <div class="kpi-foot">Taux de rétention : <b>96.4%</b></div>
+          <div class="kpi-lbl">Active clients</div>
+          <div class="kpi-foot">Retention rate: <b>96.4%</b></div>
         </div>
 
         <div class="kpi" style="--kc:var(--success);">
@@ -86,8 +86,8 @@
             <div class="kpi-trend success">↑ +8.2%</div>
           </div>
           <div class="kpi-val" style="font-size:1.5rem;">TND <span style="font-size:2rem;">14.2M</span></div>
-          <div class="kpi-lbl">Encours total</div>
-          <div class="kpi-foot">Collecté ce mois : <b>487 200 TND</b></div>
+          <div class="kpi-lbl">Total outstanding</div>
+          <div class="kpi-foot">Collected this month: <b>487 200 TND</b></div>
         </div>
 
         <div class="kpi" style="--kc:var(--warning);">
@@ -98,7 +98,7 @@
                 <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
               </svg>
             </div>
-            <div class="kpi-trend warning">⚠ Urgents : 3</div>
+            <div class="kpi-trend warning">⚠ Urgent: 3</div>
           </div>
           <div class="kpi-val">47</div>
           <div class="kpi-lbl">Files in progress</div>
@@ -113,11 +113,11 @@
                 <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
             </div>
-            <div class="kpi-trend danger">↑ +2 vs hier</div>
+            <div class="kpi-trend danger">↑ +2 vs yesterday</div>
           </div>
           <div class="kpi-val">12</div>
-          <div class="kpi-lbl">Impayés actifs</div>
-          <div class="kpi-foot">Taux de défaut : <b>1.8%</b></div>
+          <div class="kpi-lbl">Active delinquencies</div>
+          <div class="kpi-foot">Default rate: <b>1.8%</b></div>
         </div>
 
       </div><!-- /kpi-row -->
@@ -171,13 +171,13 @@
         </div>
       </div>
 
-      <!-- ── PANNEAU ACTIVITÉ TEMPS RÉEL (colonne droite) ── -->
+      <!-- ── REAL-TIME ACTIVITY PANEL (colonne droite) ── -->
       <div class="g13">
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title">
               <span class="ptdot"></span>
-              Activité en temps réel
+              Real-time activity
             </div>
             <span class="badge b-actif">Live</span>
           </div>
@@ -197,22 +197,22 @@
         </div>
       </div>
 
-      <!-- ── LIGNE 3 PANELS ── -->
+      <!-- ── ROW OF 3 PANELS ── -->
       <div class="g33 s4">
 
-        <!-- Chart Dossiers / mois -->
+        <!-- Chart Files / month -->
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title">
               <span class="ptdot"></span>
-              Dossiers / mois
+              Files / month
             </div>
             <span class="badge b-blue">2026</span>
           </div>
           <div class="panel-body">
             <div style="display:flex;justify-content:space-between;margin-bottom:.5rem;">
-              <span style="font-size:.8rem;color:var(--g400);">Dossiers soumis</span>
-              <span class="font-sora fw7" style="font-size:1rem;">47 <small style="font-size:.75rem;color:var(--g400);">ce mois</small></span>
+              <span style="font-size:.8rem;color:var(--g400);">Files submitted</span>
+              <span class="font-sora fw7" style="font-size:1rem;">47 <small style="font-size:.75rem;color:var(--g400);">this month</small></span>
             </div>
             <div class="chart-bars">
               <div class="chart-bar" *ngFor="let h of chartBars; let i=index"
@@ -267,14 +267,14 @@
           </div>
         </div>
 
-        <!-- Top conseillers -->
+        <!-- Top advisors -->
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title">
               <span class="ptdot"></span>
-              Top conseillers
+              Top advisors
             </div>
-            <span class="badge b-review">Fév 2026</span>
+            <span class="badge b-review">Feb 2026</span>
           </div>
           <div style="padding:.25rem 0">
             <div *ngFor="let agent of topAgents; let i=index" class="top-agent-item">
@@ -291,16 +291,16 @@
 
       </div><!-- /g33 -->
 
-      <!-- ── IMPAYÉS & RETARDS ── -->
+      <!-- ── DELINQUENCIES & LATE PAYMENTS ── -->
       <div class="panel s5">
         <div class="panel-head">
           <div class="panel-title">
             <span class="ptdot" style="background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.12);"></span>
-            Impayés & retards
+            Delinquencies & late payments
           </div>
           <div style="display:flex;gap:.5rem;margin-left:auto;">
-            <span class="badge b-danger">12 cas actifs</span>
-            <button class="btn btn-ghost btn-sm">Voir tout →</button>
+            <span class="badge b-danger">12 active cases</span>
+            <button class="btn btn-ghost btn-sm">View all →</button>
           </div>
         </div>
         <div class="tbl-wrap">
@@ -308,11 +308,11 @@
             <thead>
             <tr>
               <th>Client</th>
-              <th>Dossier</th>
-              <th>Montant dû</th>
-              <th>Retard</th>
-              <th>Tentatives</th>
-              <th>Risque</th>
+              <th>File</th>
+              <th>Amount due</th>
+              <th>Days overdue</th>
+              <th>Attempts</th>
+              <th>Risk</th>
               <th>Action</th>
             </tr>
             </thead>
@@ -335,17 +335,17 @@
               <td><span class="badge b-danger">{{ d.delay }}</span></td>
               <td><span style="font-size:.75rem;color:var(--g500)">{{ d.sms }}</span></td>
               <td>
-                  <span class="badge" [ngClass]="d.risk === 'Élevé' ? 'b-danger' : d.risk === 'Modéré' ? 'b-review' : 'b-actif'">
+                  <span class="badge" [ngClass]="d.risk === 'High' ? 'b-danger' : d.risk === 'Moderate' ? 'b-review' : 'b-actif'">
                     {{ d.risk }}
                   </span>
               </td>
               <td>
                 <div style="display:flex;gap:.375rem">
-                  <button class="btn btn-xs" [ngClass]="d.risk === 'Élevé' ? 'btn-danger' : 'btn-success'" style="display:flex;align-items:center;gap:.25rem;">
-                    <span>{{ d.risk === 'Élevé' ? '⚖️' : '📞' }}</span>
-                    {{ d.risk === 'Élevé' ? 'Contentieux' : 'Relancer' }}
+                  <button class="btn btn-xs" [ngClass]="d.risk === 'High' ? 'btn-danger' : 'btn-success'" style="display:flex;align-items:center;gap:.25rem;">
+                    <span>{{ d.risk === 'High' ? '⚖️' : '📞' }}</span>
+                    {{ d.risk === 'High' ? 'Legal' : 'Follow up' }}
                   </button>
-                  <button class="btn btn-outline btn-xs">Dossier</button>
+                  <button class="btn btn-outline btn-xs">File</button>
                 </div>
               </td>
             </tr>
@@ -358,20 +358,20 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : CLIENTS
+         PAGE: CLIENTS
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'clients'" id="page-clients">
 
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Gestion des clients</div>
-          <div class="ph-title">Base clients</div>
-          <div class="ph-desc">1 248 clients · 23 nouveaux ce mois · 3 suspendus</div>
+          <div class="ph-eyebrow">Client management</div>
+          <div class="ph-title">Client database</div>
+          <div class="ph-desc">1,248 clients · 23 new this month · 3 suspended</div>
         </div>
         <div class="ph-actions">
           <button class="btn btn-outline">Import</button>
           <button class="btn btn-outline">Export</button>
-          <button class="btn btn-primary">+ Nouveau client</button>
+          <button class="btn btn-primary">+ New client</button>
         </div>
       </div>
 
@@ -380,32 +380,32 @@
           <div class="kpi-top"><div class="kpi-ico" style="background:rgba(59,130,246,.12);">👥</div><div class="kpi-trend success">↑ +23</div></div>
           <div class="kpi-val">1 248</div>
           <div class="kpi-lbl">Total clients</div>
-          <div class="kpi-foot">Score moyen : <b>698</b></div>
+          <div class="kpi-foot">Average score: <b>698</b></div>
         </div>
         <div class="kpi" style="--kc:var(--success);">
           <div class="kpi-top"><div class="kpi-ico" style="background:rgba(16,185,129,.12);">✓</div><div class="kpi-trend success">Active</div></div>
           <div class="kpi-val">1 201</div>
-          <div class="kpi-lbl">Clients actifs</div>
-          <div class="kpi-foot">KYC complété : <b>1 180</b></div>
+          <div class="kpi-lbl">Active clients</div>
+          <div class="kpi-foot">KYC completed: <b>1 180</b></div>
         </div>
         <div class="kpi" style="--kc:var(--warning);">
           <div class="kpi-top"><div class="kpi-ico" style="background:rgba(245,158,11,.12);">📋</div><div class="kpi-trend warning">⚠ 44</div></div>
           <div class="kpi-val">44</div>
-          <div class="kpi-lbl">Dossiers incomplets</div>
-          <div class="kpi-foot">Documents manquants : <b>67</b></div>
+          <div class="kpi-lbl">Incomplete files</div>
+          <div class="kpi-foot">Missing documents: <b>67</b></div>
         </div>
         <div class="kpi" style="--kc:var(--danger);">
-          <div class="kpi-top"><div class="kpi-ico" style="background:rgba(239,68,68,.12);">🚫</div><div class="kpi-trend danger">Suspendus</div></div>
+          <div class="kpi-top"><div class="kpi-ico" style="background:rgba(239,68,68,.12);">🚫</div><div class="kpi-trend danger">Suspended</div></div>
           <div class="kpi-val">3</div>
-          <div class="kpi-lbl">Clients suspendus</div>
-          <div class="kpi-foot">Raison : <b>Défauts répétés</b></div>
+          <div class="kpi-lbl">Suspended clients</div>
+          <div class="kpi-foot">Reason: <b>Repeated defaults</b></div>
         </div>
       </div>
 
       <div class="panel s4">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Liste des clients</div>
-          <span style="font-size:.75rem;color:var(--g400)">{{ clients.length }} résultats</span>
+          <div class="panel-title"><span class="ptdot"></span>Client list</div>
+          <span style="font-size:.75rem;color:var(--g400)">{{ clients.length }} results</span>
         </div>
         <div class="tbl-wrap">
           <table>
@@ -414,12 +414,12 @@
               <th></th>
               <th>Client</th>
               <th>CIN</th>
-              <th>Ville</th>
+              <th>City</th>
               <th>Score</th>
-              <th>Crédits</th>
-              <th>Encours</th>
+              <th>Credits</th>
+              <th>Outstanding</th>
               <th>KYC</th>
-              <th>Statut</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
             </thead>
@@ -451,8 +451,8 @@
               <td><span class="badge" [ngClass]="c.statusClass">{{ c.status }}</span></td>
               <td>
                 <div style="display:flex;gap:.375rem">
-                  <button class="btn btn-ghost btn-xs">Voir</button>
-                  <button class="btn btn-outline btn-xs">Modifier</button>
+                  <button class="btn btn-ghost btn-xs">View</button>
+                  <button class="btn btn-outline btn-xs">Edit</button>
                 </div>
               </td>
             </tr>
@@ -465,7 +465,7 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : CREDITS & FILES
+         PAGE: CREDITS & FILES
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'credits'" id="page-credits">
       <!-- Header -->
@@ -746,7 +746,7 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : EVENTS
+         PAGE: EVENTS
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'events'" id="page-events">
 
@@ -896,235 +896,40 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : REMBOURSEMENTS
+         PAGE: REPAYMENTS (API — same as FINIX-FRONTEND)
          ═══════════════════════════════════════════════════════ -->
-    <div class="page" [class.active]="selectedPage === 'repayments'" id="page-remboursements">
-
-      <div class="ph s1">
-        <div>
-          <div class="ph-eyebrow">Suivi financier</div>
-          <div class="ph-title">Remboursements</div>
-          <div class="ph-desc">Collecte mensuelle : 487 200 TND · Taux de recouvrement : 98.2%</div>
-        </div>
-        <div class="ph-actions">
-          <button class="btn btn-outline btn-sm">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Export
-          </button>
-          <button class="btn btn-primary btn-sm">+ Saisir paiement</button>
-        </div>
-      </div>
-
-      <div class="kpi-row s2">
-
-        <div class="kpi" style="--kc:var(--success);">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background:rgba(16,185,129,.12);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-              </svg>
-            </div>
-            <div class="kpi-trend success">+12%</div>
-          </div>
-          <div class="kpi-val" style="font-size:1.3rem;">TND <span style="font-size:1.9rem;">487 200</span></div>
-          <div class="kpi-lbl">Collecté ce mois</div>
-          <div class="kpi-foot">Objectif : <b>500 000 TND (97.4%)</b></div>
-        </div>
-
-        <div class="kpi" style="--kc:var(--danger);">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background:rgba(239,68,68,.12);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-            </div>
-            <div class="kpi-trend danger">12 cas</div>
-          </div>
-          <div class="kpi-val" style="font-size:1.3rem;">TND <span style="font-size:1.9rem;">8 940</span></div>
-          <div class="kpi-lbl">Impayés totaux</div>
-          <div class="kpi-foot">Taux de défaut : <b>1.8%</b></div>
-        </div>
-
-        <div class="kpi" style="--kc:var(--blue);">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background:rgba(59,130,246,.12);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-            </div>
-            <div class="kpi-trend warning">A venir</div>
-          </div>
-          <div class="kpi-val" style="font-size:1.3rem;">TND <span style="font-size:1.9rem;">52 800</span></div>
-          <div class="kpi-lbl">Echeances Mars</div>
-          <div class="kpi-foot">Prochaine : <b>05 Mars 2026</b></div>
-        </div>
-
-        <div class="kpi" style="--kc:var(--purple);">
-          <div class="kpi-top">
-            <div class="kpi-ico" style="background:rgba(139,92,246,.12);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-              </svg>
-            </div>
-            <div class="kpi-trend success">98.2%</div>
-          </div>
-          <div class="kpi-val">1 248</div>
-          <div class="kpi-lbl">Contrats suivis</div>
-          <div class="kpi-foot">Automatises : <b>892 (71%)</b></div>
-        </div>
-
-      </div>
-
-      <div class="panel s3">
-        <div class="panel-head">
-          <div class="panel-title">
-            <span class="ptdot"></span>
-            Historique des remboursements &mdash; Fev 2026
-          </div>
-          <div style="display:flex;align-items:center;gap:.625rem;margin-left:auto;">
-            <select class="form-input" style="width:150px;padding:.3rem .7rem;font-size:.775rem;">
-              <option>Fevrier 2026</option>
-              <option>Janvier 2026</option>
-              <option>Decembre 2025</option>
-            </select>
-            <button class="btn btn-outline btn-sm">Filtres</button>
-          </div>
-        </div>
-        <div class="tbl-wrap">
-          <table>
-            <thead>
-            <tr>
-              <th>Reference</th>
-              <th>Client</th>
-              <th>Dossier</th>
-              <th>Montant</th>
-              <th>Date</th>
-              <th>Mode</th>
-              <th>Statut</th>
-              <th>Agent</th>
-              <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let p of payments">
-              <td><span class="td-ref">{{ p.ref }}</span></td>
-              <td class="td-primary">{{ p.client }}</td>
-              <td>
-                <span class="td-ref">{{ p.file }}</span>
-                <div class="td-sub">{{ p.fileType }}</div>
-              </td>
-              <td class="td-amount">{{ p.amount }}</td>
-              <td style="font-size:.8rem;color:var(--g500);">{{ p.date }}</td>
-              <td>
-                  <span class="badge"
-                        [ngClass]="{
-                      'b-blue':   p.mode==='Transfer'    || p.mode==='Virement',
-                      'b-purple': p.mode==='Direct Debit'|| p.mode==='Prelevement',
-                      'b-teal':   p.mode==='Cash'        || p.mode==='Especes'
-                    }">
-                    {{ p.mode === 'Transfer' ? 'Virement' :
-                    p.mode === 'Direct Debit' ? 'Prelevement' :
-                      p.mode === 'Cash' ? 'Especes' : (p.mode || '—') }}
-                  </span>
-              </td>
-              <td>
-                  <span *ngIf="p.status==='Paid' || p.status==='Paye'" class="badge b-actif">
-                    v Paye
-                  </span>
-                <span *ngIf="p.status==='Pending' || p.status==='En attente'" class="badge b-review">
-                    En attente
-                  </span>
-                <span *ngIf="p.status!=='Paid' && p.status!=='Paye' && p.status!=='Pending' && p.status!=='En attente'" class="badge b-danger">
-                    X Impaye
-                  </span>
-              </td>
-              <td style="font-size:.75rem;color:var(--g500);">{{ p.agent }}</td>
-              <td>
-                <div style="display:flex;gap:.375rem;" *ngIf="p.status==='Pending' || p.status==='En attente'">
-                  <button class="btn btn-primary btn-xs">Saisir</button>
-                  <button class="btn btn-outline btn-xs">Relancer</button>
-                </div>
-                <button *ngIf="p.status==='Paid' || p.status==='Paye'" class="btn btn-ghost btn-xs">Recu</button>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div><!-- /page-remboursements -->
+    <app-repayment-backoffice [selectedPage]="selectedPage" (onNavigate)="navigateTo($event)"></app-repayment-backoffice>
 
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : VÉHICULES
+         PAGE: VEHICLES — API data (vehicle module, aligned with FINIX-FRONTEND)
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'vehicles'" id="page-vehicles">
-
-      <div class="ph s1">
-        <div>
-          <div class="ph-eyebrow">Gestion du parc</div>
-          <div class="ph-title">Véhicules</div>
-          <div class="ph-desc">2 148 véhicules enregistrés · 1 890 assurés · 48 à renouveler</div>
-        </div>
-        <div class="ph-actions">
-          <button class="btn btn-outline">Import</button>
-          <button class="btn btn-primary">+ Ajouter véhicule</button>
-        </div>
+      <div class="s1" style="display:flex;justify-content:flex-end;gap:.5rem">
+        <button type="button" class="btn btn-outline btn-sm" (click)="onPageChange('reservations')">
+          Reservation requests
+        </button>
       </div>
-
-      <div class="panel s2">
-        <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Registre des véhicules</div>
-          <div class="tb-search" style="width:200px;">
-            <span>🔍</span>
-            <input type="text" placeholder="Plaque, client, modèle…">
-          </div>
-        </div>
-        <div class="tbl-wrap">
-          <table>
-            <thead>
-            <tr>
-              <th>Plaque</th>
-              <th>Véhicule</th>
-              <th>Propriétaire</th>
-              <th>Crédit</th>
-              <th>Valeur</th>
-              <th>Kilométrage</th>
-              <th>Assurance</th>
-              <th>Statut</th>
-              <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let vehicle of vehicles">
-              <td><span class="td-ref">{{ vehicle.plate }}</span></td>
-              <td>
-                <div class="td-primary">{{ vehicle.name }}</div>
-                <div class="td-sub">{{ vehicle.desc }}</div>
-              </td>
-              <td><div class="td-primary">{{ vehicle.owner }}</div></td>
-              <td><span class="td-ref">{{ vehicle.credit }}</span></td>
-              <td><span class="td-amount">{{ vehicle.value }}</span></td>
-              <td>{{ vehicle.km }}</td>
-              <td><span class="badge b-review">{{ vehicle.insurance }}</span></td>
-              <td><span class="badge" [ngClass]="vehicle.statusClass">{{ vehicle.status }}</span></td>
-              <td><button class="btn btn-ghost btn-xs">Voir</button></td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
+      <app-vehicle-workspace
+        workspaceMode="admin"
+        [showCatalog]="false"
+        [showSubEntities]="false"
+        [showCreateVehicleButton]="false"
+        headingEyebrow="Fleet management"
+        headingTitle="Vehicles"
+      ></app-vehicle-workspace>
     </div><!-- /page-vehicles -->
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE: VEHICLE RESERVATIONS (admin IMF)
+         ═══════════════════════════════════════════════════════ -->
+    <div class="page" [class.active]="selectedPage === 'reservations'" id="page-reservations">
+      <app-reservations-admin (backToVehicles)="onPageChange('vehicles')"></app-reservations-admin>
+    </div><!-- /page-reservations -->
 
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : INSURANCE — live API (/api/insurance)
+         PAGE: INSURANCE — live API (/api/insurance)
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'insurance'" id="page-assurance">
       <app-insurance-admin></app-insurance-admin>
@@ -1132,15 +937,15 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : RISQUE & SCORE
+         PAGE: RISK & SCORE
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'risk'" id="page-risk">
 
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Analyse des risques</div>
-          <div class="ph-title">Risque & Score</div>
-          <div class="ph-desc">3 alertes critiques · Taux de défaut global 1.8%</div>
+          <div class="ph-eyebrow">Risk analysis</div>
+          <div class="ph-title">Risk & score</div>
+          <div class="ph-desc">3 critical alerts · Overall default rate 1.8%</div>
         </div>
       </div>
 
@@ -1148,9 +953,9 @@
         <div class="panel-head">
           <div class="panel-title">
             <span class="ptdot" style="background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.12);"></span>
-            Alertes risque élevé
+            High-risk alerts
           </div>
-          <span class="badge b-danger">3 critiques</span>
+          <span class="badge b-danger">3 critical</span>
         </div>
         <div class="tbl-wrap">
           <table>
@@ -1158,8 +963,8 @@
             <tr>
               <th>Client</th>
               <th>Score</th>
-              <th>Motif</th>
-              <th>Encours</th>
+              <th>Reason</th>
+              <th>Outstanding</th>
               <th>Action</th>
             </tr>
             </thead>
@@ -1181,10 +986,10 @@
         </div>
       </div>
 
-      <!-- Distribution des scores -->
+      <!-- Score distribution -->
       <div class="panel s3">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Distribution des scores</div>
+          <div class="panel-title"><span class="ptdot"></span>Score distribution</div>
         </div>
         <div class="panel-body">
           <div *ngFor="let s of scoreDistribution" class="score-bar-item">
@@ -1201,18 +1006,18 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : ALERTES & NOTIFICATIONS
+         PAGE: ALERTS & NOTIFICATIONS
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'notifications'" id="page-alertes">
 
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Centre de notifications</div>
-          <div class="ph-title">Alertes & Notifs</div>
-          <div class="ph-desc">7 non lues · 3 critiques</div>
+          <div class="ph-eyebrow">Notification center</div>
+          <div class="ph-title">Alerts & notifications</div>
+          <div class="ph-desc">7 unread · 3 critical</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-outline">Tout marquer lu</button>
+          <button class="btn btn-outline">Mark all as read</button>
         </div>
       </div>
 
@@ -1220,9 +1025,9 @@
         <div class="panel-head">
           <div class="panel-title">
             <span class="ptdot" style="background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.12);"></span>
-            Alertes critiques
+            Critical alerts
           </div>
-          <span class="badge b-danger">{{ unreadCriticalCount }} non lues</span>
+          <span class="badge b-danger">{{ unreadCriticalCount }} unread</span>
         </div>
         <div class="notif-list">
           <div
@@ -1243,7 +1048,7 @@
 
       <div class="panel s3">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Activité récente</div>
+          <div class="panel-title"><span class="ptdot"></span>Recent activity</div>
         </div>
         <div class="notif-list">
           <div class="notif-item" *ngFor="let n of notificationsRecent">
@@ -1260,24 +1065,24 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : RAPPORTS
+         PAGE: REPORTS
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'rapports'" id="page-rapports">
 
       <div class="ph s1">
         <div>
-          <div class="ph-eyebrow">Analyse & rapports</div>
-          <div class="ph-title">Rapports</div>
-          <div class="ph-desc">Générez et exportez vos rapports périodiques</div>
+          <div class="ph-eyebrow">Analysis & reports</div>
+          <div class="ph-title">Reports</div>
+          <div class="ph-desc">Generate and export your periodic reports</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-primary">+ Générer rapport</button>
+          <button class="btn btn-primary">+ Generate report</button>
         </div>
       </div>
 
       <div class="panel s2">
         <div class="panel-head">
-          <div class="panel-title"><span class="ptdot"></span>Rapports disponibles</div>
+          <div class="panel-title"><span class="ptdot"></span>Available reports</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:0;">
           <div *ngFor="let r of reports"
@@ -1299,72 +1104,72 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         PAGE : PARAMÈTRES
+         PAGE: SETTINGS
          ═══════════════════════════════════════════════════════ -->
     <div class="page" [class.active]="selectedPage === 'settings'" id="page-parametres">
 
       <div class="ph s1">
         <div>
           <div class="ph-eyebrow">Configuration</div>
-          <div class="ph-title">Paramètres</div>
-          <div class="ph-desc">Configuration système, utilisateurs et règles métier</div>
+          <div class="ph-title">Settings</div>
+          <div class="ph-desc">System configuration, users, and business rules</div>
         </div>
         <div class="ph-actions">
-          <button class="btn btn-primary">Sauvegarder la configuration</button>
+          <button class="btn btn-primary">Save configuration</button>
         </div>
       </div>
 
       <div class="settings-grid s2">
 
-        <!-- Navigation paramètres -->
+        <!-- Settings navigation -->
         <div>
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title"><span class="ptdot"></span>Sections</div>
+              <div class="panel-title"><span class="ptdot"></span>Settings menu</div>
             </div>
             <div class="panel-body" style="padding:.5rem;">
               <div class="settings-nav">
-                <button class="sn-item active">Général</button>
-                <button class="sn-item">Utilisateurs & Rôles</button>
-                <button class="sn-item">Règles métier</button>
+                <button class="sn-item active">General</button>
+                <button class="sn-item">Users & roles</button>
+                <button type="button" class="sn-item" (click)="goToBusinessRules()">Business rules</button>
                 <button class="sn-item">Notifications</button>
-                <button class="sn-item">Sécurité</button>
-                <button class="sn-item">Sauvegarde</button>
-                <button class="sn-item">Intégrations</button>
+                <button class="sn-item">Security</button>
+                <button class="sn-item">Backup</button>
+                <button class="sn-item">Integrations</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Formulaires de configuration -->
+        <!-- Configuration forms -->
         <div style="display:flex;flex-direction:column;gap:1.25rem;">
 
-          <!-- Paramètres généraux -->
+          <!-- General settings -->
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title"><span class="ptdot"></span>Paramètres généraux</div>
+              <div class="panel-title"><span class="ptdot"></span>General settings</div>
             </div>
             <div class="panel-body">
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">Nom de l'institution</label>
-                  <input class="form-input" type="text" value="FIN'IX — Crédit & Assurance">
+                  <label class="form-label">Institution name</label>
+                  <input class="form-input" type="text" value="FIN'IX — Credit & insurance">
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Identifiant fiscal</label>
+                  <label class="form-label">Tax ID</label>
                   <input class="form-input" type="text" value="TN-2019-00182741">
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">Devise</label>
+                  <label class="form-label">Currency</label>
                   <select class="form-input">
-                    <option>TND — Dinar Tunisien</option>
+                    <option>TND — Tunisian dinar</option>
                     <option>EUR</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Fuseau horaire</label>
+                  <label class="form-label">Time zone</label>
                   <select class="form-input">
                     <option>Africa/Tunis (UTC+1)</option>
                   </select>
@@ -1373,79 +1178,79 @@
             </div>
           </div>
 
-          <!-- Règles de scoring -->
+          <!-- Scoring rules -->
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title"><span class="ptdot"></span>Règles de scoring</div>
+              <div class="panel-title"><span class="ptdot"></span>Scoring rules</div>
             </div>
             <div class="panel-body">
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">Score min. approbation auto</label>
+                  <label class="form-label">Min. score for auto-approval</label>
                   <input class="form-input" type="number" value="700">
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Score min. dossier standard</label>
+                  <label class="form-label">Min. score for standard file</label>
                   <input class="form-input" type="number" value="600">
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">Taux endettement max (%)</label>
+                  <label class="form-label">Max debt-to-income ratio (%)</label>
                   <input class="form-input" type="number" value="40">
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Montant max non garanti (TND)</label>
+                  <label class="form-label">Max unsecured amount (TND)</label>
                   <input class="form-input" type="number" value="15000">
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Notifications automatiques -->
+          <!-- Automatic notifications -->
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title"><span class="ptdot"></span>Notifications automatiques</div>
+              <div class="panel-title"><span class="ptdot"></span>Automatic notifications</div>
             </div>
             <div class="panel-body" style="padding:.25rem 1.25rem;">
               <div class="toggle-row">
                 <div class="toggle-info">
-                  <div class="toggle-label">Alertes impayés</div>
-                  <div class="toggle-sub">Envoyer SMS au client dès le J+1 de retard</div>
+                  <div class="toggle-label">Delinquency alerts</div>
+                  <div class="toggle-sub">Send SMS to the client from day 1 past due</div>
                 </div>
                 <button class="toggle" [class.on]="notificationsConfig.overdueSms" (click)="toggleConfig('overdueSms')"></button>
               </div>
               <div class="toggle-row">
                 <div class="toggle-info">
-                  <div class="toggle-label">Rappels renouvellement assurance</div>
-                  <div class="toggle-sub">Notifier 30 jours avant expiration</div>
+                  <div class="toggle-label">Insurance renewal reminders</div>
+                  <div class="toggle-sub">Notify 30 days before expiry</div>
                 </div>
                 <button class="toggle" [class.on]="notificationsConfig.renewalReminder" (click)="toggleConfig('renewalReminder')"></button>
               </div>
               <div class="toggle-row">
                 <div class="toggle-info">
-                  <div class="toggle-label">Rapport mensuel automatique</div>
-                  <div class="toggle-sub">Générer et envoyer le rapport le 1er du mois</div>
+                  <div class="toggle-label">Automatic monthly report</div>
+                  <div class="toggle-sub">Generate and send the report on the 1st of each month</div>
                 </div>
                 <button class="toggle" [class.on]="notificationsConfig.monthlyReport" (click)="toggleConfig('monthlyReport')"></button>
               </div>
             </div>
           </div>
 
-          <!-- Utilisateurs système -->
+          <!-- System users -->
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title"><span class="ptdot"></span>Utilisateurs système</div>
-              <button class="btn btn-primary btn-sm">+ Ajouter utilisateur</button>
+              <div class="panel-title"><span class="ptdot"></span>System users</div>
+              <button class="btn btn-primary btn-sm">+ Add user</button>
             </div>
             <div class="tbl-wrap">
               <table>
                 <thead>
                 <tr>
-                  <th>Utilisateur</th>
-                  <th>Rôle</th>
-                  <th>Dernière connexion</th>
-                  <th>Statut</th>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Last login</th>
+                  <th>Status</th>
                   <th>Actions</th>
                 </tr>
                 </thead>
@@ -1463,7 +1268,7 @@
                   <td><span class="badge" [ngClass]="user.roleClass">{{ user.role }}</span></td>
                   <td style="font-size:.775rem;">{{ user.lastLogin }}</td>
                   <td><span class="badge b-actif">{{ user.status }}</span></td>
-                  <td><button class="btn btn-ghost btn-xs">Modifier</button></td>
+                  <td><button class="btn btn-ghost btn-xs">Edit</button></td>
                 </tr>
                 </tbody>
               </table>

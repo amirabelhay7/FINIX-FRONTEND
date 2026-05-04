@@ -1,3 +1,4 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ScoringDashboard } from './scoring-dashboard';
@@ -8,7 +9,8 @@ describe('ScoringDashboard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ScoringDashboard]
+      schemas: [NO_ERRORS_SCHEMA],
+      declarations: [ScoringDashboard],
     })
     .compileComponents();
 

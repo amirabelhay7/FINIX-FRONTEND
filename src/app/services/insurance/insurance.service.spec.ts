@@ -1,3 +1,4 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
@@ -8,6 +9,7 @@ describe('InsuranceService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      schemas: [NO_ERRORS_SCHEMA],
       imports: [HttpClientTestingModule],
     });
     service = TestBed.inject(InsuranceService);

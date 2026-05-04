@@ -22,7 +22,7 @@
   <div *ngIf="!loading && error" class="vs-err">{{ error }}</div>
 
   <ng-container *ngIf="!loading && !error && stats">
-    <!-- KPI cards (conservées) -->
+    <!-- KPI cards -->
     <div class="vw-stats-grid vs-kpi">
       <div class="vw-stat-card vs-kpi-card">
         <span class="vw-stat-label">Total</span>
@@ -77,48 +77,52 @@
       </div>
     </div>
 
-    <!-- Empty -->
-    <div *ngIf="stats.total === 0" class="vs-empty">
+    <!-- Empty: no fleet / reservation stats to chart -->
+    <div *ngIf="stats.total === 0 && !showReservationCharts" class="vs-empty">
       <div class="vs-empty-icon">📊</div>
       <p>No vehicle recorded - charts will appear after the first addition.</p>
     </div>
 
-    <!-- Graphiques -->
+    <!-- Charts: fleet and/or reservations (see vehicle-stats.component.ts) -->
     <div class="vs-charts" *ngIf="hasData">
-      <div class="vs-chart-card">
-        <div class="vs-chart-canvas">
-          <canvas baseChart type="doughnut" [data]="statusDoughnutData" [options]="statusDoughnutOptions"></canvas>
+      <ng-container *ngIf="showFleetCharts">
+        <div class="vs-chart-card">
+          <div class="vs-chart-canvas">
+            <canvas baseChart type="doughnut" [data]="statusDoughnutData" [options]="statusDoughnutOptions"></canvas>
+          </div>
         </div>
-      </div>
 
-      <div class="vs-chart-card">
-        <div class="vs-chart-canvas">
-          <canvas baseChart type="doughnut" [data]="activeDoughnutData" [options]="activeDoughnutOptions"></canvas>
+        <div class="vs-chart-card">
+          <div class="vs-chart-canvas">
+            <canvas baseChart type="doughnut" [data]="activeDoughnutData" [options]="activeDoughnutOptions"></canvas>
+          </div>
         </div>
-      </div>
 
-      <div class="vs-chart-card vs-chart-wide">
-        <div class="vs-chart-canvas vs-chart-bar">
-          <canvas baseChart type="bar" [data]="marqueBarData" [options]="marqueBarOptions"></canvas>
+        <div class="vs-chart-card vs-chart-wide">
+          <div class="vs-chart-canvas vs-chart-bar">
+            <canvas baseChart type="bar" [data]="marqueBarData" [options]="marqueBarOptions"></canvas>
+          </div>
         </div>
-      </div>
+      </ng-container>
 
-      <div class="vs-chart-card">
-        <div class="vs-chart-canvas">
-          <canvas
-            baseChart
-            type="doughnut"
-            [data]="reservationsStatusDoughnutData"
-            [options]="reservationsStatusDoughnutOptions"
-          ></canvas>
+      <ng-container *ngIf="showReservationCharts">
+        <div class="vs-chart-card">
+          <div class="vs-chart-canvas">
+            <canvas
+              baseChart
+              type="doughnut"
+              [data]="reservationsStatusDoughnutData"
+              [options]="reservationsStatusDoughnutOptions"
+            ></canvas>
+          </div>
         </div>
-      </div>
 
-      <div class="vs-chart-card vs-chart-wide">
-        <div class="vs-chart-canvas vs-chart-bar">
-          <canvas baseChart type="bar" [data]="topClientsBarData" [options]="topClientsBarOptions"></canvas>
+        <div class="vs-chart-card vs-chart-wide">
+          <div class="vs-chart-canvas vs-chart-bar">
+            <canvas baseChart type="bar" [data]="topClientsBarData" [options]="topClientsBarOptions"></canvas>
+          </div>
         </div>
-      </div>
+      </ng-container>
     </div>
 
     <div class="vw-marque-row" *ngIf="stats.parMarque && (stats.parMarque | keyvalue).length">

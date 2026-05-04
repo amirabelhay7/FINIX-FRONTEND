@@ -1,43 +1,95 @@
 <div class="space-y-8 pb-10">
+
+    <!-- En-tête -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ pageTitle }}</h1>
             <p class="text-gray-500 text-sm font-medium">{{ pageSubtitle }}</p>
         </div>
         <a [routerLink]="backRoute" class="inline-flex items-center px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all">
-            <span class="material-symbols-outlined mr-2 text-[18px]">arrow_back</span>Back
+            <span class="material-symbols-outlined mr-2 text-[18px]">arrow_back</span>Retour
         </a>
     </div>
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-gray-50 flex flex-wrap items-center gap-4">
-            <select class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
+
+    <!-- Erreur -->
+    <div *ngIf="error" class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-700 text-sm font-medium">
+        {{ error }}
+    </div>
+
+    <!-- Chargement -->
+    <div *ngIf="loading" class="flex justify-center items-center py-16">
+        <div class="w-8 h-8 border-4 border-[#135bec] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
+    <!-- Tableau -->
+    <div *ngIf="!loading" class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+        <!-- Filtres -->
+        <div class="p-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
+            <select [(ngModel)]="selectedStatus" (change)="onFilterChange()"
+                class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
                 <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
             </select>
-            <select class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
+            <select [(ngModel)]="selectedRisk" (change)="onFilterChange()"
+                class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
                 <option *ngFor="let opt of riskOptions" [value]="opt.value">{{ opt.label }}</option>
             </select>
+            <select [(ngModel)]="selectedCategory" (change)="onFilterChange()"
+                class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#135bec]/20">
+                <option *ngFor="let opt of categoryOptions" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+            <span class="ml-auto text-xs text-gray-400 font-medium">{{ filteredCases.length }} dossier(s)</span>
         </div>
+
+        <!-- Table -->
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 border-b border-gray-100">
                     <tr>
                         <th class="text-left py-4 px-6 font-bold text-gray-600">ID</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Risk level</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Category</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Status</th>
-                        <th class="text-left py-4 px-6 font-bold text-gray-600">Opened</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Client</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Risque</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Catégorie</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Statut</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Impayé</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Retard max</th>
+                        <th class="text-left py-4 px-6 font-bold text-gray-600">Agent</th>
                         <th class="text-right py-4 px-6 font-bold text-gray-600">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    <tr *ngFor="let row of rows" class="hover:bg-gray-50 transition-colors">
-                        <td class="py-4 px-6 font-mono text-gray-500">{{ row.id }}</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="row.riskClass">{{ row.riskLevel }}</span></td>
-                        <td class="py-4 px-6 text-gray-600">{{ row.category }}</td>
-                        <td class="py-4 px-6"><span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="row.statusClass">{{ row.status }}</span></td>
-                        <td class="py-4 px-6 text-gray-600">{{ row.opened }}</td>
+                    <tr *ngFor="let c of filteredCases" class="hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6 font-mono text-gray-400 text-xs">#{{ c.id }}</td>
+                        <td class="py-4 px-6 font-semibold text-gray-800">{{ c.clientFullName }}</td>
+                        <td class="py-4 px-6">
+                            <span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="riskClass(c.riskLevel)">
+                                {{ c.riskLevel }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="categoryClass(c.category)">
+                                {{ c.category }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="px-2 py-0.5 rounded text-xs font-bold" [ngClass]="statusClass(c.status)">
+                                {{ c.status }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-red-600 font-semibold">{{ c.totalOverdueAmount | number:'1.2-2' }} TND</td>
+                        <td class="py-4 px-6 text-gray-600">{{ c.maxDaysOverdue }}j</td>
+                        <td class="py-4 px-6 text-gray-500 text-xs">
+                            {{ c.assignedAgentFullName ?? '—' }}
+                        </td>
                         <td class="py-4 px-6 text-right">
-                            <a [routerLink]="row.viewRoute" class="text-[#135bec] font-bold hover:underline">View</a>
+                            <a [routerLink]="detailRoute(c.id)" class="text-[#135bec] font-bold hover:underline text-xs">Voir</a>
+                        </td>
+                    </tr>
+
+                    <!-- Aucun résultat -->
+                    <tr *ngIf="filteredCases.length === 0">
+                        <td colspan="9" class="py-12 text-center text-gray-400 text-sm">
+                            Aucun dossier trouvé pour les filtres sélectionnés.
                         </td>
                     </tr>
                 </tbody>
